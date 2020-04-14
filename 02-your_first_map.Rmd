@@ -111,10 +111,9 @@ Let's start with the first and last points there, before discussing step 2 (and 
 ```{r}
 
 m <- leaflet() %>%
-  addTiles()  # Add default OpenStreetMap map tiles
+  addTiles() # Add default OpenStreetMap map tiles
 
-m  # Print the map
-
+m # Print the map
 ```
 
 And while yepp, you've made a map, it's not a particularly exciting map. 
@@ -125,10 +124,9 @@ You could also accompany the coordinates with a  zoom argument, an integer from 
 ```{r}
 
 m <- leaflet() %>%
-  addTiles() %>%  # Add default OpenStreetMap map tiles
-  setView(lng=-2.233885, lat=53.466852, zoom = 15)
-m  # Print the map, zoom = 15
-
+  addTiles() %>% # Add default OpenStreetMap map tiles
+  setView(lng = -2.233885, lat = 53.466852, zoom = 15)
+m # Print the map, zoom = 15
 ```
 
 So what you see above is what we can call a **basemap**. The term basemap is seen often in GIS and refers to a collection of GIS data and/or orthorectified imagery that form the background setting for a map. The function of the basemap is to provide background detail necessary to orient the location of the map. Basemaps also add to the aesthetic appeal of a map. 
@@ -140,10 +138,9 @@ For example *stamen maps* are one alternative. If you wanted to use this, you ha
 
 ```{r}
 m <- leaflet() %>%
-  addProviderTiles(providers$Stamen.Toner) %>%  # Add Stamen tile map tiles
-  setView(lng=-2.233885, lat=53.466852, zoom = 15)
-m  # Print the map, stamen toner
-
+  addProviderTiles(providers$Stamen.Toner) %>% # Add Stamen tile map tiles
+  setView(lng = -2.233885, lat = 53.466852, zoom = 15)
+m # Print the map, stamen toner
 ```
 
 Stamen also has other maps, watercolour for example: 
@@ -151,10 +148,9 @@ Stamen also has other maps, watercolour for example:
 ```{r}
 
 m <- leaflet() %>%
-  addProviderTiles(providers$Stamen.Watercolor) %>%  # Add default Stamen Watercolor map tiles
-  setView(lng=-2.233885, lat=53.466852, zoom = 15)
-m  # Print the map
-
+  addProviderTiles(providers$Stamen.Watercolor) %>% # Add default Stamen Watercolor map tiles
+  setView(lng = -2.233885, lat = 53.466852, zoom = 15)
+m # Print the map
 ```
 
 You can use other sources such as carto db
@@ -162,10 +158,9 @@ You can use other sources such as carto db
 ```{r}
 
 m <- leaflet() %>%
-  addProviderTiles(providers$CartoDB) %>%  # Add CartoDB map tiles
-  setView(lng=-2.233885, lat=53.466852, zoom = 15)
-m  # Print the map
-
+  addProviderTiles(providers$CartoDB) %>% # Add CartoDB map tiles
+  setView(lng = -2.233885, lat = 53.466852, zoom = 15)
+m # Print the map
 ```
 
 You can use the `View()` function to see all the possible options for the providers to see a list of the types of basemaps you could use with leaflet. Have a go at choosing some of your own! 
@@ -173,7 +168,6 @@ You can use the `View()` function to see all the possible options for the provid
 ```{r, eval = FALSE}
 
 View(providers)
-
 ```
 
 
@@ -189,10 +183,9 @@ We can play around with police recorded crime data. For this first exercise, we 
 This will take you to a download page, where you have to click the `Download now` button. This will open a dialogue to save a .zip file. Navigate to the project directory folder you've created and save it there. Unzip the file. 
 
 ```{r, eval=FALSE}
-#You can use the unzip function for this. A cool function you may want to use as well is file.choose(). If we pass this function as an argument to unzip(), we will get a pop window where we will be able to select our file using familiar point and click. Ideally, you want to rather write down the path to your file. But sometimes these shortcuts are convenient.
+# You can use the unzip function for this. A cool function you may want to use as well is file.choose(). If we pass this function as an argument to unzip(), we will get a pop window where we will be able to select our file using familiar point and click. Ideally, you want to rather write down the path to your file. But sometimes these shortcuts are convenient.
 
 unzip(file.choose())
-
 ```
 
 If you look at the *Files* window in the bottom right corner of RStudio you should see now a new subdirectory that contains a .csv file with the data that we need. Since I downloaded the data from November 2017 in my case this subdirectory is called 2017-11.
@@ -202,10 +195,9 @@ Before we can use this data we need to read it or import it into R and turn it i
 Again there are two ways to read in the data, if you want to open a window where you can manually navigate and open the file, you can pass `file.choose()` argument to the `read.csv()` function as illustrated earlier. 
 
 ```{r, eval=FALSE}
-#This code creates a dataframe object called crimes which will include the spreadsheet in the file we have downloaded. In my case, that is 2007-11-greater-manchester-street.csv.
+# This code creates a dataframe object called crimes which will include the spreadsheet in the file we have downloaded. In my case, that is 2007-11-greater-manchester-street.csv.
 
 crimes <- read.csv(file.choose())
-
 ```
 
 Or, if you know the path to your file, you can hard-code it in there, within quotation marks:
@@ -223,9 +215,8 @@ You might notice that `crimes` has appeared in your work environment window. It 
 Let's have a look at the crimes dataframe:
 
 ```{r, eval=FALSE}
-#This will open the data browser in RStudio
+# This will open the data browser in RStudio
 View(crimes)
-
 ```
 
 If you rather just want your results in the console, you can use the `glimpse()` function from the `tibble` package. This function does just that, it gives you a quick glimpse of the first few cases in the dataframe. Notice that there are two columns (*Longitude* and *Latitude*) that provide the require geographical coordinates that we need to plot this data.
@@ -233,7 +224,6 @@ If you rather just want your results in the console, you can use the `glimpse()`
 ```{r}
 library(tibble)
 glimpse(crimes)
-
 ```
 
 ### Add a point layer to your basemap
@@ -244,10 +234,10 @@ To do that we will use the `addMarkers()` function. Within the  `addMarkers()` c
 
 ```{r}
 m <- leaflet() %>%
-  addProviderTiles(providers$Stamen.Toner) %>%  
-  setView(lng=-2.233885, lat=53.466852, zoom = 15) %>% 
-  addCircleMarkers(lng=crimes$Longitude, lat=crimes$Latitude)
-m  # Print the map
+  addProviderTiles(providers$Stamen.Toner) %>%
+  setView(lng = -2.233885, lat = 53.466852, zoom = 15) %>%
+  addCircleMarkers(lng = crimes$Longitude, lat = crimes$Latitude)
+m # Print the map
 ```
 
 The crime appear as blue dots. 
@@ -259,7 +249,6 @@ Let's get more detailed information even. When you glimpse at the data, you may 
 ```{r}
 
 table(crimes$Crime.type)
-
 ```
 
 This is interesting, but keep in mind that this is data for all types of crimes in Greater Manchester. What if we wanted to differentiate between different types of crime? We could ask R to use the information from *Crime.type* to use a different colour for each type of crime. For this, we first need to make an object that creates a list of colours matched to each crime type. For this we use the `colorFactor()` function, and give it two arguments, one is the `topo.colors` list, which in brackets we put the number of categories we'll need. That's all the possible values that the *Crime.type* variable can take. To see what this is we can use the `unique()` function: 
@@ -267,7 +256,6 @@ This is interesting, but keep in mind that this is data for all types of crimes 
 ```{r}
 
 unique(crimes$Crime.type)
-
 ```
 
 We can see that there are 14 possible values, so we will need 14 colours. The second argument is the variable, in this case *Crime.type*. Like so: 
@@ -283,11 +271,10 @@ Now that we've created this object, we can use it to specify crime type through 
 ```{r}
 
 m <- leaflet(crimes) %>%
-  addProviderTiles(providers$Stamen.Toner) %>%  
-  setView(lng=-2.233885, lat=53.466852, zoom = 15) %>% 
-  addCircleMarkers(lng=crimes$Longitude, lat=crimes$Latitude, color = ~factpal(Crime.type))
-m  # Print the map
-
+  addProviderTiles(providers$Stamen.Toner) %>%
+  setView(lng = -2.233885, lat = 53.466852, zoom = 15) %>%
+  addCircleMarkers(lng = crimes$Longitude, lat = crimes$Latitude, color = ~ factpal(Crime.type))
+m # Print the map
 ```
 
 
@@ -296,13 +283,14 @@ But which colour means which crime type?! To know, we should add a legend. We ca
 ```{r}
 
 m <- leaflet(crimes) %>%
-  addProviderTiles(providers$Stamen.Toner) %>%  
-  setView(lng=-2.233885, lat=53.466852, zoom = 15) %>% 
-  addCircleMarkers(lng=crimes$Longitude, lat=crimes$Latitude, color = ~factpal(Crime.type)) %>%
-  addLegend("bottomright", pal = factpal, values = ~Crime.type,
-    title = "Crime types")
-m  # Print the map
-
+  addProviderTiles(providers$Stamen.Toner) %>%
+  setView(lng = -2.233885, lat = 53.466852, zoom = 15) %>%
+  addCircleMarkers(lng = crimes$Longitude, lat = crimes$Latitude, color = ~ factpal(Crime.type)) %>%
+  addLegend("bottomright",
+    pal = factpal, values = ~Crime.type,
+    title = "Crime types"
+  )
+m # Print the map
 ```
 
 
@@ -395,8 +383,8 @@ You have to right click on the "BoundaryData.zip", and hit Save Target as on a P
 Navigate to the folder you have created for this analysis, and save the .zip file there. Extract the file contents using whatever you like to use to unzip compressed files. 
 
 ```{r, eval = FALSE}
-#For example,
-unzip("BoundaryData.zip", exdir="BoundaryData")
+# For example,
+unzip("BoundaryData.zip", exdir = "BoundaryData")
 ```
 
 You should end up with a folder called "BoundaryData". Have a look at its contents: 
@@ -450,7 +438,7 @@ To read in your data, you will need to know the path to where you have saved it.
 Let's create an object and assign it our shapefile's name:
 
 ```{r}
-#Remember to use the appropriate pathfile in your case
+# Remember to use the appropriate pathfile in your case
 shp_name <- "data/BoundaryData/england_lsoa_2011.shp"
 ```
 
@@ -462,7 +450,6 @@ Now use the `st_read()` function to read in the shapefile:
 ```{r}
 
 manchester_lsoa <- st_read(shp_name)
-
 ```
 
 Now you have your spatial data file. You can have a look at what sort of data it contains, the same way you would view a dataframe, with the `View()` function: 
@@ -470,13 +457,11 @@ Now you have your spatial data file. You can have a look at what sort of data it
 ```{r, eval=FALSE}
 
 View(manchester_lsoa)
-
 ```
 
 ```{r, echo=FALSE}
 
 glimpse(manchester_lsoa)
-
 ```
 
 And of course, since it's spatial data, you can finally map it: 
@@ -484,7 +469,6 @@ And of course, since it's spatial data, you can finally map it:
 ```{r}
 
 plot(manchester_lsoa)
-
 ```
 
 This is the main way that we will be creating maps. OK so you see that three maps appeared - any ideas why? Do you know what the three maps correspond to? Discuss.
@@ -514,28 +498,26 @@ The select() function provides you with a simple way of subsetting columns from 
 ```{r, eval=FALSE}
 
 new_object <- select(crimes, LSOA.code)
-
 ```
 
 We can also use the group_by() function for performing group operations. Essentially this function ask R to group cases within categories and then do something with those grouped cases. So, say, we want to count the number of cases within each LSOA, we could use the following code:
 
 ```{r, eval = FALSE}
-#First we group the cases by LSOA code and stored this organised data into a new object
+# First we group the cases by LSOA code and stored this organised data into a new object
 grouped_crimes <- group_by(new_object, LSOA.code)
-#Then we could count the number of cases within each category and use the summarise function to print the results
-summarise(grouped_crimes, count=n())
-#We could infact create a new dataframe with these results
-crime_per_LSOA <- summarise(grouped_crimes, count=n())
+# Then we could count the number of cases within each category and use the summarise function to print the results
+summarise(grouped_crimes, count = n())
+# We could infact create a new dataframe with these results
+crime_per_LSOA <- summarise(grouped_crimes, count = n())
 ```
 
 As you can see we can do what we wanted, create a new dataframe with the required info, but there is a more efficient way of doing this, without so many intermediate steps clogging up our environment with unnecessary objects. That's where the piping operator comes handy. The piping operator is written like `%>%` and it can be read as "and then". Look at the code below:
 
 ```{r}
-#First we say create a new object called crime_per_lsoa, and then select only the LSOA.code column to exist in this object, and then group this object by the LSOA.code, and then count the number of cases within each category, this is what I want in the new object.
+# First we say create a new object called crime_per_lsoa, and then select only the LSOA.code column to exist in this object, and then group this object by the LSOA.code, and then count the number of cases within each category, this is what I want in the new object.
 crimes_per_lsoa <- crimes %>%
   group_by(LSOA.code) %>%
-  summarise(count=n())
-  
+  summarise(count = n())
 ```
 
 Essentially we obtain the same results but with more streamlined and elegant code, and not needing additional objects in our environment.
@@ -582,8 +564,7 @@ We have to tell lefot_join what are the dataframes we want to join, as well as t
 
 ```{r}
 
-manchester_lsoa <- left_join(manchester_lsoa, crimes_per_lsoa, by = c("code"="LSOA.code"))
-
+manchester_lsoa <- left_join(manchester_lsoa, crimes_per_lsoa, by = c("code" = "LSOA.code"))
 ```
 
 Now if you have a look at the data again, you will see that the column of number of crimes (n) has been added on. 
@@ -593,7 +574,6 @@ You can now use this to create a thematic choropleth map
 ```{r}
 
 plot(manchester_lsoa[4])
-
 ```
 
 ## Let's make this prettier: a quick glance at tmap
@@ -603,7 +583,7 @@ Very quickly, but just to illustrate things can be prettier, we are going to use
 ```{r}
 library(tmap)
 tm_shape(manchester_lsoa) +
-  tm_polygons("count", style="quantile", title="Count of crimes in Manchester")
+  tm_polygons("count", style = "quantile", title = "Count of crimes in Manchester")
 ```
 
 And we can even add some interactivity!
