@@ -8,11 +8,11 @@ In science one of our main concerns is to develop models of the world, models th
 
 Our models can be simple. We can think that unemployment is a factor that may help us to understand why cities differ in their level of violent crime. We could express such a model like this:
 
-![](imgs/model1.PNG) 
+![](img/model1.png) 
 
 Surely we know the world is complex and likely there are other things that may help us to understand why some cities have more crime than others. So, we may want to have tools that allow us to examine such models. Like, for example, the one below:
 
-![](imgs/model2.PNG) 
+![](img/model2.png) 
 
 In this session we are going to cover regression analysis or, rather, we are beginning to talk about regression modelling. This form of analysis has been one the main technique of data analysis in the social sciences for many years and it belongs to a family of techniques called generalised linear models. Regression is a flexible model that allows you to "explain" or "predict" a given outcome (Y), variously called your outcome, response or dependent variable, as a function of a number of what is variously called inputs, features or independent, explanatory, or predictive variables (X1, X2, X3, etc.). Following Gelman and Hill (2007), I will try to stick for the most part to the terms outputs and inputs.
 
@@ -38,9 +38,8 @@ ncovr <- read.csv('ncovr/ncovr/NAT.csv')
 
 The dataset contains information about 3085 counties in the US and if you view it you will see it has information about several decades, the 60s, 70s, 80s, and 90s. The number at the end of the variable names denotes the relevant decade and you will see that for each decade we have the same variables.
 
-The purpose of this and next session is to help you choose a model to represent the relationship between homicide and various predictors. You can think of a model as a map. A map aims to represent a given reality, but as you may have already discovered there are many ways of presenting the same information through a map. As an analyst you decide what the most appropriate representation for your needs is. Each representation you choose will involve an element of distortion. Maps (and models) are not exact representations of the real word, they are simply good approximations that may serve well a particular functional need. Look at the map of the metro in London that we reproduce below:
+The purpose of this and next session is to help you choose a model to represent the relationship between homicide and various predictors. You can think of a model as a map. A map aims to represent a given reality, but as you may have already discovered there are many ways of presenting the same information through a map. As an analyst you decide what the most appropriate representation for your needs is. Each representation you choose will involve an element of distortion. Maps (and models) are not exact representations of the real word, they are simply good approximations that may serve well a particular functional need. Look at the map of the metro in London.
 
-![**Figure 1**](img/tube-map.gif)
 
 London doesn’t quite look like this. Yet, if you want to use the Metro system, this map will be extremely helpful to you. It serves a need in a good way. The same happens with models. They may not be terribly good reflections of the world, but may give us approximations that allows us to develop useful insights.
 
@@ -119,6 +118,14 @@ geom_line(data=ncovr, aes(x = round(RD90/0.12)*0.12, y = HR90), # Can you guess 
   annotate("text", x = 3, y = 29, label = "Pick this one!", size =7, colour = "blue")
 ```
 
+```
+## Warning: Ignoring unknown parameters: fun.y
+```
+
+```
+## No summary function supplied, defaulting to `mean_se()`
+```
+
 <img src="08-week8_files/figure-html/unnamed-chunk-7-1.png" width="672" />
 
 Linear regression tackles this problem using a slightly different approach. Rather than focusing on the conditional mean (smoothed or not), it draws a straight line that tries to capture the trend in the data. If we focus in the region of the scatterplot that are less sparse we see that this is an upward trend, suggesting that as resource deprivation increases so does the homicide rate. 
@@ -132,11 +139,28 @@ ggplot(data = ncovr, aes(x = RD90, y = HR90)) +
   geom_smooth(method = "lm", se = FALSE, color = "red", size = 1) #This ask for a geom with the regression line, method=lm asks for the linear regression line, se=FALSE ask for just the line to be printed but not the standard error, the other arguments specify the color and thickness of the line
 ```
 
+```
+## `geom_smooth()` using formula 'y ~ x'
+```
+
 <img src="08-week8_files/figure-html/unnamed-chunk-8-1.png" width="672" />
 
 What that line is doing is giving you guesses (predictions) for the values of homicide based in the information that we have about the level of resource deprivation. It gives you one possible guess for the value of homicide for every possible value of resource deprivation and links them all together in a straight line. 
 
 The linear model then is a model that takes the form of the equation of a straight line through the data. The line does not go through all the points. In fact, you can see is a slightly less accurate representation than the (smoothed) conditional means:
+
+
+```
+## Warning: Ignoring unknown parameters: fun.y
+```
+
+```
+## `geom_smooth()` using formula 'y ~ x'
+```
+
+```
+## No summary function supplied, defaulting to `mean_se()`
+```
 
 <img src="08-week8_files/figure-html/unnamed-chunk-9-1.png" width="672" />
 
@@ -295,11 +319,9 @@ We can use information from the residuals to produce a measure of effect size, o
 
 The distance between the mean (our best guess without any other piece of information) and the observed value of Y is what we call the **total variation**. The residual is the difference between our predicted value of Y  and the observed value of Y. This is what we cannot explain (i.e, variation in Y that is *unexplained*). The difference between the mean value of Y and the expected value of Y (the value given by our regression line) is how much better we are doing with our prediction by using information about X (i.e., in our previous example it would be variation in Y that can be *explained* by knowing about resource deprivation). How much closer the regression line gets us to the observed values. We can then contrast these two different sources of variation (explained and unexplained) to produce a single measure of how good our model is. The formula is as follows:
 
-<!-- $R^2 = \dfrac{SSR}{SST} = \dfrac{\Sigma(\hat y_i - \bar y )^2}{\Sigma(y_i - \bar y )^2}$ -->
+$R^2 = \dfrac{SSR}{SST} = \dfrac{\Sigma(\hat y_i - \bar y )^2}{\Sigma(y_i - \bar y )^2}$
 
-![formula](img/r_squared_constant.gif)
-
-All this formula is doing is taking a ratio of the explained variation (the squared differences between the regression line and the mean of Y for each observation) by the total variation (the squared differences of the observed values of Y for each observation from the mean of Y). This gives us a measure of the **percentage of variation in Y that is "explained" by X**. If this sounds familiar is because it is a measure similar to eta squared (`eta^2`) in ANOVA.
+All this formula is doing is taking a ratio of the explained variation (the squared differences between the regression line and the mean of Y for each observation) by the total variation (the squared differences of the observed values of Y for each observation from the mean of Y). This gives us a measure of the **percentage of variation in Y that is "explained" by X**. If this sounds familiar is because it is a measure similar to eta squared ($eta^2$) in ANOVA.
 
 As then we can take this value as a measure of the strength of our model. If you look at the R output you will see that the R2 for our model was .32 (look at the multiple R square value in the output) . We can say that our model explains 32% of the variance in the fear of homicide. when doing regression, you will often find that regression models with aggregate data such as county level data will give you better results than when dealing with individuals. It is much harder understanding individual variation than county level variation.
 
@@ -539,10 +561,6 @@ We are going to use instead the `plot_model()` function of the `sjPlot` package,
 library(sjPlot)
 ```
 
-```
-## Learn more about sjPlot with 'browseVignettes("sjPlot")'.
-```
-
 Let's try with a more complex example:
 
 
@@ -580,31 +598,31 @@ tab_model(fit_4)
 <td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "><strong>&lt;0.001</td>
 </tr>
 <tr>
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">RD 90</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">RD90</td>
 <td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">3.20</td>
 <td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">2.98&nbsp;&ndash;&nbsp;3.42</td>
 <td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "><strong>&lt;0.001</td>
 </tr>
 <tr>
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">SOUTH f 1</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">SOUTH_f [1]</td>
 <td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">2.60</td>
 <td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">2.18&nbsp;&ndash;&nbsp;3.02</td>
 <td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "><strong>&lt;0.001</td>
 </tr>
 <tr>
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">DV 90</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">DV90</td>
 <td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.48</td>
 <td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.37&nbsp;&ndash;&nbsp;0.58</td>
 <td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "><strong>&lt;0.001</td>
 </tr>
 <tr>
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">MA 90</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">MA90</td>
 <td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.08</td>
 <td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.13&nbsp;&ndash;&nbsp;-0.02</td>
 <td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "><strong>0.006</strong></td>
 </tr>
 <tr>
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">PS 90</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">PS90</td>
 <td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">1.26</td>
 <td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">1.07&nbsp;&ndash;&nbsp;1.46</td>
 <td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "><strong>&lt;0.001</td>
@@ -614,7 +632,7 @@ tab_model(fit_4)
 <td style=" padding:0.2cm; text-align:left; vertical-align:top; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left; border-top:1px solid;" colspan="3">3085</td>
 </tr>
 <tr>
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">R<sup>2</sup> / adjusted R<sup>2</sup></td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">R<sup>2</sup> / R<sup>2</sup> adjusted</td>
 <td style=" padding:0.2cm; text-align:left; vertical-align:top; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left;" colspan="3">0.426 / 0.425</td>
 </tr>
 
@@ -645,31 +663,31 @@ tab_model(fit_4, dv.labels = "Homicide rate 1990")
 <td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "><strong>&lt;0.001</td>
 </tr>
 <tr>
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">RD 90</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">RD90</td>
 <td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">3.20</td>
 <td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">2.98&nbsp;&ndash;&nbsp;3.42</td>
 <td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "><strong>&lt;0.001</td>
 </tr>
 <tr>
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">SOUTH f 1</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">SOUTH_f [1]</td>
 <td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">2.60</td>
 <td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">2.18&nbsp;&ndash;&nbsp;3.02</td>
 <td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "><strong>&lt;0.001</td>
 </tr>
 <tr>
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">DV 90</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">DV90</td>
 <td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.48</td>
 <td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.37&nbsp;&ndash;&nbsp;0.58</td>
 <td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "><strong>&lt;0.001</td>
 </tr>
 <tr>
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">MA 90</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">MA90</td>
 <td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.08</td>
 <td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.13&nbsp;&ndash;&nbsp;-0.02</td>
 <td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "><strong>0.006</strong></td>
 </tr>
 <tr>
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">PS 90</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">PS90</td>
 <td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">1.26</td>
 <td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">1.07&nbsp;&ndash;&nbsp;1.46</td>
 <td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "><strong>&lt;0.001</td>
@@ -679,7 +697,7 @@ tab_model(fit_4, dv.labels = "Homicide rate 1990")
 <td style=" padding:0.2cm; text-align:left; vertical-align:top; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left; border-top:1px solid;" colspan="3">3085</td>
 </tr>
 <tr>
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">R<sup>2</sup> / adjusted R<sup>2</sup></td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">R<sup>2</sup> / R<sup>2</sup> adjusted</td>
 <td style=" padding:0.2cm; text-align:left; vertical-align:top; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left;" colspan="3">0.426 / 0.425</td>
 </tr>
 
@@ -744,7 +762,7 @@ tab_model(fit_4, pred.labels = c("(Intercept)", "Resource deprivation", "South",
 <td style=" padding:0.2cm; text-align:left; vertical-align:top; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left; border-top:1px solid;" colspan="3">3085</td>
 </tr>
 <tr>
-<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">R<sup>2</sup> / adjusted R<sup>2</sup></td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">R<sup>2</sup> / R<sup>2</sup> adjusted</td>
 <td style=" padding:0.2cm; text-align:left; vertical-align:top; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left;" colspan="3">0.426 / 0.425</td>
 </tr>
 
@@ -826,10 +844,8 @@ arm::standardize(fit_4)
 ##     data = ncovr)
 ## 
 ## Coefficients:
-## (Intercept)       z.RD90    c.SOUTH_f       z.DV90       z.MA90  
-##      6.1829       6.3985       2.5998       1.6497      -0.5478  
-##      z.PS90  
-##      2.5290
+## (Intercept)       z.RD90    c.SOUTH_f       z.DV90       z.MA90       z.PS90  
+##      6.1829       6.3985       2.5998       1.6497      -0.5478       2.5290
 ```
 
 Notice the main change affects the numerical predictors. The unstandardised coefficients are influenced by the degree of variability in your predictors, which means that typically they will be larger for your binary inputs. With unstandardised coefficients you are comparing complete change in one variable (whether one is a Southern county or not) with one-unit changes in your numerical variable, which may not amount to much change. So, by putting in a comparable scale, you avoid this problem.

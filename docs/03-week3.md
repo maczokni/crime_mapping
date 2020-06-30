@@ -27,13 +27,12 @@ manchester_lsoa <- st_read(shp_name)
 ```
 
 ```
-## Reading layer `england_lsoa_2011' from data source `C:\Users\Juanjo Medina\Dropbox\1_Teaching\1 Manchester courses\31152_60142 GIS and Crime Mapping\new_crimemapping\data\BoundaryData\england_lsoa_2011.shp' using driver `ESRI Shapefile'
+## Reading layer `england_lsoa_2011' from data source `/Users/reka/Dropbox (The University of Manchester)/crime_mapping/crime_mapping/data/BoundaryData/england_lsoa_2011.shp' using driver `ESRI Shapefile'
 ## Simple feature collection with 282 features and 3 fields
 ## geometry type:  POLYGON
 ## dimension:      XY
 ## bbox:           xmin: 378833.2 ymin: 382620.6 xmax: 390350.2 ymax: 405357.1
-## epsg (SRID):    NA
-## proj4string:    +proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +datum=OSGB36 +units=m +no_defs
+## CRS:            27700
 ```
 
 ```r
@@ -497,6 +496,10 @@ qtm(gm_osm) +
   tm_dots(alpha=0.1) 
 ```
 
+```
+## Warning: Raster values found that are outside the range [0, 255]
+```
+
 <img src="03-week3_files/figure-html/unnamed-chunk-35-1.png" width="672" />
 
 Let's zoom in into Manchester city, for which we can use our manchester_lsoa map.
@@ -508,6 +511,10 @@ mc_osm <- read_osm(manchester_lsoa, type = "stamen-toner")
 qtm(mc_osm) + 
   tm_shape(crime_sf) + 
   tm_dots(alpha=0.1) 
+```
+
+```
+## Warning: Raster values found that are outside the range [0, 255]
 ```
 
 <img src="03-week3_files/figure-html/unnamed-chunk-36-1.png" width="672" />
@@ -524,6 +531,10 @@ UoM_osm <- read_osm(UoM_bb, type = "stamen-toner")
 qtm(UoM_osm)
 ```
 
+```
+## Warning: Raster values found that are outside the range [0, 255]
+```
+
 <img src="03-week3_files/figure-html/unnamed-chunk-37-1.png" width="672" />
 
 Now that we have our basemap we can run our small multiples. Because we have a variable that determines the types we can use a different way to `tmap_arrange()` explained above, we can essentially ask `tmap` to create a map for each of the levels in our organising variable (in this case Crime.type). So instead of `tmap_arrange()` that requires the creation of each map, when each map simply represents different levels of an organising variable we can simplify the syntax using `tm_facets()` and within this function we specify as the first argument the name of the variable that has the different categories we want to map out. The second argument you see below `free.coords` set to FALSE simply ensures that the map gets bounded to the basemap, if you want to see what happens if you change it, just set it to TRUE instead.
@@ -535,6 +546,10 @@ qtm(UoM_osm) +
   tm_dots(size=0.5, col = "Crime.type") + 
   tm_facets("Crime.type", free.coords=FALSE) +
   tm_layout(legend.show=FALSE)
+```
+
+```
+## Warning: Raster values found that are outside the range [0, 255]
 ```
 
 <img src="03-week3_files/figure-html/unnamed-chunk-38-1.png" width="672" />

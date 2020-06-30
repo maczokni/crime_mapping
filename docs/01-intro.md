@@ -184,10 +184,6 @@ say("I hate computers")
 ```
 
 ```
-## Colors cannot be applied in this environment :( Try using a terminal or RStudio.
-```
-
-```
 ## 
 ##  -------------- 
 ## I hate computers 
@@ -213,10 +209,6 @@ You get a random animal in the console repeating the text we passed as an argume
 
 ```r
 say("I hate computers", "cow")
-```
-
-```
-## Colors cannot be applied in this environment :( Try using a terminal or RStudio.
 ```
 
 ```
@@ -253,10 +245,6 @@ Once we put things into these boxes or objects we can use them as arguments in o
 
 ```r
 say(my_text, "cow")
-```
-
-```
-## Colors cannot be applied in this environment :( Try using a terminal or RStudio.
 ```
 
 ```
@@ -311,7 +299,7 @@ X
 ```
 
 ```
-## Error in eval(expr, envir, enclos): objeto 'X' no encontrado
+## Error in eval(expr, envir, enclos): object 'X' not found
 ```
 
 You will get the following message: `"Error in eval(expr, envir, enclos): object 'X' not found"`. R is telling us that `X` does not exist. There isn't an object `X` (upper case), but there is an object `x` (lower case). Error messages in R are pretty good at telling you exactly what went wrong. 
@@ -500,7 +488,7 @@ If you want, give it a try. Try to create a variable called 12 and assign it the
 ```
 
 ```
-## Error in 12 <- "twelve": lado izquierdo de la asignación inválida (do_set)
+## Error in 12 <- "twelve": invalid (do_set) left-hand side to assignment
 ```
 
 You get an error!
@@ -577,92 +565,22 @@ attributes(hate_crimes)
 ```
 
 ```
+## $row.names
+##  [1]  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25
+## [26] 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50
+## [51] 51
+## 
 ## $class
 ## [1] "tbl_df"     "tbl"        "data.frame"
 ## 
-## $row.names
-##  [1]  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23
-## [24] 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46
-## [47] 47 48 49 50 51
-## 
-## $spec
-## $cols
-## $cols$state
-## list()
-## attr(,"class")
-## [1] "collector_character" "collector"          
-## 
-## $cols$median_household_income
-## list()
-## attr(,"class")
-## [1] "collector_integer" "collector"        
-## 
-## $cols$share_unemployed_seasonal
-## list()
-## attr(,"class")
-## [1] "collector_double" "collector"       
-## 
-## $cols$share_population_in_metro_areas
-## list()
-## attr(,"class")
-## [1] "collector_double" "collector"       
-## 
-## $cols$share_population_with_high_school_degree
-## list()
-## attr(,"class")
-## [1] "collector_double" "collector"       
-## 
-## $cols$share_non_citizen
-## list()
-## attr(,"class")
-## [1] "collector_double" "collector"       
-## 
-## $cols$share_white_poverty
-## list()
-## attr(,"class")
-## [1] "collector_double" "collector"       
-## 
-## $cols$gini_index
-## list()
-## attr(,"class")
-## [1] "collector_double" "collector"       
-## 
-## $cols$share_non_white
-## list()
-## attr(,"class")
-## [1] "collector_double" "collector"       
-## 
-## $cols$share_voters_voted_trump
-## list()
-## attr(,"class")
-## [1] "collector_double" "collector"       
-## 
-## $cols$hate_crimes_per_100k_splc
-## list()
-## attr(,"class")
-## [1] "collector_double" "collector"       
-## 
-## $cols$avg_hatecrimes_per_100k_fbi
-## list()
-## attr(,"class")
-## [1] "collector_double" "collector"       
-## 
-## 
-## $default
-## list()
-## attr(,"class")
-## [1] "collector_guess" "collector"      
-## 
-## attr(,"class")
-## [1] "col_spec"
-## 
 ## $names
-##  [1] "state"                       "median_house_inc"           
-##  [3] "share_unemp_seas"            "share_pop_metro"            
-##  [5] "share_pop_hs"                "share_non_citizen"          
-##  [7] "share_white_poverty"         "gini_index"                 
-##  [9] "share_non_white"             "share_vote_trump"           
-## [11] "hate_crimes_per_100k_splc"   "avg_hatecrimes_per_100k_fbi"
+##  [1] "state"                       "state_abbrev"               
+##  [3] "median_house_inc"            "share_unemp_seas"           
+##  [5] "share_pop_metro"             "share_pop_hs"               
+##  [7] "share_non_citizen"           "share_white_poverty"        
+##  [9] "gini_index"                  "share_non_white"            
+## [11] "share_vote_trump"            "hate_crimes_per_100k_splc"  
+## [13] "avg_hatecrimes_per_100k_fbi"
 ```
 
 These results printed in the may console may not make too much sense to you at this point. We will return to this next week, so do not worry. 
@@ -710,30 +628,30 @@ summary(hate_crimes)
 ```
 
 ```
-##     state           median_house_inc share_unemp_seas  share_pop_metro 
-##  Length:51          Min.   :35521    Min.   :0.02800   Min.   :0.3100  
-##  Class :character   1st Qu.:48657    1st Qu.:0.04200   1st Qu.:0.6300  
-##  Mode  :character   Median :54916    Median :0.05100   Median :0.7900  
-##                     Mean   :55224    Mean   :0.04957   Mean   :0.7502  
-##                     3rd Qu.:60719    3rd Qu.:0.05750   3rd Qu.:0.8950  
-##                     Max.   :76165    Max.   :0.07300   Max.   :1.0000  
-##                                                                        
-##   share_pop_hs    share_non_citizen share_white_poverty   gini_index    
-##  Min.   :0.7990   Min.   :0.01000   Min.   :0.04000     Min.   :0.4190  
-##  1st Qu.:0.8405   1st Qu.:0.03000   1st Qu.:0.07500     1st Qu.:0.4400  
-##  Median :0.8740   Median :0.04500   Median :0.09000     Median :0.4540  
-##  Mean   :0.8691   Mean   :0.05458   Mean   :0.09176     Mean   :0.4538  
-##  3rd Qu.:0.8980   3rd Qu.:0.08000   3rd Qu.:0.10000     3rd Qu.:0.4665  
-##  Max.   :0.9180   Max.   :0.13000   Max.   :0.17000     Max.   :0.5320  
-##                   NA's   :3                                             
-##  share_non_white  share_vote_trump hate_crimes_per_100k_splc
-##  Min.   :0.0600   Min.   :0.040    Min.   :0.06745          
-##  1st Qu.:0.1950   1st Qu.:0.415    1st Qu.:0.14271          
-##  Median :0.2800   Median :0.490    Median :0.22620          
-##  Mean   :0.3157   Mean   :0.490    Mean   :0.30409          
-##  3rd Qu.:0.4200   3rd Qu.:0.575    3rd Qu.:0.35694          
-##  Max.   :0.8100   Max.   :0.700    Max.   :1.52230          
-##                                    NA's   :4                
+##     state           state_abbrev       median_house_inc share_unemp_seas 
+##  Length:51          Length:51          Min.   :35521    Min.   :0.02800  
+##  Class :character   Class :character   1st Qu.:48657    1st Qu.:0.04200  
+##  Mode  :character   Mode  :character   Median :54916    Median :0.05100  
+##                                        Mean   :55224    Mean   :0.04957  
+##                                        3rd Qu.:60719    3rd Qu.:0.05750  
+##                                        Max.   :76165    Max.   :0.07300  
+##                                                                          
+##  share_pop_metro   share_pop_hs    share_non_citizen share_white_poverty
+##  Min.   :0.3100   Min.   :0.7990   Min.   :0.01000   Min.   :0.04000    
+##  1st Qu.:0.6300   1st Qu.:0.8405   1st Qu.:0.03000   1st Qu.:0.07500    
+##  Median :0.7900   Median :0.8740   Median :0.04500   Median :0.09000    
+##  Mean   :0.7502   Mean   :0.8691   Mean   :0.05458   Mean   :0.09176    
+##  3rd Qu.:0.8950   3rd Qu.:0.8980   3rd Qu.:0.08000   3rd Qu.:0.10000    
+##  Max.   :1.0000   Max.   :0.9180   Max.   :0.13000   Max.   :0.17000    
+##                                    NA's   :3                            
+##    gini_index     share_non_white  share_vote_trump hate_crimes_per_100k_splc
+##  Min.   :0.4190   Min.   :0.0600   Min.   :0.040    Min.   :0.06745          
+##  1st Qu.:0.4400   1st Qu.:0.1950   1st Qu.:0.415    1st Qu.:0.14271          
+##  Median :0.4540   Median :0.2800   Median :0.490    Median :0.22620          
+##  Mean   :0.4538   Mean   :0.3157   Mean   :0.490    Mean   :0.30409          
+##  3rd Qu.:0.4665   3rd Qu.:0.4200   3rd Qu.:0.575    3rd Qu.:0.35694          
+##  Max.   :0.5320   Max.   :0.8100   Max.   :0.700    Max.   :1.52230          
+##                                                     NA's   :4                
 ##  avg_hatecrimes_per_100k_fbi
 ##  Min.   : 0.2669            
 ##  1st Qu.: 1.2931            
@@ -750,16 +668,6 @@ There are multiple ways of getting results in R. Particularly for basic and inte
 I am only going to introduce one of them here *skimr*. It is neat and is maintained by one of my former stats teachers, the criminologist Elin Waring. You will need to install it before anything else. Use the code you have learnt to do so and then load it. I won't be providing you the code for it, by now you should now how to do this.
 
 
-```
-## 
-## Attaching package: 'skimr'
-```
-
-```
-## The following object is masked from 'package:stats':
-## 
-##     filter
-```
 
 Once you have loaded the *skimr* package you can use it. Its main function is *skim*. Like *summary* for data frames, skim presents results for all the columns and the statistics will depend on the class of the variable. However, the results are displayed and stored in a nicer way -though we won't get into the details of this right now.
 
@@ -770,36 +678,115 @@ skim(hate_crimes)
 ```
 
 
-Skim summary statistics  
- n obs: 51    
- n variables: 12    
 
-Variable type: character
+```
+## Creating new skimming functions for the following classes: hist.
+## They did not have recognized defaults. Call get_default_skimmers() for more information.
+```
 
- variable    missing    complete    n     min    max    empty    n_unique 
-----------  ---------  ----------  ----  -----  -----  -------  ----------
-  state         0          51       51     4     20       0         51    
+function (data, ...) 
+{
+    data_name <- rlang::expr_label(substitute(data))
+    if (!is.data.frame(data)) {
+        data <- as.data.frame(data)
+    }
+    stopifnot(is.data.frame(data))
+    .vars <- rlang::quos(...)
+    cols <- names(data)
+    if (length(.vars) == 0) {
+        selected <- cols
+    }
+    else {
+        selected <- tidyselect::vars_select(cols, !!!.vars)
+    }
+    grps <- dplyr::groups(data)
+    if (length(grps) > 0) {
+        group_variables <- selected %in% as.character(grps)
+        selected <- selected[!group_variables]
+    }
+    skimmers <- purrr::map(selected, get_final_skimmers, data, 
+        local_skimmers, append)
+    types <- purrr::map_chr(skimmers, "skim_type")
+    unique_skimmers <- reduce_skimmers(skimmers, types)
+    combined_skimmers <- purrr::map(unique_skimmers, join_with_base, 
+        base)
+    ready_to_skim <- tibble::tibble(skim_type = unique(types), 
+        skimmers = purrr::map(combined_skimmers, mangle_names, 
+            names(base$funs)), skim_variable = split(selected, 
+            types)[unique(types)])
+    grouped <- dplyr::group_by(ready_to_skim, .data$skim_type)
+    nested <- dplyr::summarize(grouped, skimmed = purrr::map2(.data$skimmers, 
+        .data$skim_variable, skim_by_type, data))
+    structure(tidyr::unnest(nested, .data$skimmed), class = c("skim_df", 
+        "tbl_df", "tbl", "data.frame"), data_rows = nrow(data), 
+        data_cols = ncol(data), df_name = data_name, groups = dplyr::groups(data), 
+        base_skimmers = names(base$funs), skimmers_used = get_skimmers_used(unique_skimmers))
+}
+<bytecode: 0x7fa06f2cd858>
+<environment: 0x7fa06f2d0208>
 
-Variable type: integer
+```
+## Creating new skimming functions for the following classes: hist.
+## They did not have recognized defaults. Call get_default_skimmers() for more information.
+```
 
-     variable        missing    complete    n       mean        sd        p0       p25      p50      p75     p100  
-------------------  ---------  ----------  ----  ----------  ---------  -------  -------  -------  -------  -------
- median_house_inc       0          51       51    55223.61    9208.48    35521    48657    54916    60719    76165 
+function (data, ...) 
+{
+    data_name <- rlang::expr_label(substitute(data))
+    if (!is.data.frame(data)) {
+        data <- as.data.frame(data)
+    }
+    stopifnot(is.data.frame(data))
+    .vars <- rlang::quos(...)
+    cols <- names(data)
+    if (length(.vars) == 0) {
+        selected <- cols
+    }
+    else {
+        selected <- tidyselect::vars_select(cols, !!!.vars)
+    }
+    grps <- dplyr::groups(data)
+    if (length(grps) > 0) {
+        group_variables <- selected %in% as.character(grps)
+        selected <- selected[!group_variables]
+    }
+    skimmers <- purrr::map(selected, get_final_skimmers, data, 
+        local_skimmers, append)
+    types <- purrr::map_chr(skimmers, "skim_type")
+    unique_skimmers <- reduce_skimmers(skimmers, types)
+    combined_skimmers <- purrr::map(unique_skimmers, join_with_base, 
+        base)
+    ready_to_skim <- tibble::tibble(skim_type = unique(types), 
+        skimmers = purrr::map(combined_skimmers, mangle_names, 
+            names(base$funs)), skim_variable = split(selected, 
+            types)[unique(types)])
+    grouped <- dplyr::group_by(ready_to_skim, .data$skim_type)
+    nested <- dplyr::summarize(grouped, skimmed = purrr::map2(.data$skimmers, 
+        .data$skim_variable, skim_by_type, data))
+    structure(tidyr::unnest(nested, .data$skimmed), class = c("skim_df", 
+        "tbl_df", "tbl", "data.frame"), data_rows = nrow(data), 
+        data_cols = ncol(data), df_name = data_name, groups = dplyr::groups(data), 
+        base_skimmers = names(base$funs), skimmers_used = get_skimmers_used(unique_skimmers))
+}
+<bytecode: 0x7fa06f2cd858>
+<environment: 0x7fa06c541b20>
 
-Variable type: numeric
 
-          variable              missing    complete    n     mean      sd       p0       p25      p50      p75     p100  
------------------------------  ---------  ----------  ----  -------  -------  -------  -------  -------  -------  -------
- avg_hatecrimes_per_100k_fbi       1          50       51    2.37     1.71     0.27     1.29     1.99     3.18     10.95 
-         gini_index                0          51       51    0.45     0.021    0.42     0.44     0.45     0.47     0.53  
-  hate_crimes_per_100k_splc        4          47       51     0.3     0.25     0.067    0.14     0.23     0.36     1.52  
-      share_non_citizen            3          48       51    0.055    0.031    0.01     0.03     0.045    0.08     0.13  
-       share_non_white             0          51       51    0.32     0.16     0.06      0.2     0.28     0.42     0.81  
-        share_pop_hs               0          51       51    0.87     0.034     0.8     0.84     0.87      0.9     0.92  
-       share_pop_metro             0          51       51    0.75     0.18     0.31     0.63     0.79      0.9       1   
-      share_unemp_seas             0          51       51    0.05     0.011    0.028    0.042    0.051    0.058    0.073 
-      share_vote_trump             0          51       51    0.49     0.12     0.04     0.41     0.49     0.57      0.7  
-     share_white_poverty           0          51       51    0.092    0.025    0.04     0.075    0.09      0.1     0.17  
+skim_type   skim_variable                  n_missing   complete_rate   character.min   character.max   character.empty   character.n_unique   character.whitespace   numeric.mean     numeric.sd     numeric.p0    numeric.p25    numeric.p50    numeric.p75   numeric.p100  numeric.hist 
+----------  ----------------------------  ----------  --------------  --------------  --------------  ----------------  -------------------  ---------------------  -------------  -------------  -------------  -------------  -------------  -------------  -------------  -------------
+character   state                                  0       1.0000000               4              20                 0                   51                      0             NA             NA             NA             NA             NA             NA             NA  NA           
+character   state_abbrev                           0       1.0000000               2               2                 0                   51                      0             NA             NA             NA             NA             NA             NA             NA  NA           
+numeric     median_house_inc                       0       1.0000000              NA              NA                NA                   NA                     NA   5.522361e+04   9208.4781698   3.552100e+04   4.865700e+04   5.491600e+04   6.071900e+04   76165.000000  ▂▆▇▅▂        
+numeric     share_unemp_seas                       0       1.0000000              NA              NA                NA                   NA                     NA   4.956860e-02      0.0106981   2.800000e-02   4.200000e-02   5.100000e-02   5.750000e-02       0.073000  ▅▇▇▇▂        
+numeric     share_pop_metro                        0       1.0000000              NA              NA                NA                   NA                     NA   7.501961e-01      0.1815873   3.100000e-01   6.300000e-01   7.900000e-01   8.950000e-01       1.000000  ▁▂▅▆▇        
+numeric     share_pop_hs                           0       1.0000000              NA              NA                NA                   NA                     NA   8.691176e-01      0.0340732   7.990000e-01   8.405000e-01   8.740000e-01   8.980000e-01       0.918000  ▃▅▃▆▇        
+numeric     share_non_citizen                      3       0.9411765              NA              NA                NA                   NA                     NA   5.458330e-02      0.0310770   1.000000e-02   3.000000e-02   4.500000e-02   8.000000e-02       0.130000  ▇▆▆▂▂        
+numeric     share_white_poverty                    0       1.0000000              NA              NA                NA                   NA                     NA   9.176470e-02      0.0247148   4.000000e-02   7.500000e-02   9.000000e-02   1.000000e-01       0.170000  ▂▇▃▂▁        
+numeric     gini_index                             0       1.0000000              NA              NA                NA                   NA                     NA   4.537647e-01      0.0208908   4.190000e-01   4.400000e-01   4.540000e-01   4.665000e-01       0.532000  ▆▇▅▁▁        
+numeric     share_non_white                        0       1.0000000              NA              NA                NA                   NA                     NA   3.156863e-01      0.1649152   6.000000e-02   1.950000e-01   2.800000e-01   4.200000e-01       0.810000  ▇▇▆▂▁        
+numeric     share_vote_trump                       0       1.0000000              NA              NA                NA                   NA                     NA   4.900000e-01      0.1187097   4.000000e-02   4.150000e-01   4.900000e-01   5.750000e-01       0.700000  ▁▁▆▇▇        
+numeric     hate_crimes_per_100k_splc              4       0.9215686              NA              NA                NA                   NA                     NA   3.040930e-01      0.2527086   6.744680e-02   1.427066e-01   2.261971e-01   3.569347e-01       1.522302  ▇▂▁▁▁        
+numeric     avg_hatecrimes_per_100k_fbi            1       0.9803922              NA              NA                NA                   NA                     NA   2.367613e+00      1.7142450   2.669408e-01   1.293139e+00   1.987068e+00   3.184344e+00      10.953480  ▇▅▁▁▁        
 
 Apart from summary statistics, last semester we discussed a variety of ways to graphically display variables. In week 3 we covered scatterplots, a graphical device to show the relationship between two quantitative variables. I don't know if you remember the amount of point and click you had to do in Excel for getting this done. If not you can review the notes [here](https://rawgit.com/maczokni/MSCD/master/Lesson_3.html#visualising-the-differences-between-groups).
 
@@ -817,6 +804,10 @@ Then we will use one of its functions to create a scatterplot. Don't worry about
 ggplot(hate_crimes, aes(x=share_vote_trump, y=avg_hatecrimes_per_100k_fbi)) +
     geom_point(shape=1) +
      geom_smooth(method=lm)
+```
+
+```
+## `geom_smooth()` using formula 'y ~ x'
 ```
 
 ```

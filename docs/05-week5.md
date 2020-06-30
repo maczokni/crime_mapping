@@ -1,3 +1,7 @@
+---
+always_allow_html: true
+---
+
 # More on thematic maps
 
 
@@ -13,17 +17,13 @@ library(sf)
 ```
 
 ```
-## Linking to GEOS 3.6.1, GDAL 2.2.3, PROJ 4.9.3
+## Linking to GEOS 3.8.1, GDAL 2.4.4, PROJ 4.9.1
 ```
 
 ```r
 library(tmap)
 library(sp)
 library(spdep)
-```
-
-```
-## Loading required package: Matrix
 ```
 
 ```
@@ -159,13 +159,12 @@ ncovr_sf <- st_read(shp_name)
 ```
 
 ```
-## Reading layer `NAT' from data source `C:\Users\Juanjo Medina\Dropbox\1_Teaching\1 Manchester courses\31152_60142 GIS and Crime Mapping\new_crimemapping\ncovr\ncovr\NAT.shp' using driver `ESRI Shapefile'
+## Reading layer `NAT' from data source `/Users/reka/Dropbox (The University of Manchester)/crime_mapping/crime_mapping/ncovr/ncovr/NAT.shp' using driver `ESRI Shapefile'
 ## Simple feature collection with 3085 features and 69 fields
 ## geometry type:  MULTIPOLYGON
 ## dimension:      XY
 ## bbox:           xmin: -124.7314 ymin: 24.95597 xmax: -66.96985 ymax: 49.37173
-## epsg (SRID):    4326
-## proj4string:    +proj=longlat +datum=WGS84 +no_defs
+## CRS:            4326
 ```
 
 ## Mapping rates, learning from disease mapping
@@ -342,7 +341,7 @@ Researchers and practitioners often require a way to systematically divide a reg
 This approach to binning generates an array of repeating shapes over a user-specified area. These shapes can be hexagons, squares, rectangles, triangles, circles or points, and they can be generated with any directional orientation.
 
 
-![](http://www.jennessent.com/images/shape_patterns_manual.jpg)
+![](img/shape_patterns_manual.jpg)
 
 
 ### The Binning Process
@@ -477,6 +476,10 @@ ggplot(ma_spatial, aes(x = lng, y = lat)) +
 ```
 
 ```
+## although coordinates are longitude/latitude, st_intersects assumes that they are planar
+```
+
+```
 ## Zoom: 10
 ```
 
@@ -514,6 +517,10 @@ ggplot(ma_spatial, aes(x = lng, y = lat)) +
 ```
 
 ```
+## although coordinates are longitude/latitude, st_intersects assumes that they are planar
+```
+
+```
 ## Zoom: 10
 ```
 
@@ -529,6 +536,10 @@ ggplot(ma_spatial, aes(x = lng, y = lat)) +
   stat_binhex(alpha=0.7) + 
   scale_fill_gradientn(colours = c("white","red"), 
                        name = "Frequency")
+```
+
+```
+## although coordinates are longitude/latitude, st_intersects assumes that they are planar
 ```
 
 ```
@@ -550,6 +561,10 @@ ggplot(ma_spatial, aes(x = lng, y = lat)) +
   ## Configure the colors, transparency and panel
   scale_fill_gradientn(colours = c("white","red"), 
                        name = "Frequency") 
+```
+
+```
+## although coordinates are longitude/latitude, st_intersects assumes that they are planar
 ```
 
 ```
@@ -685,7 +700,7 @@ You can download the full set of EU referendum result data as a csv from [the El
 
 
 ```r
-eu_ref <- read.csv("https://www.electoralcommission.org.uk/__data/assets/file/0014/212135/EU-referendum-result-data.csv")
+eu_ref <- read.csv("https://www.electoralcommission.org.uk/sites/default/files/2019-07/EU-referendum-result-data.csv")
 ```
 
 
@@ -704,13 +719,12 @@ las <- st_read("data/England_lad_2011_gen/england_lad_2011_gen.shp")
 ```
 
 ```
-## Reading layer `england_lad_2011_gen' from data source `C:\Users\Juanjo Medina\Dropbox\1_Teaching\1 Manchester courses\31152_60142 GIS and Crime Mapping\new_crimemapping\data\England_lad_2011_gen\england_lad_2011_gen.shp' using driver `ESRI Shapefile'
+## Reading layer `england_lad_2011_gen' from data source `/Users/reka/Dropbox (The University of Manchester)/crime_mapping/crime_mapping/data/England_lad_2011_gen/england_lad_2011_gen.shp' using driver `ESRI Shapefile'
 ## Simple feature collection with 326 features and 4 fields
 ## geometry type:  MULTIPOLYGON
 ## dimension:      XY
 ## bbox:           xmin: 82644.8 ymin: 5349.399 xmax: 655976.9 ymax: 657599.5
-## epsg (SRID):    NA
-## proj4string:    +proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +datum=OSGB36 +units=m +no_defs
+## CRS:            27700
 ```
 
 We can now join the EU referendum data, as we have learned in the past weeks: 
@@ -722,8 +736,8 @@ eu_sf <- left_join(las, eu_ref, by = c("name" = "Area"))
 ```
 
 ```
-## Warning: Column `name`/`Area` joining factors with different levels,
-## coercing to character vector
+## Warning: Column `name`/`Area` joining factors with different levels, coercing to
+## character vector
 ```
 
 ```r
@@ -834,23 +848,23 @@ eu_cartogram <- cartogram_cont(eu_sf, "Electorate", itermax = 5)
 ```
 
 ```
-## Mean size error for iteration 1: 4.11884641548981
+## Mean size error for iteration 1: 4.11884641547245
 ```
 
 ```
-## Mean size error for iteration 2: 21.1096264532847
+## Mean size error for iteration 2: 21.1096266805133
 ```
 
 ```
-## Mean size error for iteration 3: 3.0584895516181
+## Mean size error for iteration 3: 3.05848955329872
 ```
 
 ```
-## Mean size error for iteration 4: 2.51480274957159
+## Mean size error for iteration 4: 2.51480273537651
 ```
 
 ```
-## Mean size error for iteration 5: 2.92812678108472
+## Mean size error for iteration 5: 2.92812701653567
 ```
 
 And if your cartogram has been created, you can now plot again the referendum results, but using the electorate to change the size of the locad authority: 

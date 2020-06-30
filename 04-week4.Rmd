@@ -1,3 +1,7 @@
+---
+always_allow_html: true
+---
+
 # Performing spatial operations in R
 
 By now you have come a long way in terms of taking your spatial data, and visualising it using maps, and being able to present the values of a variable using thematic maps. You have had some practice in taking data which has a spatial component, and joining it to a shapefile, using the common column, in order to be able to visually demonstrate variation on something, such as the crime rate, across space. 
@@ -175,10 +179,6 @@ Great OK so we have this list of licensed premises, and we have their address, w
 Any ideas? 
 
 
-
-We can use the `geocode()` function from the `ggmap` package to turn our addresses into mappable coordinates. `geocode()` geocodes a location (find latitude and longitude) using either (1) the [Data Science Toolkit](http://www.datasciencetoolkit.org/about) or (2) Google Maps. Note that when using Google you are agreeing to the Google Maps API Terms of Service at [https://developers.google.com/maps/terms](https://developers.google.com/maps/terms) (this link is also loaded when you load the ggmap package). One of the conditions of using Google API to geocode your points is that you *have to* display them using a Google basemap for example! Also, to use the Google Maps API you need to get an API key, which we won't be messing around with today. Instead, we will use the Data Science Toolkit approach. 
-
-
 We can, at the most basic, geocode the postcode. This will put all the establisments to the centroid of the postcode. Postcodes are used in the United Kingdom as alphanumeric codes, that were devised by Royal Mail. A full postcode is known as a "postcode unit" and designates an area with a number of addresses or a single major delivery point. [You can search the Royal Mail for information on post codes here.](https://www.royalmail.com/business/search/google/POSTCODE). 
 
 Here is a map of the postcode areas in Greater Manchester: 
@@ -193,75 +193,71 @@ Now the centroid of the post code area represents the central point of the shape
 
 
 
-This is not quite as precise as geocoding the actual address, and we will return to this in the homework, but let's just stick with this approach for now.
+This is not quite as precise as geocoding the actual address, but let's just stick with this approach for now.
 
 
 
-So `geocode()` will help us get the coordinates for the relevant post code centroid. First though, we have to specify in the address *where* our postcode is. Just like when you mail a postcard (people still do this, right?), you have to specify what country you want it to go to first, and then specify the postcode and address. So we will create a new variable (column) in our dataframe that pastes together the postcode with a suffix to specify our country, in this case ", UK". To do this, we use the `paste()` function. `paste()` just *pastes* together two or more text values, separating them by whatever separator you want. For example, if I wanted to have people's name displayed in different names I could use paste in this way: 
+So we need something that will help us get the coordinates for the relevant post code centroid. For this we can use the [Open postcode](https://data.gov.uk/dataset/091feb1c-aea6-45c9-82bf-768a15c65307/open-postcode-geo) geo from [data.gov.uk](data.gov.uk). Open Postcode Geo is a postcode dataset and API optimised for geocoding applications. You can use Open Postcode Geo to geocode a dataset, geocode user input, and therefore build a proximity search. Data is derived from the Office for National Statistics postcode database and is free to use, **subject to including attributions to ONS, OS (Ordinance Survey) and Royal Mail**.
+
+
+Postcodes can be entered at area, district, sector, and unit level - see Postcode map for the geographical relationship between these. We can use the Application Programme Interface (API) to query postcodes and read them directly into R, attaching a latitude and a longitude to our dataframe. 
+
+
+DETAIL AN EXAMPLE ONE HERE
+
+```{r}
+
+library(rjson)
+
+address <- "M13 9PL"
+geocode_result <- fromJSON(readLines(paste0("http://api.getthedata.com/postcode/",gsub(" ", "+", address))))
+
+geocode_result$data$latitude
+geocode_result$data$longitude
+         
+
+```
+
+Wrap into functions to apply to dataframe
 
 ```{r}
 
-firstname <- "Kurt"
-lastname <- "Cobain"
+geocode_addys_getlng <- function(x){
+  
+  geocode_result <- fromJSON(readLines(paste0("http://api.getthedata.com/postcode/",gsub(" ", "", x))))
+  return(geocode_result$data$longitude)
+}
 
-#this way will paste lastname and firstname, and separate them by a comma
-paste(lastname, firstname, sep = ",")
+geocode_addys_getlat <- function(x){
+  
+  geocode_result <- fromJSON(readLines(paste0("http://api.getthedata.com/postcode/",gsub(" ", "", x))))
+  return(geocode_result$data$latitude)
+}
 
-#this way will paste firstname then lastname, and separate them by a space
-paste(firstname, lastname, sep = " ")
 ```
 
 
-So in the same vein, we will now create a new column, call it `postcodes2` and use the paste function to put together the postcode with the ", UK" suffix. We want them to be separated by *nothing* so we use `sep = ""`. (note, if you are separating by nothing, you could use the `paste0()` function, you can read about this uising the help function if you want)
+apply to df - describe more and figure out why it falls over on whole df
 
 ```{r}
-city_centre_prems$postcodes2 <- paste(city_centre_prems$POSTCODE, ", UK", sep="")
-```
 
+library(purrr)
 
-Now we can use this new column to geocode our addresses. I mentioned that the `geocode()` function is part of the `ggmap` package. This means we have to load up this package to use this function: 
-
-
-```{r}
-library(ggmap)
-```
-
-
-Now we can use `geocode()`. To use this, you have to specify **what** you want to geocode (in this case our newly created column of postcode2) and also the method. I mentioned above you can use Google or the Data Science Toolkit. Google puts a restriction on the number of geocodes you can perform in a day, so I normally use dsk, but both have advantages and limitations, so read up on this if you're interested. But for now, I'm sticking to dsk. 
-
-So let's create a new column, call it `postcode_coords`, use the geocode function to populate it with values: 
-
-
-```{r, warning=FALSE, message=FALSE, quietly=TRUE}
-
-city_centre_prems$postcode_coords <- geocode(city_centre_prems$postcodes2, source = 'dsk')
+city_centre_prems <- head(city_centre_prems, n = 100) %>% 
+  mutate(longitude = map_chr(POSTCODE, geocode_addys_getlng),
+         latitude = map_chr(POSTCODE, geocode_addys_getlat))
 
 ```
 
 
-Be patient, this will take a while, each postcode has to be referenced against their database and the relevant  coordinates extracted. For each point you will see a note appear in red, and while R is working you will see the red stop sign on the top right corner of the Console window: 
+Be patient, this will take a while, each postcode has to be referenced against their database and the relevant  coordinates extracted. For each point you will see a note appear in red, and while R is working you will see the red stop sign on the top right corner of the Console window:
 
 
 ![](img/r_is_working.png)
 
 
-Also think about how incredibly fast and easy this actually is, if you consider a potential alternative where you have to manualy find some coordinates for each address. That sounds pretty awful, doesn't it? Compared to that, setting the `geocode()` function running, and stepping away to make a cup of tea is really a pretty excellend alternative, no? 
+Also think about how incredibly fast and easy this actually is, if you consider a potential alternative where you have to manualy find some coordinates for each address. That sounds pretty awful, doesn't it? Compared to that, setting the above functions running, and stepping away to make a cup of tea is really a pretty excellend alternative, no?
 
-
-
-
-**Note** there might be a chance that you're getting an error telling you that you are over the geocode limit allowed by Google. This appears to be [a bug that has been flagged](https://github.com/dkahle/ggmap/issues/150). There is a workaround, to pass some phoney credentials as part of the `geocode()` function. [This stackoverflow discussion](https://stackoverflow.com/questions/42282492/ggmap-dsk-rate-limit/42604188#42604188) is where I found this. So if you're experiencing this issue, try running the below: 
-
-
-
-```{r}
-
-city_centre_prems$postcode_coords <- geocode(city_centre_prems$postcodes2, client = "123", signature = "123", output = 'latlon', source = 'dsk')
-
-```
-
-
-Hopefully now you should be getting your points individually gecoded. 
 
 Right so hopefully that is done now, and you can have a look at your data again to see what this new column looks like. Remember you can use the `View()` function to make your data appear in this screen.
 
@@ -269,14 +265,6 @@ Right so hopefully that is done now, and you can have a look at your data again 
 View(city_centre_prems)
 ```
 
-
-You will see that we have some coordinates. Woohoo! Let's "flatten" them out, so we can use them to map. While some approaches to mapping can deal with the coordinates as one variable, when we use leaflet, we are expected to provide separate latitude and longitude columns. So let's create them here by extracting first the longitude, then the latitude fmor the coords object.  
-
-
-```{r}
-city_centre_prems$longitude <- city_centre_prems$postcode_coords$lon
-city_centre_prems$latitude <- city_centre_prems$postcode_coords$lat
-```
 
 
 And now we have a column called `longitude` for longitude and a column called `latitude` for latitude. Neat!
@@ -363,6 +351,10 @@ m
 Last time around we added crime data to our map.  In this case, we want to be mapping our licensed premises in the city centre, right? So let's do this: 
 
 ```{r}
+
+city_centre_prems$latitude <- as.numeric(city_centre_prems$latitude)
+city_centre_prems$longitude <- as.numeric(city_centre_prems$longitude)
+
 m <- leaflet(data = city_centre_prems) %>%
   addProviderTiles("Stamen.Toner") %>% 
   addMarkers(lng=~longitude, lat=~latitude, popup=~as.character(PREMISESNAME), label = ~as.character(PREMISESNAME))
@@ -433,6 +425,7 @@ So we need to convert this to a sf object, or a spatial object, and make sure th
 In the `st_as_sf()` function we specify what we are transforming (the name of our dataframe), the column names that have the coordinates in them (longitude and latitude), the CRS we are using (4326 is the code for WGS 84, which is the CRS that uses latitude and longitude coordinates (remember BNG uses Easting and Northing)), and finally *agr*, the attribute-geometry-relationship, specifies for each non-geometry attribute column how it relates to the geometry, and can have one of following values: "constant", "aggregate", "identity". "constant" is used for attributes that are constant throughout the geometry (e.g. land use), "aggregate" where the attribute is an aggregate value over the geometry (e.g. population density or population count), "identity" when the attributes uniquely identifies the geometry of particular "thing", such as a building ID or a city name. The default value, NA_agr_, implies we don't know.
 
 ```{r}
+
 
 cc_spatial = st_as_sf(city_centre_prems, coords = c("longitude", "latitude"), 
                  crs = 4326, agr = "constant")
@@ -794,63 +787,63 @@ Today we learned to:
 
 In the homework you will now apply your learning to a new problem. To do so, please complete the following tasks: 
 
-### **Geocode the addresses:** 
-Use the geocode function to geocode, but this time pass the actual address values, rather than just the post code. 
+<!-- ### **Geocode the addresses:**  -->
+<!-- Use the geocode function to geocode, but this time pass the actual address values, rather than just the post code.  -->
 
-You can geocode from addresses. For example, if we want to geocode the location of [Shoryu ramen](https://www.shoryuramen.com/stores/76-manchester), we could use the address to do so:
+<!-- You can geocode from addresses. For example, if we want to geocode the location of [Shoryu ramen](https://www.shoryuramen.com/stores/76-manchester), we could use the address to do so: -->
 
-```{r}
-geocode("1 Piccadilly, Manchester M1 1RG", source = "dsk")
-```
+<!-- ```{r} -->
+<!-- geocode("1 Piccadilly, Manchester M1 1RG", source = "dsk") -->
+<!-- ``` -->
 
-You can see that this is slightly different than the postcode centroid: 
+<!-- You can see that this is slightly different than the postcode centroid:  -->
 
-```{r}
-geocode("M1 1RG", source = 'dsk')
-```
-
-
-- **1) Discuss why you think the geocode for the address is different than the geocode for the postcode**
-- **2) Geocode the address for all the city centre licensed premises**
-- **3) Did this work OK? Do you have any geocoded to weird locations? Why do you think this might be?**
-- **4) Fix (or at describe how you would fix) any issues with geocoding that you identified above**
+<!-- ```{r} -->
+<!-- geocode("M1 1RG", source = 'dsk') -->
+<!-- ``` -->
 
 
-Make sure you think a little bit about this. Not only do you have to consider what variable to pass to the `geocode()` function, but also whether that's enough information to get the relevant coordinates. 
+<!-- - **1) Discuss why you think the geocode for the address is different than the geocode for the postcode** -->
+<!-- - **2) Geocode the address for all the city centre licensed premises** -->
+<!-- - **3) Did this work OK? Do you have any geocoded to weird locations? Why do you think this might be?** -->
+<!-- - **4) Fix (or at describe how you would fix) any issues with geocoding that you identified above** -->
+
+
+<!-- Make sure you think a little bit about this. Not only do you have to consider what variable to pass to the `geocode()` function, but also whether that's enough information to get the relevant coordinates.  -->
 
 
 
-```{r, echo=FALSE, eval=FALSE, message=FALSE, warning=FALSE}
+<!-- ```{r, echo=FALSE, eval=FALSE, message=FALSE, warning=FALSE} -->
 
-city_centre_prems$postcode_coords2 <- geocode(paste(city_centre_prems$LOCATIONTEXT, ", UK", sep=""), source = 'dsk')
+<!-- city_centre_prems$postcode_coords2 <- geocode(paste(city_centre_prems$LOCATIONTEXT, ", UK", sep=""), source = 'dsk') -->
 
-city_centre_prems$longitude2 <- city_centre_prems$postcode_coords2$lon
-city_centre_prems$latitude2 <- city_centre_prems$postcode_coords2$lat
+<!-- city_centre_prems$longitude2 <- city_centre_prems$postcode_coords2$lon -->
+<!-- city_centre_prems$latitude2 <- city_centre_prems$postcode_coords2$lat -->
 
-m <- leaflet(data = city_centre_prems) %>%
-  addProviderTiles("Stamen.Toner") %>% 
-  addCircleMarkers(lng=~longitude, lat=~latitude, popup=~as.character(PREMISESNAME), label = ~as.character(PREMISESNAME), radius = 2, color = "red") %>% 
-  addCircleMarkers(lng=~longitude2, lat=~latitude2, popup=~as.character(PREMISESNAME), label = ~as.character(PREMISESNAME), radius = 2, color = "blue")
-m  
+<!-- m <- leaflet(data = city_centre_prems) %>% -->
+<!--   addProviderTiles("Stamen.Toner") %>%  -->
+<!--   addCircleMarkers(lng=~longitude, lat=~latitude, popup=~as.character(PREMISESNAME), label = ~as.character(PREMISESNAME), radius = 2, color = "red") %>%  -->
+<!--   addCircleMarkers(lng=~longitude2, lat=~latitude2, popup=~as.character(PREMISESNAME), label = ~as.character(PREMISESNAME), radius = 2, color = "blue") -->
+<!-- m   -->
 
-city_centre_prems$postcode_coords3 <- geocode(paste(city_centre_prems$LOCATIONTEXT, ", ", city_centre_prems$POSTCODE, ", UK", sep=""), source = 'dsk')
+<!-- city_centre_prems$postcode_coords3 <- geocode(paste(city_centre_prems$LOCATIONTEXT, ", ", city_centre_prems$POSTCODE, ", UK", sep=""), source = 'dsk') -->
 
-city_centre_prems$longitude3 <- city_centre_prems$postcode_coords3$lon
-city_centre_prems$latitude3 <- city_centre_prems$postcode_coords3$lat
+<!-- city_centre_prems$longitude3 <- city_centre_prems$postcode_coords3$lon -->
+<!-- city_centre_prems$latitude3 <- city_centre_prems$postcode_coords3$lat -->
 
-m <- leaflet(data = city_centre_prems) %>%
-  addProviderTiles("Stamen.Toner") %>% 
-  addCircleMarkers(lng=~longitude, lat=~latitude, popup=~as.character(PREMISESNAME), label = ~as.character(PREMISESNAME), radius = 2, color = "#a6cee3") %>%
-  addCircleMarkers(lng=~longitude2, lat=~latitude2, popup=~as.character(PREMISESNAME), label = ~as.character(PREMISESNAME), radius = 2, color = "#1f78b4")%>%
-  addCircleMarkers(lng=~longitude3, lat=~latitude3, popup=~as.character(PREMISESNAME), label = ~as.character(PREMISESNAME), radius = 2, color = "#b2df8a") %>% 
-  addLegend("topleft", 
-  colors =c("#a6cee3",  "#1f78b4", "#b2df8a"),
-  labels= c("postcode", "address","both"),
-  title= "Geocoding approach",
-  opacity = 1)
-m  
+<!-- m <- leaflet(data = city_centre_prems) %>% -->
+<!--   addProviderTiles("Stamen.Toner") %>%  -->
+<!--   addCircleMarkers(lng=~longitude, lat=~latitude, popup=~as.character(PREMISESNAME), label = ~as.character(PREMISESNAME), radius = 2, color = "#a6cee3") %>% -->
+<!--   addCircleMarkers(lng=~longitude2, lat=~latitude2, popup=~as.character(PREMISESNAME), label = ~as.character(PREMISESNAME), radius = 2, color = "#1f78b4")%>% -->
+<!--   addCircleMarkers(lng=~longitude3, lat=~latitude3, popup=~as.character(PREMISESNAME), label = ~as.character(PREMISESNAME), radius = 2, color = "#b2df8a") %>%  -->
+<!--   addLegend("topleft",  -->
+<!--   colors =c("#a6cee3",  "#1f78b4", "#b2df8a"), -->
+<!--   labels= c("postcode", "address","both"), -->
+<!--   title= "Geocoding approach", -->
+<!--   opacity = 1) -->
+<!-- m   -->
 
-```
+<!-- ``` -->
 
 
 
