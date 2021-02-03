@@ -87,9 +87,10 @@ In this session we will focus in developing basic familiarity with R Studio. You
 
 R Studio is what we call an IDE, an **integrated development environment**. It is a fancy way of saying that it is a cool interface designed to write programming code. Every time you open up R Studio you are in fact starting a R session. R Studio automatically runs R in the background. We will be interacting with R in this course unit via R Studio.
 
+
 ![](img/rstudio.png) 
 
-When you first open R Studio, you will see (as in the image above) that there are 3 main windows. The bigger one to your left is the console. If you read the text in the console you will see that R Studio is indeed opening R and you can see what version of R you are running. Depending on whether you are using the cluster machines or your own installation this may vary, but don't worry too much about it. R is constantly being updated.
+When you first open R Studio, you will see (as in the image above) that there are 3 main windows. The bigger one to your left is the console. If you read the text in the console you will see that R Studio is indeed opening R and you can see what version of R you are running. Since R is constantly being updated the version you installed is likely more recent that the one we used at time of writing.
 
 #### Activity 3: Opening up the script pane
 
@@ -105,13 +106,15 @@ You will now see the 4 window areas in display. On each of these areas you can s
 
 The purposes of the four panes in Figure above are the following:
 
+
 1. **Script and data view**: where you type your programming code that tells `R` what you want to do. These are essentially instructions that you type and save as a **script**, so that you can return to it later to remember what you did and to share it with others so that they can reproduce what you did.
 
 
 2. **Environment and history view**: 
   i) *2.1 Environment* tab- gives you the names of all the (data) objects that you have defined during your current `R` session, including number of observations and rows in those objects. We learn more about objects later. 
 
-  ii) *2.2 History* tab- shows you a history of all the code you have previously evaluated in the main console.
+
+  ii) *2.2 History* tab- shows you a history of all the code you have previously evaluated in the main console. One of the key advantages of doing data analysis this way - with code versus with a point and click interface like Excel or ArcGIS is that you are producing a written record of every step you take in the analysis. First time around it will take you time to write these instructions, it may be slower than pointing and clicking. And unlike with pointing and clicking you need to know the "words" and "grammar" of this language. 
 
 
 3. **Main console**: this is considered `R's` heart, and it is where `R` evaluates the codes that you run. You can type your codes directly in the console, but for the sake of good habits, type them in the script and data view so you can save a record of them. Only type and run code from here if you want to debug or do some quick analysis.
@@ -153,6 +156,7 @@ When you 'run' the code, it will print the text 'Hello World!' in the bottom pan
 
 In the rest of the session, we will be unpacking how this all works, and getting more familiar and comfortable with using `R Studio`. 
 
+
 To recap: the **script** is where you write your programming code. A script is nothing but a text file with some code on it. Unlike other programs for data analysis you may have used in the past (Excel, SPSS), you need to interact with R by means of writing down instructions and asking R to evaluate those instructions. R is an *interpreted* programming language: you write instructions (code) that the R engine has to interpret in order to do something. And all the instructions we write can and should be saved in a script, so that you can return later to what you did.
 
 One of the key advantages of doing spatial data analysis this way - with code versus with a point and click interface like ArcGIS or MapInfo (or even QGIS) is that you are producing a written record of every step you take in the analysis. First time around it will take you time to write these instructions, it may be slower than pointing and clicking. And unlike with pointing and clicking you need to know the "words" and "grammar" of this language. 
@@ -168,18 +172,22 @@ Click in the *Tools* menu and select *Global options*. This will open up a pop u
 
 ![](img/tools_global_options.png)
 
+
+
 You can make any changes you'd like to here, including the theme background that `R` will use as the interface.
 
 For example, you may choose a darker theme like 'tomorrow night bright'.
 
 ![](img/appearance_choose_tomorrow_night_bright.png)
+=======
+![](img/consoleresults.png)
+As indicated above, the window in the bottom left corner is the main **console**.You will see that the words "I love maps" appear printed there.  If rather than using R Studio you were working directly from R, that's all you would get: the main console where you can write code interactively (rather than all the different windows you see in R Studio). You can write your code directly in the main console and execute it line by line in an interactive fashion. However, we will be running code from scripts, so that you get used to the idea of properly documenting all the steps you take,
 
-
-## Functions and Objects
 
 ### Functions
 
 **Functions**  *do* things. They are called by a certain name, usually a name which represents what they do, and they are followed by brackets `()`. Within the brackets, you can put whatever it is that you want the function to work with. For example, the code we wrote in Activity 4 was the `print()` function. This function told `R` to print into the console whatever we put in the brackets ("Hello World!"). 
+
 
 Same idea with a personalised greeting: if you want to print 'Hello Reka', you will need to have "Hello Reka" inside the brackets:
 
@@ -199,6 +207,7 @@ print("Hello Reka")
 There are so many functions in `R`. We will be learning many of them throughout our class. `Print` is fun, but most of the time, we will be using functions to help us with our data analysis. For example, getting the minimum, maximum, or mean of a list of numbers. `R` does this using functions in a very similar way. 
 
 For example, if we have a bunch of numbers, we just find the appropriate function to get the summary we want: 
+
 
 
 
@@ -289,11 +298,12 @@ median(10, 34, 5, 3, 77)
 Now let us move on to our second key topic: objects! 
 
 
+
 ### Objects 
 
 
-Everything that exists in `R` is an **object**. Think of objects as boxes where you put things in. Imagine a big, empty cardboard box. We can create this big empty box in R by simply giving it a name. Usually, you want your object/box to have a good descriptive name, which will tell people what is in it. Imagine moving house. If you have a cardboard box full of places, you might want to label it "plates". That way, when carrying, you know to be careful, and when unpacking, you know its contents will go in the kitchen. On the other hand, if you named it "box1", then this is a lot less helpful when it comes to unpacking. 
 
+Everything that exists in `R` is an **object**. Think of objects as boxes where you put things in. Imagine a big, empty cardboard box. We can create this big empty box in R by simply giving it a name. Usually, you want your object/box to have a good descriptive name, which will tell people what is in it. Imagine moving house. If you have a cardboard box full of places, you might want to label it "plates". That way, when carrying, you know to be careful, and when unpacking, you know its contents will go in the kitchen. On the other hand, if you named it "box1", then this is a lot less helpful when it comes to unpacking. 
 
 
 #### Activity 6: Creating an object
@@ -301,6 +311,7 @@ Everything that exists in `R` is an **object**. Think of objects as boxes where 
 Let us create an object called 'plates'. To do this, you go to your script, and type 'plates'. 
 
 ![](img/plates.png)
+
 
 
 But if you run this code, you will get an error. Let's see: 
@@ -349,7 +360,6 @@ Earlier, we introduced you to the Environment and History pane. We mentioned tha
 
 #### Types of objects
 
-
 Why are objects important? We will be storing everything in our data analysis process in these objects. Depending on what is inside them, they can become a different type of object. Here are some examples: 
 
 **Data structures** are important objects that store your data, and there are five main types but we focus on three for this course:
@@ -376,7 +386,6 @@ my_5th_vector <- c("a", "b", "c")
 # 5. complex vector (we will not use this for our class)
 my_6th_vector <- c(1+0i, 2+4i) 
 ```
-
 
 
 
@@ -501,7 +510,6 @@ To refer to a variable (column) inside a dataframe, you use:
 $dataframe name + \$ + variable name$
 
 
-
 For example, to refer to the variable `VioRatePer1k`, we use the notation `df$VioRatePer1k`. 
 
 And if we wanted to View only that column, we use: 
@@ -520,7 +528,6 @@ You should see:
 
 
 Say we wanted to know the mean violence rate across our units of analysis, the cities, for example, we would take the numeric column to calculate this: 
-
 
 
 
@@ -632,14 +639,14 @@ library("fivethirtyeight")
 data(package="fivethirtyeight") #This function will return all the data frames that are available in the named package.
 ```
 
-Notice that this package has some data sets that relate to stories covered in this journal that had a criminological angle. Let's look for example at the hate_crimes data set. How do you that? First we have to load the data frame into our global environment. To do so use the following code:
+Notice that this package has some data sets that relate to stories covered in this newspaper that had a criminological angle. Let's look for example at the `hate_crimes` data set. How do you that? First we have to load the data frame into our global environment. To do so use the following code:
 
 
 ```r
 data("hate_crimes")
 ```
 
-This function will search among all the *loaded* packages and locate the hate_crimes data set. Notice that it now appears in the global environment, although it also says "promise" next to it. To see the data in full you need to do something to it first. So let's do that.
+This function will search among all the *loaded* packages and locate the `hate_crimes` data set. Notice that it now appears in the global environment, although it also says "promise" next to it. To see the data in full you need to do something to it first. So let's do that.
 
 Every object in R can have **attributes**. These are: names; dimensions (for matrices and arrays: number of rows and columns) and dimensions names; class of object (numeric, character, etc.); length (for a vector this will be the number of elements in the vector); and other user-defined. You can access the attributes of an object using the `attributes()` function. Let's query R for the attributes of this data frame.
 
@@ -667,10 +674,10 @@ attributes(hate_crimes)
 ## [13] "avg_hatecrimes_per_100k_fbi"
 ```
 
+
 This prints out the row names (not very exciting here..) the class (see above when we used `class()` function) and the names, which are the column headers - or the *names of the variables within this data set*. You can see there are things like state, and share who voted trump (in the 2016 election, not most recent!). 
 
 Now use the `View()` function to glance at your data frame. What you get there is a spreadsheet with 12 variables and 51 observations. Each variable in this case is providing you with information (demographics, voting patterns, and hate crime) about each of the US states.  
-
 
 
 Ok, let's now have a quick look at the data. There are so many different ways of producing summary stats for data stored in R that is impossible to cover them all! We will just introduce a few functions that you may find useful for summarising data. Before we do any of that it is important you get a sense for what is available in this data set. Go to the help tab and in the search box input the name of the data frame, this will take you to the documentation for this data frame. Here you can see a list of the available variables.
@@ -744,10 +751,10 @@ summary(hate_crimes)
 ##  NA's   :1
 ```
 
-
 There are multiple ways of getting results in R. Particularly for basic and intermediate-level statistical analysis many core functions and packages can give you the answer that you are looking for. For example, there are a variety of packages that allow you to look at summary statistics using functions defined within those packages. You will need to install these packages before you can use them. 
 
-I am only going to introduce one of them here *skimr*. It is neat and is maintained by one of my former stats teachers, the criminologist Elin Waring. You will need to install it before anything else. Use the code you have learnt to do so and then load it. I won't be providing you the code for it, by now you should now how to do this.
+I am only going to introduce one of them here `skimr`. You will need to install it before anything else. 
+
 
 
 

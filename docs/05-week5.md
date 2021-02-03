@@ -1,9 +1,16 @@
 ---
 always_allow_html: true
 ---
+<<<<<<< HEAD
 
 # More on thematic maps
+=======
+>>>>>>> ee17594823715067eb4e2efdcb4045388f645adc
 
+# More on thematic maps
+ (WE NEED TO INTRODUCE BIVARIATE THEMATIC MAPS: https://timogrossenbacher.ch/2019/04/bivariate-maps-with-ggplot2-and-sf/)
+(INSET MAPS)
+https://geocompr.github.io/post/2019/ggplot2-inset-maps/
 
 ## Introduction
 

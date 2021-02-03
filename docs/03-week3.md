@@ -570,6 +570,7 @@ This week we learned some basic principles of thematic maps. We learned how to m
 
 <!-- ``` -->
 
+
 <!-- *Hopefully should all work smoothly now!* -->
 
 <!-- **Back to everybody here!** -->
