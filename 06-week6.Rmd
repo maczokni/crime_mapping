@@ -1,3 +1,6 @@
+---
+always_allow_html: true
+---
 
 # Studying spatial point patterns
 
@@ -73,18 +76,19 @@ In the point pattern analysis literature each point is often referred to as an *
 So let's start using spatstat.The first thing we need to do is to transform our `sf` object into a `ppp` object which is how `spatstat` likes to store its point patterns. Unfortunately, spatstat and many other packages for analysis of spatial data precede sf, so the transformation is a bit awkard. Also before we do that, it is important to realise that a point pattern is defined as a series of events in a given area, or window, of observation. It is therefore extremely important to precisely define this window. In `spatstat` the function `owin()` is used to set the observation window. However, the standard function takes the coordinates of a rectangle or of a polygon from a matrix, and therefore it may be a bit tricky to use. Luckily the package `maptools` provides a way to transform a `SpatialPolygons` into an object of class `owin`, using the function `as.owin()`. Here are the steps: 
 
 
-First we transform our Falllowfield polygon into a sp object:
+First we transform the CRS of our Falllowfield polygon into projected coordinates (British National Grid) as opposed to geographic coordinates (WGS84) :
 
 ```{r}
-fallowfield_sp <-as(fallowfield, "Spatial")
+fallowfield_proj <- st_transform(fallowfield, 27700)
 ```
 
 
 
-Then we use the as.owin function to define the window. Note that by adding two colons (`::`) we can reference a function in a library explicitly without loading the library. So if you receive an error message, make sure you have the relevant package installed.
+Then we use the as.owin function to define the window. 
+
 
 ```{r}
-window <- maptools::as.owin.SpatialPolygons(fallowfield_sp)
+window <- as.owin(fallowfield_proj)
 ```
 
 
@@ -101,6 +105,7 @@ Now that we have created the window as an `owin` object let's get the points. Fi
 
 ```{r}
 
+bur_fal <- st_transform(bur_fal, 27700) #we must transform these too to match our window in BNG
 sf_bur_fal_coords <- matrix(unlist(bur_fal$geometry), ncol = 2, byrow = T)
 
 ```
@@ -162,7 +167,9 @@ Notice the difference with the original plot. Can you see how the circumferences
 
 ## Inspecting our data with spatstat
 
-This package supports all kind of exploratory point pattern analysis. One example of this is **quadrant counting**. One could divide the window of observation into quadrants and count the number of points into each of these quadrants. For example, if we want four quadrants along the X axis and 3 along the Y axis we could used those parameters in the `quadratcount()` function. Then we just use standard plotting functions from R base.
+This package supports all kind of exploratory point pattern analysis. One example of this is **quadrant counting**. One could divide the window of observation into quadrants and count the number of points into each of these quadrants. 
+For example, if we want four quadrants along the X axis and 3 along the Y axis we could used those parameters in the `quadratcount()` function.
+Then we just use standard plotting functions from R base.
 
 ```{r}
 Q <- quadratcount(jitter_bur, nx = 4, ny = 3)
@@ -296,26 +303,35 @@ Two-dimensional `RasterLayer` objects (from the `raster` package) can be turned 
 
 The `addRasterImage()` function works by projecting the `RasterLayer` object to EPSG:3857 and encoding each cell to an RGBA color, to produce a PNG image. That image is then embedded in the map widget.
 
-It’s important that the `RasterLayer` object is tagged with a proper coordinate reference system. Many raster files contain this information, but some do not. Here is how you’d tag a raster layer object “r” which contains WGS84 data:
+It’s important that the `RasterLayer` object is tagged with a proper coordinate reference system. Many raster files contain this information, but some do not. Here is how you’d tag a raster layer object “r1” which contains WGS84 data:
 
 ```{r, message=FALSE}
 library(leaflet)
 
-#make sure we have right CRS. We need the sp package for setting CRS to this raster: 
-library(sp)
-crs(r1) <- sp::CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
+#make sure we have right CRS, which in this case is British National Grid
+
+epsg27700 <- "+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +towgs84=446.448,-125.157,542.06,0.15,0.247,0.842,-20.489 +units=m +no_defs"
+
+crs(r1) <- sp::CRS(epsg27700)
 
 #we also create a colour palet
 pal <- colorNumeric(c("#0C2C84", "#41B6C4", "#FFFFCC"), values(r1),
   na.color = "transparent")
 
+
+
 #and then make map!
 leaflet() %>% 
-  setView(lng = -2.225814, lat = 53.441315, zoom = 14) %>% 
   addTiles() %>%
   addRasterImage(r1, colors = pal, opacity = 0.8) %>%
   addLegend(pal = pal, values = values(r1),
     title = "Burglary map")
+  
+
+
+
+
+
 
 ```
 

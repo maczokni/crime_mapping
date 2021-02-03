@@ -3,15 +3,17 @@
 
 ## Intro and recap
 
-Last week we showed you fairly quickly how to create maps of spatial point patterns using `leaflet` and we also introduced the `tmap` package for thematic maps. Besides doing that we introduced a set of key concepts we hope you have continued studying over the week. We also discussed the `sf` package for storing spatial objects in R. 
+Last week we showed you fairly quickly how to create maps by understanding how data may have spatial elements, and how that can be linked to geometries. 
 
-This week we will carry on where we left the session last week. In the presentations last week we introduced various kind of thematic maps and in our lecture this week we discuss in detail issues with choropleth maps. So the focus of today's lab is going to be around thematic maps and some of the choices we discussed in our presentation last week and also this week. 
+This week we will get to know how to think about thematic maps, and how to apply your learning to creating your own maps of this variety. In our lecture videos this week we discuss in detail issues with choropleth maps. So the focus of today's lab is going to be around thematic maps and some of the choices we discussed. 
 
 We will also introduce faceting and **small multiples**, which is a format for comparing the geographical distribution of different social phenomena. For this session we will be using the spatial object that you created last week and complement it with additional information from the census. So first of all you will have to rerun the code you used to create the *manchester_lsoa* `sf` object. Apart from doing so, you want to start your session loading the libraries you know for sure you will need:
 
 
 ```r
+library(readr)
 library(sf)
+library(janitor)
 library(tmap)
 library(dplyr)
 ```
@@ -20,33 +22,30 @@ You may not remember all of what you did to generate that file so let's not wast
 
 
 ```r
-crimes <- read.csv("https://raw.githubusercontent.com/maczokni/2018_labs/master/data/2017-11-greater-manchester-street.csv")
-#The following assumes you have a subdirectory called BoundaryData in your working directory, otherwise you will need to change to the pathfile where you store your LSOA shapefile
+crimes <- read_csv("data/2019-06-greater-manchester-street.csv")
+
+#The following assumes you have a subdirectory called BoundaryData in your data folder, if not then you will need to change to the pathfile where you store your LSOA shapefile
 shp_name <- "data/BoundaryData/england_lsoa_2011.shp"
 manchester_lsoa <- st_read(shp_name)
 ```
 
 ```
-## Reading layer `england_lsoa_2011' from data source `C:\Users\Juanjo Medina\Dropbox\1_Teaching\1 Manchester courses\31152_60142 GIS and Crime Mapping\new_crimemapping\data\BoundaryData\england_lsoa_2011.shp' using driver `ESRI Shapefile'
+## Reading layer `england_lsoa_2011' from data source `/Users/reka/Desktop/crime_mapping/data/BoundaryData/england_lsoa_2011.shp' using driver `ESRI Shapefile'
 ## Simple feature collection with 282 features and 3 fields
 ## geometry type:  POLYGON
 ## dimension:      XY
 ## bbox:           xmin: 378833.2 ymin: 382620.6 xmax: 390350.2 ymax: 405357.1
-## epsg (SRID):    NA
-## proj4string:    +proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +datum=OSGB36 +units=m +no_defs
+## projected CRS:  OSGB 1936 / British National Grid
 ```
 
 ```r
 crimes_per_lsoa <- crimes %>%
-  select(LSOA.code) %>%
-  group_by(LSOA.code) %>%
+  clean_names() %>% 
+  select(lsoa_code) %>%
+  group_by(lsoa_code) %>%
   summarise(count=n())
-manchester_lsoa <- left_join(manchester_lsoa, crimes_per_lsoa, by = c("code"="LSOA.code"))
-```
 
-```
-## Warning: Column `code`/`LSOA.code` joining factors with different levels,
-## coercing to character vector
+manchester_lsoa <- left_join(manchester_lsoa, crimes_per_lsoa, by = c("code"="lsoa_code"))
 ```
 
 You may not want to have to go through this process all the time. One thing you could do is to save the *manchester_lsoa* object as a physical file in your machine. You can use the `st_write()` function from the `sf` package to do this. If we want to write into a shapefile format we would do as shown below:
@@ -60,17 +59,34 @@ Notice how four files have appeared in your working directory, in your "Boundary
 
 If you wanted to bring this shapefile back into R at any future point, you would only need to use the `st_read()` function.
 
-Before we carry on, can you tell What is different between *manchester_lsoa.shp* and *manchester_crime_lsoa.shp*? Think about it.
 
-## Creating choropleth maps
+```r
+manchester_crime_lsoa <- st_read("data/BoundaryData/manchester_crime_lsoa.shp")
+```
 
-The `tmap` package was developed to easily produce thematic maps. It is inspired by the `ggplot2` package and the layered grammar of graphics. It was written by Martjin Tennekes a Dutch data scientist. There are a number of [vignettes in the CRAN repository](https://cran.r-project.org/web/packages/tmap/index.html) and the [GitHub repo for this package](https://github.com/mtennekes/tmap) that you can explore. GitHub is a collaborative website used by software developers and data scientist, also contains a useful *readme* section with additional resources to familiarise yourself with this package. Each map can be plotted as a static map (*plot mode*) and shown interactively (*view mode*) as we briefly saw last week. We will start by focusing on static maps.
+```
+## Reading layer `manchester_crime_lsoa' from data source `/Users/reka/Desktop/crime_mapping/data/BoundaryData/manchester_crime_lsoa.shp' using driver `ESRI Shapefile'
+## Simple feature collection with 282 features and 4 fields
+## geometry type:  POLYGON
+## dimension:      XY
+## bbox:           xmin: 378833.2 ymin: 382620.6 xmax: 390350.2 ymax: 405357.1
+## projected CRS:  Transverse_Mercator
+```
+
+#### Activity 1: Spot the difference
+
+
+Before we carry on, can you tell what is different between *manchester_lsoa.shp* and *manchester_crime_lsoa.shp* that you now have saved for working with? Discuss in your groups, and write your thoughts on the shared google doc.  
+
+## Creating thematic maps
+
+Today we are going to introduce the `tmap` package. This package was developed to easily produce thematic maps. It is inspired by the `ggplot2` package and the layered grammar of graphics. It was written by Martjin Tennekes a Dutch data scientist. There are a number of [vignettes in the CRAN repository](https://cran.r-project.org/web/packages/tmap/index.html) and the [GitHub repo for this package](https://github.com/mtennekes/tmap) that you can explore. GitHub is a collaborative website used by software developers and data scientist, also contains a useful *readme* section with additional resources to familiarise yourself with this package. Each map can be plotted as a static map (*plot mode*) and shown interactively (*view mode*) as we briefly saw last week. We will start by focusing on static maps.
 
 Every time you use this package you will need a line of code that specifies the spatial object you will be using. Although originally developed to handle `sp` objects only, it now also has support for `sf` objects. For specifying the spatial object we use the `tm_shape()` function and inside we specify the name of the spatial object we are using. On its own, this will do nothing apparent. No map will be created. We need to add additional functions to specify what we are doing with that spatial object. If you try to run this line on its own, you'll get an error telling you you must "Specify at least one layer after each tm_shape". 
 
 
 ```r
-tm_shape(manchester_lsoa)
+tm_shape(manchester_crime_lsoa)
 ```
 
 The main plotting method consists of elements that we can add. The first element is the `tm_shape()` function specifying the spatial object, and then we can add a series of elements specifying layers in the visualisation. They can include polygons, symbols, polylines, raster, and text labels as base layers. We will add a polygon using `tm_polygon()`. As noted, with `tmap` you can produce both static and interactive maps. The interactive maps rely on `leaflet`. You can control whether the map is static or interactive with the `tmap_mode()` function. If you want a static map you pass `plot` as an argument, if you want an interactive map you pass `view` as an argument. Let's create a static map first. 
@@ -85,44 +101,43 @@ tmap_mode("plot")
 ```
 
 ```r
-tm_shape(manchester_lsoa) + 
+tm_shape(manchester_crime_lsoa) + 
   tm_polygons()
 ```
 
-<img src="03-week3_files/figure-html/unnamed-chunk-5-1.png" width="672" />
+<img src="03-week3_files/figure-html/unnamed-chunk-6-1.png" width="672" />
 
 Given that we are not passing any additional arguments all we are getting is a map with the shape of the geographies that we are representing, the census LSOAs for Manchester city. We can, however, ask R to produce a choropleth map by mapping the values of a variable in our data table using colour.  In tmap we need to denote our variables between quotes. The first argument we pass then would be the name of the variable we want to visualise. If you remember we have a count for crimes ("count"), so let's visualise that by creating a thematic map.
 
 
 ```r
-tm_shape(manchester_lsoa) + 
+tm_shape(manchester_crime_lsoa) + 
   tm_polygons("count")
 ```
 
-<img src="03-week3_files/figure-html/unnamed-chunk-6-1.png" width="672" />
+<img src="03-week3_files/figure-html/unnamed-chunk-7-1.png" width="672" />
 
-Notice how this map is different from last week. What do you think the reason for this is? You may remember last week we used one additional argument `style` specifying the classification method we were going to use. If you remember we used quantiles. We will in a second look at how a map of the counts of crime looks different when we use different classification systems. But before we get to that, let's think about aesthetics a bit more. 
 
 We have been using `tm_polygons()` but we can also add the elements of a polygon map using different functions that break down what we represent here. In the map above you see the polygons have a dual representation, the borders are represented by lines and the colour is mapped to the intensity of the quantitative variable we are representing. With darker colours representing more of the variable, the areas with more crimes. Instead of using `tm_polygon()` we can use the related functions `tm_fill()`, for the colour inside the polygons, and `tm_borders()`, for the aesthetics representing the border of the polygons. Say we find the borders distracting and we want to set them to be transparent. In that case we could just use `tm_fill()`.
 
 
 ```r
-tm_shape(manchester_lsoa) + 
+tm_shape(manchester_crime_lsoa) + 
   tm_fill("count")
 ```
 
-<img src="03-week3_files/figure-html/unnamed-chunk-7-1.png" width="672" />
+<img src="03-week3_files/figure-html/unnamed-chunk-8-1.png" width="672" />
 
 As you can see here, the look is a bit cleaner. We don't need to get rid of the borders completely. Perhaps we want to make them a bit more translucent. We could do that by adding the border element but making the drawing of the borders less pronounced. 
 
 
 ```r
-tm_shape(manchester_lsoa) + 
+tm_shape(manchester_crime_lsoa) + 
   tm_fill("count") +
   tm_borders(alpha = 0.1)
 ```
 
-<img src="03-week3_files/figure-html/unnamed-chunk-8-1.png" width="672" />
+<img src="03-week3_files/figure-html/unnamed-chunk-9-1.png" width="672" />
 
 The alpha parameter that we are inserting within `tm_borders()` controls the transparency of the borders, we can go from 0 (totally transparent) to 1 (not transparent). You can play around with this value and see the results.
 
@@ -132,17 +147,21 @@ Notice as well that the legend in this map is (a) not very informative and (b) l
 
 
 ```r
-tm_shape(manchester_lsoa) + 
+tm_shape(manchester_crime_lsoa) + 
   tm_fill("count", title = "Crime counts") +
   tm_borders(alpha = 0.1) +
   tm_layout(main.title = "Crime in Manchester City, Nov/2017", main.title.size = 0.7 ,
             legend.position = c("right", "bottom"), legend.title.size = 0.8)
 ```
 
-<img src="03-week3_files/figure-html/unnamed-chunk-9-1.png" width="672" />
+<img src="03-week3_files/figure-html/unnamed-chunk-10-1.png" width="672" />
+
+
+We are also going to change the current style of the maps by making them more friendly to colour blind people. We can use the tmap_style() function to do so.
+
+
 
 ```r
-#We are also going to change the current style of the maps by making them more friendly to colour blind people. We can use the tmap_style() function to do so.
 current_style <- tmap_style("col_blind")
 ```
 
@@ -154,22 +173,59 @@ current_style <- tmap_style("col_blind")
 ## other available styles are: "white", "gray", "natural", "cobalt", "albatross", "beaver", "bw", "classic", "watercolor"
 ```
 
-## Producing small multiples to compare the effect of different classification systems
+
+See how the map changes.
+
+
+```r
+tm_shape(manchester_crime_lsoa) + 
+  tm_fill("count", title = "Crime counts") +
+  tm_borders(alpha = 0.1) +
+  tm_layout(main.title = "Crime in Manchester City, Nov/2017", main.title.size = 0.7 ,
+            legend.position = c("right", "bottom"), legend.title.size = 0.8)
+```
+
+<img src="03-week3_files/figure-html/unnamed-chunk-12-1.png" width="672" />
+
+## Classification systems for thematic maps
+
+In thematic mapping, you have to make some key decisions, the most important one being how to display your data. When mapping a quantitative varaible, we have to "bin" this variable into groups. For example in the map we made below, the default binning applied was to display LSOAs grouped into those with 1 -200, 201-400, 401-600 and 601-800 crimes. But why these? How were these groupings decided upon?
+
+
+The quantitative information, being directly measured (e.g. total population) or derived (e.g. population density), is usually classified before its symbolization in a thematic map. Theoretically, accurate classes that best reflect the distributional character of the data set can be calculated.
+
+
+**The equal interval** (or equal step) classification method divides the range of attribute values into equally sized classes. What this means is that the values are divided into equal groups. This approach is best for continuous data. 
+
+
+**The quantile map** bin the same count of features into each of its classes. This classification method places equal numbers of observations into each class. This method is best for data that is evenly distributed across its range. 
+
+**The natural breaks (or Jenks)** classification method utilizes an algorithm to group values in classes that are separated by distinct break points. It is an optimisation method which takes an iterative approach to its groupings to achieve least variation within each class. This method is best used with data that is unevenly distributed but not skewed toward either end of the distribution. 
+
+**The standard deviation** map uses the standard deviation (standardised measure of observations' deviation from the mean) to bin the observations into classes. This classification method forms each class by adding and subtracting the standard deviation from the mean of the dataset. It is best suited to be used with data that conforms to a normal distribution. 
+
+
+The above should be familiar from your reading, but if you would like another angle I recommend a browse of [this guide](https://gisgeography.com/choropleth-maps-data-classification/) which has some nice visualisations. 
+
+
+
+#### Activity 2: Comparing classifications 
+
 
 For comparing the effects of using different methods we can use small multiples. Small multiples is simply a way of reproducing side by sides similar maps for comparative purposes. To be more precise small multiples are *sets of charts of the same type, with the same scale, presented together at a small size and with minimal detail, usually in a grid of some kind*. The term was at least popularized by Edward Tufte, appearing first in his *Visual Display of Quantitative Information* in 1983.
 
 There are different ways of creating small multiples with `tmap` as you could see in the vignettes for the package, some of which are quicker but a bit more restricted. Here we are going to use `tmap_arrange()`. With `tmap_arrange()` first we need to create the maps we want and then we arrange them together.
 
-Let's make four maps, each one using a different classification method: Equal interval, Natural breaks (Jenks), Quantile, and Unclassed (no classification). You should be familiar with these methods from the reading and lecturing material. If not, please, do make sure you read the material before continuing.
+Let's make four maps, each one using a different classification method: Equal interval, QUantile, Natural breaks (Jenks), and Standard Deviation. 
 
 For each map, instead of visualising them one by one, just assign them to a new object. Let's call them *map1*, *map2*, *map3* and *map4*. 
 
-So let's make *map1*. This will create a choropleth map using equal intervals:
+So let's make *map1*. This will create a thematic map using equal intervals:
 
 
 
 ```r
-map1 <- tm_shape(manchester_lsoa) +                   #use tm_shape function to specify spatial object
+map1 <- tm_shape(manchester_crime_lsoa) +                   #use tm_shape function to specify spatial object
   tm_fill("count", style="equal", title = "Equal") +  #use tm_fill to specify variable, classification method, and give the map a title
   tm_layout(legend.position = c("right", "bottom"),   #use tm_layout to make the legend look nice
             legend.title.size = 0.8,
@@ -181,7 +237,7 @@ Now create *map2*, with the jenks method often preferred by geographers:
 
 
 ```r
-map2 <- tm_shape(manchester_lsoa) + 
+map2 <- tm_shape(manchester_crime_lsoa) + 
   tm_fill("count", style="jenks", title = "Jenks") +
   tm_layout(legend.position = c("right", "bottom"), 
             legend.title.size = 0.8,
@@ -192,20 +248,20 @@ Now create *map3*, with the quantile method often preferred by epidemiologists:
 
 
 ```r
-map3 <- tm_shape(manchester_lsoa) + 
+map3 <- tm_shape(manchester_crime_lsoa) + 
   tm_fill("count", style="quantile", title = "Quantile") +
   tm_layout(legend.position = c("right", "bottom"), 
             legend.title.size = 0.8,
             legend.text.size = 0.5)
 ```
 
-And finally make *map4*, an unclassed choropleth map, which maps the values of our variable to a smooth gradient.
+And finally make *map4*, standard deviation map, which maps the values of our variable to distance to the mean value.
 
 
 
 ```r
-map4 <- tm_shape(manchester_lsoa) + 
-  tm_fill("count", style="cont", title = "Unclassed") +
+map4 <- tm_shape(manchester_crime_lsoa) + 
+  tm_fill("count", style="sd", title = "Standard Deviation") +
   tm_borders(alpha=0.1) +
   tm_layout(legend.position = c("right", "bottom"), 
             legend.title.size = 0.8,
@@ -221,7 +277,7 @@ So if you wanted to map just *map3* for example, all you need to do, is call the
 map3
 ```
 
-<img src="03-week3_files/figure-html/unnamed-chunk-14-1.png" width="672" />
+<img src="03-week3_files/figure-html/unnamed-chunk-17-1.png" width="672" />
 
 But now we will plot all 4 maps together, arranged using the `tmap_arrange()` function. Like so: 
 
@@ -231,29 +287,32 @@ But now we will plot all 4 maps together, arranged using the `tmap_arrange()` fu
 tmap_arrange(map1, map2, map3, map4) 
 ```
 
-<img src="03-week3_files/figure-html/unnamed-chunk-15-1.png" width="672" />
+<img src="03-week3_files/figure-html/unnamed-chunk-18-1.png" width="672" />
 
-### Homework 3.1
+There are some other classification methods built into tmap which you can experiment with if you'd like. Your discrete gradient options are "cat", "fixed", "sd", "equal", "pretty", "quantile", "kmeans", "hclust", "bclust", "fisher", "jenks", "dpih", "headtails", and "log10_pretty". A numeric variable is processed as a categorical variable when using "cat", i.e. each unique value will correspond to a distinct category.
 
-*Discuss which of these classification methods gives you the best visualisation of crime in Manchester city. Insert the produced maps in your answer.*
+
+Taken from the help file we can find more information about these, for example the "kmeans" style uses kmeans clustering technique (a form of unsupervised statistical learning) to generate the breaks. The "hclust" style uses hclust to generate the breaks using hierarchical clustering and the "bclust" style uses bclust to generate the breaks using bagged clustering. These approaches are outisde the scope of what we cover, but just keep in mind that there are many different ways to classify your data, and you must think carefully about the choice you make, as it may affect your readers' conclusions from your map. 
+
+
 
 ## Using graduated symbols
 
-The literature on thematic cartography highlights how counts, like the ones above, are best represented using graduated symbols rather than choropleth maps. So let's try to go for a more appropriate representation. In `tmap` you can use tm_symbols for this. We will use `tm_borders` to provide some context.
+Some of the literature on thematic cartography highlights how counts, like the ones above, are best represented using graduated symbols rather than choropleth maps (using colour, as we did above). So let's try to go for a more appropriate representation. In `tmap` you can use tm_symbols for this. We will use `tm_borders` to provide some context.
 
 
 ```r
-tm_shape(manchester_lsoa) + 
+tm_shape(manchester_crime_lsoa) + 
   tm_bubbles("count")
 ```
 
-<img src="03-week3_files/figure-html/unnamed-chunk-16-1.png" width="672" />
+<img src="03-week3_files/figure-html/unnamed-chunk-19-1.png" width="672" />
 
 First thing you see is that we loose the context (provided by the polygon borders) that we had earlier. The `border.lwd` argument set to NA in the `tm_symbols()` is asking R not to draw a border to the circles. Whereas `tm_borders()` brings back a layer with the borders of the polygons representing the different LSOAs in Manchester city. Notice how I am modifying the transparency of the borders with the alpha parameter.
 
 
 ```r
-tm_shape(manchester_lsoa) +                         #use tm_shape function to specify spatial object
+tm_shape(manchester_crime_lsoa) +                         #use tm_shape function to specify spatial object
   tm_bubbles("count", border.lwd=NA) +              #use tm_bubbles to add the bubble visualisation, but set the 'border.lwd' parameter to NA, meaning no symbol borders are drawn
   tm_borders(alpha=0.1) +                           #add the LSOA border outlines using tm_borders, but set their transparency using the alpha parameter (0 is totally transparent, 1 is not at all)
   tm_layout(legend.position = c("right", "bottom"), #use tm_layout to make the legend look nice
@@ -261,9 +320,20 @@ tm_shape(manchester_lsoa) +                         #use tm_shape function to sp
             legend.text.size = 0.5)
 ```
 
-<img src="03-week3_files/figure-html/unnamed-chunk-17-1.png" width="672" />
+<img src="03-week3_files/figure-html/unnamed-chunk-20-1.png" width="672" />
 
-## Bringing additional census data in
+## Mapping rates rather than counts
+
+
+In much of our readings we have now seen the importance to map rates rather than counts of things, and that is for the simple reason that population is not equally distributed in space. That means that if we do not account for how many people are somewhere, we end up mapping population size rather than our topic of interest. As always, there is a relevant xkcd for that: 
+
+![https://xkcd.com/1138/](https://imgs.xkcd.com/comics/heatmap.png)
+
+In specific to crime mapping, there is an ongoing issue of the *denominators dilemma* which has been cropping up in your reading. This is concerned with choosing the most appropriate measure for calculating crime rates. The best measure is one which captures opportunities. You read about some approaches to capturing ambient population for example to estimate risk for on-street crimes. Whatever denominator you choose, you will usually want to make a case as to why that is the best representation of the opportunities for the crime type you're interested in. 
+
+
+#### Activity 3: Getting population data from the census
+
 
 Last week you learned how to obtain crime data from the police UK website and you also developed the skills to obtain shapefiles with the boundaries for the UK census geographies. Specifically you learnt how to obtain LSOAs boundaries. Then we taught you how to join these data tables using `dplyr`. If you open your *manchester_lsoa* object you will see that at the moment you only have one field in this dataframe providing you with statistical information. However, there is a great deal of additional information that you could add to these data frame. Given that you are using census geographies you could add to it all kind of socio demographic variables available from the census. 
 
@@ -281,18 +351,19 @@ At the bottom of the page click in *Add* and then where it says *Next*. Now big 
 
 Now you will need to practice navigating the Infuse system to generate a data table that has a number of relevant fields we are going to use today and at a later point this semester. I want you to create a file with information about: the resident population, the workday population, and the number of deprivation households. This will involve some trial and error but you should end up with a selection like the one below:
 
-![](img/infuseselection.PNG)
+![](img/infuseselection.png)
 
-Once you have those fields click next to get the data and download the file. Unzip them and open the .csv file in Excel. If you view the data in Excel you will notice it is a bit untidy. The first row has no data but the labels for the variable names and the second row has the data for Manchester as a whole. We don't need those rows. Because this data is a bit untidy we are going to use `read_csv()` function from the `readr` package rather than the base `read.csv` function.
+Once you have those fields click next to get the data and download the file. Unzip them and see you have your .csv file. Save this into your data subfolder in your project directory. Use `read_csv()` function from the `readr` package to import this data.
+
+
+```
+## Warning: Missing column names filled in: 'X14' [14]
+```
 
 
 ```r
 library(readr)
-census_lsoa_m <- read_csv("https://www.dropbox.com/s/e4nkqmefovlsvib/Data_AGE_APPSOCG_DAYPOP_UNIT_URESPOP.csv?dl=1")
-```
-
-```
-## Warning: Missing column names filled in: 'X14' [14]
+census_lsoa_m <- read_csv("data/Data_AGE_APPSOCG_DAYPOP_UNIT_URESPOP.csv?dl=1")
 ```
 
 Notice that even all the variables that begin with "f" are numbers they have been read into R as characters. This is to do with the fact the first two lines do not represent cases and do have characters. R is coercing everything into character vectors. Let's clean this a bit.
@@ -327,16 +398,16 @@ census_lsoa_m <- rename(census_lsoa_m, tothouse = F996, notdepr = F997, depriv1 
                         wkdpop = F323339)
 ```
 
-The rename function takes as the first argument the name of the dataframe. Then for each variable you want to change you write down the new name followed by the old name. Now that we have the file ready we can link it to our *manchester_lsoa* file using code we learnt last week. We use again the `left_join()` function to add to the *manchester_lsoa* dataframe the variables that are present in the *census_lsoa_m*. The first argument in the function is the name of the dataframe to which we want to add fields, the second argument the name of the dataframe from which those fields come, and then you need to specify using "by" the name of the variables on each of these two dataframes that have the id variable that will allow us to ensure that we are linking the information across the same observations.
+The rename function takes as the first argument the name of the dataframe. Then for each variable you want to change you write down the new name followed by the old name. Now that we have the file ready we can link it to our *manchester_lsoa* file using code we learned last week. We use again the `left_join()` function to add to the *manchester_lsoa* dataframe the variables that are present in the *census_lsoa_m*. The first argument in the function is the name of the dataframe to which we want to add fields, the second argument the name of the dataframe from which those fields come, and then you need to specify using "by" the name of the variables on each of these two dataframes that have the id variable that will allow us to ensure that we are linking the information across the same observations.
 
 
 ```r
-manchester_lsoa <- left_join(manchester_lsoa, census_lsoa_m, by = c("code"="GEO_CODE"))
+manchester_crime_lsoa <- left_join(manchester_crime_lsoa, census_lsoa_m, by = c("code"="GEO_CODE"))
 ```
 
 And there you go... Now you have a datafile with quite a few pieces of additional information about LSOAs in Manchester. The next step is to use this information.
 
-## Computing and mapping crime rates
+#### Activity 4: Computing crime rates
 
 Ok, so now we have a field that provides us with the number of crimes and two alternative counts of population for each LSOA in Manchester in the same dataframe. We could compute the rate of crime in each using the population counts as our denominator. Let's see how the maps may compare using these different denominators. 
 
@@ -346,10 +417,20 @@ First we want to create a rate using the usual residents, since crime rates are 
 
 
 ```r
-manchester_lsoa <- mutate(manchester_lsoa, crimr1 = (count/respop)*100000, crimr2 = (count/wkdpop)*100000)
+manchester_crime_lsoa <- mutate(manchester_crime_lsoa, crimr1 = (count/respop)*100000, crimr2 = (count/wkdpop)*100000)
 ```
 
-It should not be difficult for you to produce now a choropleth map like the one below. Clue: to change the colors for the fill of the polygons you can use the palette argument within the `tm_fill` calls. You can explore different palettes running the following code:
+
+And now we have two new variables, one for crime rate with residential population as a denominator, and another with workplace population as a denominator. 
+
+
+#### Activity 5: Mapping crime rates
+
+Now that we have our variables for crime rate per population, we can use this to produce our crime maps!
+
+Let's first map crime count, next to residential population, and then the crime rate. We can do this by creating two maps, and then using our trusty `tmap_arrange()` to put them next to one another. 
+
+Let's also use a different palette for each map, that is a different fill colour. To change the colours for the fill of the polygons you can use the palette argument within the `tm_fill()` function. You can explore different palettes running the following code:
 
 
 ```r
@@ -357,11 +438,36 @@ tmaptools::palette_explorer()
 ```
 
 
-### Homework 2 
+Pick the ones you like, and use them. Here I will use Blues, Greens and Reds
 
-*Reproduce the map below, you will need to include the code you used as part of your homework submission. Discuss the results. What are the most notable differences? Which denominator do you think is more appropriate (you will need to think about this quite carefully). Are you comparing like with like? Why? Why not? Could you make these comparisons more equivalent if you think you are not comparing like with like?* 
 
-<img src="03-week3_files/figure-html/unnamed-chunk-26-1.png" width="672" />
+
+```r
+crime_count_map <- tm_shape(manchester_crime_lsoa) + 
+  tm_fill("count", style="quantile", palette= "Blues", title = "Crime count") +
+  tm_layout(panel.labels = "Crime count", legend.position = c("right", "bottom"),
+            legend.title.size = 0.8, legend.text.size = 0.5)
+
+res_pop_map <- tm_shape(manchester_crime_lsoa) + 
+  tm_fill("respop", style="quantile", palette= "Greens", title = "Residential population") +
+  tm_layout(panel.labels = "Residential population", legend.position = c("right", "bottom"),
+            legend.title.size = 0.8, legend.text.size = 0.5)
+
+crime_rate_map <- tm_shape(manchester_crime_lsoa) + 
+  tm_fill("crimr1", style="quantile", palette= "Reds", title = "Crime rate") +
+  tm_layout(panel.labels = "Crime per 100,00 population", legend.position = c("right", "bottom"),
+            legend.title.size = 0.8, legend.text.size = 0.5)
+
+tmap_arrange(crime_count_map, res_pop_map, crime_rate_map)
+```
+
+<img src="03-week3_files/figure-html/unnamed-chunk-30-1.png" width="672" />
+
+What do you think about these three maps? How do you think this might be different if we were to look at workday population instead of residential population as a denominator? Discuss in your groups and make notes in your shared google doc. 
+
+<!-- ### Homework 2  -->
+
+<!-- *Reproduce the map below, you will need to include the code you used as part of your homework submission. Discuss the results. What are the most notable differences? Which denominator do you think is more appropriate (you will need to think about this quite carefully). Are you comparing like with like? Why? Why not? Could you make these comparisons more equivalent if you think you are not comparing like with like?*  -->
 
 Once you have completed this activity, let's explore your map with the crime rate using the usual residents as the denominator using the interactive way. Assuming you name that visualisation map5 you could use the following code.
 
@@ -377,166 +483,155 @@ In the first lecture we spoke a bit about Open Street Map, but if you're interes
 
 ![](img/shiftingbasemap.png)
 
-### Homework 3
-
-*What areas of the city seem to have the largest concentration of crime? Why? Does deprivation help you to understand the patterns? What's going on in the LSOA farthest to the South? Why does it look like a crime hotspot in this map and not in the one using the workday population?*
-
-## More on small multiples and point pattern maps
-
-Last week we showed you how to visualise point patterns using data from the Police UK website. One of the homeworks ask you to discuss the map you produced using `leaflet` in which you used type of crimes to colour your points. One of the problems with that map was that you had so many levels within that variable that it was very difficult to tell what was what. Even some of the colors in different categories were not that different from each other. That's a typical situation where faceting or using small multiples would have been a better solution.
-
-What we are going to do require our data to be stored as a spatial object -as it is the case with `tmap`. So first we need to turn our data into a spatial object. For this we will use the `st_as_sf()` function. The `st_as_sf` will return a `sf` object using the geographical coordinates we specify, below you can see we also specify the coordinate system we are using. Since we didn't modify the `tmap_mode` from our last call we would still be running on the view rather than the plot format. We can go back to the plot format with a new `tmap_mode` call.
 
 
-```r
-crime_sf <- st_as_sf(x = crimes, 
-                        coords = c("Longitude", "Latitude"),
-                        crs = "+proj=longlat +datum=WGS84")
-#For a simple map with all the points
-tmap_mode("plot")
-```
+## Summary
 
-```
-## tmap mode set to plotting
-```
-
-```r
-tm_shape(crime_sf) + 
-  tm_dots() 
-```
-
-<img src="03-week3_files/figure-html/unnamed-chunk-28-1.png" width="672" />
-
-Here we are getting all the data points in the "crime_sf" object, which includes the whole of Greater Manchester. Also, since there are so many crimes, dots, it is hard to see patterns. We can add some transparency with the alpha argument as part of the `tm_dots` call.
+This week we learned some basic principles of thematic maps. We learned how to make them using the tmap package, we learned about the importance of classification schemes, and how each one may produce a different looking map, which may tell a different story. We learned how to access population data from the UK census, and how we can use that to calculate crime rates instead of crime counts. Taking this forward, make sure to think critically about the decisions that go into producing your thematic maps
 
 
-```r
-tm_shape(crime_sf) + 
-  tm_dots(alpha=0.1) 
-```
+<!-- ### Homework 3 -->
 
-<img src="03-week3_files/figure-html/unnamed-chunk-29-1.png" width="672" />
+<!-- *What areas of the city seem to have the largest concentration of crime? Why? Does deprivation help you to understand the patterns? What's going on in the LSOA farthest to the South? Why does it look like a crime hotspot in this map and not in the one using the workday population?* -->
 
-Straight away you can start seeing some patterns, like the concentration of crimes in the town centres of all the different local authorities that conform Greater Manchester. This would be easier for you to see, if you are not familiar with the geography of Greater Manchester, if you place a basemap as a layer.
+<!-- ## More on small multiples and point pattern maps -->
 
-You can also use basemaps when working on the plot mode of `tmap`. We could for example use OpenStreet maps. We use the read_osm function from `tmaptools` package to do that, by passing *crime_sf* as an argument we will be bounding the scope of the basemap to the area covered by our point pattern of crimes. We will also need to load the OpenStreetMap package for this to work. 
-
-Remember that the first time you use a package you always have to install it, using the `install.packages()` function!
-
-Now load the OpenStreetMap library into your working environment with the `library()` function: 
+<!-- Last week we showed you how to visualise points using data from the Police UK website. One issue with such point maps is that it is impossible to tell how many points are in  -->
 
 
-```r
-library(OpenStreetMap)
-```
+<!-- One of the problems with that map was that you had so many levels within that variable that it was very difficult to tell what was what. Even some of the colors in different categories were not that different from each other. That's a typical situation where faceting or using small multiples would have been a better solution. -->
 
-**Mac Users's Note**: *So if you're on a Mac, it's possible that at this point (or when trying to install the package) you've experienced an error. It might look something like this:* 
+<!-- What we are going to do require our data to be stored as a spatial object -as it is the case with `tmap`. So first we need to turn our data into a spatial object. For this we will use the `st_as_sf()` function. The `st_as_sf` will return a `sf` object using the geographical coordinates we specify, below you can see we also specify the coordinate system we are using. Since we didn't modify the `tmap_mode` from our last call we would still be running on the view rather than the plot format. We can go back to the plot format with a new `tmap_mode` call. -->
 
-`Error: package or namespace load failed for ‘OpenStreetMap’:
- .onLoad failed in loadNamespace() for 'rJava', details:
-  call: dyn.load(file, DLLpath = DLLpath, ...)
-  error: unable to load shared object '/Library/Frameworks/R.framework/Versions/3.4/Resources/library/rJava/libs/rJava.so':
-  dlopen(/Library/Frameworks/R.framework/Versions/3.4/Resources/library/rJava/libs/rJava.so, 6): Library not loaded: @rpath/libjvm.dylib
-  Referenced from: /Library/Frameworks/R.framework/Versions/3.4/Resources/library/rJava/libs/rJava.so
-  Reason: image not found`
-  
-*This is because of some drama between the rJava and your Mac OS's dealing with Java. Do not despair though, the solution is simple. Open up your `Terminal` app. This is your command line for Mac. You might have used before for other things, or you might not. If you don't know what I'm on about with `Terminal` have a look at this [helpful tutorial](https://www.macworld.co.uk/feature/mac-software/how-use-terminal-on-mac-3608274/).*
+<!-- ```{r} -->
 
 
-*Now, once you have Terminal open, all you have to do is copy and paste the code below, and press Enter to run it:*
+<!-- crime_sf <- st_as_sf(x = crimes,  -->
+<!--                         coords = c("Longitude", "Latitude"), -->
+<!--                         crs = "+proj=longlat +datum=WGS84") -->
+<!-- #For a simple map with all the points -->
+<!-- tmap_mode("plot") -->
+<!-- tm_shape(crime_sf) +  -->
+<!--   tm_dots()  -->
+<!-- ``` -->
+
+<!-- Here we are getting all the data points in the "crime_sf" object, which includes the whole of Greater Manchester. Also, since there are so many crimes, dots, it is hard to see patterns. We can add some transparency with the alpha argument as part of the `tm_dots` call. -->
+
+<!-- ```{r} -->
+<!-- tm_shape(crime_sf) +  -->
+<!--   tm_dots(alpha=0.1)  -->
+<!-- ``` -->
+
+<!-- Straight away you can start seeing some patterns, like the concentration of crimes in the town centres of all the different local authorities that conform Greater Manchester. This would be easier for you to see, if you are not familiar with the geography of Greater Manchester, if you place a basemap as a layer. -->
+
+<!-- You can also use basemaps when working on the plot mode of `tmap`. We could for example use OpenStreet maps. We use the read_osm function from `tmaptools` package to do that, by passing *crime_sf* as an argument we will be bounding the scope of the basemap to the area covered by our point pattern of crimes. We will also need to load the OpenStreetMap package for this to work.  -->
+
+<!-- Remember that the first time you use a package you always have to install it, using the `install.packages()` function! -->
+
+<!-- Now load the OpenStreetMap library into your working environment with the `library()` function:  -->
+
+<!-- ```{r, eval=FALSE} -->
+
+<!-- library(OpenStreetMap) -->
+
+<!-- ``` -->
+
+<!-- **Mac Users's Note**: *So if you're on a Mac, it's possible that at this point (or when trying to install the package) you've experienced an error. It might look something like this:*  -->
+
+<!-- `Error: package or namespace load failed for ‘OpenStreetMap’: -->
+<!--  .onLoad failed in loadNamespace() for 'rJava', details: -->
+<!--   call: dyn.load(file, DLLpath = DLLpath, ...) -->
+<!--   error: unable to load shared object '/Library/Frameworks/R.framework/Versions/3.4/Resources/library/rJava/libs/rJava.so': -->
+<!--   dlopen(/Library/Frameworks/R.framework/Versions/3.4/Resources/library/rJava/libs/rJava.so, 6): Library not loaded: @rpath/libjvm.dylib -->
+<!--   Referenced from: /Library/Frameworks/R.framework/Versions/3.4/Resources/library/rJava/libs/rJava.so -->
+<!--   Reason: image not found` -->
+
+<!-- *This is because of some drama between the rJava and your Mac OS's dealing with Java. Do not despair though, the solution is simple. Open up your `Terminal` app. This is your command line for Mac. You might have used before for other things, or you might not. If you don't know what I'm on about with `Terminal` have a look at this [helpful tutorial](https://www.macworld.co.uk/feature/mac-software/how-use-terminal-on-mac-3608274/).* -->
 
 
-`sudo ln -f -s $(/usr/libexec/java_home)/jre/lib/server/libjvm.dylib /usr/local/lib`
+<!-- *Now, once you have Terminal open, all you have to do is copy and paste the code below, and press Enter to run it:* -->
 
 
-*After you press Enter, Terminal will ask you for your password. This is the password to your laptop. Type in your password, and hit enter again. Once that's all done, you can go back to R, and you will have to load a package called `rJava()`. Like so:* 
+<!-- `sudo ln -f -s $(/usr/libexec/java_home)/jre/lib/server/libjvm.dylib /usr/local/lib` -->
 
 
-
-```r
-library(rJava)
-```
-
-*Now you can again try loading the OpenStreetMap package.* 
+<!-- *After you press Enter, Terminal will ask you for your password. This is the password to your laptop. Type in your password, and hit enter again. Once that's all done, you can go back to R, and you will have to load a package called `rJava()`. Like so:*  -->
 
 
-```r
-library(OpenStreetMap)
-```
+<!-- ```{r} -->
+<!-- library(rJava) -->
+<!-- ``` -->
 
-*Hopefully should all work smoothly now!*
+<!-- *Now you can again try loading the OpenStreetMap package.*  -->
 
-**Back to everybody here!**
+<!-- ```{r} -->
 
-You will also need another package called `tmaptools`. This gets installed when you installed tmap, but you still have to load it up. 
+<!-- library(OpenStreetMap) -->
 
+<!-- ``` -->
 
-```r
-library(tmaptools)
-```
+<!-- *Hopefully should all work smoothly now!* -->
 
-We will then add the basemap layer using the `qtm()` function that is a function provided by tmap for quick plotting.
+<!-- **Back to everybody here!** -->
 
-First, create an object, let's call it `gm_osm`, by reading Open Street Map (OSM) data with the `read_osm()` function. This function reads and returns OSM tiles are read and returns as a spatial raster, or queries vectorized OSM data and returns as spatial polygons, lines, and/or points.   
+<!-- You will also need another package called `tmaptools`. This gets installed when you installed tmap, but you still have to load it up.  -->
 
+<!-- ```{r} -->
+<!-- library(tmaptools) -->
 
-```r
-gm_osm <- read_osm(crime_sf)
-```
+<!-- ``` -->
 
-It might take a while to get this data, as it is quite a large set of data, being extracted from the open street map database. Just think how long it took all the volunteers to map these areas. Compared to that, the little waiting time to get this onto your computer for your map should be nothing!
+<!-- We will then add the basemap layer using the `qtm()` function that is a function provided by tmap for quick plotting. -->
 
-Now you can use the `qtm()` function to draw a quick thematic map. Any ideas as to why it's called qtm yet? Let's try again. You can draw a **Q**uick **T**hematic **M**ap. 
+<!-- First, create an object, let's call it `gm_osm`, by reading Open Street Map (OSM) data with the `read_osm()` function. This function reads and returns OSM tiles are read and returns as a spatial raster, or queries vectorized OSM data and returns as spatial polygons, lines, and/or points.    -->
 
-Again we use the `tm_shape()` and `tm_dots()` functions to specify the presentation of the map, with `tm_shape()` specifying the shape object (in this case crime_sf), and `tm_dots()` to draw symbols, including specifying the color, size, and shape of the symbols. In this case we adjust the transparency with the `alpha` parameter. 
+<!-- ```{r} -->
 
+<!-- gm_osm <- read_osm(crime_sf) -->
+<!-- ``` -->
 
-```r
-qtm(gm_osm) + 
-  tm_shape(crime_sf) + 
-  tm_dots(alpha=0.1) 
-```
+<!-- It might take a while to get this data, as it is quite a large set of data, being extracted from the open street map database. Just think how long it took all the volunteers to map these areas. Compared to that, the little waiting time to get this onto your computer for your map should be nothing! -->
 
-<img src="03-week3_files/figure-html/unnamed-chunk-35-1.png" width="672" />
+<!-- Now you can use the `qtm()` function to draw a quick thematic map. Any ideas as to why it's called qtm yet? Let's try again. You can draw a **Q**uick **T**hematic **M**ap.  -->
 
-Let's zoom in into Manchester city, for which we can use our manchester_lsoa map.
+<!-- Again we use the `tm_shape()` and `tm_dots()` functions to specify the presentation of the map, with `tm_shape()` specifying the shape object (in this case crime_sf), and `tm_dots()` to draw symbols, including specifying the color, size, and shape of the symbols. In this case we adjust the transparency with the `alpha` parameter.  -->
 
+<!-- ```{r} -->
 
-```r
-mc_osm <- read_osm(manchester_lsoa, type = "stamen-toner")
+<!-- qtm(gm_osm) +  -->
+<!--   tm_shape(crime_sf) +  -->
+<!--   tm_dots(alpha=0.1)  -->
+<!-- ``` -->
 
-qtm(mc_osm) + 
-  tm_shape(crime_sf) + 
-  tm_dots(alpha=0.1) 
-```
+<!-- Let's zoom in into Manchester city, for which we can use our manchester_lsoa map. -->
 
-<img src="03-week3_files/figure-html/unnamed-chunk-36-1.png" width="672" />
+<!-- ```{r} -->
+<!-- mc_osm <- read_osm(manchester_lsoa, type = "stamen-toner") -->
 
-We can use the `bb()` function from `tmaptols` to create a bounding box around the University of Manchester, the width and height parameters I am using determine the degree of zoom in (I got these experimenting with different ones until I got the right zooming around the University location). Once you have this bounding box you can pass it as an argument to the `read_osm()` function that will look for the basemap around that location. 
+<!-- qtm(mc_osm) +  -->
+<!--   tm_shape(crime_sf) +  -->
+<!--   tm_dots(alpha=0.1)  -->
+<!-- ``` -->
 
+<!-- We can use the `bb()` function from `tmaptols` to create a bounding box around the University of Manchester, the width and height parameters I am using determine the degree of zoom in (I got these experimenting with different ones until I got the right zooming around the University location). Once you have this bounding box you can pass it as an argument to the `read_osm()` function that will look for the basemap around that location.  -->
 
-```r
-#Create the bounding box
-UoM_bb <- bb("University of Manchester", width=.03, height=.02)
-#Read the basemap from using the stamen toner background
-UoM_osm <- read_osm(UoM_bb, type = "stamen-toner")
-#Plot the basemap
-qtm(UoM_osm)
-```
+<!-- ```{r} -->
+<!-- #Create the bounding box -->
+<!-- UoM_bb <- bb("University of Manchester", width=.03, height=.02) -->
+<!-- #Read the basemap from using the stamen toner background -->
+<!-- UoM_osm <- read_osm(UoM_bb, type = "stamen-toner") -->
+<!-- #Plot the basemap -->
+<!-- qtm(UoM_osm) -->
+<!-- ``` -->
 
-<img src="03-week3_files/figure-html/unnamed-chunk-37-1.png" width="672" />
+<!-- Now that we have our basemap we can run our small multiples. Because we have a variable that determines the types we can use a different way to `tmap_arrange()` explained above, we can essentially ask `tmap` to create a map for each of the levels in our organising variable (in this case Crime.type). So instead of `tmap_arrange()` that requires the creation of each map, when each map simply represents different levels of an organising variable we can simplify the syntax using `tm_facets()` and within this function we specify as the first argument the name of the variable that has the different categories we want to map out. The second argument you see below `free.coords` set to FALSE simply ensures that the map gets bounded to the basemap, if you want to see what happens if you change it, just set it to TRUE instead. -->
 
-Now that we have our basemap we can run our small multiples. Because we have a variable that determines the types we can use a different way to `tmap_arrange()` explained above, we can essentially ask `tmap` to create a map for each of the levels in our organising variable (in this case Crime.type). So instead of `tmap_arrange()` that requires the creation of each map, when each map simply represents different levels of an organising variable we can simplify the syntax using `tm_facets()` and within this function we specify as the first argument the name of the variable that has the different categories we want to map out. The second argument you see below `free.coords` set to FALSE simply ensures that the map gets bounded to the basemap, if you want to see what happens if you change it, just set it to TRUE instead.
+<!-- ```{r} -->
+<!-- qtm(UoM_osm) +  -->
+<!--   tm_shape(crime_sf) +  -->
+<!--   tm_dots(size=0.5, col = "Crime.type") +  -->
+<!--   tm_facets("Crime.type", free.coords=FALSE) + -->
+<!--   tm_layout(legend.show=FALSE) -->
+<!-- ``` -->
 
-
-```r
-qtm(UoM_osm) + 
-  tm_shape(crime_sf) + 
-  tm_dots(size=0.5, col = "Crime.type") + 
-  tm_facets("Crime.type", free.coords=FALSE) +
-  tm_layout(legend.show=FALSE)
-```
-
-<img src="03-week3_files/figure-html/unnamed-chunk-38-1.png" width="672" />
-
-We could do some further tweaking around for ensuring things look a bit neater. But we have covered a lot of ground today, and you should all give yourself a congratulatory "well done".
+<!-- We could do some further tweaking around for ensuring things look a bit neater. But we have covered a lot of ground today, and you should all give yourself a congratulatory "well done". -->

@@ -1,15 +1,16 @@
 --- 
-title: "Crime Mapping in R"
+title: "Crime Mapping and Spatial Data Analysis using R"
 author: "Juanjo Medina and Reka Solymosi"
-date: "2019-04-02"
+date: "2021-02-03"
 site: bookdown::bookdown_site
 output: bookdown::gitbook
 documentclass: book
 bibliography: [book.bib, packages.bib]
 biblio-style: apalike
 link-citations: yes
-github-repo: maczokni/crimemapping_textbook_bookdown
-description: "Worksheets for labs of Crime Mapping course"
+github-repo: maczokni/crime_mapping
+description: "Crime Mapping and Spatial Data Analysis using R"
+always_allow_html: true
 ---
 # Prelude  {-}
 

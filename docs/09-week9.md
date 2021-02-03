@@ -1,3 +1,7 @@
+---
+always_allow_html: true
+---
+
 # Spatial regression models
 
 
@@ -13,17 +17,13 @@ library(sf)
 ```
 
 ```
-## Linking to GEOS 3.6.1, GDAL 2.2.3, PROJ 4.9.3
+## Linking to GEOS 3.8.1, GDAL 3.1.4, PROJ 6.3.1
 ```
 
 ```r
 library(tmap)
 library(sp)
 library(spdep)
-```
-
-```
-## Loading required package: Matrix
 ```
 
 ```
@@ -57,13 +57,12 @@ ncovr_sf <- st_read(shp_name)
 ```
 
 ```
-## Reading layer `NAT' from data source `C:\Users\Juanjo Medina\Dropbox\1_Teaching\1 Manchester courses\31152_60142 GIS and Crime Mapping\new_crimemapping\ncovr\ncovr\NAT.shp' using driver `ESRI Shapefile'
+## Reading layer `NAT' from data source `/Users/reka/Desktop/crime_mapping/ncovr/ncovr/NAT.shp' using driver `ESRI Shapefile'
 ## Simple feature collection with 3085 features and 69 fields
 ## geometry type:  MULTIPOLYGON
 ## dimension:      XY
 ## bbox:           xmin: -124.7314 ymin: 24.95597 xmax: -66.96985 ymax: 49.37173
-## epsg (SRID):    4326
-## proj4string:    +proj=longlat +datum=WGS84 +no_defs
+## geographic CRS: WGS 84
 ```
 
 We can indeed represent our variable of interest using a choropleth map.
@@ -204,8 +203,8 @@ lm.morantest(fit_1, rwm, alternative="two.sided")
 ## 	Global Moran I for regression residuals
 ## 
 ## data:  
-## model: lm(formula = HR90 ~ RD90 + SOUTH + DV90 + MA90 + PS90 +
-## UE90, data = ncovr_sf)
+## model: lm(formula = HR90 ~ RD90 + SOUTH + DV90 + MA90 + PS90 + UE90,
+## data = ncovr_sf)
 ## weights: rwm
 ## 
 ## Moran I statistic standard deviate = 10.321, p-value < 2.2e-16
@@ -294,8 +293,8 @@ lm.morantest(fit_2, rwm_n, alternative="two.sided")
 ## 	Global Moran I for regression residuals
 ## 
 ## data:  
-## model: lm(formula = HR60 ~ RD60 + DV60 + MA60 + PS60 + UE60, data
-## = ncovr_n_sf)
+## model: lm(formula = HR60 ~ RD60 + DV60 + MA60 + PS60 + UE60, data =
+## ncovr_n_sf)
 ## weights: rwm_n
 ## 
 ## Moran I statistic standard deviate = 2.84, p-value = 0.004511
@@ -319,8 +318,8 @@ lm.LMtests(fit_2, rwm_n, test = c("LMerr","LMlag","RLMerr","RLMlag","SARMA"))
 ## 	Lagrange multiplier diagnostics for spatial dependence
 ## 
 ## data:  
-## model: lm(formula = HR60 ~ RD60 + DV60 + MA60 + PS60 + UE60, data
-## = ncovr_n_sf)
+## model: lm(formula = HR60 ~ RD60 + DV60 + MA60 + PS60 + UE60, data =
+## ncovr_n_sf)
 ## weights: rwm_n
 ## 
 ## LMerr = 7.1326, df = 1, p-value = 0.007569
@@ -329,8 +328,8 @@ lm.LMtests(fit_2, rwm_n, test = c("LMerr","LMlag","RLMerr","RLMlag","SARMA"))
 ## 	Lagrange multiplier diagnostics for spatial dependence
 ## 
 ## data:  
-## model: lm(formula = HR60 ~ RD60 + DV60 + MA60 + PS60 + UE60, data
-## = ncovr_n_sf)
+## model: lm(formula = HR60 ~ RD60 + DV60 + MA60 + PS60 + UE60, data =
+## ncovr_n_sf)
 ## weights: rwm_n
 ## 
 ## LMlag = 16.595, df = 1, p-value = 4.627e-05
@@ -339,8 +338,8 @@ lm.LMtests(fit_2, rwm_n, test = c("LMerr","LMlag","RLMerr","RLMlag","SARMA"))
 ## 	Lagrange multiplier diagnostics for spatial dependence
 ## 
 ## data:  
-## model: lm(formula = HR60 ~ RD60 + DV60 + MA60 + PS60 + UE60, data
-## = ncovr_n_sf)
+## model: lm(formula = HR60 ~ RD60 + DV60 + MA60 + PS60 + UE60, data =
+## ncovr_n_sf)
 ## weights: rwm_n
 ## 
 ## RLMerr = 8.2906, df = 1, p-value = 0.003985
@@ -349,8 +348,8 @@ lm.LMtests(fit_2, rwm_n, test = c("LMerr","LMlag","RLMerr","RLMlag","SARMA"))
 ## 	Lagrange multiplier diagnostics for spatial dependence
 ## 
 ## data:  
-## model: lm(formula = HR60 ~ RD60 + DV60 + MA60 + PS60 + UE60, data
-## = ncovr_n_sf)
+## model: lm(formula = HR60 ~ RD60 + DV60 + MA60 + PS60 + UE60, data =
+## ncovr_n_sf)
 ## weights: rwm_n
 ## 
 ## RLMlag = 17.753, df = 1, p-value = 2.515e-05
@@ -359,8 +358,8 @@ lm.LMtests(fit_2, rwm_n, test = c("LMerr","LMlag","RLMerr","RLMlag","SARMA"))
 ## 	Lagrange multiplier diagnostics for spatial dependence
 ## 
 ## data:  
-## model: lm(formula = HR60 ~ RD60 + DV60 + MA60 + PS60 + UE60, data
-## = ncovr_n_sf)
+## model: lm(formula = HR60 ~ RD60 + DV60 + MA60 + PS60 + UE60, data =
+## ncovr_n_sf)
 ## weights: rwm_n
 ## 
 ## SARMA = 24.886, df = 2, p-value = 3.946e-06
@@ -388,7 +387,337 @@ Maximum Likelihood (ML) estimation of the spatial lag model is carried out with 
 
 ```r
 fit_2_lag <- lagsarlm(HR60 ~ RD60 + DV60 + MA60 + PS60 + UE60, data=ncovr_n_sf, rwm_n)
+```
+
+```
+## Warning: Function lagsarlm moved to the spatialreg package
+```
+
+```
+## Warning in lagsarlm(HR60 ~ RD60 + DV60 + MA60 + PS60 + UE60, data =
+## ncovr_n_sf, : install the spatialreg package
+```
+
+```
+## Warning: Function can.be.simmed moved to the spatialreg package
+```
+
+```
+## Warning in can.be.simmed(listw): install the spatialreg package
+```
+
+```
+## Warning: Function jacobianSetup moved to the spatialreg package
+```
+
+```
+## Warning in jacobianSetup(method, env, con, pre_eig = con$pre_eig, trs = trs, :
+## install the spatialreg package
+```
+
+```
+## Warning: Function eigen_setup moved to the spatialreg package
+```
+
+```
+## Warning in eigen_setup(env, which = which): install the spatialreg package
+```
+
+```
+## Warning: Function as_dgRMatrix_listw moved to the spatialreg package
+```
+
+```
+## Warning in as_dgRMatrix_listw(from): install the spatialreg package
+```
+
+```
+## Warning: Function do_ldet moved to the spatialreg package
+```
+
+```
+## Warning in do_ldet(rho, env): install the spatialreg package
+```
+
+```
+## Warning: Function do_ldet moved to the spatialreg package
+```
+
+```
+## Warning in do_ldet(rho, env): install the spatialreg package
+```
+
+```
+## Warning: Function do_ldet moved to the spatialreg package
+```
+
+```
+## Warning in do_ldet(rho, env): install the spatialreg package
+```
+
+```
+## Warning: Function do_ldet moved to the spatialreg package
+```
+
+```
+## Warning in do_ldet(rho, env): install the spatialreg package
+```
+
+```
+## Warning: Function do_ldet moved to the spatialreg package
+```
+
+```
+## Warning in do_ldet(rho, env): install the spatialreg package
+```
+
+```
+## Warning: Function do_ldet moved to the spatialreg package
+```
+
+```
+## Warning in do_ldet(rho, env): install the spatialreg package
+```
+
+```
+## Warning: Function do_ldet moved to the spatialreg package
+```
+
+```
+## Warning in do_ldet(rho, env): install the spatialreg package
+```
+
+```
+## Warning: Function do_ldet moved to the spatialreg package
+```
+
+```
+## Warning in do_ldet(rho, env): install the spatialreg package
+```
+
+```
+## Warning: Function do_ldet moved to the spatialreg package
+```
+
+```
+## Warning in do_ldet(rho, env): install the spatialreg package
+```
+
+```
+## Warning: Function do_ldet moved to the spatialreg package
+```
+
+```
+## Warning in do_ldet(rho, env): install the spatialreg package
+```
+
+```
+## Warning: Function do_ldet moved to the spatialreg package
+```
+
+```
+## Warning in do_ldet(rho, env): install the spatialreg package
+```
+
+```
+## Warning: Function do_ldet moved to the spatialreg package
+```
+
+```
+## Warning in do_ldet(rho, env): install the spatialreg package
+```
+
+```
+## Warning: Function do_ldet moved to the spatialreg package
+```
+
+```
+## Warning in do_ldet(rho, env): install the spatialreg package
+```
+
+```
+## Warning: Function do_ldet moved to the spatialreg package
+```
+
+```
+## Warning in do_ldet(rho, env): install the spatialreg package
+```
+
+```
+## Warning: Function do_ldet moved to the spatialreg package
+```
+
+```
+## Warning in do_ldet(rho, env): install the spatialreg package
+```
+
+```
+## Warning: Function do_ldet moved to the spatialreg package
+```
+
+```
+## Warning in do_ldet(rho, env): install the spatialreg package
+```
+
+```
+## Warning: Function do_ldet moved to the spatialreg package
+```
+
+```
+## Warning in do_ldet(rho, env): install the spatialreg package
+```
+
+```
+## Warning: Function do_ldet moved to the spatialreg package
+```
+
+```
+## Warning in do_ldet(rho, env): install the spatialreg package
+```
+
+```
+## Warning: Function do_ldet moved to the spatialreg package
+```
+
+```
+## Warning in do_ldet(rho, env): install the spatialreg package
+```
+
+```
+## Warning: Function do_ldet moved to the spatialreg package
+```
+
+```
+## Warning in do_ldet(rho, env): install the spatialreg package
+```
+
+```
+## Warning: Function do_ldet moved to the spatialreg package
+```
+
+```
+## Warning in do_ldet(rho, env): install the spatialreg package
+```
+
+```
+## Warning: Function do_ldet moved to the spatialreg package
+```
+
+```
+## Warning in do_ldet(rho, env): install the spatialreg package
+```
+
+```
+## Warning: Function do_ldet moved to the spatialreg package
+```
+
+```
+## Warning in do_ldet(rho, env): install the spatialreg package
+```
+
+```
+## Warning: Function do_ldet moved to the spatialreg package
+```
+
+```
+## Warning in do_ldet(rho, env): install the spatialreg package
+```
+
+```
+## Warning: Function do_ldet moved to the spatialreg package
+```
+
+```
+## Warning in do_ldet(rho, env): install the spatialreg package
+```
+
+```
+## Warning: Function do_ldet moved to the spatialreg package
+```
+
+```
+## Warning in do_ldet(rho, env): install the spatialreg package
+```
+
+```
+## Warning: Function do_ldet moved to the spatialreg package
+```
+
+```
+## Warning in do_ldet(rho, env): install the spatialreg package
+```
+
+```
+## Warning in if (class(varb) == "try-error") {: the condition has length > 1 and
+## only the first element will be used
+```
+
+```r
 summary(fit_2_lag)
+```
+
+```
+## Warning: Method summary.sarlm moved to the spatialreg package
+```
+
+```
+## Warning in summary.sarlm(fit_2_lag): install the spatialreg package
+```
+
+```
+## Warning: Method Wald1.sarlm moved to the spatialreg package
+```
+
+```
+## Warning in Wald1.sarlm(object): install the spatialreg package
+```
+
+```
+## Warning: Method logLik.sarlm moved to the spatialreg package
+```
+
+```
+## Warning in logLik.sarlm(object): install the spatialreg package
+```
+
+```
+## Warning: Method residuals.sarlm moved to the spatialreg package
+```
+
+```
+## Warning in residuals.sarlm(object): install the spatialreg package
+```
+
+```
+## Warning: Method LR1.sarlm moved to the spatialreg package
+```
+
+```
+## Warning in LR1.sarlm(object): install the spatialreg package
+```
+
+```
+## Warning: Method logLik.sarlm moved to the spatialreg package
+```
+
+```
+## Warning in logLik.sarlm(object): install the spatialreg package
+```
+
+```
+## Warning: Method residuals.sarlm moved to the spatialreg package
+```
+
+```
+## Warning in residuals.sarlm(object): install the spatialreg package
+```
+
+```
+## Warning: Method print.summary.sarlm moved to the spatialreg package
+```
+
+```
+## Warning in print.summary.sarlm(x): install the spatialreg package
 ```
 
 ```
@@ -398,6 +727,17 @@ summary(fit_2_lag)
 ##     listw = rwm_n)
 ## 
 ## Residuals:
+```
+
+```
+## Warning: Method residuals.sarlm moved to the spatialreg package
+```
+
+```
+## Warning in residuals.sarlm(x): install the spatialreg package
+```
+
+```
 ##       Min        1Q    Median        3Q       Max 
 ## -11.86076  -1.54308  -0.55531   0.76832  28.30435 
 ## 
@@ -415,11 +755,49 @@ summary(fit_2_lag)
 ## Asymptotic standard error: 0.035631
 ##     z-value: 3.8587, p-value: 0.000114
 ## Wald statistic: 14.89, p-value: 0.000114
+```
+
+```
+## Warning: Method logLik.sarlm moved to the spatialreg package
+```
+
+```
+## Warning in logLik.sarlm(x): install the spatialreg package
+```
+
+```
+## Warning: Method residuals.sarlm moved to the spatialreg package
+```
+
+```
+## Warning in residuals.sarlm(object): install the spatialreg package
+```
+
+```
 ## 
 ## Log likelihood: -4273.43 for lag model
 ## ML residual variance (sigma squared): 9.6542, (sigma: 3.1071)
 ## Number of observations: 1673 
-## Number of parameters estimated: 8 
+## Number of parameters estimated: 8
+```
+
+```
+## Warning: Method logLik.sarlm moved to the spatialreg package
+```
+
+```
+## Warning in logLik.sarlm(object): install the spatialreg package
+```
+
+```
+## Warning: Method residuals.sarlm moved to the spatialreg package
+```
+
+```
+## Warning in residuals.sarlm(object): install the spatialreg package
+```
+
+```
 ## AIC: 8562.9, (AIC for lm: 8576)
 ## LM test for residual autocorrelation
 ## test value: 10.659, p-value: 0.0010954
@@ -456,20 +834,74 @@ These quantities can be found using the `impacts()` function in the `spdep` libr
 
 ```r
 W <- as(rwm_n, "CsparseMatrix")
+```
+
+```
+## Warning: Function as_dgRMatrix_listw moved to the spatialreg package
+```
+
+```
+## Warning in as_dgRMatrix_listw(from): install the spatialreg package
+```
+
+```r
 trMC <- trW(W, type="MC")
+```
+
+```
+## Warning: Function trW moved to the spatialreg package
+```
+
+```
+## Warning in trW(W, type = "MC"): install the spatialreg package
+```
+
+```r
 im<-impacts(fit_2_lag, tr=trMC, R=100)
+```
+
+```
+## Warning: Method impacts.sarlm moved to the spatialreg package
+```
+
+```
+## Warning in impacts.sarlm(fit_2_lag, tr = trMC, R = 100): install the spatialreg
+## package
+```
+
+```
+## Warning: Function intImpacts moved to the spatialreg package
+```
+
+```
+## Warning in intImpacts(rho = rho, beta = beta, P = P, n = n, mu = mu, Sigma =
+## Sigma, : install the spatialreg package
+```
+
+```r
 sums<-summary(im,  zstats=T)
+```
+
+```
+## Warning: Method summary.lagImpact moved to the spatialreg package
+```
+
+```
+## Warning in summary.lagImpact(im, zstats = T): install the spatialreg package
+```
+
+```r
 #To print the coefficients
 data.frame(sums$res)
 ```
 
 ```
 ##        direct    indirect      total
-## 1  1.74081220  0.27045853  2.0112707
-## 2  1.00626326  0.15633650  1.1625998
-## 3 -0.17995469 -0.02795837 -0.2079131
-## 4  0.38429474  0.05970534  0.4440001
-## 5  0.08827098  0.01371408  0.1019851
+## 1  1.74080031  0.27047042  2.0112707
+## 2  1.00625639  0.15634337  1.1625998
+## 3 -0.17995346 -0.02795960 -0.2079131
+## 4  0.38429211  0.05970797  0.4440001
+## 5  0.08827037  0.01371468  0.1019851
 ```
 
 
@@ -479,12 +911,12 @@ data.frame(sums$pzmat)
 ```
 
 ```
-##            Direct     Indirect        Total
-## RD60 0.000000e+00 0.0006778983 0.000000e+00
-## DV60 0.000000e+00 0.0006677987 0.000000e+00
-## MA60 0.000000e+00 0.0006841702 0.000000e+00
-## PS60 6.849925e-07 0.0048172902 9.518099e-07
-## UE60 1.665155e-03 0.0139836832 1.517097e-03
+##            Direct    Indirect        Total
+## RD60 0.000000e+00 0.002951900 0.000000e+00
+## DV60 0.000000e+00 0.001971097 0.000000e+00
+## MA60 0.000000e+00 0.002116159 0.000000e+00
+## PS60 3.209520e-09 0.005286839 2.497203e-09
+## UE60 9.317237e-03 0.053089459 9.316710e-03
 ```
 
 We see that all the variables have signficant direct, indirect and total effects. You may want to have a look at how things differ when you just run a non spatial model.
@@ -536,7 +968,225 @@ wm_s <- nb2mat(w_s, style='B')
 rwm_s <- mat2listw(wm_s, style='W')
 
 fit_3_err <- errorsarlm(HR80 ~ RD80 + DV80 + MA80 + PS80 + UE80, data=ncovr_s_sf, rwm_s)
+```
+
+```
+## Warning: Function errorsarlm moved to the spatialreg package
+```
+
+```
+## Warning in errorsarlm(HR80 ~ RD80 + DV80 + MA80 + PS80 + UE80, data =
+## ncovr_s_sf, : install the spatialreg package
+```
+
+```
+## Warning: Function can.be.simmed moved to the spatialreg package
+```
+
+```
+## Warning in can.be.simmed(listw): install the spatialreg package
+```
+
+```
+## Warning: Function jacobianSetup moved to the spatialreg package
+```
+
+```
+## Warning in jacobianSetup(method, env, con, pre_eig = con$pre_eig, trs = trs, :
+## install the spatialreg package
+```
+
+```
+## Warning: Function eigen_setup moved to the spatialreg package
+```
+
+```
+## Warning in eigen_setup(env, which = which): install the spatialreg package
+```
+
+```
+## Warning: Function as_dgRMatrix_listw moved to the spatialreg package
+```
+
+```
+## Warning in as_dgRMatrix_listw(from): install the spatialreg package
+```
+
+```
+## Warning: Function do_ldet moved to the spatialreg package
+```
+
+```
+## Warning in do_ldet(lambda, env): install the spatialreg package
+```
+
+```
+## Warning: Function do_ldet moved to the spatialreg package
+```
+
+```
+## Warning in do_ldet(lambda, env): install the spatialreg package
+```
+
+```
+## Warning: Function do_ldet moved to the spatialreg package
+```
+
+```
+## Warning in do_ldet(lambda, env): install the spatialreg package
+```
+
+```
+## Warning: Function do_ldet moved to the spatialreg package
+```
+
+```
+## Warning in do_ldet(lambda, env): install the spatialreg package
+```
+
+```
+## Warning: Function do_ldet moved to the spatialreg package
+```
+
+```
+## Warning in do_ldet(lambda, env): install the spatialreg package
+```
+
+```
+## Warning: Function do_ldet moved to the spatialreg package
+```
+
+```
+## Warning in do_ldet(lambda, env): install the spatialreg package
+```
+
+```
+## Warning: Function do_ldet moved to the spatialreg package
+```
+
+```
+## Warning in do_ldet(lambda, env): install the spatialreg package
+```
+
+```
+## Warning: Function do_ldet moved to the spatialreg package
+```
+
+```
+## Warning in do_ldet(lambda, env): install the spatialreg package
+```
+
+```
+## Warning: Function do_ldet moved to the spatialreg package
+```
+
+```
+## Warning in do_ldet(lambda, env): install the spatialreg package
+```
+
+```
+## Warning: Function do_ldet moved to the spatialreg package
+```
+
+```
+## Warning in do_ldet(lambda, env): install the spatialreg package
+```
+
+```
+## Warning: Function do_ldet moved to the spatialreg package
+```
+
+```
+## Warning in do_ldet(lambda, env): install the spatialreg package
+```
+
+```
+## Warning: Function do_ldet moved to the spatialreg package
+```
+
+```
+## Warning in do_ldet(lambda, env): install the spatialreg package
+```
+
+```
+## Warning: Function do_ldet moved to the spatialreg package
+```
+
+```
+## Warning in do_ldet(lambda, env): install the spatialreg package
+```
+
+```
+## Warning in if (class(asyvar1) == "try-error") {: the condition has length > 1
+## and only the first element will be used
+```
+
+```r
 summary(fit_3_err)
+```
+
+```
+## Warning: Method summary.sarlm moved to the spatialreg package
+```
+
+```
+## Warning in summary.sarlm(fit_3_err): install the spatialreg package
+```
+
+```
+## Warning: Method Wald1.sarlm moved to the spatialreg package
+```
+
+```
+## Warning in Wald1.sarlm(object): install the spatialreg package
+```
+
+```
+## Warning: Method logLik.sarlm moved to the spatialreg package
+```
+
+```
+## Warning in logLik.sarlm(object): install the spatialreg package
+```
+
+```
+## Warning: Method residuals.sarlm moved to the spatialreg package
+```
+
+```
+## Warning in residuals.sarlm(object): install the spatialreg package
+```
+
+```
+## Warning: Method LR1.sarlm moved to the spatialreg package
+```
+
+```
+## Warning in LR1.sarlm(object): install the spatialreg package
+```
+
+```
+## Warning: Method logLik.sarlm moved to the spatialreg package
+```
+
+```
+## Warning in logLik.sarlm(object): install the spatialreg package
+```
+
+```
+## Warning: Method residuals.sarlm moved to the spatialreg package
+```
+
+```
+## Warning in residuals.sarlm(object): install the spatialreg package
+```
+
+```
+## Warning: Method print.summary.sarlm moved to the spatialreg package
+```
+
+```
+## Warning in print.summary.sarlm(x): install the spatialreg package
 ```
 
 ```
@@ -545,6 +1195,17 @@ summary(fit_3_err)
 ##     data = ncovr_s_sf, listw = rwm_s)
 ## 
 ## Residuals:
+```
+
+```
+## Warning: Method residuals.sarlm moved to the spatialreg package
+```
+
+```
+## Warning in residuals.sarlm(x): install the spatialreg package
+```
+
+```
 ##       Min        1Q    Median        3Q       Max 
 ## -17.70984  -3.46135  -0.56817   2.55031  24.84717 
 ## 
@@ -562,11 +1223,49 @@ summary(fit_3_err)
 ## Asymptotic standard error: 0.037726
 ##     z-value: 8.0209, p-value: 1.1102e-15
 ## Wald statistic: 64.335, p-value: 9.992e-16
+```
+
+```
+## Warning: Method logLik.sarlm moved to the spatialreg package
+```
+
+```
+## Warning in logLik.sarlm(x): install the spatialreg package
+```
+
+```
+## Warning: Method residuals.sarlm moved to the spatialreg package
+```
+
+```
+## Warning in residuals.sarlm(object): install the spatialreg package
+```
+
+```
 ## 
 ## Log likelihood: -4384.823 for error model
 ## ML residual variance (sigma squared): 28.654, (sigma: 5.353)
 ## Number of observations: 1412 
-## Number of parameters estimated: 8 
+## Number of parameters estimated: 8
+```
+
+```
+## Warning: Method logLik.sarlm moved to the spatialreg package
+```
+
+```
+## Warning in logLik.sarlm(object): install the spatialreg package
+```
+
+```
+## Warning: Method residuals.sarlm moved to the spatialreg package
+```
+
+```
+## Warning in residuals.sarlm(object): install the spatialreg package
+```
+
+```
 ## AIC: 8785.6, (AIC for lm: 8844.7)
 ```
 

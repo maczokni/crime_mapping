@@ -1,3 +1,6 @@
+---
+always_allow_html: true
+---
 
 # Studying spatial point patterns
 
@@ -34,8 +37,7 @@ manchester_ward <- st_read("https://raw.githubusercontent.com/RUMgroup/Spatial-d
 ## geometry type:  POLYGON
 ## dimension:      XY
 ## bbox:           xmin: 351664 ymin: 381168.6 xmax: 406087.5 ymax: 421039.8
-## epsg (SRID):    27700
-## proj4string:    +proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +towgs84=446.448,-125.157,542.06,0.15,0.247,0.842,-20.489 +units=m +no_defs
+## projected CRS:  OSGB 1936 / British National Grid
 ```
 
 ```r
@@ -95,20 +97,21 @@ In the point pattern analysis literature each point is often referred to as an *
 So let's start using spatstat.The first thing we need to do is to transform our `sf` object into a `ppp` object which is how `spatstat` likes to store its point patterns. Unfortunately, spatstat and many other packages for analysis of spatial data precede sf, so the transformation is a bit awkard. Also before we do that, it is important to realise that a point pattern is defined as a series of events in a given area, or window, of observation. It is therefore extremely important to precisely define this window. In `spatstat` the function `owin()` is used to set the observation window. However, the standard function takes the coordinates of a rectangle or of a polygon from a matrix, and therefore it may be a bit tricky to use. Luckily the package `maptools` provides a way to transform a `SpatialPolygons` into an object of class `owin`, using the function `as.owin()`. Here are the steps: 
 
 
-First we transform our Falllowfield polygon into a sp object:
+First we transform the CRS of our Falllowfield polygon into projected coordinates (British National Grid) as opposed to geographic coordinates (WGS84) :
 
 
 ```r
-fallowfield_sp <-as(fallowfield, "Spatial")
+fallowfield_proj <- st_transform(fallowfield, 27700)
 ```
 
 
 
-Then we use the as.owin function to define the window. Note that by adding two colons (`::`) we can reference a function in a library explicitly without loading the library. So if you receive an error message, make sure you have the relevant package installed.
+Then we use the as.owin function to define the window. 
+
 
 
 ```r
-window <- maptools::as.owin.SpatialPolygons(fallowfield_sp)
+window <- as.owin(fallowfield_proj)
 ```
 
 
@@ -130,13 +133,14 @@ window
 
 ```
 ## window: polygonal boundary
-## enclosing rectangle: [-2.2581074, -2.2141921] x [53.43904, 53.45145] units
+## enclosing rectangle: [382951.5, 385869.8] x [393616.3, 394988.8] units
 ```
 
 Now that we have created the window as an `owin` object let's get the points. First we will extract the coordinates from our sf point data into a matrix:
 
 
 ```r
+bur_fal <- st_transform(bur_fal, 27700) #we must transform these too to match our window in BNG
 sf_bur_fal_coords <- matrix(unlist(bur_fal$geometry), ncol = 2, byrow = T)
 ```
 
@@ -223,7 +227,9 @@ Notice the difference with the original plot. Can you see how the circumferences
 
 ## Inspecting our data with spatstat
 
-This package supports all kind of exploratory point pattern analysis. One example of this is **quadrant counting**. One could divide the window of observation into quadrants and count the number of points into each of these quadrants. For example, if we want four quadrants along the X axis and 3 along the Y axis we could used those parameters in the `quadratcount()` function. Then we just use standard plotting functions from R base.
+This package supports all kind of exploratory point pattern analysis. One example of this is **quadrant counting**. One could divide the window of observation into quadrants and count the number of points into each of these quadrants. 
+For example, if we want four quadrants along the X axis and 3 along the Y axis we could used those parameters in the `quadratcount()` function.
+Then we just use standard plotting functions from R base.
 
 
 ```r
@@ -255,10 +261,9 @@ quadrat.test(jitter_bur, nx = 3, ny = 2)
 ```
 ## 
 ## 	Chi-squared test of CSR using quadrat counts
-## 	Pearson X2 statistic
 ## 
 ## data:  jitter_bur
-## X2 = 113.09, df = 5, p-value < 2.2e-16
+## X2 = 111.38, df = 5, p-value < 2.2e-16
 ## alternative hypothesis: two.sided
 ## 
 ## Quadrats: 6 tiles (irregular windows)
@@ -313,8 +318,8 @@ bw.diggle(jitter_bur)
 ```
 
 ```
-##       sigma 
-## 3.94607e-05
+##    sigma 
+## 4.028746
 ```
 
 ```r
@@ -322,8 +327,8 @@ bw.ppl(jitter_bur)
 ```
 
 ```
-##        sigma 
-## 0.0004407553
+##    sigma 
+## 31.12609
 ```
 
 ```r
@@ -331,8 +336,8 @@ bw.scott(jitter_bur)
 ```
 
 ```
-##      sigma.x      sigma.y 
-## 0.0040715493 0.0008423847
+##   sigma.x   sigma.y 
+## 270.28334  93.82421
 ```
 
 You can see the Diggle algorithm gives you the narrower bandwith. We can test how they work with our dataset using the following code:
@@ -417,31 +422,68 @@ Two-dimensional `RasterLayer` objects (from the `raster` package) can be turned 
 
 The `addRasterImage()` function works by projecting the `RasterLayer` object to EPSG:3857 and encoding each cell to an RGBA color, to produce a PNG image. That image is then embedded in the map widget.
 
-It’s important that the `RasterLayer` object is tagged with a proper coordinate reference system. Many raster files contain this information, but some do not. Here is how you’d tag a raster layer object “r” which contains WGS84 data:
+It’s important that the `RasterLayer` object is tagged with a proper coordinate reference system. Many raster files contain this information, but some do not. Here is how you’d tag a raster layer object “r1” which contains WGS84 data:
 
 
 ```r
 library(leaflet)
 
-#make sure we have right CRS. We need the sp package for setting CRS to this raster: 
-library(sp)
-crs(r1) <- sp::CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
+#make sure we have right CRS, which in this case is British National Grid
 
+epsg27700 <- "+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +towgs84=446.448,-125.157,542.06,0.15,0.247,0.842,-20.489 +units=m +no_defs"
+
+crs(r1) <- sp::CRS(epsg27700)
+```
+
+```
+## Warning in showSRID(uprojargs, format = "PROJ", multiline = "NO", prefer_proj
+## = prefer_proj): Discarded datum Unknown based on Airy 1830 ellipsoid in Proj4
+## definition
+```
+
+```r
 #we also create a colour palet
 pal <- colorNumeric(c("#0C2C84", "#41B6C4", "#FFFFCC"), values(r1),
   na.color = "transparent")
 
+
+
 #and then make map!
 leaflet() %>% 
-  setView(lng = -2.225814, lat = 53.441315, zoom = 14) %>% 
   addTiles() %>%
   addRasterImage(r1, colors = pal, opacity = 0.8) %>%
   addLegend(pal = pal, values = values(r1),
     title = "Burglary map")
 ```
 
-<!--html_preserve--><div id="htmlwidget-88fae23b62e5a389d0bc" style="width:672px;height:480px;" class="leaflet html-widget"></div>
-<script type="application/json" data-for="htmlwidget-88fae23b62e5a389d0bc">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"setView":[[53.441315,-2.225814],14,[]],"calls":[{"method":"addTiles","args":["//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",null,null,{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false,"attribution":"&copy; <a href=\"http://openstreetmap.org\">OpenStreetMap<\/a> contributors, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA<\/a>"}]},{"method":"addRasterImage","args":["data:image/png;base64,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",[[53.4514517532155,-2.25810740373087],[53.4390428798791,-2.21419214050652]],0.8,null,null,null]},{"method":"addLegend","args":[{"colors":["#0C2C84 , #264B93 11.6976164886922%, #336AA2 23.3952329779917%, #3C8BB1 35.0928494672911%, #41ADC0 46.7904659565905%, #6EC2C6 58.48808244589%, #9DD3C8 70.1856989351894%, #C5E4CA 81.8833154244888%, #EBF5CB 93.5809319137883%, #FFFFCC "],"labels":["2,000,000","4,000,000","6,000,000","8,000,000","10,000,000","12,000,000","14,000,000","16,000,000"],"na_color":null,"na_label":"NA","opacity":0.5,"position":"topright","type":"numeric","title":"Burglary map","extra":{"p_1":0.116976164886922,"p_n":0.935809319137883},"layerId":null,"className":"info legend","group":null}]}],"limits":{"lat":[53.4390428798791,53.4514517532155],"lng":[-2.25810740373087,-2.21419214050652]}},"evals":[],"jsHooks":[]}</script><!--/html_preserve-->
+```
+## Warning in showSRID(uprojargs, format = "PROJ", multiline = "NO", prefer_proj =
+## prefer_proj): Discarded ellps WGS 84 in Proj4 definition: +proj=merc +a=6378137
+## +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null
+## +wktext +no_defs +type=crs
+```
+
+```
+## Warning in showSRID(uprojargs, format = "PROJ", multiline = "NO", prefer_proj =
+## prefer_proj): Discarded datum World Geodetic System 1984 in Proj4 definition
+```
+
+```
+## Warning in showSRID(uprojargs, format = "PROJ", multiline = "NO", prefer_proj =
+## prefer_proj): Discarded ellps WGS 84 in Proj4 definition: +proj=merc +a=6378137
+## +b=6378137 +lat_ts=0 +lon_0=0 +x_0=0 +y_0=0 +k=1 +units=m +nadgrids=@null
+## +wktext +no_defs +type=crs
+```
+
+```
+## Warning in showSRID(uprojargs, format = "PROJ", multiline = "NO", prefer_proj =
+## prefer_proj): Discarded datum World Geodetic System 1984 in Proj4 definition
+```
+
+```{=html}
+<div id="htmlwidget-5a40c4b3db1462b6f6c0" style="width:672px;height:480px;" class="leaflet html-widget"></div>
+<script type="application/json" data-for="htmlwidget-5a40c4b3db1462b6f6c0">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addTiles","args":["//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",null,null,{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false,"attribution":"&copy; <a href=\"http://openstreetmap.org\">OpenStreetMap<\/a> contributors, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA<\/a>"}]},{"method":"addRasterImage","args":["data:image/png;base64,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",[[53.4512140379333,-2.2567461389902],[53.4387900210554,-2.21273638149381]],0.8,null,null,null]},{"method":"addLegend","args":[{"colors":["#0C2C84 , #264C94 12.0056219460659%, #3774A7 27.0133815015281%, #3F9FBA 42.0211410569903%, #68C0C5 57.0289006124525%, #A3D6C8 72.0366601679148%, #D6ECCA 87.044419723377%, #FFFFCC "],"labels":["0.000","0.001","0.002","0.002","0.002","0.003"],"na_color":null,"na_label":"NA","opacity":0.5,"position":"topright","type":"numeric","title":"Burglary map","extra":{"p_1":0.120056219460659,"p_n":0.87044419723377},"layerId":null,"className":"info legend","group":null}]}],"limits":{"lat":[53.4387900210554,53.4512140379333],"lng":[-2.2567461389902,-2.21273638149381]}},"evals":[],"jsHooks":[]}</script>
+```
 
 And there you have it. Perhaps those familiar with Fallowfield have some guesses as to what may be going on there?
 
@@ -500,8 +542,7 @@ summary(chicago)
 ## robbery          4 0.03448276 0.0001284100
 ## theft           38 0.32758620 0.0012198950
 ## trespass         6 0.05172414 0.0001926151
-## Enclosing window: rectangle = [0.3894, 1281.9863] x [153.1035, 1276.5602] 
-## feet
+## Enclosing window: rectangle = [0.3894, 1281.9863] x [153.1035, 1276.5602] feet
 ```
 
 An `lpp` object contains the linear network information, the spatial coordinates of the data points, and any number of columns of *marks* (in this case the mark is telling us the type of crime we are dealing with). It also contains the local coordinates `seg` and `tp` for the data points. The local coordinate `seg` is an integer identifying the particular street segment the data point is located in. A segment is each of the sections of a street between two vertices (marking the intersection with another segment). The local coordinate `tp` is a real number between 0 and 1 indicating the position of the point within the segement: `tp=0` corresponds to the first endpoint and `tp=1` correspond to the second endpoint.
