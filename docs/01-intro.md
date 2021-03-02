@@ -1,4 +1,3 @@
-
 # A first lesson about R
 
 In this lesson, you will be introduced to the programming language, `R`. After installing the related software and getting a basic idea of the R Studio interface, you will learn three `R` basics: operators, objects, and packages. 
@@ -148,7 +147,14 @@ When you have typed this, you will have typed your first bit of code. Yet nothin
 
 You can do this by highlighting the code you wish to run, and clicking on 'run' in the top right hand corner: 
 
-![](img/run_hello_world.gif)
+
+
+```r
+knitr::include_graphics('img/run_hello_world.gif')
+```
+
+<img src="img/run_hello_world.gif" width="400px" />
+
 
 
 
@@ -179,7 +185,7 @@ You can make any changes you'd like to here, including the theme background that
 For example, you may choose a darker theme like 'tomorrow night bright'.
 
 ![](img/appearance_choose_tomorrow_night_bright.png)
-=======
+
 ![](img/consoleresults.png)
 As indicated above, the window in the bottom left corner is the main **console**.You will see that the words "I love maps" appear printed there.  If rather than using R Studio you were working directly from R, that's all you would get: the main console where you can write code interactively (rather than all the different windows you see in R Studio). You can write your code directly in the main console and execute it line by line in an interactive fashion. However, we will be running code from scripts, so that you get used to the idea of properly documenting all the steps you take,
 
@@ -212,15 +218,15 @@ For example, if we have a bunch of numbers, we just find the appropriate functio
 
 
 ```r
-mean(10, 34, 5, 3, 77)
+mean(c(10, 34, 5, 3, 77))
 ```
 
 ```
-## [1] 10
+## [1] 25.8
 ```
 
 ```r
-min(10, 34, 5, 3, 77)
+min(c(10, 34, 5, 3, 77))
 ```
 
 ```
@@ -228,7 +234,7 @@ min(10, 34, 5, 3, 77)
 ```
 
 ```r
-max(10, 34, 5, 3, 77)
+max(c(10, 34, 5, 3, 77))
 ```
 
 ```
@@ -316,7 +322,12 @@ Let us create an object called 'plates'. To do this, you go to your script, and 
 
 But if you run this code, you will get an error. Let's see: 
 
-![](img/error_no_plates.gif)
+
+```r
+knitr::include_graphics('img/error_no_plates.gif')
+```
+
+<img src="img/error_no_plates.gif" width="400px" />
 
 
 
@@ -334,7 +345,12 @@ plates <- "yellow plate"
 
 Now if we run this, we will see no error message, but instead, we will see the `plates` object appear in our *environment pane*: 
 
-![](img/assign_plates.gif)
+
+```r
+knitr::include_graphics('img/assign_plates.gif')
+```
+
+<img src="img/assign_plates.gif" width="400px" />
 
 
 
@@ -795,7 +811,7 @@ ggplot(hate_crimes, aes(x=share_vote_trump, y=avg_hatecrimes_per_100k_fbi)) +
 ## Warning: Removed 1 rows containing missing values (geom_point).
 ```
 
-<img src="01-intro_files/figure-html/unnamed-chunk-19-1.png" width="672" />
+<img src="01-intro_files/figure-html/unnamed-chunk-22-1.png" width="672" />
 
 What do you think this graphic is telling you? Discuss and write in your shared google docs. 
 

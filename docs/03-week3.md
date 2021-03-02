@@ -30,7 +30,7 @@ manchester_lsoa <- st_read(shp_name)
 ```
 
 ```
-## Reading layer `england_lsoa_2011' from data source `/Users/reka/Desktop/crime_mapping/data/BoundaryData/england_lsoa_2011.shp' using driver `ESRI Shapefile'
+## Reading layer `england_lsoa_2011' from data source `/Users/reka/Desktop/crime_mapping/crime_mapping/data/BoundaryData/england_lsoa_2011.shp' using driver `ESRI Shapefile'
 ## Simple feature collection with 282 features and 3 fields
 ## geometry type:  POLYGON
 ## dimension:      XY
@@ -65,7 +65,7 @@ manchester_crime_lsoa <- st_read("data/BoundaryData/manchester_crime_lsoa.shp")
 ```
 
 ```
-## Reading layer `manchester_crime_lsoa' from data source `/Users/reka/Desktop/crime_mapping/data/BoundaryData/manchester_crime_lsoa.shp' using driver `ESRI Shapefile'
+## Reading layer `manchester_crime_lsoa' from data source `/Users/reka/Desktop/crime_mapping/crime_mapping/data/BoundaryData/manchester_crime_lsoa.shp' using driver `ESRI Shapefile'
 ## Simple feature collection with 282 features and 4 fields
 ## geometry type:  POLYGON
 ## dimension:      XY

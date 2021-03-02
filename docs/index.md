@@ -1,7 +1,7 @@
 --- 
 title: "Crime Mapping and Spatial Data Analysis using R"
 author: "Juanjo Medina and Reka Solymosi"
-date: "2021-02-03"
+date: "2021-03-02"
 site: bookdown::bookdown_site
 output: bookdown::gitbook
 documentclass: book
