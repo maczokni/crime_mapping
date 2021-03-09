@@ -107,13 +107,9 @@ Right so hopefully this gives you a few things to think about. Be sure that you 
 
 Let's get some practical experience where we take some crime data, and find out how we can put it on the map!
 
-For your first crime map, we better get some real world crime data. This can be done for the UK easily, as anonymised open crime data are released for the public to use. We can play around with police recorded crime data, which can be downloaded from the [police.uk](https://data.police.uk/data/) website. 
+We live in a world awash with data and through this book we will use the different examples to show you some useful places and sources you can use to obtain your spatial data. For our first crime map, we better get some real world crime data. Most geographically referenced crime data is based on crime reported to the police, although there are some notable exceptions (e.g., public health data on violence, geocoded victim survey data, etc.). Many police departments across the world make this data readily available to the public or researchers. This is more common in places like the US, where crime mapping applications first got established, but increasingly we see publicly available crime data from other countries as well.
 
-Let's download some data for crime in Manchester.
-
-### Activity 1: Find some relevant data to show: obtaining data on crime
-
-To do acquire the data, open the [data.police.uk/data](https://data.police.uk/data/) website. Choose the data tab, in order to download some data. 
+For our first map we will use data from the UK, which can be downloaded from the [police.uk](https://data.police.uk/data/) website. Let's download some data for crime in Manchester. To do acquire the data, open the [data.police.uk/data](https://data.police.uk/data/) website. Choose the data tab, in order to download some data. 
 
 - In `Date range` just select one month of data. Choose whatever month you like EXCEPT nothing more recent than June 2019. Unfortunately, for GMP there is no more recent data available than that. 
 - In `Force` find `Greater Manchester Police`, and tick the box next to it. 
@@ -199,9 +195,6 @@ names(crimes)
 
 ```
 
-
-
-
 ## From dataframes to spatial objects: finding spatial information in our data
 
 Having had a chance to inspect the data set you've downloaded, let's consider what sort of spatial information we might be able to use. If you have a look at the column names, what are some of the variables which you think might have some spatial component? Have a think about each column, and how you think it may help to put these crimes on the map. 
@@ -233,18 +226,17 @@ head(crimes, n = 1)
 
 You can see that the value is `r print(crimes$location[1])` this isn't great, as we might struggle to identify *which* parking area... Some other ones are more useful, let's look at the last entry for example with the `tail()` function.
 
-
 ```{r}
 
 tail(crimes, n = 1)
 
 ```
+
 You can see that the value is `r print(crimes$location[nrow(crimes)])`. This makes our crime much easier to find, we just need to locate where is `r print(gsub("On or near ","",crimes$location[nrow(crimes)]))`. We might have a shapefile of lines of all the roads of Manchester, and if we did, we can link the crime to that particular road, in order to map it. 
 
 ### The polygon 
 
 What more? You may also have seen the column `lsoa_name` seems to have some spatial component, Let's have a look at the first crime again. 
-
 
 ```{r}
 
@@ -252,44 +244,33 @@ head(crimes, n = 1)
 
 ```
 
-
 You see the value for LSOA name is `r print(crimes$lsoa_name[1])` - Bolton we know is a Borough of Greater Manchester, but what is the 001 for ?
-
 
 Well it denotes a sparticular geographical sub-unit within Bolton called a **Lower Layer Super Output Area**. This is a unit of [UK Census Geography](https://www.ons.gov.uk/methodology/geography/ukgeographies/censusgeography). The basic unit for Census Geography is an 'Output area' - this is the resolution at which we can access data from the UK Census. We will be making use of census data later in the course. The Output Area (OA) is therefore the smallest unit we could use. Normally, in this module, we will be using a slightly larger version - the Lower Super Output Area (LSOA). 
 
-
 There are now 181,408 OAs, 34,753 lower layer super output areas (LSOA) and 7,201 middle layer super output areas (MSOA) in England and Wales. The neat thing about these Census geographies is the idea is that they don't change much from census to census (unlike administrative boundaries such as wards) and were created with statistical analysis in mind. The less neat thing is that although we use them to operationalise the concept of neighbourhood a lot, they may not bear much resemblance to what residents might think of as their neighbourhood. 
 
-
 Anyway back to our crime data. You see we have two columns that reference LSOAs, `lsoa_name` and `lsoa_code`. We can use these to *link* our crime data to a *shapefile* of a *polygon* which contains the geometries needed to put the crime data on the map. 
-
 
 ## Mapping crime events with simple features and ggplot2
 
 ### The simple features framework
 
-
 So how can we use these spatial details in our dataset to put our crimes on the map? We need to somehow specify a geometry for our data, which links each unit of analysis (whether that is the point, line, or polygon) to a relevant geographical representation, which allows us to put this thing on the map. 
-
 
 How you add geographical information will vary with the type of information we have, but in all of these, we will use the simple features framework. 
 
-
 ![(Illustration (c) by Allison Horst)](https://user-images.githubusercontent.com/520851/50280460-e35c1880-044c-11e9-9ed7-cc46754e49db.jpg)
-
 
 What are simple features? `sf` package author Edzer Pebesma describes simple features as a standardized way of encoding spatial vector data (points, lines, polygons) in computers. The `sf` package is an R package for reading, writing, handling, and manipulating simple features in R, implementing the vector (points, lines, polygons) data handling functionality. 
 
 Traditionally spatial analysis in R were done using the `sp` package which creates a particular way of storing spatial objects in R. When most packages for spatial data analysis in R and for thematic cartography were first developed `sp` was the only way to work with spatial data in R. There are more than 450 packages that rely on `sp`, making it an important part of the R ecosystem. More recently a new package, `sf` (which stands for "simple features"), is revolutionising the way that R does spatial analysis. This package provides a new way of storing spatial objects in R and most recent R packages for spatial analysis and cartography are using it as the new default. It is easy to transform `sf` objects into `sp` objects, so that those packages that still don't use this new format can be used. But in this book we will emphasise the use of `sf` whenever possible. You can read more about the history of spatial packages and the `sf` package in the first two chapters of [this book](https://geocompr.robinlovelace.net).
 
-
 Features can be thought of as “things” or objects that have a spatial location or extent; they may be physical objects like a building, or social conventions like a political state. Feature geometry refers to the spatial properties (location or extent) of a feature, and can be described by a point, a point set, a linestring, a set of linestrings, a polygon, a set of polygons, or a combination of these. The simple adjective of simple features refers to the property that linestrings and polygons are built from points connected by straight line segments. Features typically also have other properties (temporal properties, color, name, measured quantity), which are called feature attributes. 
 
 For more detailed insight we recommend reading the paper [Simple Features for R: Standardized Support for Spatial Vector Data](https://journal.r-project.org/archive/2018/RJ-2018-009/RJ-2018-009.pdf)
 
-
-Let's get started with making some maps using `sf`. First, make sure you install the package, and then load with `library()` function. 
+1Let's get started with making some maps using `sf`. First, make sure you install the package, and then load with `library()` function. 
 
 **On Mac and Linux a few requirements must be met to install sf. These are described in the package’s README at [github.com/r-spatial/sf](github.com/r-spatial/sf).**
 
@@ -299,12 +280,7 @@ Let's get started with making some maps using `sf`. First, make sure you install
 library(sf)
 ```
 
-
 Now we can use the functions of `sf` in order to introduce geometries. Let's start with the points
-
-
-
-#### Activity 2: Creating a sf object of points
 
 We know that we have two columns one for Longitude and one for Latitude, which pinpoint each crime event to a specific point, close to where it happened. Not *quite* where it happened, as the data are anonymised (more on this later), but for our purposes here, we can assume this is the location of the crime. 
 
@@ -327,18 +303,14 @@ crimes_sf <- st_as_sf(crimes,                                     #dataframe
 
 ```
 
-
 We can see that this is now a simple features object using the class() function the we see the result "sf":
-
 
 ```{r}
 class(crimes_sf)
 
 ```
 
-
 You might also notice something else that is different between crimes and crimes_sf. Have a look at the dimension (hint look in your 'Environment' tab). Do you see?
-
 
 ### A brief intro to ggplot2 and the grammar of graphics
 
@@ -374,8 +346,6 @@ This will result in a final plot:
 
 ![](img/combined.png)
 
-
-
 Taking our crime data as an example, we would build up our plot as follows: 
 
 Load ggplot2 package
@@ -386,13 +356,12 @@ library(ggplot2)
 
 ```
 
-
 Data: 
+
 ```{r}
 
 ggplot(crimes, aes(x = crime_type))
 ```
-
 
 Geometry: 
 
@@ -427,12 +396,9 @@ ggplot(crimes, aes(x = crime_type, fill = last_outcome_category)) +
 
 This is not the greatest graph you'll ever see, but it illustrates the process. Do read up on ggplot2 for example in Hadley Wickham's book R4DS [chapter on data visualisation](https://r4ds.had.co.nz/data-visualisation.html). 
 
-
 ### Using ggplot2 for mapping crime event locations as points
 
 So how can we use this for spatial data? We can use the `geom_sf()` function to do so. Using geom_sf is slightly different to other geometries, for example how we used `geom_bar()` above. First we initiate the plot with the `ggplot()` function but don't include the data in there. Instead, it is in the geometry where we add the data. And second we don't need to specify the mapping of x and y. Since this is in the geometry column of our spatial object. Like so:
-
-
 
 ```{r}
 
@@ -442,7 +408,6 @@ ggplot() +
 ```
 
 And here we have a map of each point in our data set, each recorded crime in June 2019 in Greater Manchester. 
-
 
 Would you call this a map though? While it is presenting spatial data, there is not a lot of meaning being communicated. Point maps generally can be messy and their uses are specific to certain situations and cases, usually when you have fewer points, but here, these points are especially devoid of any meaning, as they are floating in a graph grid. SO let's give it a basemap. 
 
@@ -455,7 +420,6 @@ Remember to load the package (and install if you haven't already)
 library(ggspatial)
 
 ```
-
 
 And then use the `annotation_map_tile()` function, making sure to place it before the geom_sf points layer, so the background map is placed first, and the points on top of that:  
 
@@ -472,15 +436,13 @@ So what you see above is what we can call a **basemap**. The term basemap is see
 
 Anyway let's leave out points for now, and move on to how we might map our lines and polygons. 
 
-
 ## From mapping crime events as points to mapping number of crimes in an area
 
 What about our other two columns, location, and LSOAs? Well to put these on the map, we need a geometry representation of them. We need boundary data representing the areas we want to map put. We will learn in this section where you may find these, how to download them, turn them into sf objects, and how to link your data to them to be able to map them. 
 
-### Finding boundary data for areas
+### Finding boundary data for areas: using shapefiles
 
 In this section you are going to learn how you take one of the most popular data formats for spatial objects, the  **shapefile**, and read it into R. The shapefile was developed by ESRI, the developers and vendors or ArcGIS. And although many other formats have developed since and ESRI no longer holds the same market position it once occupied (though they're still the player to beat), shapefiles continue to be one of the most popular formats you will encounter in your work. You can read more about shapefiles [here](https://en.wikipedia.org/wiki/Shapefile).
-
 
 We are going to learn here how to obtain shapefiles for British census geographies. In the class today we talked about the idea of neighborhouds and we explained how a good deal of sociological and criminological work traditionally used census geographies as proxies for neighbourhouds. As of today, they still are the geographical subdivisions for which we can obtain a greater number of attribute information (e.g., sociodemographics, etc.).
 
@@ -523,7 +485,6 @@ Once you've made your decision click on the "Extract Boundary Data" button. You 
 ***
 
 ![](img/wait.png)
-
 
 ***
 
@@ -588,7 +549,6 @@ Sometimes there might be more files associated with your shapefile as well, but 
 
 ### Reading shapefiles into R
 
-
 To read in your data, you will need to know the path to where you have saved it. Ideally this will be in your data folder in your project directory. 
 
 Let's create an object and assign it our shapefile's name:
@@ -632,15 +592,11 @@ ggplot() +
 
 Great, we now have an outline of the LSOAs in Manchester. Notice how the shape is different to that of the points in our crime data since here we only obtained the data for the city of Manchester rather than for the whole metropolitan area - and which includes other municipalities aside from Manchester city.
 
-
 ### Data wrangling with dplyr
-
 
 In order to map crimes to LSOAs we might want to take a step back and think about unit of analysis at which our data are collected. In our original dataframe of crimes, we saw that each crime incident is one row. So the unit of anlysis is each crime. Since we were looking to map each crime at the location it happened, we used the latitude and longitude supplied with each one, and this supplied a geometry each for each crime type. 
 
-
 However, when we are looking to map our data to LSOA level, we need to match the crime data to the geometry we wish to display. 
-
 
 Have a look at the manchester_lsoa object we mapped above. How many rows (observations) does it have? You can check this by looking in the Environment pane, or by using the `nrow()` function. 
 
@@ -652,9 +608,7 @@ nrow(manchester_lsoa)
 
 You can see this has `r nrow(manchester_lsoa)` rows. This means we have geometries for  `r nrow(manchester_lsoa)` LSOAs. 
 
-
 On the other hand, our crimes dataframe has `r nrow(crimes)` rows, one for each crime (observation). So how can we match these up? The answer lies in thinking about what it is that our map using LSOAs as our unit of analysis will be able to tell us. Think of other maps of areas - what are they usually telling you? Usually we expect to see crimes per neighbourhood - something like this. So our unit of analysis needs to be LSOA, and for each one we need to know how many crimes occurred in that area. 
-
 
 To achieve this, we will wrangle our data using functions from the `dplyr` package. This is a package for conducting all sorts of operations with data frames. We are not going to cover the full functionality of `dplyr` (which you can consult in [this tutorial](https://cran.r-project.org/web/packages/dplyr/vignettes/dplyr.html)), but we are going to cover three different very useful elements of dplyr: the `select` function, the `group_by` function, and the piping operator.
 
@@ -703,12 +657,9 @@ crimes_per_lsoa <- crimes %>%
 
 Essentially we obtain the same results but with more streamlined and elegant code, and not needing additional objects in our environment.
 
-
 And now we have a new object, *crimes_per_lsoa* if we have a look at this one, we can now see what each row represents one LSOA, and next to it we have a variable for the number of crimes from each area. We created a new dataframe from a frequency table, and as each row of the crimes data was one crime, the frequency table tells us the number of crimes which occurred in each LSOA.
 
-
 Those of you playing close attention might note that there are still more observations in this dataframe (`r nrow(crimes_per_lsoa)`) than in the manchester_lsoas one  (`r nrow(manchester_lsoa)`). Again, this is because crimes_per_lsoa also includes data from census areas in municipalities of the metropolitan area of Greater of Manchester other than Manchester city.
-
 
 ### Join data to sf object
 
@@ -730,19 +681,13 @@ So we've already identified that both our crimes data, and the spatial data cont
 
 **You need a unique identifier to be present** for each row in all the data sets that you wish to join. This is how R knows what values belong to what row! What you are doing is matching each value from one table to the next, using this unique identified column, that exists in both tables. For example, let's say we have two data sets from some people in Hawkins, Indiana. In one data set we collected information about their age. In another one, we collected information about their hair colour. If we collected some information that is unique to each observation, and this is the *same* in both sets of data, for example their names, then we can link them up, based on this information.  Something like this: 
 
-
 ![](img/merge_logic_1.png)
 
-
-
 And by doing so, we produce a final table that contains all values, lined up *correctly* for each individual observation, like this: 
-
 
 ![](img/merge_logic_2.png)
 
 This is all we are doing, when merging tables, is we are making use that we line up the correct value for all the variables, for all our observations. 
-
-
 
 Why are we using *left* join though? There is a [whole family of join functions as part of dplyr](http://stat545.com/bit001_dplyr-cheatsheet.html) which join data sets. There is also a right_join, and an inner_join and an outer_join and a full_join. But here we use left join, because that way we keep all the rows in x (the left-hand side dataframe), and join to it all the matched columns in y (the right-hand side dataframe). 
 
@@ -759,9 +704,7 @@ manchester_lsoa <- left_join(manchester_lsoa, crimes_per_lsoa, by = c("code"="ls
 
 Now if you have a look at the data again, you will see that the column of number of crimes (n) has been added on. 
 
-
 ### Mapping our data at polygon level
-
 
 Now that we have joined the crimes data to the geometry, you can use this to make our map!
 
@@ -784,7 +727,6 @@ ggplot() +
 geom_sf(data = manchester_lsoa, aes(fill = count))
 
 ```
-
 
 We can add a basemap, and adjust the colour scheme, and even the opacity to see under our shape files. 
 
