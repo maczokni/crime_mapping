@@ -1,6 +1,8 @@
-# Chapter1: Making Maps in R
+# Chapter 1: Producing your first crime map
 
-This chapter introduces some basic concepts and will get you started to make some maps in R. We will learn how we can take regular crime data, and assign the appropriate geometry for our chosen unit of analysis. We will produce some maps, using `ggplot2`, and learn some key terms around projection and coordinate reference systems which will be essential for your subsequent chapters. As we will discover there are multiple R packages that have been developed to visualise spatial data. We will introduce the ones we feel are more important in different parts of the book. They all have advantages and disadvantages, but many offer similar functionality. Sometimes choosing one or ther other is a matter of personal preference. In this chapter we will focus on mapmaking with `ggplot2`, a general package for all kinds of data visualisations -not just maps- based on the theory of the grammar of graphics. If you are not new to R, you may also be somehow familiar with `ggplot2`. 
+This chapter introduces some basic concepts and will get you started to make some maps in R. We will learn how we can take regular crime data, and assign the appropriate geometry for our chosen unit of analysis. We will produce some maps, using `ggplot2`, and learn some key terms around projection and coordinate reference systems which will be essential for your subsequent chapters. 
+
+As we will discover throughout the book there are multiple R packages that have been developed to visualise spatial data. We will introduce the ones we feel are more important in different parts of the book. They all have advantages and disadvantages, but many offer similar functionality. Sometimes choosing one or the other is a matter of personal preference. In this chapter we will focus on mapmaking with `ggplot2`, a general package for all kinds of data visualisations -not just maps- based on the theory of the grammar of graphics. If you are not new to R, you may already be familiar with this package. 
 
 
 In this chapter we will use the following packages: 
@@ -37,7 +39,7 @@ At the center of all spatial analysis is the concept of *place*. People identify
 
 Attribute has become the preferred term for any recorded characteristic or property of a place. A place's name is an obvious example of an attribute. But there can be other pieces of information, such as number of crimes in a neighbourhood, or the GDP of a country. Within GIS the term 'attributes' usually refers to records in a data table associated with individual elements in a vector map or cells in a grid (raster or image file). These data behave exactly as data you have encountered in your past experience. The rows represent observations, and the columns represent variables. The variables can be numeric or categorical, and depending on what they are, you can apply different methods to making sense of them. The difference with other kind of data table is that the observations, your rows, correspond to places or locations.
 
-#### Objects
+#### Spatial objects
 
 In spatial analysis it is customary to refer to places as objects. These objects can be a whole country, or a road. In forestry, the objects of interest might be trees, and their location will be represented as points. On the other hand, studies of social or economic patterns may need to consider the two-dimensional extent of places, which will therefore be represented as areas. These representations of the world are part of what is called the **vector data model**: A representation of the world using points, lines, and polygons. Vector models are useful for storing data that have discrete boundaries, such as country borders, land parcels, and streets. This is made up of points, lines, and areas (polygons): 
 
@@ -101,18 +103,15 @@ Right so hopefully this gives you a few things to think about. Be sure that you 
  - Attributes - the bits of information that belong to your spatial objects
  - Maps and projections - especially what WSG84 and BNG mean, and why it's important that you know what CRS your data have
  
-## Getting some spatial data to put on a map
+## Getting crime data to put on a map
 
 Let's get some practical experience where we take some crime data, and find out how we can put it on the map!
-
-
-### Find some relevant data to show: obtaining data on crime
 
 For your first crime map, we better get some real world crime data. This can be done for the UK easily, as anonymised open crime data are released for the public to use. We can play around with police recorded crime data, which can be downloaded from the [police.uk](https://data.police.uk/data/) website. 
 
 Let's download some data for crime in Manchester.
 
-### Activity 1: Get some crime data
+### Activity 1: Find some relevant data to show: obtaining data on crime
 
 To do acquire the data, open the [data.police.uk/data](https://data.police.uk/data/) website. Choose the data tab, in order to download some data. 
 
@@ -266,7 +265,9 @@ There are now 181,408 OAs, 34,753 lower layer super output areas (LSOA) and 7,20
 Anyway back to our crime data. You see we have two columns that reference LSOAs, `lsoa_name` and `lsoa_code`. We can use these to *link* our crime data to a *shapefile* of a *polygon* which contains the geometries needed to put the crime data on the map. 
 
 
-## Putting crime on the map - simple features
+## Mapping crime events with simple features and ggplot2
+
+### The simple features framework
 
 
 So how can we use these spatial details in our dataset to put our crimes on the map? We need to somehow specify a geometry for our data, which links each unit of analysis (whether that is the point, line, or polygon) to a relevant geographical representation, which allows us to put this thing on the map. 
@@ -288,9 +289,6 @@ Features can be thought of as “things” or objects that have a spatial locati
 For more detailed insight we recommend reading the paper [Simple Features for R: Standardized Support for Spatial Vector Data](https://journal.r-project.org/archive/2018/RJ-2018-009/RJ-2018-009.pdf)
 
 
-### Mapping points with sf
-
-
 Let's get started with making some maps using `sf`. First, make sure you install the package, and then load with `library()` function. 
 
 **On Mac and Linux a few requirements must be met to install sf. These are described in the package’s README at [github.com/r-spatial/sf](github.com/r-spatial/sf).**
@@ -310,16 +308,12 @@ Now we can use the functions of `sf` in order to introduce geometries. Let's sta
 
 We know that we have two columns one for Longitude and one for Latitude, which pinpoint each crime event to a specific point, close to where it happened. Not *quite* where it happened, as the data are anonymised (more on this later), but for our purposes here, we can assume this is the location of the crime. 
 
-
 To map these points, we can transform our ordinary dataframe into a simple features object. 
-
-
 
 To do so, we can use the `st_as_sf()` function, into which we need to specify what we are to transform (our dataframe), where the spatial data can be found (our columns which hold the latitude and longidude information), and also what coordinate reference system the object has (see above our discussion about projections and coordinate reference systems).
 
 Latitude longitude coordinates specify location on the **WGS 84** CRS. We can tell R that this is our CRS of choice by including its [EPSG identifier]
 (https://en.wikipedia.org/wiki/EPSG_Geodetic_Parameter_Dataset) as a parameter in our function. It is handy to know the more common EPSG identifiers. For example, for WGS84 the EPSG identifier is *4326*. For British National Grid, the identifier is *27700*. 
-
 
 Putting it all together in practice, we can create a simple features object from our dataframe using the latitude and longitude columns: 
 
@@ -346,8 +340,7 @@ class(crimes_sf)
 You might also notice something else that is different between crimes and crimes_sf. Have a look at the dimension (hint look in your 'Environment' tab). Do you see?
 
 
-#### Activity 3: Mapping our points
-
+### A brief intro to ggplot2 and the grammar of graphics
 
 Now that we have this sf object, how can we map it? We mentioned before about the graphical package `ggplot2`. We can use this, and its syntax, in order to map spatial data using the `geom_sf()` geometry. 
 
@@ -435,11 +428,9 @@ ggplot(crimes, aes(x = crime_type, fill = last_outcome_category)) +
 This is not the greatest graph you'll ever see, but it illustrates the process. Do read up on ggplot2 for example in Hadley Wickham's book R4DS [chapter on data visualisation](https://r4ds.had.co.nz/data-visualisation.html). 
 
 
-So how can we use this for spatial data? We can use the `geom_sf()` function to do so. 
+### Using ggplot2 for mapping crime event locations as points
 
-#### Activity 5: Mapping our points
-
-Using geom_sf is slightly different to other geometries, for example how we used `geom_bar()` above. First we initiate the plot with the `ggplot()` function but don't include the data in there. Instead, it is in the geometry where we add the data. And second we don't need to specify the mapping of x and y. Since this is in the geometry column of our spatial object. Like so:
+So how can we use this for spatial data? We can use the `geom_sf()` function to do so. Using geom_sf is slightly different to other geometries, for example how we used `geom_bar()` above. First we initiate the plot with the `ggplot()` function but don't include the data in there. Instead, it is in the geometry where we add the data. And second we don't need to specify the mapping of x and y. Since this is in the geometry column of our spatial object. Like so:
 
 
 
@@ -482,11 +473,11 @@ So what you see above is what we can call a **basemap**. The term basemap is see
 Anyway let's leave out points for now, and move on to how we might map our lines and polygons. 
 
 
-### Mapping data by joining it to sf objects
+## From mapping crime events as points to mapping number of crimes in an area
 
-What about our other two columns, location, and LSOAs? Well to put these on the map, we need a geometry representation of them. We will learn in this section where you may find these, how to download them, turn them into sf objects, and how to link your data to them to be able to map them. 
+What about our other two columns, location, and LSOAs? Well to put these on the map, we need a geometry representation of them. We need boundary data representing the areas we want to map put. We will learn in this section where you may find these, how to download them, turn them into sf objects, and how to link your data to them to be able to map them. 
 
-#### Activity 5: Finding shapefiles
+### Finding boundary data for areas
 
 In this section you are going to learn how you take one of the most popular data formats for spatial objects, the  **shapefile**, and read it into R. The shapefile was developed by ESRI, the developers and vendors or ArcGIS. And although many other formats have developed since and ESRI no longer holds the same market position it once occupied (though they're still the player to beat), shapefiles continue to be one of the most popular formats you will encounter in your work. You can read more about shapefiles [here](https://en.wikipedia.org/wiki/Shapefile).
 
@@ -595,7 +586,7 @@ But then you will also notice that there are 4 files with the same name "england
 
 Sometimes there might be more files associated with your shapefile as well, but we will not cover them here. So unlike when you work with spreadsheets and data in tabular form, which typically is just all included in one file; when you work with shapefiles, you have to live with the required information living in separate files that need to be stored together. So, being tidy and organised is even more important when you carry out projects that involve spatial data. Please do remember the suggestions we provided last week as to how to organise your RStudio project directories.
 
-#### Activity 6: Reading shapefiles into R
+### Reading shapefiles into R
 
 
 To read in your data, you will need to know the path to where you have saved it. Ideally this will be in your data folder in your project directory. 
@@ -642,7 +633,7 @@ ggplot() +
 Great, we now have an outline of the LSOAs in Manchester. Notice how the shape is different to that of the points in our crime data since here we only obtained the data for the city of Manchester rather than for the whole metropolitan area - and which includes other municipalities aside from Manchester city.
 
 
-#### Activity 7: Data wrangling with dplyr
+### Data wrangling with dplyr
 
 
 In order to map crimes to LSOAs we might want to take a step back and think about unit of analysis at which our data are collected. In our original dataframe of crimes, we saw that each crime incident is one row. So the unit of anlysis is each crime. Since we were looking to map each crime at the location it happened, we used the latitude and longitude supplied with each one, and this supplied a geometry each for each crime type. 
@@ -719,7 +710,7 @@ And now we have a new object, *crimes_per_lsoa* if we have a look at this one, w
 Those of you playing close attention might note that there are still more observations in this dataframe (`r nrow(crimes_per_lsoa)`) than in the manchester_lsoas one  (`r nrow(manchester_lsoa)`). Again, this is because crimes_per_lsoa also includes data from census areas in municipalities of the metropolitan area of Greater of Manchester other than Manchester city.
 
 
-#### Activity 9: Join data to sf object
+### Join data to sf object
 
 Our next task is to link our crimes data to our sf spatial object to help us map this. Notice anything similar between the data from the shapefile and the frequency table data we just created? Do they share a column? 
 
@@ -769,7 +760,7 @@ manchester_lsoa <- left_join(manchester_lsoa, crimes_per_lsoa, by = c("code"="ls
 Now if you have a look at the data again, you will see that the column of number of crimes (n) has been added on. 
 
 
-#### Activity 9: Mapping our data at polygon level
+### Mapping our data at polygon level
 
 
 Now that we have joined the crimes data to the geometry, you can use this to make our map!
