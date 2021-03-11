@@ -485,6 +485,7 @@ Looking good. Triple double check:
 ```{r}
 
 st_crs(cc_WGS84) == st_crs(cc_spatial)
+
 ```
 
 YAY!
@@ -682,54 +683,28 @@ It's not the neatest of maps, with all these overlaps, but we will talk about pr
 
 Another spatial operation we may want to perform is to measure the distance between points. In crime science there is a whole area of research that, for example, focuses on studying the journey to crime by offenders and a common parameter studied is the average distance to crime from their home locations. In order to estimate these parameters, we first need to have a way to generate the distances. In this section, we will use a simpler example to look at the issue of geographical distance.
 
-### Accessing Open Street Map data with R (ref to the tutorial that inspired me for this)
+### Let´s look at the data: how far are police stations in Madrid?
 
-Open Street Map (OSM) is to mapping what Wikipedia is to encyclopedias. It is as Wikipedia says "a collaborative project to create a free editable map of the world." OSM data is the premier source of freely available, community created geographic data worldwide. A number of packages, such as `osmdata` or the more recent and powerful `osmextract`, have been developed to make it easier to query and read data from OSM into R. Here we will first show you how to use `osmdata`, which is ideal for downloading small OSM datasets. This package uses an overpass API, which allows you to query the OSM database with your own criteria.
-
-Let´s load it.
+To illustrate how to measure distance we will download data from the city of Madrid in Spain. Specifically we will obtain two geojson files from the web, one with the location of national police stations in Spain and another with the administrative boundary for the city of Madrid.
 
 ```{r}
-library(osmdata)
+comisarias <- st_read("https://raw.githubusercontent.com/maczokni/crime_mapping/master/data/comisarias.geojson")
+madrid <- st_read("https://raw.githubusercontent.com/maczokni/crime_mapping/master/data/madrid.geojson") 
+
+st_write(police, "C:/crime_mapping/data/police.csv", layer_options = "GEOMETRY=AS_XY")
+library(readr)
+m <- read_csv("C:/crime_mapping/data/police.csv")
+
+library(dplyr)
+n <- select(m, NOMBRE, X, Y)
+write_csv(n, "C:/crime_mapping/data/nationalpolice.csv")
+
+leaflet(police) %>% 
+  addTiles() %>%
+  addMarkers()
+
 ```
 
-#### Build a query: where are police stations in BArcelona?
-
-Before choosing what data to obtain from OSM you need to know what there is.
-OSM data not only includes streets, roads and highways, it also includes information on other points of interest. The `available_features()` function from `osmdata` returns a list of available OSM features. You can find detail information on these different map features that you can obtain through OSM in their wiki pages (https://wiki.openstreetmap.org/wiki/Map_features).
-
-```{r}
-head(available_features())
-```
-Each of those features have associated tags as subcategories. So, for example, there are multiple types of what OSM calls amenities.
-
-```{r}
-head(available_tags("amenity"))
-```
-
-Police stations are tagged as amenities within OSM data. 
-
-To build the data we will use the piping operator. In the first part of our query we need to indicate the area for which we want to obtain the information about the location of police stations. For this purpose we will use the `getbb( )` function, which creates a boundering box for a given place, looking for the name. The function `opq( )` builds the final query. The filter criteria for the query are included with the  function`add_osm_feature( )`. Since we are looking for police stations in Barcelona we specify "Barcelona" to bound the box and we use as key "amenity" and "police" as tag. 
-
-```{r}
-#building the query
-query_1 <- getbb("Barcelona") %>%
-      opq() %>%
-       add_osm_feature(key = "amenity", 
-                       value = "police")
-
-str(query_1) #query structure
-```
-
-The resulting query can be obtained in various formats. We will ask for the query to result in a `sf` object by virtue of using the `osmdata_sf()` function.
-
-```{r}
-police <- osmdata_sf(query_1)
-police
-```
-
-As we can see this produces various spatial objects. We are only interested in the points, which represent the location of these police stations. 
-
-#### Let´s look at the data
 
 We are going to use code you should be familiar from last chapter. With the `geom_sf( )` function introduced in the last chapter we will plot the locations of police stations in Madrid. It is important to indicate with the argument `inherit.aes = FALSE` that it has to use the aesthetic mappings of the spatial object osm_points. In addition, we change the color, fill, transparency (alpha), type and size of the circles.
 
@@ -744,7 +719,7 @@ ggplot()+
           colour = "#238443",
           fill = "#004529",
           alpha = .5,
-          size = 2,
+          size = .5,
           shape = 21) +
   labs(x = "", y = "")
 
