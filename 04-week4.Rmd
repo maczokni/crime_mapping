@@ -28,9 +28,7 @@ The packages we will use in this chapter are:
 - `RColorBrewer`
 - `sf`
 - `janitor`
-- `osmdata`
-- `ggplot2`
-- `ggmap`
+- `units`
 
 Let's consider the assumption that licenced premises which serve alcohol are associated with increased crimes. We might have some hypotheses about why this may be. 
 
@@ -685,62 +683,175 @@ Another spatial operation we may want to perform is to measure the distance betw
 
 ### Let´s look at the data: how far are police stations in Madrid?
 
-To illustrate how to measure distance we will download data from the city of Madrid in Spain. Specifically we will obtain two geojson files from the web, one with the location of national police stations in Spain and another with the administrative boundary for the city of Madrid.
+To illustrate how to measure distance we will download data from the city of Madrid in Spain. Specifically we will obtain a csv file with the latitute and longitud of the police stations and a geojson file with the administrative boundary for the city of Madrid. Both are stored in our GitHub repository and can be accessed with the code below. We will also turn the .csv into a sf object with the appropriate coordinate reference system for this data.
 
 ```{r}
-comisarias <- st_read("https://raw.githubusercontent.com/maczokni/crime_mapping/master/data/comisarias.geojson")
+#read csv data
+comisarias <- read_csv("https://raw.githubusercontent.com/maczokni/crime_mapping/master/data/nationalpolice.csv")
+#set crs, read into sf object, and double check crs
+polCRS <- st_crs(4326)
+comisarias_sf <- st_as_sf(comisarias, coords = c("X", "Y"), crs = polCRS)
+st_crs(comisarias_sf)
+#create unique id for each row
+comisarias_sf$id <- as.numeric(rownames(comisarias_sf))
+
+#Read as sf boundary data for Madrid city
 madrid <- st_read("https://raw.githubusercontent.com/maczokni/crime_mapping/master/data/madrid.geojson") 
 
-st_write(police, "C:/crime_mapping/data/police.csv", layer_options = "GEOMETRY=AS_XY")
-library(readr)
-m <- read_csv("C:/crime_mapping/data/police.csv")
-
-library(dplyr)
-n <- select(m, NOMBRE, X, Y)
-write_csv(n, "C:/crime_mapping/data/nationalpolice.csv")
-
-leaflet(police) %>% 
+#plot with leaflet to check all is fine
+leaflet(comisarias_sf) %>% 
   addTiles() %>%
-  addMarkers()
+  addMarkers(data = comisarias_sf) %>%
+  addPolygons(data = madrid)
 
 ```
 
+We can clearly see here that there are areas of the municipal term that are far away from any national police station, the North West part of the city which you can see is a green area but noticeably also the South East, which is mostly urban and in fact is the location of a known shanty town and open drug market ("Cañada Real", you can read about it in ...). 
 
-We are going to use code you should be familiar from last chapter. With the `geom_sf( )` function introduced in the last chapter we will plot the locations of police stations in Madrid. It is important to indicate with the argument `inherit.aes = FALSE` that it has to use the aesthetic mappings of the spatial object osm_points. In addition, we change the color, fill, transparency (alpha), type and size of the circles.
+### Distance in geographical space
+
+There are many definitions of distance in data science and spatial data science. A common definition of distance is the Euclidean distance, which simply is the length of a segment connecting two points in a two dimensional place. Because of the distortions caused by projections on a flat surface, a straight line on a map is not necessarily the shortest distance. Thus, another common definition used in geography is the great circle distance, which corresponds to an arc linking two points on a sphere and takes into account the spherical shape of the world.The great circle distance is useful, for example, to evaluate the shortest path when intercontinental distances are concerned. We can compute both with the `st_distance` function of the `sf` package. This function can be used to measure the distance between two points, between one point and others or between all points. In the latter case we obtain a symmetric matrix of distances (NxN), taken pairwise between the points in our dataset. In the diagonal we find the combinations between the same points giving all null values.
+
+Say we want to measure the distance between the main police headquarters ("Jefatura Superior de Policia", row 34) and three other stations (say row 1, row 10, and row 25 in our dataset). We could use the following code for that:
+
+```{r}
+# calculate distance
+dist_headquarters <- st_distance(slice(comisarias_sf, 34), 
+                              slice(comisarias_sf, c(1, 10, 25)))
+
+dist_headquarters # distance in meters
+```
+
+The result is a matrix with a single row or column (depending on the order of the spatial objects) with a class of *units*.
+
+Often we may want to reexpress these distances in a different unit. For this purpose the `units` package offers useful functionality.
+
+```{r}
+library(units)
+set_units(dist_headquarters, "km")
+```
+
+We can compute the distance between all police stations as well.
 
 ```{r}
 
-#police stations map
-police_data <- police$osm_points
+# calculate distance
+m_distance <- st_distance(comisarias_sf)
 
-ggplot()+
-  geom_sf(data = police_data,
-          inherit.aes = FALSE,
-          colour = "#238443",
-          fill = "#004529",
-          alpha = .5,
-          size = .5,
-          shape = 21) +
-  labs(x = "", y = "")
-
-
-library(ggspatial)
-library(ggplot2)
-ggplot()+
-  annotation_map_tile() +
-  geom_sf(data = police$osm_points,
-          inherit.aes = FALSE,
-          colour = "#238443",
-          fill = "#004529",
-          alpha = .5,
-          size = 2,
-          shape = 21) +
-  labs(x = "", y = "")
-
+# matrix dimensions
+dim(m_distance)
 
 ```
 
+If you want to preview the top of the matrix you can use:
 
+```{r, eval = FALSE}
+head(m_distance)
+```
+
+### A practical example to evaluate distance
+
+For this practical example we will look at the Madrid data.
+
+```{r}
+plot(madrid, max.plot = 1)
+```
+We know this map is in EPSG 4326.
+
+```{r}
+st_crs(madrid)
+```
+The distance here is expressed in degrees and we may prefer to evaluate distance in metrical system. Another way of saying this is that the current CRS uses geographic coordinates that account for earth’s curvature, when we may prefer a flat surface to measure distances. For this we will transform and reproject to EPGS 2062, which is appropriate for Madrid (see here for details https://epsg.io/?q=Spain%20kind%3APROJCRS).
+
+```{r}
+madrid_meters <- st_transform(madrid, crs = 2062)
+
+```
+
+Before we saw that some areas of Madrid are nowhere near a police station. Let´s say we want to get precise about this and we want to know how far different parts of the city of Madrid are far from a police station, and we want to be able to show this in a map. Solving this means we have to define "parts of the city". What we will do is to divide the city of Madrid into different cells of 250 meters within a grid using the `st_make_grid` function of the `sf` package.
+``
+
+```{r}
+madrid_grid <- st_make_grid(madrid_meters,  cellsize = 250)
+plot(madrid_grid)
+```
+We are now going to just extract the cells within the perimeter of Madrid:
+
+```{r}
+#only extract the points in the limits of Iceland
+madrid_grid <- st_intersection(madrid_grid, madrid_meters)   
+
+#our fishnet now
+plot(madrid_grid)
+
+#Reproject to 4326 for later use
+madrid_grid_wgs <- st_transform(madrid_grid, crs = 4326)
+
+```
+
+So how do we look at distance from police stations here? We will measure the distance between each grid cell to all 39 police stations. To estimate the distance to the nearest police station we will find the minimum distance value for each grid, i.e. the distance to the nearest station.
+
+```{r}
+comisarias_sf_meters <- st_transform(comisarias_sf, crs = 2062)
+
+distances <- st_distance(comisarias_sf_meters, st_centroid(madrid_grid)) %>% 
+as_tibble()
+
+```
+
+If you view the new object `distances` you will see there is a row for each police station and a column representing each of the 10082 cells in our grid. For using these distances in a leaflet map we will reproject back into 4326. And then will compute the shortes distance for each cell.
+
+```{r}
+# Compute distances
+police_distances <- data.frame(
+  # We want grids in a WGS 84 CRS:
+  us = st_transform(madrid_grid, crs = 4326),
+  # Extract minimum distance for each grid
+  distance_km = map_dbl(distances, min)/1000,
+  # Extract the value's index for joining with the ice-cream location info
+  location_id = map_dbl(distances, function(x) match(min(x), x))) %>% 
+  # Join with the police station table
+  left_join(comisarias_sf, by = c("location_id" = "id"))
+
+# Plot and examine distances
+
+hist(police_distances$distance_km)
+quantile(police_distances$distance_km)
+
+```
+
+Now we are ready to use this data to plot a map. First we will adjust some aesthetics.
+
+```{r}
+# Create more appropriate icon, taking it from Wikepedia commons and adjusting size
+police_icon <- makeIcon("https://upload.wikimedia.org/wikipedia/commons/a/ad/189-woman-police-officer-1.svg", iconWidth = 12, iconHeight = 20)
+
+# Bin ranges for a nicer color scale
+bins <- c(0,0.02,1.74,3.82,7.95,18.18)
+# Create a binned color palette
+pal <- colorBin(c("#0868AC", "#43A2CA", "#7BCCC4", "#BAE4BC", "#F0F9E8"), 
+                domain = police_distances$distance_km, bins = bins, 
+                reverse = TRUE)
+
+full_map <- leaflet() %>% 
+  addTiles() %>% 
+  addMarkers(data = comisarias_sf, icon = ~police_icon, 
+             group = "Police stations") %>% 
+  addPolygons(data = police_distances[[1]], 
+              fillColor = pal(police_distances$distance_km), 
+              fillOpacity = 0.8, weight =0,
+              opacity =1, color = "transparent", group = "Distances",
+              highlight = highlightOptions(weight = 2.5, color = "#666", bringToFront = TRUE, opacity= 1), popupOptions = popupOptions(autoPan = FALSE,
+                                          closeOnClick = TRUE, textOnly = T)) %>% 
+   addLegend(pal = pal, values = (police_distances$distance_km), opacity = 0.8, 
+                         title = "Distance (Km)", position= "bottomright") %>% 
+  addLayersControl(overlayGroups = c("Police Stations", "Distances"),
+                   options = layersControlOptions(collapsed = FALSE))
+full_map
+
+```
+
+And there you go. Just keep something. It is easy to misinterpret data and maps. You always need to care a great deal about measurement, quality of your data, and other potential issues affecting interpretation. When it comes to distance, and the movements of people and law enforcement personnel, for example, physical distance is not trivial, but time to arrival is also important and this is determined by factors other Euclidean distance (e.g., availability and speed of transport, physical barriers, etc.). Our representation is always as good as the data we have. In Spain there are two other police forces (Guardia Civil, that patrols rural areas, and municipal civil, with jurisdiction for local administrative enforcement) that we are not representing here (that is, our data is incomplete). And we are not plotting the police stations in the nearby municipalities that are part of Madrid metropolitan area.
 
 ## Summary
 
