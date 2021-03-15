@@ -206,7 +206,7 @@ There are a few answers here. In fact there are one each to map onto point, line
 
 First, and possibly most obvious, are the coordinates provided with each crime incident recorded. You can find this in the two columns - Longitude and Latitude. These two column help put each crime incident on a specific point on a map. For example, let's take the very first crime incident. Here we use the head() function and specify that we want the first 1 rows only with `n=1` parameter. 
 
-```{r}
+```{r, tidy = TRUE}
 
 head(crimes, n = 1)
 
@@ -294,7 +294,7 @@ Latitude longitude coordinates specify location on the **WGS 84** CRS. We can te
 Putting it all together in practice, we can create a simple features object from our dataframe using the latitude and longitude columns: 
 
 
-```{r makepointsf}
+```{r makepointsf, tidy = TRUE}
 
 crimes_sf <- st_as_sf(crimes,                                     #dataframe
                       coords = c("longitude", "latitude"),        #columns with coordinates
@@ -365,7 +365,7 @@ ggplot(crimes, aes(x = crime_type))
 
 Geometry: 
 
-```{r}
+```{r, tidy = TRUE}
 
 ggplot(crimes, aes(x = crime_type)) + 
   geom_bar()
@@ -373,7 +373,7 @@ ggplot(crimes, aes(x = crime_type)) +
 
 Aesthetics:
 
-```{r}
+```{r, tidy = TRUE}
 
 ggplot(crimes, aes(x = crime_type, fill = last_outcome_category)) + 
   geom_bar()
@@ -382,7 +382,7 @@ ggplot(crimes, aes(x = crime_type, fill = last_outcome_category)) +
 
 And then you could add any facets (for example if we had more than one month of data) or any statistics (for example error bars) with facet and stats layers. One more thing I do want to show is tidying up your chart, you can add theme and clean up your labels and titles and colour scheme. 
 
-```{r}
+```{r, tidy = TRUE}
 
 ggplot(crimes, aes(x = crime_type, fill = last_outcome_category)) + 
   geom_bar() + 
@@ -423,7 +423,7 @@ library(ggspatial)
 
 And then use the `annotation_map_tile()` function, making sure to place it before the geom_sf points layer, so the background map is placed first, and the points on top of that:  
 
-```{r}
+```{r, tidy = TRUE}
 
 ggplot() + 
  annotation_map_tile() +
@@ -703,6 +703,12 @@ manchester_lsoa <- left_join(manchester_lsoa, crimes_per_lsoa, by = c("code"="ls
 ```
 
 Now if you have a look at the data again, you will see that the column of number of crimes (n) has been added on. 
+
+You may not want to have to go through this process all the time you want to work with this data. One thing you could do is to save the *manchester_lsoa* object as a physical file in your machine. You can use the `st_write()` function from the `sf` package to do this. If we want to write into a shapefile format we would do as shown below. Make sure you save this file, for we will come back to it in subsequent chapters.
+
+```{r, eval=FALSE}
+st_write(manchester_lsoa, "data/BoundaryData/manchester_crime_lsoa.shp")
+```
 
 ### Mapping our data at polygon level
 

@@ -3,7 +3,7 @@
 
 ## Intro and recap
 
-Last week we showed you fairly quickly how to create maps by understanding how data may have spatial elements, and how that can be linked to geometries. 
+In the first chapter we showed you fairly quickly how to create maps by understanding how data may have spatial elements, and how that can be linked to geometries. 
 
 In this chapter we will get to know how to think about thematic maps, and how to apply your learning to creating your own maps of this variety. In the process we will discuss various types of thematic maps and the various issues they raise.
 
@@ -51,14 +51,11 @@ If you wanted to bring this shapefile back into R at any future point, you would
 manchester_crime_lsoa <- st_read("data/BoundaryData/manchester_crime_lsoa.shp")
 ```
 
-#### Activity 1: Spot the difference
-
-
-Before we carry on, can you tell what is different between *manchester_lsoa.shp* and *manchester_crime_lsoa.shp* that you now have saved for working with? Discuss in your groups, and write your thoughts on the shared google doc.  
-
 ## Creating thematic maps
 
-Today we are going to introduce the `tmap` package. This package was developed to easily produce thematic maps. It is inspired by the `ggplot2` package and the layered grammar of graphics. It was written by Martjin Tennekes a Dutch data scientist. There are a number of [vignettes in the CRAN repository](https://cran.r-project.org/web/packages/tmap/index.html) and the [GitHub repo for this package](https://github.com/mtennekes/tmap) that you can explore. GitHub is a collaborative website used by software developers and data scientist, also contains a useful *readme* section with additional resources to familiarise yourself with this package. Each map can be plotted as a static map (*plot mode*) and shown interactively (*view mode*) as we briefly saw last week. We will start by focusing on static maps.
+Today we are going to introduce the `tmap` package. This package was developed to easily produce thematic maps. It is inspired by the `ggplot2` package and the layered grammar of graphics. It was written by Martjin Tennekes a Dutch data scientist. 
+
+There are a number of [vignettes in the CRAN repository](https://cran.r-project.org/web/packages/tmap/index.html) and the [GitHub repo for this package](https://github.com/mtennekes/tmap) that you can explore. Each map can be plotted as a static map (*plot mode*) and shown interactively (*view mode*). We will start by focusing on static maps.
 
 Every time you use this package you will need a line of code that specifies the spatial object you will be using. Although originally developed to handle `sp` objects only, it now also has support for `sf` objects. For specifying the spatial object we use the `tm_shape()` function and inside we specify the name of the spatial object we are using. On its own, this will do nothing apparent. No map will be created. We need to add additional functions to specify what we are doing with that spatial object. If you try to run this line on its own, you'll get an error telling you you must "Specify at least one layer after each tm_shape". 
 
@@ -81,7 +78,6 @@ tm_shape(manchester_crime_lsoa) +
   tm_polygons("count")
 ```
 
-
 We have been using `tm_polygons()` but we can also add the elements of a polygon map using different functions that break down what we represent here. In the map above you see the polygons have a dual representation, the borders are represented by lines and the colour is mapped to the intensity of the quantitative variable we are representing. With darker colours representing more of the variable, the areas with more crimes. Instead of using `tm_polygon()` we can use the related functions `tm_fill()`, for the colour inside the polygons, and `tm_borders()`, for the aesthetics representing the border of the polygons. Say we find the borders distracting and we want to set them to be transparent. In that case we could just use `tm_fill()`.
 
 ```{r}
@@ -101,7 +97,7 @@ The alpha parameter that we are inserting within `tm_borders()` controls the tra
 
 Notice in the last few maps we did not have to specify whether we wanted the map to be static or interactive. When you use `tmap`, R will remember the mode you want to use. So once you specify `tmap_mode("plot")`, all the subsequent maps will be static. It is only when you want to change this behaviour that you would need another `tmap_mode` call.
 
-Notice as well that the legend in this map is (a) not very informative and (b) located in a place that is less than optimal, since it covers part of the map. We can add a title within the `tm_fill` to clarify what count is and we can use the `tm_layout()` function to control the appearance of the legend. This later function `tm_layout` allows you to think about many of the more general cosmetics of the map.
+Notice as well that the legend in this map is (a) not very informative and (b) may be located in a place that is less than optimal. We can add a title within the `tm_fill` to clarify what count is and we can use the `tm_layout()` function to control the appearance of the legend. This later function `tm_layout` allows you to think about many of the more general cosmetics of the map.
 
 ```{r}
 
@@ -114,14 +110,11 @@ tm_shape(manchester_crime_lsoa) +
 
 ```
 
-
 We are also going to change the current style of the maps by making them more friendly to colour blind people. We can use the tmap_style() function to do so.
-
 
 ```{r}
 current_style <- tmap_style("col_blind")
 ```
-
 
 See how the map changes.
 
@@ -135,6 +128,8 @@ tm_shape(manchester_crime_lsoa) +
 
 
 ```
+## 
+
 
 ## Classification systems for thematic maps
 
