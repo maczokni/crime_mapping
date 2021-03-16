@@ -1,11 +1,35 @@
 
 # Chapter 2: Thematic maps in R
 
-## Intro and recap
+## Intro: choropleth and proportional symbol maps
 
 In the first chapter we showed you fairly quickly how to create maps by understanding how data may have spatial elements, and how that can be linked to geometries. 
 
 In this chapter we will get to know how to think about thematic maps, and how to apply your learning to creating your own maps of this variety. In the process we will discuss various types of thematic maps and the various issues they raise.
+
+Thematic maps focus on representing the spatial pattern of a variable of interest (e.g, crimes, trust in the police, etc.) and they can be used for exploration and analysis or for presentation and communication to others. There are different types of thematic maps depending on how the variable of interest is represented. In this and the next chapters we will introduce some of these types of particular interest for crime analysis, the different challenges they pose, and some ideas that may help you to choose the best representation for your data. Critically, we need to think about the quality of the data we work with, for adequate measurement is the basis of any data analysis.
+
+In this chapter, we introduce in particular two types of thematic maps used for mapping quantitative variables: choropleth maps and proportional symbol maps. 
+
+### Choropleth maps
+
+Choropleth maps display variation in areas (postal codes, police districts, census administrative units, municipal boundaries, regional areas, etc) through the use of the colour that fills each of these areas in the map. A simple case can be to use a light to dark color to represent less to more of the quantitative variable. They are appropriate to compare values across areas.
+
+You “can” show raw totals (absolute values), for example number of crimes, or derived values (ratios), crime per 100,000 inhabitants. But as a general rule, you should restrict choropleth maps to show derived variables such as rates or percentages. This is because the areas we often use are of different size and this may introduce an element of confusion in the interpretation of choropleth maps. The size of say, a province or a county, "has a big effect on the amount
+of color shown on the map, but unit area may have little relationship, or even an inverse relationship, to base populations and related counts." (@Brewer_2006: S30)
+
+In social science the denominator on mapped ratios is typically some form of population size, which typically we will want as current as possible. In other fields some measure of area size may be a preferred choice for the denominator. A great deal of discussion in crime analysis has focused on the choice of the right denominator. If for example you are interested in residential burglary, it makes sense to use number of inhabited households as your denominator (rather than population size). Population is also highly mobile during the day. People do not stay in the areas where they live, they go to work, they go to school, they travel for tourism purposes, and in doing so they alter the population structure of any given area. Geographers and criminologists, thus, distinguish between the standard measures of population (that relate to people that live in an area) provided by the census and government statistical authorities and the so called **ambient population**, that relates to people that occupy an area at a given time, and which typically are a bit more difficult to source (see for more details: @Andresen_2011, ).
+
+There are a number of known problems with choropleth maps:
+1. They may not display variation within the geographical units being employed. You are imposing some degree of distortion by assuming all parts of an area display the same value. Our crime map may show a neighborhoud as secure, when there is a part of this neighbourhoud that has a high level of crime. And viceversa.
+2. Boundaries of geographical areas are to a large extent arbitrary (and unlikely to be associated with major discontinuities in your variable of interest). In crime analysis we very often use census administrative units, but these rarely represent natural neighbourhoods.
+3. They work better if areas are of similar size. Areas of greater size may be more heterogeneous internally than those of smaller size: that is there potentially have the largest error of representation. Also, attention may be drawn by areas that are large in size (if size is not the variable use to create a ratio).
+
+In crime analysis, the key variable we map is geocoded crime, that is crime for which we know its exact location. The source for this variable tends to be crime reported to and recorded by the police. Yet, we know this is an imperfect source of data. A very large proportion of crime is not reported to the police. In England and Wales, for example, it is estimated that around 60% of crime is unknown to the police. And this is an average. The unknown figure of crime is larger for certain types of crime (e.g., interpersonal violence, sexual abuse, fraud, etc.). What is more, we know that there are community-level attributes that are associated with the level of crime reporting (@Goudriaan). Equally, not all police forces or units are equally adept at properly recording all crimes reported to the police. An in-depth study conducted in England and Wales concluded that over 800,000 crimes reported to the police were not properly recorded (an under-recording of 19%, which is higher for violence and sexual abuse, 33% and 26% respectively) (@HMIC_2014). There are, indeed, institutional, economic, cultural and political factors that may shape the quality of crime recording across different parts of the area we want to map out. Finally, the quality of the geocoding process, which varies across crime type, also comes into the equation. Some authors suggest we need to be able to geocode at least 85% of the crime incidents to get accurate maps (@Ratcliffe_2004), otherwise geocoded crime records are likely to be spatially biased. Although all this has been known for a while, criminologists and crime analysts are only now beginning to appreciate how this can affect the quality of crime mapping and the decision making based on this mapping (@Buil-Gil_2021; @Hart).
+
+Although most of the time crime analysts are primarily concerned with mapping crime incidence and those factors associated with it, increasingly we see interest in the spatial representation of other variables of interest to criminologists such as fear of crime, trust in the police, etc (see, for example, .
+
+Proportional symbol maps, on the other hand, are used to represent quantitative variables for either areas or point locations. The symbols typically will be squares or circles that are scaled "in proportion to the square root of each data value so that symbol areas visually represent the data values" (@Brewer: S29). We oftenwise use proportional symbol maps to represent count data (e.g., number of crimes reported in a given area).
 
 We will also introduce faceting and **small multiples**, which is a format for comparing the geographical distribution of different social phenomena. 
 
