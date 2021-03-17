@@ -102,60 +102,40 @@ Right so hopefully this gives you a few things to think about. Be sure that you 
  - Attributes - the bits of information that belong to your spatial objects
  - Maps and projections - especially what WSG84 and BNG mean, and why it's important that you know what CRS your data have
  
-## Getting crime data to put on a map
+## Getting crime data to put on a map: reading data from the web
 
 We live in a world awash with data and through this book we will use the different examples to show you some useful places and sources you can use to obtain your spatial data. Most geographically referenced crime data is based on crime reported to the police, although there are some notable exceptions (e.g., public health data on violence, geocoded victim survey data, etc.). Many police departments across the world make this data readily available to the public or researchers. This is more common in places like the US, where crime mapping applications first got established, but increasingly we see publicly available crime data from other countries as well.
 
-For our first map we will use data from the UK, which can be downloaded from the [police.uk](https://data.police.uk/data/) website. Let's download some data for crime in Manchester. To do acquire the data, open the [data.police.uk/data](https://data.police.uk/data/) website. Choose the data tab, in order to download some data. 
+For our first map we will use data from the UK, which can be downloaded from the [police.uk](https://data.police.uk/data/) website. Let's download some data for crime in Manchester. To do acquire the data, we could open the [data.police.uk/data](https://data.police.uk/data/) website and then choose the data tab, in order to manually download some data. After selecting a data range, a police force, and the type of data, one could generate a file. This would take you to a download page, where you have to click the `Download now` button. This will open a dialogue to save a .zip file. After all this pointing and clicking, one would have to unzip the file and read it into R.
 
-- In `Date range` just select one month of data. Choose whatever month you like EXCEPT nothing more recent than June 2019. Unfortunately, for GMP there is no more recent data available than that. 
-- In `Force` find `Greater Manchester Police`, and tick the box next to it. 
-- In `Data sets` tick `Include crime data`.
-- Finally click on `Generate File` button.
+But, programmers are lazy, and the whole point of using code-based interfaces is that we get to avoid doing unneccessary work, like point-and-click downloading of files. And when data exists online in a suitable format, we can tell R to read the data in from the web directly, and cut out the middle man (that being ourseves in our pointing-and-clicking activity). 
 
-This will take you to a download page, where you have to click the `Download now` button. This will open a dialogue to save a .zip file. Navigate to the project directory folder you've created and save it there, ideally in a subfolder. I call my subfolder 'data'. 
+How can we do this? Well think about what we do when we read in a file. We say, "hello R, i would like to create a new object please and I will call this new object `my_data`." We do this by typing the name we are giving the object and the assignment function `<-`. Then on the right hand side of the assignment function, there is the value that we are assigning the variable. So it could be a bit of text , or it could be some function, for example when you read a csv file with the `read_csv()` function from the `readr` package. 
 
-
-Unzip the file. You can use the unzip function for this. A cool function you may want to use as well is `file.choose()`. If we pass this function as an argument to unzip(), we will get a pop window where we will be able to select our file using familiar point and click. Ideally, you want to rather write down the path to your file. But sometimes these shortcuts are convenient.
+So if we're reading a csv, we also need to specity *where* to read the csv from. Where should R look to find this data? This is where normally you are putting in the path to your file. Something like: 
 
 ```{r, eval=FALSE}
 
-unzip(file.choose())
+my_data <- read_csv("path to my file here")
 
 ```
 
-If you look at the *Files* window in the bottom right corner of RStudio you should see now a new subdirectory that contains a .csv file with the data that we need. Since I downloaded the data from June 2019 in my case this subdirectory is called 2019-06.
-
-
-Before we can use this data we need to read it or import it into R and turn it into a dataframe object. To read in the .csv file, which is the format we just downloaded, the command is `read_csv()` from the `readr` package. You'll need to load this package first. 
-
-
-```{r loadreadr}
-
-
-library(readr)
-
-```
-
-Again there are two ways to read in the data, if you want to open a window where you can manually navigate and open the file, you can pass `file.choose()` argument to the `read_csv()` function as illustrated earlier. 
+Well what if your data does not live on your laptop or PC? Well, if there is a way that R can still access this data just by following a path, then this approach will still work. So how can we apply this to getting data from the web? Well, all you need is the url that indicates the file location.
 
 ```{r, eval=FALSE}
-#This code creates a dataframe object called crimes which will include the spreadsheet in the file we have downloaded. In my case, that is 2007-11-greater-manchester-street.csv.
 
-crimes <- read_csv(file.choose())
+my_data <- read_csv("www.data.com/the_data_i_want")
 
-m # Print the map
 ```
 
+The lion share of the data we use in this book are stored in the webpage for this book and so can be retrieved from there. We will be providing the url and code needed to get this data as we go along. For the illustrations in this chapter we are using a csv file that looks at crime in Greater Manchester during June of 2019. The url for obtaining this file is shown below:
 
-Or, if you know the path to your file, you can code it in there, within quotation marks:
+```{r, message=FALSE}
+crimes <- read_csv("https://raw.githubusercontent.com/maczokni/crime_mapping/master/data/2019-06-greater-manchester-street.csv")
 
-```{r, eval=TRUE}
-crimes <- read_csv("data/2019-06-greater-manchester-street.csv")
 ```
 
-
-You might notice that the object `crimes` has appeared in your work environment window. It will tell you how many observations (rows - and incidentally the number of recorded crimes in June 2019 within the GMP jurisdiction) and how many variables (columns) your data has.
+If you look at the *Environment* window in the top right corner of RStudio you should see now a new object that contains a *tibble*, a particular format for dataframes, and that is called `crimes`. It will tell you how many observations (rows - and incidentally the number of recorded crimes in June 2019 within the GMP jurisdiction) and how many variables (columns) your data has.
 
 Let's have a look at the crimes dataframe with the `View()` function. This will open the data browser in RStudio
 
@@ -165,28 +145,26 @@ View(crimes)
 
 ```
 
-If you rather just want your results in the console, you can use the glimpse() function from the tibble package. This function does just that, it gives you a quick glimpse of the first few cases in the dataframe. Notice that there are two columns (Longitude and Latitude) that provide the require geographical coordinates that we need to plot this data.
+If you rather just want your results in the console, you can use the `glimpse()` function from the `tibble` package. This function does just that, it gives you a quick glimpse of the first few cases in the dataframe. Notice that there are two columns (Longitude and Latitude) that provide the require geographical coordinates that we need to plot this data.
 
+```{r, eval=FALSE}
 
-```{r}
-library(tibble)
 glimpse(crimes)
 
 ```
-You may notice that a lot of the variable names are messy in that they have a space in them - this can cause issues, so before playing around too much with the data we want to clean this up. 
 
-Luckily there is a very handy package you can use for this called `janitor` which contains the function `clean_names()`. 
+You may notice that a lot of the variable names are messy in that they have a space in them - this can cause issues, so before playing around too much with the data we want to clean this up. Luckily there is a very handy package you can use for this called `janitor` which contains the function `clean_names()`. 
 
 
 ```{r cleannames}
-library(janitor)
+
 crimes <- clean_names(crimes)
 
 ```
 
 Now the names are much neater. You can print them all for a view using the `names()` function: 
 
-```{r printnames}
+```{r printnames, eval=FALSE}
 
 names(crimes)
 
@@ -198,12 +176,11 @@ Having had a chance to inspect the data set you've downloaded, let's consider wh
 
 There are a few answers here. In fact there are one each to map onto point, line, and polygon, which we read about earlier. 
 
-
 ### The point
 
-First, and possibly most obvious, are the coordinates provided with each crime incident recorded. You can find this in the two columns - Longitude and Latitude. These two column help put each crime incident on a specific point on a map. For example, let's take the very first crime incident. Here we use the head() function and specify that we want the first 1 rows only with `n=1` parameter. 
+First, and possibly most obvious, are the coordinates provided with each crime incident recorded. You can find this in the two columns - Longitude and Latitude. These two column help put each crime incident on a specific point on a map. For example, let's take the very first crime incident. Here we use the `head()` function and specify that we want the first 1 rows only with `n=1` parameter. 
 
-```{r, tidy = TRUE}
+```{r}
 
 head(crimes, n = 1)
 
@@ -213,7 +190,7 @@ You can see that the values are `r print(crimes$longitude[1])` for Longitude and
 
 ### The line
 
-Another column which contains information about *where* the crime happened is the aptly named `location` variable. This shows you a list of locations related to where the crimes happened. You may see a few values such as on or near XYZ street. Let's look again at the first entry.
+Another column which contains information about *where* the crime happened is the aptly named *location* variable. This shows you a list of locations related to where the crimes happened. You may see a few values such as on or near XYZ street. Let's look again at the first entry.
 
 ```{r}
 
@@ -229,11 +206,11 @@ tail(crimes, n = 1)
 
 ```
 
-You can see that the value is `r print(crimes$location[nrow(crimes)])`. This makes our crime much easier to find, we just need to locate where is `r print(gsub("On or near ","",crimes$location[nrow(crimes)]))`. We might have a shapefile of lines of all the roads of Manchester, and if we did, we can link the crime to that particular road, in order to map it. 
+You can see that the value is `r print(crimes$location[nrow(crimes)])`. This makes our crime much easier to find, we just need to locate where is `r print(gsub("On or near ","",crimes$location[nrow(crimes)]))`. We might have a file of lines of all the roads of Manchester, and if we did, we can link the crime to that particular road, in order to map it. 
 
 ### The polygon 
 
-What more? You may also have seen the column `lsoa_name` seems to have some spatial component, Let's have a look at the first crime again. 
+What more? You may also have seen the column *lsoa_name* seems to have some spatial component, Let's have a look at the first crime again. 
 
 ```{r}
 
@@ -243,11 +220,11 @@ head(crimes, n = 1)
 
 You see the value for LSOA name is `r print(crimes$lsoa_name[1])` - Bolton we know is a Borough of Greater Manchester, but what is the 001 for ?
 
-Well it denotes a sparticular geographical sub-unit within Bolton called a **Lower Layer Super Output Area**. This is a unit of [UK Census Geography](https://www.ons.gov.uk/methodology/geography/ukgeographies/censusgeography). The basic unit for Census Geography is an 'Output area' - this is the resolution at which we can access data from the UK Census. We will be making use of census data later in the course. The Output Area (OA) is therefore the smallest unit we could use. Normally, in this module, we will be using a slightly larger version - the Lower Super Output Area (LSOA). 
+Well it denotes a particular geographical sub-unit within the municipality of Bolton called a **Lower Layer Super Output Area**. This is a unit of [UK Census Geography](https://www.ons.gov.uk/methodology/geography/ukgeographies/censusgeography). The basic unit for Census Geography in the UK is an 'Output area' - this is the resolution at which we can access data from the UK Census. We will be making use of UK census data later in the course. The Output Area (OA) is therefore the smallest unit we could use. The census in other countries use different names for the units for which they publish information, but the logic is similar. 
 
-There are now 181,408 OAs, 34,753 lower layer super output areas (LSOA) and 7,201 middle layer super output areas (MSOA) in England and Wales. The neat thing about these Census geographies is the idea is that they don't change much from census to census (unlike administrative boundaries such as wards) and were created with statistical analysis in mind. The less neat thing is that although we use them to operationalise the concept of neighbourhood a lot, they may not bear much resemblance to what residents might think of as their neighbourhood. 
+There are now 181,408 OAs, 34,753 lower layer super output areas (LSOA) and 7,201 middle layer super output areas (MSOA) in England and Wales. The neat thing about these Census geographies is the idea is that they don't change much from census to census (unlike other administrative boundaries) and in the UK case were created with statistical analysis in mind (they were designed to be as homogeneous as possible). The less neat thing is that although we use them to operationalise the concept of neighbourhood a lot, they may not bear much resemblance to what residents might think of as their neighbourhood. This is a common problem (that has been widely discussed in the literature) when relying on census units as our proxy for community or neighbourhood, but one that is hard to escape from, for these units are those at which key demographic variable is typically sourced and published.
 
-Anyway back to our crime data. You see we have two columns that reference LSOAs, `lsoa_name` and `lsoa_code`. We can use these to *link* our crime data to a *shapefile* of a *polygon* which contains the geometries needed to put the crime data on the map. 
+Anyway back to our crime data. You see we have two columns that reference LSOAs, `lsoa_name` and `lsoa_code`. We can use these to *link* our crime data to a file containing the geometries needed to put the crime data on the map. 
 
 ## Mapping crime events with simple features and ggplot2
 
