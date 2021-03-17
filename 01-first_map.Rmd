@@ -232,43 +232,27 @@ Anyway back to our crime data. You see we have two columns that reference LSOAs,
 
 So how can we use these spatial details in our dataset to put our crimes on the map? We need to somehow specify a geometry for our data, which links each unit of analysis (whether that is the point, line, or polygon) to a relevant geographical representation, which allows us to put this thing on the map. 
 
-How you add geographical information will vary with the type of information we have, but in all of these, we will use the simple features framework. 
+How you add geographical information will vary with the type of information we have, but in all of these, we will use the **simple features** framework. 
 
 ![(Illustration (c) by Allison Horst)](https://user-images.githubusercontent.com/520851/50280460-e35c1880-044c-11e9-9ed7-cc46754e49db.jpg)
 
-What are simple features? `sf` package author Edzer Pebesma describes simple features as a standardized way of encoding spatial vector data (points, lines, polygons) in computers. The `sf` package is an R package for reading, writing, handling, and manipulating simple features in R, implementing the vector (points, lines, polygons) data handling functionality. 
+What are simple features? `sf` package author Edzer Pebesma describes simple features as a standardized way of encoding spatial *vector data* (points, lines, polygons) in computers (we will return to this concept next chapter). The `sf` package is an R package for reading, writing, handling, and manipulating simple features in R, implementing the vector (points, lines, polygons) data handling functionality. 
 
-Traditionally spatial analysis in R were done using the `sp` package which creates a particular way of storing spatial objects in R. When most packages for spatial data analysis in R and for thematic cartography were first developed `sp` was the only way to work with spatial data in R. There are more than 450 packages that rely on `sp`, making it an important part of the R ecosystem. More recently a new package, `sf` (which stands for "simple features"), is revolutionising the way that R does spatial analysis. This package provides a new way of storing spatial objects in R and most recent R packages for spatial analysis and cartography are using it as the new default. It is easy to transform `sf` objects into `sp` objects, so that those packages that still don't use this new format can be used. But in this book we will emphasise the use of `sf` whenever possible. You can read more about the history of spatial packages and the `sf` package in the first two chapters of [this book](https://geocompr.robinlovelace.net).
+Traditionally spatial analysis in R were done using the `sp` package which creates a particular way of storing spatial objects in R. When most packages for spatial data analysis in R and for thematic cartography were first developed `sp` was the only way to work with spatial data in R. There are more than 450 packages that rely on `sp`, making it an important part of the R ecosystem. More recently `sf`  is changing the way that R does spatial analysis. This package provides a new way of storing spatial objects in R and most recent R packages for spatial analysis and cartography are using it as the new default. It is easy to transform `sf` objects into `sp` objects, so that those packages that still don't use this new format can be used. But in this book we will emphasise the use of `sf` whenever possible. You can read more about the history of spatial packages and the `sf` package in the first two chapters of @Lovelace_2019.
 
-Features can be thought of as “things” or objects that have a spatial location or extent; they may be physical objects like a building, or social conventions like a political state. Feature geometry refers to the spatial properties (location or extent) of a feature, and can be described by a point, a point set, a linestring, a set of linestrings, a polygon, a set of polygons, or a combination of these. The simple adjective of simple features refers to the property that linestrings and polygons are built from points connected by straight line segments. Features typically also have other properties (temporal properties, color, name, measured quantity), which are called feature attributes. 
+Features can be thought of as “things” or objects that have a spatial location or extent; they may be physical objects like a building, or social conventions like a political state. Feature geometry refers to the spatial properties (location or extent) of a feature, and can be described by a point, a point set, a linestring, a set of linestrings, a polygon, a set of polygons, or a combination of these. The simple adjective of simple features refers to the property that linestrings and polygons are built from points connected by straight line segments. Features typically also have other properties (temporal properties, color, name, measured quantity), which are called feature attributes. For more detailed insight we recommend reading @Pebesma_2018.
 
-For more detailed insight we recommend reading the paper [Simple Features for R: Standardized Support for Spatial Vector Data](https://journal.r-project.org/archive/2018/RJ-2018-009/RJ-2018-009.pdf)
+Let's get started with making some maps using `sf`. First, make sure you install the package, and then load with `library()` function. We know that we have two columns one for Longitude and one for Latitude, which pinpoint each crime event to a specific point, close to where it happened. Not *quite* where it happened, as the data are anonymised (more on this later), but for our purposes here, we can assume this is the location of the crime. To map these points, we can transform our ordinary dataframe into a simple features object. 
 
-1Let's get started with making some maps using `sf`. First, make sure you install the package, and then load with `library()` function. 
+To do so, we can use the `st_as_sf()` function from `sf`, into which we need to specify what we are to transform (our dataframe), where the spatial data can be found (our columns which hold the latitude and longitude information), and also what coordinate reference system the object has (see above our discussion about projections and coordinate reference systems).
 
-**On Mac and Linux a few requirements must be met to install sf. These are described in the package’s README at [github.com/r-spatial/sf](github.com/r-spatial/sf).**
-
-
-```{r loadsf}
-
-library(sf)
-```
-
-Now we can use the functions of `sf` in order to introduce geometries. Let's start with the points
-
-We know that we have two columns one for Longitude and one for Latitude, which pinpoint each crime event to a specific point, close to where it happened. Not *quite* where it happened, as the data are anonymised (more on this later), but for our purposes here, we can assume this is the location of the crime. 
-
-To map these points, we can transform our ordinary dataframe into a simple features object. 
-
-To do so, we can use the `st_as_sf()` function, into which we need to specify what we are to transform (our dataframe), where the spatial data can be found (our columns which hold the latitude and longidude information), and also what coordinate reference system the object has (see above our discussion about projections and coordinate reference systems).
-
-Latitude longitude coordinates specify location on the **WGS 84** CRS. We can tell R that this is our CRS of choice by including its [EPSG identifier]
-(https://en.wikipedia.org/wiki/EPSG_Geodetic_Parameter_Dataset) as a parameter in our function. It is handy to know the more common EPSG identifiers. For example, for WGS84 the EPSG identifier is *4326*. For British National Grid, the identifier is *27700*. 
+Latitude longitude coordinates specify location on the **WGS 84** CRS. We can tell R that this is our CRS of choice by including its EPSG identifier
+(see https://en.wikipedia.org/wiki/EPSG_Geodetic_Parameter_Dataset) as a parameter in our function. It is handy to know the more common EPSG identifiers. For example, for WGS84 the EPSG identifier is *4326*. For British National Grid, the identifier is *27700*. 
 
 Putting it all together in practice, we can create a simple features object from our dataframe using the latitude and longitude columns: 
 
 
-```{r makepointsf, tidy = TRUE}
+```{r makepointsf}
 
 crimes_sf <- st_as_sf(crimes,                                     #dataframe
                       coords = c("longitude", "latitude"),        #columns with coordinates
@@ -277,22 +261,23 @@ crimes_sf <- st_as_sf(crimes,                                     #dataframe
 
 ```
 
-We can see that this is now a simple features object using the class() function the we see the result "sf":
+We can see that this is now a simple features object using the generic`class()` function the we see the result "sf":
 
-```{r}
+```{r, eval=FALSE}
+
 class(crimes_sf)
 
 ```
 
-You might also notice something else that is different between crimes and crimes_sf. Have a look at the dimension (hint look in your 'Environment' tab). Do you see?
+You might also notice something else that is different between crimes and crimes_sf. Have a look at the dimension (hint look in your 'Environment' tab). In the `sf` object you will see that the information provided by the longitude and latitude variables have been "merged" into a new variable called *geometry*, that `sf` uses to store the kind of object we have (a point in this case) and where to locate it.
 
 ### A brief intro to ggplot2 and the grammar of graphics
 
-Now that we have this sf object, how can we map it? We mentioned before about the graphical package `ggplot2`. We can use this, and its syntax, in order to map spatial data using the `geom_sf()` geometry. 
+Now that we have this `sf` object, how can we map it? We mentioned before about the graphical package `ggplot2`. We can use this, and its syntax, in order to map spatial data using the `geom_sf()` geometry. 
 
-First, a quick refresher on ggplot and the grammar of graphics. The grammar of graphics upon which this package is based on defines various components of a graphic. Some of the most important are:
+First, a quick refresher on `ggplot2` and the grammar of graphics. The grammar of graphics upon which this package is based on defines various components of a graphic. Some of the most important are:
 
--**The data**: For using `ggplot2` the data has to be stored as a data frame or tibble.
+-**The data**: For using `ggplot2` the data has to be stored as a data frame or tibble (`sf` objects are of class tibble).
 
 -**The geoms**: They describe the objects that represent the data (e.g., points, lines, polygons, etc..). This is what gets drawn. And you can have various different types layered over each other in the same visualisation.
 
@@ -304,7 +289,7 @@ First, a quick refresher on ggplot and the grammar of graphics. The grammar of g
 
 Let's take it one step at the time.
 
-Essentially the philosophy behind this is that all graphics are made up of layers. The package `ggplot2` is based on the grammar of graphics, the idea that you can build every graph from the same few components: a data set, a set of geoms—visual marks that represent data points, and a coordinate system.
+Essentially the philosophy behind this is that all graphics are made up of layers. You can build every graph from the same few components: a data set, a set of geoms—visual marks that represent data points, and a coordinate system.
 
 Take this example (all taken from *Wickham, H. (2010). A layered grammar of graphics. Journal of Computational and Graphical Statistics, 19(1), 3-28.*)
 
@@ -321,14 +306,6 @@ This will result in a final plot:
 ![](img/combined.png)
 
 Taking our crime data as an example, we would build up our plot as follows: 
-
-Load ggplot2 package
-
-```{r}
-
-library(ggplot2)
-
-```
 
 Data: 
 
@@ -368,11 +345,11 @@ ggplot(crimes, aes(x = crime_type, fill = last_outcome_category)) +
 
 ```
 
-This is not the greatest graph you'll ever see, but it illustrates the process. Do read up on ggplot2 for example in Hadley Wickham's book R4DS [chapter on data visualisation](https://r4ds.had.co.nz/data-visualisation.html). 
+This is not the greatest graph you'll ever see, but it illustrates the process. Do read up on `ggplot2` for example in @Wickham_2017.
 
 ### Using ggplot2 for mapping crime event locations as points
 
-So how can we use this for spatial data? We can use the `geom_sf()` function to do so. Using geom_sf is slightly different to other geometries, for example how we used `geom_bar()` above. First we initiate the plot with the `ggplot()` function but don't include the data in there. Instead, it is in the geometry where we add the data. And second we don't need to specify the mapping of x and y. Since this is in the geometry column of our spatial object. Like so:
+So how can we use this for spatial data? We can use the `geom_sf()` function to do so. Using `geom_sf` is slightly different to other geometries, for example how we used `geom_bar()` above. First we initiate the plot with the `ggplot()` function but don't include the data in there. Instead, it is in the geometry where we add the data. And second we don't need to specify the mapping of x and y. Since this is in the geometry column of our spatial object. Like so:
 
 ```{r}
 
@@ -383,21 +360,11 @@ ggplot() +
 
 And here we have a map of each point in our data set, each recorded crime in June 2019 in Greater Manchester. 
 
-Would you call this a map though? While it is presenting spatial data, there is not a lot of meaning being communicated. Point maps generally can be messy and their uses are specific to certain situations and cases, usually when you have fewer points, but here, these points are especially devoid of any meaning, as they are floating in a graph grid. SO let's give it a basemap. 
+Would you call this a map though? While it is presenting spatial data, there is not a lot of meaning being communicated. Point maps generally can be messy and their uses are specific to certain situations and cases, usually when you have fewer points, but here, these points are especially devoid of any meaning, as they are floating in a graph grid. So let's give it a **basemap**. 
 
-We can do this by adding a layer to our graph object. Specifically we will use the `annotation_map_tile()` from the `ggspatial` package. This provides us with a static Open Street Map layer behind our data, giving it (some) more context. 
-
-Remember to load the package (and install if you haven't already)
+We can do this by adding a layer to our graph object. Specifically we will use the `annotation_map_tile()` from the `ggspatial` package. This provides us with a static Open Street Map layer behind our data, giving it (some) more context. Remember to load the package (and install if you haven't already). And then use the `annotation_map_tile()` function, making sure to place it before the `geom_sf` points layer, so the background map is placed first, and the points on top of that:  
 
 ```{r}
-
-library(ggspatial)
-
-```
-
-And then use the `annotation_map_tile()` function, making sure to place it before the geom_sf points layer, so the background map is placed first, and the points on top of that:  
-
-```{r, tidy = TRUE}
 
 ggplot() + 
  annotation_map_tile() +
@@ -408,7 +375,7 @@ ggplot() +
 
 So what you see above is what we can call a **basemap**. The term basemap is seen often in GIS and refers to a collection of GIS data and/or orthorectified imagery that form the background setting for a map. The function of the basemap is to provide background detail necessary to orient the location of the map. Basemaps also add to the aesthetic appeal of a map. **Basemaps** are essentially reference maps that may give us context and help with the interpretation. You can see above that you are seeing the *Open Street Map* Basemap. This is one option but there are others.
 
-Anyway let's leave out points for now, and move on to how we might map our lines and polygons. 
+Let's leave out points for now, and move on to how we might map our lines and polygons. 
 
 ## From mapping crime events as points to mapping number of crimes in an area
 
