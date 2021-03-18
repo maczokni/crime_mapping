@@ -383,93 +383,34 @@ What about our other two columns, location, and LSOAs? Well to put these on the 
 
 ### Finding boundary data for areas: using shapefiles
 
-In this section you are going to learn how you take one of the most popular data formats for spatial objects, the  **shapefile**, and read it into R. The shapefile was developed by ESRI, the developers and vendors or ArcGIS. And although many other formats have developed since and ESRI no longer holds the same market position it once occupied (though they're still the player to beat), shapefiles continue to be one of the most popular formats you will encounter in your work. You can read more about shapefiles in Wikipedia (https://en.wikipedia.org/wiki/Shapefile).
+In this section you are going to learn how you take one of the most popular data formats for spatial objects, the  **shapefile**, and read it into R. The shapefile was introduced by ESRI, the developers and vendors or ArcGIS. And although many other formats have developed since and ESRI no longer holds the same market position it once occupied (though they're still the player to beat), shapefiles continue to be one of the most popular formats you will encounter in your work. You can read more about shapefiles in Wikipedia (https://en.wikipedia.org/wiki/Shapefile).
 
 We are going to learn here how to obtain shapefiles for British census geographies. For this activity we will focus on the polygon (the LSOA) rather than the lines of the streets, but the logic is more or less the same.   
 
-Census boundary data are a digitised representation of the underlying geography of the census. Census Geography is often used in research and spatial analysis because it is divided into units based on population counts, created to form comparable units, rather than other administrative boundaries such as wards or police force areas. However depending on your research question and the context for your analysis, you might be using different units. The hierarchy of the census geographies in the goes from Country to Local Authority to Middle Layer Super Output Area (MSOA) to Lower Layer Super Output Area (LSOA) to Output Area: 
+Census boundary data are a digitised representation of the underlying geography of the census. Census Geography is often used in research and spatial analysis because it is divided into units based on population counts, created to form comparable units, rather than other administrative boundaries such as wards or police force areas. However depending on your research question and the context for your analysis, you might be using different units. 
+
+The hierarchy of the census geographies in the UK goes from Country to Local Authority to Middle Layer Super Output Area (MSOA) to Lower Layer Super Output Area (LSOA) to Output Area (in other countries you have similar levels in the census hierarchies):
 
 ![](img/maps_geography_types.png)
 
-Here we will get some boundaries for Manchester. Let's use the LSOA level, so that we can link back to our crime data earily. These are geographical regions designed to be more stable over time and consistent in size than existing administrative and political boundaries. LSOAs comprise, on average, 600 households that are combined on the basis of spatial proximity and homogeneity of dwelling type and tenure. 
+Here we will get some boundaries for Manchester. Let's use the LSOA level, so that we can link back to our crime data easily. These are geographical regions designed to be more stable over time and consistent in size than existing administrative and political boundaries. LSOAs comprise, on average, 600 households that are combined on the basis of spatial proximity and homogeneity of dwelling type and tenure. 
 
-So to get some boundary data, you can use the UK Data Service website. There is a simple [Boundary Data Selector](https://borders.ukdataservice.ac.uk/bds.html) tool which we can use.
+To get some boundary data, you can use the UK Data Service website. There is a simple [Boundary Data Selector](https://borders.ukdataservice.ac.uk/bds.html) tool which you could use. When you get to the link, you will see on the top there is some notification to help you with the boundary data selector. If in the future you are looking for UK boundary data and you are feeling unsure at any point, feel free to click on that note "**How to use Boundary Data Selector**" which will help to guide you. In other countries you have similar data repositories where you can get the relevant census geographies (see Appendix B for details) and there are also some websites that aim to provide this data for all countries (http://www.diva-gis.org/gdata). We have already compiled all data we used in this book in our own website, so all you need to do is use the code we provide to download and read this data instead.
 
-When you get to the link, you will see on the top there is some notification to help you with the boundary data selector. If in the future you are looking for boundary data and you are feeling unsure at any point, feel free to click on that note "**How to use Boundary Data Selector**" which will help to guide you. 
-
-For now, let's focus on the selector options. Here you can choose the country you want to select shapefiles for. We select "England". You can also choose the type of geography we want to use. Here we select "Statistical Building Block", as discussed above. And finally you can select when you want it for. If you are working with historical data, it makes sense to find boundaries that match the timescale for your data. Here we will be dealing with contemporary data, and therefore we want to be able to use the newest available boundary data. 
-
-***
-
-![](img/boundary_selector_1.png) 
-
-Once you have selected these options, click on the "Find" button. That will populate the box below: 
-
-***
-
-![](img/boundary_selector_2.png)
-
-***
-
-Here you can select the boundaries we want. As discussed, we want the census lower super output areas. But again, your future choices here will depend on what data you want to be mapping. 
-
-Once you've made your choice, click on "List Areas". This will now populate the box below. We are here concerned with Manchester. However you can select more than one if you want boundaries for more than one area as well. Just hold down "ctrl" to select multiple areas individually, or the shift key to select everything in between. 
-
-***
-
-![](img/boundary_selector_3.png) 
-
-***
-
-Once you've made your decision click on the "Extract Boundary Data" button. You will see the following message: 
-
-***
-
-![](img/wait.png)
-
-***
-
-You can bookmark, or just stay on the page and wait. How long you have to wait will depend on how much data you have requested to download. 
-
-When your data is read, you will see the following message: 
-
-
-***
-
-
-![](img/download.png)  
-
-
-***
-
-
-You have to right click on the "BoundaryData.zip", and hit Save Target as on a PC or Save Link As on a Mac: 
-
-
-***
-
-
-![](img/save_link_as.png) 
-
-
-***
-
-Navigate to the folder you have created for this analysis, and save the .zip file there. Extract the file contents using whatever you like to use to unzip compressed files. 
-
-```{r, eval = FALSE}
-# For example,
-unzip("BoundaryData.zip", exdir = "BoundaryData")
+```{r}
+##Downloading a zip file in R requires four steps
+fileurl <-"https://github.com/maczokni/crime_mapping/raw/master/data/BoundaryData.zip"
+# create a temporary directory
+td <- tempdir()
+# create the placeholder file
+tf <- tempfile(tmpdir=td, fileext=".zip")
+# download into the placeholder file
+download.file(fileurl, tf)
+# get the name of the first file in the zip archive
+fname <- unzip(tf, list=TRUE)$Name
+fname
 ```
 
-You should end up with a folder called "BoundaryData". Have a look at its contents: 
-
-
-***
-
-![](img/folder_contents.png)
-
-
-***
 
 
 So you can see immediately that there are some documentations around the usage of this shapefile, in the readme and the terms and conditions. Have a look at these as they will contain information about how you can use this map. For example, all your maps will have to mention where you got all the data from. So since you got this boundary data from the UKDS, you will have to note the following: 
