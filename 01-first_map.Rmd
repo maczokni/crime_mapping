@@ -398,29 +398,28 @@ Here we will get some boundaries for Manchester. Let's use the LSOA level, so th
 To get some boundary data, you can use the UK Data Service website. There is a simple [Boundary Data Selector](https://borders.ukdataservice.ac.uk/bds.html) tool which you could use. When you get to the link, you will see on the top there is some notification to help you with the boundary data selector. If in the future you are looking for UK boundary data and you are feeling unsure at any point, feel free to click on that note "**How to use Boundary Data Selector**" which will help to guide you. In other countries you have similar data repositories where you can get the relevant census geographies (see Appendix B for details) and there are also some websites that aim to provide this data for all countries (http://www.diva-gis.org/gdata). We have already compiled all data we used in this book in our own website, so all you need to do is use the code we provide to download and read this data instead.
 
 ```{r}
-##Downloading a zip file in R requires four steps
-fileurl <-"https://github.com/maczokni/crime_mapping/raw/master/data/BoundaryData.zip"
+##Downloading a zip file in R requires several steps
+#create placeholder for the url address
+fileurl <-"https://github.com/maczokni/crime_mapping/raw/master/data/manchester_lsoa_2011.zip"
 # create a temporary directory
 td <- tempdir()
-# create the placeholder file
+# create the placeholder file in the temporary directory we created
 tf <- tempfile(tmpdir=td, fileext=".zip")
 # download into the placeholder file
 download.file(fileurl, tf)
-# get the name of the first file in the zip archive
+# get the name of files in the zip archive
 fname <- unzip(tf, list=TRUE)$Name
 fname
 ```
 
-
-
-So you can see immediately that there are some documentations around the usage of this shapefile, in the readme and the terms and conditions. Have a look at these as they will contain information about how you can use this map. For example, all your maps will have to mention where you got all the data from. So since you got this boundary data from the UKDS, you will have to note the following: 
+So you can see immediately that there are some documentations around the usage of this shapefile, in the "README.txt" and the "TermsAndConditionshtml" files. They contain information about how you can use this map. For example, all your maps will have to mention where you got all the data from. So since you got this boundary data from the UKDS, you will have to note the following: 
 
 "Contains National Statistics data © Crown copyright and database right [year]
     Contains OS data © Crown copyright [and database right] (year)"
 
-You can read more about this in the terms and conditions document. 
+You can read more about this in the terms and conditions document once we unzip the file. 
 
-But then you will also notice that there are 4 files with the same name "england_oac_2011". **It is important that you keep all these files in the same location as each other!** They all contain different bits of information about your shapefile (and they are all needed): 
+But then you will also notice that there are 4 files with the same name "england_lsoa_2011". **It is important that you keep all these files in the same location as each other!** They all contain different bits of information about your shapefile (and they are all needed): 
 
 - .shp — shape format; the feature geometry itself - this is what you see on the map
 - .shx — shape index format; a positional index of the feature geometry to allow seeking forwards and backwards quickly
@@ -429,9 +428,19 @@ But then you will also notice that there are 4 files with the same name "england
 
 Sometimes there might be more files associated with your shapefile as well, but we will not cover them here. So unlike when you work with spreadsheets and data in tabular form, which typically is just all included in one file; when you work with shapefiles, you have to live with the required information living in separate files that need to be stored together. So, being tidy and organised is even more important when you carry out projects that involve spatial data. Please do remember the suggestions we provided last week as to how to organise your RStudio project directories.
 
+Let´s now unzip all these files:
+
+```{r, eval = false}
+#First you need to decide where you want to place the folders. In my machine I will use the following location, but you will need to use whatever is appropriate for your.
+outdir <- "C:/crime_mapping/data/BoundaryData"
+#Then you can unzip the file to this folder
+unzip(tf, exdir = outdir)
+
+```
+
 ### Reading shapefiles into R
 
-To read in your data, you will need to know the path to where you have saved it. Ideally this will be in your data folder in your project directory. 
+To read in your data into R, you will need to know the path to where you have saved it. Ideally this will be in your data folder in your project directory. 
 
 Let's create an object and assign it our shapefile's name:
 
@@ -445,9 +454,10 @@ Make sure that this is saved in your working directory, and you have set your wo
 
 Now use the `st_read()` function to read in the shapefile: 
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 
 manchester_lsoa <- st_read(shp_name)
+
 ```
 
 Now you have your spatial data file. You can have a look at what sort of data it contains, the same way you would view a dataframe, with the `View()` function: 
@@ -455,20 +465,21 @@ Now you have your spatial data file. You can have a look at what sort of data it
 ```{r, eval=FALSE}
 
 View(manchester_lsoa)
+
 ```
 
 ```{r, echo=FALSE}
 
 glimpse(manchester_lsoa)
+
 ```
 
-And of course, since it's spatial data, you can map it using the geom_sf() function, as we did with our points:  
+And of course, since it's spatial data, you can map it using the `geom_sf()` function, as we did with our points:  
 
 ```{r}
 
 ggplot() + 
   geom_sf(data = manchester_lsoa)
-
 
 ```
 
@@ -482,28 +493,19 @@ However, when we are looking to map our data to LSOA level, we need to match the
 
 Have a look at the manchester_lsoa object we mapped above. How many rows (observations) does it have? You can check this by looking in the Environment pane, or by using the `nrow()` function. 
 
-```{r}
+```{r, eval=FALSE}
 
 nrow(manchester_lsoa)
 
 ```
 
-You can see this has `r nrow(manchester_lsoa)` rows. This means we have geometries for  `r nrow(manchester_lsoa)` LSOAs. 
+You can see this has `r nrow(manchester_lsoa)` rows. This means we have geometries for  `r nrow(manchester_lsoa)` LSOAs. On the other hand, our crimes dataframe has `r nrow(crimes)` rows, one for each crime (observation). So how can we match these up? The answer lies in thinking about what it is that our map using LSOAs as our unit of analysis will be able to tell us. Think of other maps of areas - what are they usually telling you? Usually we expect to see crimes per neighbourhood - something like this. So our unit of analysis needs to be LSOA, and for each one we need to know how many crimes occurred in that area. 
 
-On the other hand, our crimes dataframe has `r nrow(crimes)` rows, one for each crime (observation). So how can we match these up? The answer lies in thinking about what it is that our map using LSOAs as our unit of analysis will be able to tell us. Think of other maps of areas - what are they usually telling you? Usually we expect to see crimes per neighbourhood - something like this. So our unit of analysis needs to be LSOA, and for each one we need to know how many crimes occurred in that area. 
+To achieve this, we will wrangle our data using functions from the `dplyr` package. This is a package for conducting all sorts of operations with data frames. We are not going to cover the full functionality of `dplyr` (which you can consult in the `dplyr` vignette (https://cran.r-project.org/web/packages/dplyr/vignettes/dplyr.html)), but we are going to cover three different very useful elements of dplyr: the `select` function, the `group_by` function, and the piping operator.
 
-To achieve this, we will wrangle our data using functions from the `dplyr` package. This is a package for conducting all sorts of operations with data frames. We are not going to cover the full functionality of `dplyr` (which you can consult in [this tutorial](https://cran.r-project.org/web/packages/dplyr/vignettes/dplyr.html)), but we are going to cover three different very useful elements of dplyr: the `select` function, the `group_by` function, and the piping operator.
-
-First load the library:
-
-```{r}
-library(dplyr)
-```
-
-The `select()` function provides you with a simple way of subsetting columns from a data frame. So, say we just want to use one variable, lsoa_code, from the crimes dataframe and store it in a new object we could write the following code:
+The `select()` function provides you with a simple way of subsetting columns from a data frame. So, say we just want to use one variable, *lsoa_code*, from the crimes dataframe and store it in a new object we could write the following code. This variable tell us the LSOA in which the crime took place and it is essential if we want to group our crimes by LSOA (by using this standard method of merging information from datasets):
 
 ```{r, eval=FALSE}
-
 
 new_object <- select(crimes, lsoa_code)
 
@@ -522,6 +524,7 @@ summarise(grouped_crimes, count = n())
 #We could infact create a new dataframe with these results
 
 crime_per_LSOA <- summarise(grouped_crimes, count = n())
+
 ```
 
 As you can see we can do what we wanted, create a new dataframe with the required info, but if we do this we are creating many objects that we don't need, one at each step. Instead there is a more efficient way of doing this, without so many intermediate steps clogging up our environment with unnecessary objects. That's where the piping operator comes handy. The piping operator is written like `%>%` and it can be read as "and then". Look at the code below:
@@ -545,11 +548,11 @@ Those of you playing close attention might note that there are still more observ
 
 ### Join data to sf object
 
-Our next task is to link our crimes data to our sf spatial object to help us map this. Notice anything similar between the data from the shapefile and the frequency table data we just created? Do they share a column? 
+Our next task is to link our crimes data to our `sf` spatial object to help us map this. Notice anything similar between the data from the shapefile and the frequency table data we just created? Do they share a column? 
 
 Yes! You might notice that the `lsoa_code` field in the crimes data matches the values in the `code` field in the spatial data. In theory we could join these two data tables.
 
-So how do we do this? Well what you can do is to link one data set with another.  Data linking is used to bring together information from different sources in order to create a new, richer dataset. This involves identifying and combining information from corresponding records on each of the different source datasets. The records in the resulting linked dataset contain some data from each of the source datasets. Most linking techniques combine records from different datasets if they refer to the same entity (an entity may be a person, organisation, household or even a geographic region.) 
+So how do we do this? Well what you can do is to link one data set with another. Data linking is used to bring together information from different sources in order to create a new, richer dataset. This involves identifying and combining information from corresponding records on each of the different source datasets. The records in the resulting linked dataset contain some data from each of the source datasets. Most linking techniques combine records from different datasets if they refer to the same entity (an entity may be a person, organisation, household or even a geographic region.) 
 
 You can merge (combine) rows from one table into another just by pasting them in the first empty cells below the target table—the table grows in size to include the new rows. And if the rows in both tables match up, you can merge columns from one table with another by pasting them in the first empty cells to the right of the table—again, the table grows, this time to include the new columns.
 
@@ -559,28 +562,22 @@ Merging rows is pretty straightforward, but merging columns can be tricky if the
 
 So we've already identified that both our crimes data, and the spatial data contain a column with matching values, the codes for the LSOA that each row represents. 
 
-![](img/fn2187.png)
-
-**You need a unique identifier to be present** for each row in all the data sets that you wish to join. This is how R knows what values belong to what row! What you are doing is matching each value from one table to the next, using this unique identified column, that exists in both tables. For example, let's say we have two data sets from some people in Hawkins, Indiana. In one data set we collected information about their age. In another one, we collected information about their hair colour. If we collected some information that is unique to each observation, and this is the *same* in both sets of data, for example their names, then we can link them up, based on this information.  Something like this: 
+**You need a unique identifier to be present** for each row in all the data sets that you wish to join. This is how R knows what values belong to what row. What you are doing is matching each value from one table to the next, using this unique identified column, that exists in both tables. For example, let's say we have two data sets from some people in Hawkins, Indiana. In one data set we collected information about their age. In another one, we collected information about their hair colour. If we collected some information that is unique to each observation, and this is the *same* in both sets of data, for example their names, then we can link them up, based on this information.  Something like this: 
 
 ![](img/merge_logic_1.png)
 
 And by doing so, we produce a final table that contains all values, lined up *correctly* for each individual observation, like this: 
 
 ![](img/merge_logic_2.png)
-
 This is all we are doing, when merging tables, is we are making use that we line up the correct value for all the variables, for all our observations. 
 
-Why are we using *left* join though? There is a [whole family of join functions as part of dplyr](http://stat545.com/bit001_dplyr-cheatsheet.html) which join data sets. There is also a right_join, and an inner_join and an outer_join and a full_join. But here we use left join, because that way we keep all the rows in x (the left-hand side dataframe), and join to it all the matched columns in y (the right-hand side dataframe). 
+Why are we using *left* join though? There is a whole family of join functions as part of dplyr (http://stat545.com/bit001_dplyr-cheatsheet.html) which join data sets. There is also a `right_join()`, and an `inner_join()` and an `outer_join()` and a `full_join()`. But here we use `left_join()`, because that way we keep all the rows in x (the left-hand side dataframe), and join to it all the matched columns in y (the right-hand side dataframe). 
 
-So let's join the crimes data to the spatial data, using left_join():
-
-We have to tell left_join what are the dataframes we want to join, as well as the names of the columns that contain the matching values in each one. This is "code" in the manchester_lsoa dataframe and "lsoa_code" in the crimes_per_lsoa dataframe. Like so: 
+So let's join the crimes data to the spatial data, using `left_join()`.We have to tell the function what are the dataframes we want to join, as well as the names of the columns that contain the matching values in each one. This is "code" in the "manchester_lsoa" dataframe and "lsoa_code" in the "crimes_per_lsoa" dataframe. Like so: 
 
 ```{r}
 
 manchester_lsoa <- left_join(manchester_lsoa, crimes_per_lsoa, by = c("code"="lsoa_code"))
-
 
 ```
 
@@ -600,16 +597,14 @@ Remember our original empty map:
 
 ```{r}
 
-
 ggplot() + 
 geom_sf(data = manchester_lsoa)
 
 ```
 
-Well now, since we have the column (varaible) for number of crimes here, we can use that to share the polygons based on how many crimes there are in each LSOA. We can do this by specifying the `fill=` parameter of the `geom_sf` function. 
+Well now, since we have the column (variable) for number of crimes here, we can use that to share the polygons based on how many crimes there are in each LSOA. We can do this by specifying the `fill=` parameter of the `geom_sf` function. 
 
 ```{r}
-
 
 ggplot() + 
 geom_sf(data = manchester_lsoa, aes(fill = count))
@@ -627,6 +622,7 @@ geom_sf(data = manchester_lsoa, aes(fill = count), alpha = 0.7) + # alpha sets t
 
 ```
 
+In subsequent chapters we will play around with other packages in R that you can use to produce this kind of maps and gradually we will discuss the kind of choices you can make in order to select the adequate type of representation for the type of spatial data and question you have, and the aesthethic choices that are adequate depending on the purposes and medium in which you will publish your map.
 
 ## Summary
 
