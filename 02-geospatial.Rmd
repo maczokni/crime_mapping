@@ -2,7 +2,7 @@
 
 ## Introduction
 
-In this chapter we get your hands dirty with **spatial manipulation of your data**. Thus far, our data manipulation exercises were such that you might be familiar with, from your earlier exposures to data analysis. For example, linking datasets using a common column is a task which you can perform on spatial or non-spatial data. However today we will explore some exercises in data manipulation which are specific to *spatial* data analysis. We will be learning some key spatial operations, a set of functions that allow you to create new and manipulate spatial data.
+In this chapter we get your hands dirty with **spatial manipulation of your data**. Thus far, our data manipulation exercises (using `dplyr`) were such that you might be familiar with, from your earlier exposures to data analysis. For example, linking datasets using a common column is a task which you can perform on spatial or non-spatial data. However today we will explore some exercises in data manipulation which are specific to *spatial* data analysis. We will be learning some key spatial operations, a set of functions that allow you to create new and manipulate spatial data.
 
 The main objectives for this session are that by the end you will have:
 
@@ -14,11 +14,11 @@ The main objectives for this session are that by the end you will have:
 - counted the number of points that fall within a polygon (known as **points in polygon**)
 - measured distance between points in a map
 
-These are all very useful tools for the spatial crime analyst, and we will hope to demonstrate this by working through an example project, where you would make use of all of these tools. 
+These are all very useful tools for the spatial crime analyst, and we will hope to demonstrate this by working through an example project. 
 
 The packages we will use in this chapter are: 
 
-```{r}
+```{r, message=FALSE}
 library(readr)
 library(dplyr)
 library(rjson)
@@ -30,8 +30,9 @@ library(janitor)
 library(units)
 ```
 
+## Exploring the relationship between alcohol outlets and crime
 
-Let's consider the assumption that licenced premises which serve alcohol are associated with increased crimes. We might have some hypotheses about why this may be. 
+The main example we will work through most of the chapter considers the assumption that licenced premises which serve alcohol are associated with increased crimes. We might have some hypotheses about why this may be. 
 
 One theory might be that some of these serve as *crime attractors*. 
 
@@ -41,45 +42,26 @@ On the other hand, it is possible that these areas are *crime generators*.
 
 > Crime generators are particular areas to which large numbers of people are attracted for reasons unrelated to any particular level of criminal motivation they might have or to any particular crime they might end up committing. Typical examples might include shopping precincts; entertainment districts; office concentrations; or sports stadiums. 
 
-(To read  further in crime attractors vs crime generators turn to your recommended reading of [Brantingham, P., & Brantingham, P. (1995). Criminality of place. European journal on criminal policy and research, 3(3), 5-26.](https://link.springer.com/content/pdf/10.1007/BF02242925.pdf)). There have since been more developments, for example about crime radiators and absorbers as well ([watch this Risky Places lecture from Kate Bowers:](https://play.kth.se/media/Risky+PlacesA+Crime+absorbers,+crime+radiators+as+risky+places,+Prof+Kate+Bowers,+UCL/0_zya4j354) to learn more!)
-
+(To read  further in crime attractors vs crime generators turn to your recommended reading of @Brantingham_1995. There have since been more developments, for example about crime radiators and absorbers as well ([watch this Risky Places lecture from Kate Bowers:](https://play.kth.se/media/Risky+PlacesA+Crime+absorbers,+crime+radiators+as+risky+places,+Prof+Kate+Bowers,+UCL/0_zya4j354) to learn more!)
 
 It's possible that some licensed premises attract crimes, due to their reputation. However it is also possible that some of them are simply located in areas that are busy, attracts lots of people for lots of reasons, and crimes occur as a result of an abundance of opportunities instead. 
 
-In any case, what we want to do is to examine whether certain outlets have more crimes near them than others. We can do this using open data, some R code, and the spatial operations discussed above. So let's get to it!
-
-## Getting some (more) data
+In any case, what we want to do is to examine whether certain outlets have more crimes near them than others. We can do this using open data, some R code, and the spatial operations discussed above. We will return to data from Manchester city for this example.
 
 Manchester City Council have an [Open Data Catalogue](http://open.manchester.gov.uk/open/homepage/3/manchester_open_data_catalogue) on their website, which you can use to browse through what sorts of data they release to the public. There are a some more and some less interesting data sets made available here. It's not quite as impressive as the open data from some of the cities in the US such as [New York](https://opendata.cityofnewyork.us/) or [Dallas ](https://www.dallasopendata.com/) but we'll take it. 
 
-One interesting data set, especially for our questions about the different alcohol outlets is the [Licensed Premises](http://www.manchester.gov.uk/open/downloads/file/169/licensed_premises) data set. This details all the currently active licenced premises in Manchester. You can see there is a link to download now. 
+One interesting data set, especially for our questions about the different alcohol outlets is the [Licensed Premises](http://www.manchester.gov.uk/open/downloads/file/169/licensed_premises) data set. This details all the currently active licenced premises in Manchester. You can see there is a link to download. 
 
 As always, there are a few ways you can download this data set. On the manual side of things, you can simply right click on the download link from the website, save it to your computer, and read it in from there, by specifying the file path. Remember, if you save it in your *working directory*, then you just need to specify the file name, as the working directory folder is where R will first look for this file. 
 
-### Reading data in from the web
-
-
-
- 
-
-You know when you right click on the link, and select "Save As..." or whatever you click on to save? You could, also select "Copy Link Address". This just copies the webpage where this data is stored. Give it a go! Copy the address, and then paste it into your browser. It will take you to a blank page where a forced download of the data will begin. So what if you pasted this into the `read.csv()` function? 
-
-```{r, eval=FALSE}
-
-my_data <- read_csv("www.data.com/the_data_i_want")
-
-```
-
-Well in this case, the my_data object would be assigned the value returned from the read.csv() function reading in the file from the url you provided. File path is no mysterious thing, file path is simply the *path* to the *file* you want to read. If this is a website, then so be it. 
-
 So without dragging this on any further, let's read in the licensed premises data directly from the web: 
 
-```{r}
-library(readr)
+```{r, message=FALSE, warning=FALSE}
+
 lic_prem <- read_csv("http://www.manchester.gov.uk/open/download/downloads/id/169/licensed_premises.csv")
 ```
 
-You can always check if this worked by looking to your global environment on the righ hand side and seeing if this 'lic_prem' object has appeared. If it has, you should see it has `r I(nrow(lic_prem))` observations (rows), and `r I(ncol(lic_prem))` variables (columns). 
+You will likely get some warnings when reading this data, but you can safely ignore those.bYou can always check if this worked by looking to your global environment on the righ hand side and seeing if this *lic_prem* object has appeared. If it has, you should see it has `r I(nrow(lic_prem))` observations (rows), and `r I(ncol(lic_prem))` variables (columns).
 
 Let's have a look at what this data set looks like. You can use the `View()` function for this: 
 
@@ -87,13 +69,17 @@ Let's have a look at what this data set looks like. You can use the `View()` fun
 View(lic_prem)
 ```
 
-We can see there are some interesting and perhaps less interesting columns in there. There are quite a lot of venues in this list as well. Let's think about subsetting them.  Let's say we're interested in city centre manchester. We can see that there is a column for postcodes. We know (from our local domain knowledge) That city centre postcodes are M1-M4. So let's start by subsetting the data to include these. 
+## Subsetting using pattern matching
 
-### Subsetting using pattern matching
+We can see there are some interesting and perhaps less interesting columns in there. There are quite a lot of venues in this list as well. Let's think about subsetting them to make this example more manageable.  Let's say we're interested in city centre manchester. We can see that there is a column for postcodes. We know (from our local domain knowledge) that city centre postcodes in Manchester are M1-M4. So let's start by subsetting the data to include these. 
 
-We could use spatial operations here, and geocode all the postcodes at this point, then use a spatial file of city centre to select only the points contained in this area. The only reason we're not doing this is because the geocode function takes a bit of time to geocode each address. It would only be about 10 - 15 minutes, but we don't want to leave you sitting around in the lab for this long, so instead we will try to subset the data using pattern matching in text. In particular we will be using the `grepl()` function. This function takes a **pattern** and looks for it in some text. If it finds the pattern, it returns TRUE, and if it does not, it returns FALSE. So you have to pass two parameters to the `grepl()` function, one of them being the pattern that you want it to look for, and the other being the object in which to search. 
+We could use spatial operations here, and geocode all the alcohol outlets at this point, then use a spatial file of city centre to select only the points contained in this area. In the next sections we will be introducing these spatial operations but before we do that we are going to find another way of subsetting the outlets located in the city centre to end up with a smaller collection of locations.
 
-So for example, if we have an object that is some text, and we want to find if it contains the letter "a", we would pass those inside the grepl() function, which would tell us TRUE (yes it's there) or FALSE (no it's not there):
+One reason sometimes this may be convenient is because (as we will see later) the geocode function takes a bit of time to geocode each address. Since we only need to precisely geocode the outlets in the city centre we may first subset the data to select only those outlets (as indicated by their postal code) and only then geocode rather than the entire 65535 of them. 
+
+To do this we will be using the `grepl()` function. This function takes a **pattern** and looks for it in some text. If it finds the pattern, it returns TRUE, and if it does not, it returns FALSE. So you have to pass two parameters to the `grepl()` function, one of them being the pattern that you want it to look for, and the other being the object in which to search. 
+
+So for example, if we have an object that is some text, and we want to find if it contains the letter "a", we would pass those inside the `grepl()` function, which would tell us TRUE (yes it's there) or FALSE (no it's not there):
 
 ```{r}
 some_text <- "this is some text that has some letter 'a's"
@@ -118,10 +104,8 @@ Well, M1 will be found in M1 but also in M13, which is the University of Manches
 So let's subset our data by creating a new object `city_centre_prems`, and using the piping (`%>%`) and `filter()` functions from the `dplyr` package:
 
 ```{r}
-#remember to load dplyr package if you haven't already: 
-library(dplyr)
 
-#then create the city_centre_prems object:
+#create the city_centre_prems object:
 city_centre_prems <- lic_prem %>%
   filter(grepl("M1 ", POSTCODE) )
 
@@ -131,7 +115,7 @@ Now we only have `r I(nrow(city_centre_prems))` observations (see your global en
 
 ### Geocoding from an address
 
-Great OK so we have this list of licensed premises, and we have their address, which is clearly *some* sort of spatial information, but how would you put this on a map? Any ideas? 
+Great OK so we have this list of licensed premises, and we have their address, which is clearly *some* sort of spatial information, but how would you put this on a map?   
 
 We can, at the most basic, geocode the postcode. This will put all the establisments to the centroid of the postcode. Postcodes are used in the United Kingdom as alphanumeric codes, that were devised by Royal Mail. A full postcode is known as a "postcode unit" and designates an area with a number of addresses or a single major delivery point. [You can search the Royal Mail for information on post codes here.](https://www.royalmail.com/business/search/google/POSTCODE). 
 
