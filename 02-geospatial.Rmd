@@ -71,7 +71,7 @@ View(lic_prem)
 
 ## Subsetting using pattern matching
 
-We can see there are some interesting and perhaps less interesting columns in there. There are quite a lot of venues in this list as well. Let's think about subsetting them to make this example more manageable.  Let's say we're interested in city centre manchester. We can see that there is a column for postcodes. We know (from our local domain knowledge) that city centre postcodes in Manchester are M1-M4. So let's start by subsetting the data to include these. 
+We can see there are some interesting and perhaps less interesting columns in there. There are quite a lot of venues in this list as well. Let's think about subsetting them to make this example more manageable.  Let's say we're interested in city centre manchester. We can see that there is a column for postcodes. We know (from our local domain knowledge) that city centre **postcodes districts** in Manchester are M1-M4. So let's start by subsetting the data to include these. 
 
 We could use spatial operations here, and geocode all the alcohol outlets at this point, then use a spatial file of city centre to select only the points contained in this area. In the next sections we will be introducing these spatial operations but before we do that we are going to find another way of subsetting the outlets located in the city centre to end up with a smaller collection of locations.
 
@@ -117,7 +117,7 @@ Now we only have `r I(nrow(city_centre_prems))` observations (see your global en
 
 Great OK so we have this list of licensed premises, and we have their address, which is clearly *some* sort of spatial information, but how would you put this on a map?   
 
-We can, at the most basic, geocode the postcode. This will put all the establisments to the centroid of the postcode. Postcodes are used in the United Kingdom as alphanumeric codes, that were devised by Royal Mail. A full postcode is known as a "postcode unit" and designates an area with a number of addresses or a single major delivery point. [You can search the Royal Mail for information on post codes here.](https://www.royalmail.com/business/search/google/POSTCODE). 
+We can, at the most basic, geocode the **unit postcode**. In the UK postal geography there are over 12,000 postcode districts and, hierarchilly embedded within these, above 1,75 million postcode units (with about 15 addresses per unit). This will put all the establisments to the centroid of the postcode. Postcodes are used in the United Kingdom as alphanumeric codes, that were devised by Royal Mail. A full postcode is known as a "postcode unit" and designates an area with a number of addresses or a single major delivery point. [You can search the Royal Mail for information on post codes here.](https://www.royalmail.com/business/search/google/POSTCODE). 
 
 Here is a map of the postcode areas in Greater Manchester: 
 
@@ -128,7 +128,7 @@ Now the centroid of the post code area represents the central point of the shape
 
 ![](img/6R9sn.png)
 
-This is not quite as precise as geocoding the actual address, but let's just stick with this approach for now.
+Geocoding to the postal code unit is not quite as precise as geocoding to the actual address, but let's just stick with this approach for now.
 
 So we need something that will help us get the coordinates for the relevant post code centroid. For this we can use the [Open postcode](https://data.gov.uk/dataset/091feb1c-aea6-45c9-82bf-768a15c65307/open-postcode-geo) geo from [data.gov.uk](data.gov.uk). Open Postcode Geo is a postcode dataset and API optimised for geocoding applications. You can use Open Postcode Geo to geocode a dataset, geocode user input, and therefore build a proximity search. Data is derived from the Office for National Statistics postcode database and is free to use, **subject to including attributions to ONS, OS (Ordinance Survey) and Royal Mail**.
 
@@ -162,7 +162,7 @@ geocode_result <- fromJSON(readLines("http://api.getthedata.com/postcode/M13+9PL
 
 We get a warning about an incomplete final line. For now ignore this, as it seems we get our data anyway. So what do we get? Well let's see this geocode_result object: 
 
-```{r}
+```{r, eval=FALSE}
 
 geocode_result
 
