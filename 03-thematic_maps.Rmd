@@ -20,7 +20,6 @@ library(tmap)
 library(dplyr)
 ```
 
-
 ## Thematic maps: key terms and ideas
 
 ### Choropleth maps
@@ -30,33 +29,43 @@ Choropleth maps display variation in areas (postal codes, police districts, cens
 There are a number of known problems with choropleth maps:
 1. They may not display variation within the geographical units being employed. You are imposing some degree of distortion by assuming all parts of an area display the same value. Our crime map may show a neighborhoud as secure, when there is a part of this neighbourhoud that has a high level of crime. And viceversa.
 2. Boundaries of geographical areas are to a large extent arbitrary (and unlikely to be associated with major discontinuities in your variable of interest). In crime analysis we very often use census administrative units, but these rarely represent natural neighbourhoods.
-3. They work better if areas are of similar size. Areas of greater size may be more heterogeneous internally than those of smaller size: that is there potentially have the largest error of representation. Also, attention may be drawn by areas that are large in size (if size is not the variable use to create a ratio)
+3. They work better if areas are of similar size. Areas of greater size may be more heterogeneous internally than those of smaller size: that is there potentially have the largest error of representation. Also, visual attention may be drawn by areas that are large in size (if size is not the variable use to create a ratio)
 
 ### What do we use choropleth maps for?
 
-In a choropleth map you “can” show raw totals (absolute values), for example number of crimes, or derived values (ratios), crime per 100,000 inhabitants. But as a general rule, you should restrict choropleth maps to show derived variables such as rates or percentages. This is because the areas we often use are of different size and this may introduce an element of confusion in the interpretation of choropleth maps. The size of say, a province or a county, "has a big effect on the amount of color shown on the map, but unit area may have little relationship, or even an inverse relationship, to base populations and related counts." (@Brewer_2006: S30)
+In a choropleth map you “can” show raw totals (absolute values), for example number of crimes, or derived values (ratios), crime per 100,000 inhabitants. But as a general rule, you should restrict choropleth maps to show derived variables such as rates or percentages (@Monmonier_1993, @Field_2018). This is because the areas we often use are of different size and this may introduce an element of confusion in the interpretation of choropleth maps. The size of say, a province or a county, "has a big effect on the amount of color shown on the map, but unit area may have little relationship, or even an inverse relationship, to base populations and related counts." (@Brewer_2006: S30)
 
-In social science the denominator on mapped ratios is typically some form of population size, which typically we will want as current as possible. In other fields some measure of area size may be a preferred choice for the denominator. A great deal of discussion in crime analysis has focused on the choice of the right denominator. If for example you are interested in residential burglary, it makes sense to use number of inhabited households as your denominator (rather than population size). Population is also highly mobile during the day. People do not stay in the areas where they live, they go to work, they go to school, they travel for tourism purposes, and in doing so they alter the population structure of any given area. Geographers and criminologists, thus, distinguish between the standard measures of population (that relate to people that live in an area) provided by the census and government statistical authorities and the so called **ambient population**, that relates to people that occupy an area at a given time, and which typically are a bit more difficult to source (see for more details: @Andresen_2011, ).
+Mapping counts, mapping where a lot of the crime incidents concentrate is helpful, but we may want to understand as well if this is simply a function of the spatial distribution of the population at risk. As @Ratcliffe_2010 suggests "practitioners often recognize that a substantial density of crime in a location is sufficient information to initiate a more detailed analysis of the problem", but equally we may want to know if "this clustering of crime is meaningfully non-random, and if the patterns observed are still present once the analysis has controlled for the population at risk." (p. 11-12).
 
-In crime analysis, the key variable we map is geocoded crime, that is crime for which we know its exact location. The source for this variable tends to be crime reported to and recorded by the police. Yet, we know this is an imperfect source of data. A very large proportion of crime is not reported to the police. In England and Wales, for example, it is estimated that around 60% of crime is unknown to the police. And this is an average. The unknown figure of crime is larger for certain types of crime (e.g., interpersonal violence, sexual abuse, fraud, etc.). What is more, we know that there are community-level attributes that are associated with the level of crime reporting (@Goudriaan). Equally, not all police forces or units are equally adept at properly recording all crimes reported to the police. An in-depth study conducted in England and Wales concluded that over 800,000 crimes reported to the police were not properly recorded (an under-recording of 19%, which is higher for violence and sexual abuse, 33% and 26% respectively) (@HMIC_2014). There are, indeed, institutional, economic, cultural and political factors that may shape the quality of crime recording across different parts of the area we want to map out. Finally, the quality of the geocoding process, which varies across crime type, also comes into the equation. Sometimes there are issues with positional accuracy or the inability to geocode an address. Some authors suggest we need to be able to geocode at least 85% of the crime incidents to get accurate maps (@Ratcliffe_2004), otherwise geocoded crime records may be spatially biased. More recent studies offer a less conservative estimate depending on the level of analysis and number of incidents (@Andresen_2020). Although all this has been known for a while, criminologists and crime analysts are only now beginning to appreciate how this can affect the quality of crime mapping and the decision making based on this mapping (@Buil-Gil_2021; @Hart).
+In social science the denominator on mapped ratios is typically some form of population size, which typically we will want as current as possible. In other fields some measure of area size may be a preferred choice for the denominator. A great deal of discussion in crime analysis has focused on the choice of the right denominator. Authors relate to this as the **denominator dilemma**: "the problem associated with identifying an appropriate target availability control that can overcome issues of spatial inequality in the areal units used to study crime" (Ratcliffe_2010). The best measure for your denominator is one which captures opportunities. If for example you are interested in residential burglary, it makes sense to use number of inhabited households as your denominator (rather than population size). Whatever denominator you choose, you will usually want to make a case as to why that is the best representation of the opportunities for the crime type you're interested in. 
+
+As noted population is a common choice, but it is not always the one that best captures crime opportunities. Population, on the other hand, is also highly mobile during the day. People do not stay in the areas where they live, they go to work, they go to school, they travel for tourism purposes, and in doing so they alter the population structure of any given area. As @Ratcliffe_2010 highlights with an example "the residential population (as is usually available from the census) tells the researcher little about the real number of people outside nightclubs at 2 a.m" Geographers and criminologists, thus, distinguish between the standard measures of population (that relate to people that live in an area) provided by the census and government statistical authorities and the so called **ambient population**, that relates to people that occupy an area at a given time, and which typically are a bit more difficult to source (see for more details: @Andresen_2011, ).
+
+In crime analysis, the key variable we map is geocoded crime, that is crime for which we know its exact location. The source for this variable tends to be crime reported to and recorded by the police. Yet, we know this is an imperfect source of data. A very large proportion of crime is not reported to the police. In England and Wales, for example, it is estimated that around 60% of crime is unknown to the police. And this is an average. The unknown figure of crime is larger for certain types of crime (e.g., interpersonal violence, sexual abuse, fraud, etc.). What is more, we know that there are community-level attributes that are associated with the level of crime reporting (@Goudriaan_2006). Equally, not all police forces or units are equally adept at properly recording all crimes reported to the police. An in-depth study conducted in England and Wales concluded that over 800,000 crimes reported to the police were not properly recorded (an under-recording of 19%, which is higher for violence and sexual abuse, 33% and 26% respectively) (@HMIC_2014). There are, indeed, institutional, economic, cultural and political factors that may shape the quality of crime recording across different parts of the area we want to map out. Finally, the quality of the geocoding process, which varies across crime type, also comes into the equation. Sometimes there are issues with positional accuracy or the inability to geocode an address. Some authors suggest we need to be able to geocode at least 85% of the crime incidents to get accurate maps (@Ratcliffe_2004), otherwise geocoded crime records may be spatially biased. More recent studies offer a less conservative estimate depending on the level of analysis and number of incidents (@Andresen_2020). Although all this has been known for a while, criminologists and crime analysts are only now beginning to appreciate how this can affect the quality of crime mapping and the decision making based on this mapping (@Buil-Gil_2021; @Hart_2012).
 
 Although most of the time crime analysts are primarily concerned with mapping crime incidence and those factors associated with it, increasingly we see interest in the spatial representation of other variables of interest to criminologists such as fear of crime, trust in the police, etc. In these cases, the data typically come from surveys and the problem that may arise is whether we have a sample size large enough to derive estimates at the geographical level that we may want to work with. When this is not the case, methods for small area estimation are required (for details and criminological examples see ...).
 
 ### Proportional and graduate symbol maps: mapping crime counts
 
-Proportional symbol maps, on the other hand, are used to represent quantitative variables for either areas or point locations. Each area get a symbol and the size represents the intensity of the variable. The symbols typically will be squares or circles that are scaled "in proportion to the square root of each data value so that symbol areas visually represent the data values" (@Brewer: S29). We oftenwise use proportional symbol maps to represent count data (e.g., number of crimes reported in a given area). A common problem with proportional symbol maps is symbol congestion/overlap, especially if there are large variations in the size of symbols or if numerous data locations are close together.
+Proportional symbol maps, on the other hand, are used to represent quantitative variables for either areas or point locations. Each area get a symbol and the size represents the intensity of the variable. It is expected with this type of map that the reader could estimate the different quantities mapped out and to be able to detecting patterns across the map (@Field_2018). The symbols typically will be squares or circles that are scaled "in proportion to the square root of each data value so that symbol areas visually represent the data values" (@Brewer: S29). Circles are generally used since they are considered to perform better in facilitating visual interpretation. 
+
+We often use proportional symbol maps to represent count data (e.g., number of crimes reported in a given area). A common problem with proportional symbol maps is symbol congestion/overlap, especially if there are large variations in the size of symbols or if numerous data locations are close together.
 
 A similar type of map use graduated symbol maps. As with choropleth classing, the symbol size may represent data ranges. They are sometimes used when data ranges are too great to practically represent the full range on a small map. 
 
-## Creating thematic maps
+## Creating thematic maps: mapping count data with tmap
 
-Today we are going to introduce the `tmap` package. This package was developed to easily produce thematic maps. It is inspired by the `ggplot2` package and the layered grammar of graphics. It was written by Martjin Tennekes, a Dutch data scientist. 
+Today we are going to introduce the `tmap` package. This package was developed to easily produce thematic maps. It is inspired by the `ggplot2` package and the layered grammar of graphics. It was written by Martjin Tennekes, a Dutch data scientist. It is fairly user friendly and intuitive.
 
 There are a number of [vignettes in the CRAN repository](https://cran.r-project.org/web/packages/tmap/index.html) and the [GitHub repo for this package](https://github.com/mtennekes/tmap) that you can explore. Each map can be plotted as a static map (*plot mode*) and shown interactively (*view mode*). We will start by focusing on static maps.
 
 For the purpose of demonstrating some of the functionality of this package we will use the Manchester crime data generated in the first chapter.
 
-
+```{r}
+#Remember to use the correct pathfile for your data
+shp_name <- "data/BoundaryData/manchester_crime_lsoa.shp"
+manchester_crime_lsoa <- st_read(shp_name)
+```
 
 Every time you use this package you will need a line of code that specifies the spatial object you will be using. Although originally developed to handle `sp` objects only, it now also has support for `sf` objects. For specifying the spatial object we use the `tm_shape()` function and inside we specify the name of the spatial object we are using. On its own, this will do nothing apparent. No map will be created. We need to add additional functions to specify what we are doing with that spatial object. If you try to run this line on its own, you'll get an error telling you you must "Specify at least one layer after each tm_shape". 
 
@@ -64,20 +73,41 @@ Every time you use this package you will need a line of code that specifies the 
 tm_shape(manchester_crime_lsoa)
 ```
 
-The main plotting method consists of elements that we can add. The first element is the `tm_shape()` function specifying the spatial object, and then we can add a series of elements specifying layers in the visualisation. They can include polygons, symbols, polylines, raster, and text labels as base layers. We will add a polygon using `tm_polygon()`. As noted, with `tmap` you can produce both static and interactive maps. The interactive maps rely on `leaflet`. You can control whether the map is static or interactive with the `tmap_mode()` function. If you want a static map you pass `plot` as an argument, if you want an interactive map you pass `view` as an argument. Let's create a static map first. 
+The main plotting method consists of elements that we can add. The first element is the `tm_shape()` function specifying the spatial object, and then we can add a series of elements specifying layers in the visualisation. They can include polygons, symbols, polylines, raster, and text labels as base layers. 
 
-```{r}
+In `tmap` you can use tm_symbols for this. As noted, with `tmap` you can produce both static and interactive maps. The interactive maps rely on `leaflet`. You can control whether the map is static or interactive with the `tmap_mode()` function. If you want a static map you pass `plot` as an argument, if you want an interactive map you pass `view` as an argument. Let's create a static map first
+
+```{r, message=FALSE}
 tmap_mode("plot")
 tm_shape(manchester_crime_lsoa) + 
-  tm_polygons()
+  tm_bubbles("count")
+  
 ```
-
-Given that we are not passing any additional arguments all we are getting is a map with the shape of the geographies that we are representing, the census LSOAs for Manchester city. We can, however, ask R to produce a choropleth map by mapping the values of a variable in our data table using colour.  In tmap we need to denote our variables between quotes. The first argument we pass then would be the name of the variable we want to visualise. If you remember we have a count for crimes ("count"), so let's visualise that by creating a thematic map.
+Each bubble represents the number of crimes in eac LSOA. We can add the borders of the census areas for better representation. The `border.lwd` argument set to NA in the `tm_bubbles()` is asking R not to draw a border to the circles. Whereas `tm_borders()` brings back a layer with the borders of the polygons representing the different LSOAs in Manchester city. Notice how we are modifying the transparency of the borders with the alpha parameter. In addition, we are adding a `tm_layout()` function that makes explicit where and how we want the legend.
 
 ```{r}
-tm_shape(manchester_crime_lsoa) + 
-  tm_polygons("count")
+tm_shape(manchester_crime_lsoa) +                         #use tm_shape function to specify spatial object
+  tm_bubbles("count", border.lwd=NA) +              #use tm_bubbles to add the bubble visualisation, but set the 'border.lwd' parameter to NA, meaning no symbol borders are drawn
+  tm_borders(alpha=0.1) +                           #add the LSOA border outlines using tm_borders, but set their transparency using the alpha parameter (0 is totally transparent, 1 is not at all)
+  tm_layout(legend.position = c("right", "bottom"), #use tm_layout to make the legend look nice
+            legend.title.size = 0.8,
+            legend.text.size = 0.5)
 ```
+There are several arguments that you can pass within the `tm_bubble` function that control the appearance of the symbols. The `scale` argument controls the symbol size multiplier number. Larger values will represent the largest bubble as larger. You can experiment with the value you find more appropriate. Another helpful parameter in `tm_bubble` is `alpha`, which you can use to make the symbols more or less transparent as a possible way to deal with situations where you may have a significant degree of overlapping between the symbols. You can play around with this and modify the code we provide above with different values for these two arguments.
+
+By default, the symbol area sizes are scaled proportionally to the data variable you are using. As noted above this is done by taking the square root of the normalized data variable. This is called mathematical scaling. However, "it is well known that the perceived area of proportional symbols dose not match their mathematical area; rather, we are inclined to underestimate the area of larger symbols. As a solution to this problem, it is reasonable to modify the area of larger circles in order to match it with the perceived area." (@Tanimura_2006) The `perceptual = TRUE` option allows you to use a method that aims to compensate for the default approach may underestimate the area of the larger symbols. Notice the difference between the map we produced and this new one.
+
+```{r}
+tm_shape(manchester_crime_lsoa) +                         #use tm_shape function to specify spatial object
+  tm_bubbles("count", border.lwd=NA, perceptual = TRUE) +              #use tm_bubbles to add the bubble visualisation, but set the 'border.lwd' parameter to NA, meaning no symbol borders are drawn
+  tm_borders(alpha=0.1) +                           #add the LSOA border outlines using tm_borders, but set their transparency using the alpha parameter (0 is totally transparent, 1 is not at all)
+  tm_layout(legend.position = c("right", "bottom"), #use tm_layout to make the legend look nice
+            legend.title.size = 0.8,
+            legend.text.size = 0.5)
+```
+
+
+
 
 We have been using `tm_polygons()` but we can also add the elements of a polygon map using different functions that break down what we represent here. In the map above you see the polygons have a dual representation, the borders are represented by lines and the colour is mapped to the intensity of the quantitative variable we are representing. With darker colours representing more of the variable, the areas with more crimes. Instead of using `tm_polygon()` we can use the related functions `tm_fill()`, for the colour inside the polygons, and `tm_borders()`, for the aesthetics representing the border of the polygons. Say we find the borders distracting and we want to set them to be transparent. In that case we could just use `tm_fill()`.
 
@@ -241,26 +271,7 @@ Taken from the help file we can find more information about these, for example t
 
 
 
-## Using graduated symbols
 
-Some of the literature on thematic cartography highlights how counts, like the ones above, are best represented using graduated symbols rather than choropleth maps (using colour, as we did above). So let's try to go for a more appropriate representation. In `tmap` you can use tm_symbols for this. We will use `tm_borders` to provide some context.
-
-```{r, message=FALSE}
-tm_shape(manchester_crime_lsoa) + 
-  tm_bubbles("count")
-  
-```
-
-First thing you see is that we loose the context (provided by the polygon borders) that we had earlier. The `border.lwd` argument set to NA in the `tm_symbols()` is asking R not to draw a border to the circles. Whereas `tm_borders()` brings back a layer with the borders of the polygons representing the different LSOAs in Manchester city. Notice how I am modifying the transparency of the borders with the alpha parameter.
-
-```{r}
-tm_shape(manchester_crime_lsoa) +                         #use tm_shape function to specify spatial object
-  tm_bubbles("count", border.lwd=NA) +              #use tm_bubbles to add the bubble visualisation, but set the 'border.lwd' parameter to NA, meaning no symbol borders are drawn
-  tm_borders(alpha=0.1) +                           #add the LSOA border outlines using tm_borders, but set their transparency using the alpha parameter (0 is totally transparent, 1 is not at all)
-  tm_layout(legend.position = c("right", "bottom"), #use tm_layout to make the legend look nice
-            legend.title.size = 0.8,
-            legend.text.size = 0.5)
-```
 
 ## Mapping rates rather than counts
 
@@ -269,7 +280,7 @@ In much of our readings we have now seen the importance to map rates rather than
 
 ![https://xkcd.com/1138/](https://imgs.xkcd.com/comics/heatmap.png)
 
-In specific to crime mapping, there is an ongoing issue of the *denominators dilemma* which has been cropping up in your reading. This is concerned with choosing the most appropriate measure for calculating crime rates. The best measure is one which captures opportunities. You read about some approaches to capturing ambient population for example to estimate risk for on-street crimes. Whatever denominator you choose, you will usually want to make a case as to why that is the best representation of the opportunities for the crime type you're interested in. 
+  
 
 
 #### Activity 3: Getting population data from the census
