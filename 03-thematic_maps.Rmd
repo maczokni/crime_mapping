@@ -18,6 +18,7 @@ library(sf)
 library(janitor)
 library(tmap)
 library(dplyr)
+library(skimr)
 ```
 
 ## Thematic maps: key terms and ideas
@@ -62,19 +63,14 @@ There are a number of [vignettes in the CRAN repository](https://cran.r-project.
 For the purpose of demonstrating some of the functionality of this package we will use the Manchester crime data generated in the first chapter. We have now added a few variables obtained from the Census that will be handy later on. You can obtain the data in a geojson format from our GitHub repo using the following code:
 
 ```{r}
-#Remember to use the correct pathfile for your data
-geo <- sf_geojson(manchester_crime_lsoa)
-st_write(manchester_crime_lsoa, "man_crime_lsoa", driver = "GeoJSON")
-shp_name <- "data/BoundaryData/manchester_crime_lsoa.shp"
-manchester_crime_lsoa <- st_read(shp_name)
-manchester__crime_lsoa <- st_read("https://github.com/maczokni/crime_mapping/raw/master/data/man_crime_lsoa")
+manchester <- st_read("https://github.com/maczokni/crime_mapping/raw/master/data/manc_lsoa_crime_census.geojson")
 
 ```
 
 Every time you use this package you will need a line of code that specifies the spatial object you will be using. Although originally developed to handle `sp` objects only, it now also has support for `sf` objects. For specifying the spatial object we use the `tm_shape()` function and inside we specify the name of the spatial object we are using. On its own, this will do nothing apparent. No map will be created. We need to add additional functions to specify what we are doing with that spatial object. If you try to run this line on its own, you'll get an error telling you you must "Specify at least one layer after each tm_shape". 
 
 ```{r, eval=FALSE}
-tm_shape(manchester_crime_lsoa)
+tm_shape(manchester)
 ```
 
 The main plotting method consists of elements that we can add. The first element is the `tm_shape()` function specifying the spatial object, and then we can add a series of elements specifying layers in the visualisation. They can include polygons, symbols, polylines, raster, and text labels as base layers. 
@@ -83,14 +79,14 @@ In `tmap` you can use tm_symbols for this. As noted, with `tmap` you can produce
 
 ```{r, message=FALSE}
 tmap_mode("plot")
-tm_shape(manchester_crime_lsoa) + 
+tm_shape(manchester) + 
   tm_bubbles("count")
   
 ```
 Each bubble represents the number of crimes in eac LSOA. We can add the borders of the census areas for better representation. The `border.lwd` argument set to NA in the `tm_bubbles()` is asking R not to draw a border to the circles. Whereas `tm_borders()` brings back a layer with the borders of the polygons representing the different LSOAs in Manchester city. Notice how we are modifying the transparency of the borders with the alpha parameter. In addition, we are adding a `tm_layout()` function that makes explicit where and how we want the legend.
 
 ```{r}
-tm_shape(manchester_crime_lsoa) +                         #use tm_shape function to specify spatial object
+tm_shape(manchester) +                         #use tm_shape function to specify spatial object
   tm_bubbles("count", border.lwd=NA) +              #use tm_bubbles to add the bubble visualisation, but set the 'border.lwd' parameter to NA, meaning no symbol borders are drawn
   tm_borders(alpha=0.1) +                           #add the LSOA border outlines using tm_borders, but set their transparency using the alpha parameter (0 is totally transparent, 1 is not at all)
   tm_layout(legend.position = c("right", "bottom"), #use tm_layout to make the legend look nice
@@ -102,7 +98,7 @@ There are several arguments that you can pass within the `tm_bubble` function th
 By default, the symbol area sizes are scaled proportionally to the data variable you are using. As noted above this is done by taking the square root of the normalized data variable. This is called mathematical scaling. However, "it is well known that the perceived area of proportional symbols dose not match their mathematical area; rather, we are inclined to underestimate the area of larger symbols. As a solution to this problem, it is reasonable to modify the area of larger circles in order to match it with the perceived area." (@Tanimura_2006) The `perceptual = TRUE` option allows you to use a method that aims to compensate for the default approach may underestimate the area of the larger symbols. Notice the difference between the map we produced and this new one.
 
 ```{r}
-tm_shape(manchester_crime_lsoa) +                         #use tm_shape function to specify spatial object
+tm_shape(manchester) +                         #use tm_shape function to specify spatial object
   tm_bubbles("count", border.lwd=NA, perceptual = TRUE) +              #use tm_bubbles to add the bubble visualisation, but set the 'border.lwd' parameter to NA, meaning no symbol borders are drawn
   tm_borders(alpha=0.1) +                           #add the LSOA border outlines using tm_borders, but set their transparency using the alpha parameter (0 is totally transparent, 1 is not at all)
   tm_layout(legend.position = c("right", "bottom"), #use tm_layout to make the legend look nice
@@ -112,16 +108,48 @@ tm_shape(manchester_crime_lsoa) +                         #use tm_shape function
 
 ## Mapping rates rather than counts
 
+### Generating the rates
+
 We have now seen the importance to map rates rather than counts of things, and that is for the simple reason that population is not equally distributed in space. That means that if we do not account for how many people are somewhere, we end up mapping population size rather than our topic of interest. As always, there is a relevant xkcd for that: 
 
 ![https://xkcd.com/1138/](https://imgs.xkcd.com/comics/heatmap.png)
+
+The *manchester* object we are working with has a column named "respop" that includes the residential population in each of the LSOA areas. These areas for the whole of the UK have an average population of around 1500 people. We can see a similar picture for Manchester city, with an average closer to 1700 here.
+
+```{r}
+hist(manchester$respop)
+
+```
+We also have a variable "wkdpop" that represents the workday population. This variable re-distributes the usually resident population to their places of work, while those not in work are recorded at their usual residence. The picture it offers is much more diverse than the previous variable.
+
+```{r}
+
+hist(manchester$wkdpop)
+
+```
+
+The distribution is much more skewed with some LSOAs in Manchester, with at least one LSOA attracting up to 42253 people during the working day. This gives an idea of the relevance of the "denominator dilemma" we mentioned earlier. In this section we will create rates of crime using both variables in the denominator to observe how the emerging picture varies.
+
+First we need to create new variables. For this we can use the `mutate()` function from the `dplyr` package. This is a very helpful function to create new variables in a dataframe based on transformations or mathematical operations performed in other variables within the dataframe. In this function, the first argument is the name of the data frame, and then we can pass as arguments all new variables we want to create as well as the instructions as to how we are creating those variables. 
+
+First we want to create a rate using the usual residents, since crime rates are often expressed by 100,000 inhabitants we will multiply the division of the number of crimes by the number of usual residents by 100,000. We will then create another variable, *crimr2*, using the workday population as the denominator. We will store this new variables in our existing *manchester* dataset. You can see that below then I specify the name of a new variable *crimr1* and then I tell the function I want that variable to equal (for each case) the division of the values in the variable *count* (number of crimes) by the variable *respop* (number of people residing in the area) and then we multiply the result of this division by 100,000 to obtain a rate expressed in those terms. Then we do likewise for the alternative measure of crime.
+
+```{r}
+manchester <- mutate(manchester, crimr1 = (count/respop)*100000, crimr2 = (count/wkdpop)*100000)
+```
+
+And now we have two new variables, one for crime rate with residential population as a denominator, and another with workplace population as a denominator.
+
+### Creating a choropleth map with tmap
+
+The structure of the grammar for producing a choropleth map is similar to what we did for proportional symbols. First we identify the object with `tm_shape()` and then we use a geometry to be represented. We will be using the `tm_fill()` passing as an argument the name of the variable with our crime rate.
 
 
 We have been using `tm_polygons()` but we can also add the elements of a polygon map using different functions that break down what we represent here. In the map above you see the polygons have a dual representation, the borders are represented by lines and the colour is mapped to the intensity of the quantitative variable we are representing. With darker colours representing more of the variable, the areas with more crimes. Instead of using `tm_polygon()` we can use the related functions `tm_fill()`, for the colour inside the polygons, and `tm_borders()`, for the aesthetics representing the border of the polygons. Say we find the borders distracting and we want to set them to be transparent. In that case we could just use `tm_fill()`.
 
 ```{r}
-tm_shape(manchester_crime_lsoa) + 
-  tm_fill("count")
+tm_shape(manchester) + 
+  tm_fill("crimr1")
 ```
 
 As you can see here, the look is a bit cleaner. We don't need to get rid of the borders completely. Perhaps we want to make them a bit more translucent. We could do that by adding the border element but making the drawing of the borders less pronounced. 
@@ -341,18 +369,6 @@ And there you go... Now you have a datafile with quite a few pieces of additiona
 
 #### Activity 4: Computing crime rates
 
-Ok, so now we have a field that provides us with the number of crimes and two alternative counts of population for each LSOA in Manchester in the same dataframe. We could compute the rate of crime in each using the population counts as our denominator. Let's see how the maps may compare using these different denominators. 
-
-But first we need to create new variables. For this we can use the `mutate()` function from the `dplyr` package. This is a very helpful function to create new variables in a dataframe based on transformations or mathematical operations performed in other variables within the dataframe. In this function, the first argument is the name of the data frame, and then we can pass as arguments all new variables we want to create as well as the instructions as to how we are creating those variables. 
-
-First we want to create a rate using the usual residents, since crime rates are often expressed by 100,000 inhabitants we will multiply the division of the number of crimes by the number of usual residents by 100,000. We will then create another variable, *crimr2*, using the workday population as the denominator. We will store this new variables in our existing *manchester_lsoa* dataset. You can see that below then I specify the name of a new variable *crimr1* and then I tell the function I want that variable to equal (for each case) the division of the values in the variable *count* (number of crimes) by the variable *respop* (number of people residing in the area) and then we multiply the result of this division by 100,000 to obtain a rate expressed in those terms. Then we do likewise for the alternative measure of crime.
-
-```{r}
-manchester_crime_lsoa <- mutate(manchester_crime_lsoa, crimr1 = (count/respop)*100000, crimr2 = (count/wkdpop)*100000)
-```
-
-
-And now we have two new variables, one for crime rate with residential population as a denominator, and another with workplace population as a denominator. 
 
 
 #### Activity 5: Mapping crime rates
