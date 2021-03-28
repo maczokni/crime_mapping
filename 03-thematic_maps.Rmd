@@ -1,5 +1,5 @@
 
-# Chapter 3: Thematic maps in R
+# Chapter 3: Mapping rates and counts: choropleth and proportional symbol maps
 
 ## Introduction
 
@@ -20,6 +20,7 @@ library(tmap)
 library(dplyr)
 library(skimr)
 library(tmaptools)
+library(DCluster)
 
 ```
 
@@ -395,6 +396,131 @@ filter(manchester, code=="E01033658")
 We can see in this area there were 744 crime incidents for a residential population of 1303, but the workday population is as high as 42253 people. So, of course, using these different denominators is bound to have an impact in the resulting rate. As noted in criminology using as a denominator some measure of the population at risk is most appropriate.
 
 As noted by @Cameron_2005: "In the final analysis, although choropleth maps are very useful for visualizing spatial distributions, using them for hot spot analyses of crime has certain disadvantages. First, attention is often focused on the relative size of an area, so large areas tend to dominate the map. Second, choropleth maps involve the aggregation of data within statistical or administrative areas that may not correspond to the actual underlying spatial distribution of the data."
+
+## Smoothing rates: adjusting for small sample noise
+
+In previous sections we discussed how to map rates. It seems a fairly straightforward issue, you calculate a rate by dividing your numerator (eg: number of crimes) by an appropriately selected denominator (eg: daytime population). You get your variable with the relevant rate and you map it using a choropleth map. However, things are not always that simple. Rates are funny animals. @Gelman_1999 goes so far as to suggest that all maps of rates are misleading. The problem at hand is well known in spatial epidemiology: " plotting observed rates can have serious drawbacks when sample sizes vary by area, since very high (and low) observed rates are found disproportionately in poorly-sampled areas" (@Gelman_1999, p. 3221). There is associated noise for those areas where the denominators give us a small sample size. And it is hard to solve this problem.
+
+Let´s illustrate with an example. We are going to use historic data on homicide across US counties. The dataset was used as the basis for the study by @Baller_2006. It contains data on homicide counts and rates for various decades across the US as well as information on structural factors often thought to be associated with violence. The data is freely available through the webpage of Geoda, a clever point-and-click interface developed by Luc Anselin (a spatial econometrician and coauthor of the above paper) and his team, to make spatial analysis accessible.
+
+```{r, eval=FALSE}
+##R in Windows have some problems with https addresses, that's why we need to do this first:
+urlfile<-'https://geodacenter.github.io/data-and-lab/data/ncovr.zip'
+download.file(urlfile, 'ncovr.zip')
+#Let's unzip and create a new directory (ncovr) in our working directory to place the files
+unzip('ncovr.zip', exdir = 'ncovr')
+
+```
+
+Remember that to treat the data as spatial we need to load the shapefile. With that we can create a spatial object:
+
+```{r}
+shp_name <- "ncovr/ncovr/NAT.shp"
+ncovr_sf <- st_read(shp_name)
+```
+
+Let's look at the ncvor data. We can start by looking ath the homicide rate for 1960.
+
+```{r}
+summary(ncovr_sf$HR60)
+```
+
+We can see that the county with the highest homicide rate in the 1960s had a rate of 92.937 homicides per 100,000 individuals. That is very high. Just to put it into context in the UK is about 0.92. Where is that place? I can tell you is a place called Borden. Check it out:
+
+```{r}
+borden <- filter(ncovr_sf, NAME == "Borden")
+borden$HR60
+
+```
+
+[Borden county](https://en.wikipedia.org/wiki/Borden_County,_Texas) in Texas. You may be thinking… “Texas Chainsaw Massacre” perhaps? No, not really. Ed Gein, who inspired the film, was based and operated in Wisconsin. Borden claim to fame is rather more prosaic: it was named after Gail Borden, the inventor of condensed milk. So, what’s going on here? Why do we have a homicide rate in Borden that makes it look like a war zone? Is is that it is only one of the six counties where alcohol is banned in Texas (and people are consequently going nuts?).
+
+Check this out too:
+
+```{r}
+borden$HC60
+```
+
+What? A total homicide count of 1. How can a county with just one homicide have a rate that makes it look like the most dangerous place in the US?
+
+```{r}
+borden$PO60
+```
+
+Well, there were about 1076 people living there.
+
+```{r}
+summary(ncovr_sf$PO60)
+
+```
+
+If you contrast that population count with the population of the average county in the US, that's tiny. One homicide in such a small place can end up producing a big rate. Remember that the rate is simply dividing the number of relevant events by the exposure variable (in this case population) and multiplying by a constant (in this case 100,000 since we expressed crime rates in those terms). Most times Borden looks like a very peaceful place:
+
+```{r}
+borden$HR70
+borden$HR80
+borden$HR90
+```
+
+It has a homicide rate of 0 in most decades. But it only takes one homicide and, bang, it goes top of the league. So a standard map of rates is bound to be noisy. There is the instability that is introduced by virtue of having areas that may be sparsely populated and in which one single event, like in this case, will produce a very noticeable change in the rate. 
+
+In fact, if you look at the counties with the highest homicide rate in the ncovr dataset you will notice all of them are places like Borden, areas that are sparsely populated, not because they are that dangerous, but because of the instability of rates. Conversely the same happens with those places with the lowest rate. They tend to be areas with a very small sample size.
+
+This is a problem that was first noted by epidemiologists doing disease mapping. But a number of other disciplines have now noted this and used some of the approaches developed by public health researchers that confronted this problem when producing maps of disease (PRO TIP: techniques and approaches used by spatial epidemiologists are very similar to those used by criminologists -in case you ever think of changing careers or need inspiration for how to solve a crime analysis problem).
+
+One way of dealing with this is by **smoothing** the rates. This basically as the word implies aims for a smoother representation that avoids hard spikes associated with random noise. There are different ways of doing that. Some ways use a non-spatial approach to smoothing, using something called a **empirical bayesian smoother**. How does this work? This approach takes the raw rates and tries to “shrunk” them towards the overall average. What does this mean? Essentially, we compute a weighted average between the raw rate for each area and the global average across all areas, with weights proportional to the underlying population at risk. What this procedure does is to have the rates of smaller areas (those with a small population at risk) to have their rates adjusted considerably (brought closer to the global average), whereas the rates for the larger areas will barely change.
+
+Here we are going to introduce the approach implemented in `DCluster`, a package developed for epidemiological research and detection of [clusters of disease](https://www.r-project.org/conferences/DSC-2003/Proceedings/GomezRubioEtAl.pdf).
+
+```{r}
+res <- empbaysmooth(ncovr_sf$HC60, ncovr_sf$PO60)
+```
+
+In the new object we generate, which is a list, you have an element which contains the computed rates. We can add those to our dataset:
+
+```{r}
+ncovr_sf$HR60EBS <- res$smthrr * 100000
+```
+
+Instead of shrinking to the global rate, we can shrink to a rate based on the neighbours of each county. If instead of shrinking to a global rate, we shrink to a local rate, we may be able to take unobserved heterogeneity into account; for this we need the list of neighbours (we will discuss this code in a later session, so for now just trust us we are computing the rate of the areas that surround each country):
+
+```{r}
+ncovr_sp <- as(ncovr_sf, "Spatial")
+w_nb <- poly2nb(ncovr_sp, row.names=ncovr_sp$FIPSNO)
+eb2 <- EBlocal(ncovr_sf$HC60, ncovr_sf$PO60, w_nb)
+ncovr_sf$HR60EBSL <- eb2$est * 100000
+
+```
+
+We can now plot the maps and compare them:
+
+```{r}
+tmap_mode("plot")
+current_style <- tmap_style("col_blind")
+
+map1<- tm_shape(ncovr_sf) + 
+  tm_fill("HR60", style="quantile", title = "Raw rate", palette = "Reds") +
+  tm_layout(legend.position = c("left", "bottom"), 
+            legend.title.size = 0.8,
+            legend.text.size = 0.5)
+
+map2<- tm_shape(ncovr_sf) + 
+  tm_fill("HR60EBS", style="quantile", title = "EB Smooth", palette = "Reds") +
+  tm_layout(legend.position = c("left", "bottom"), 
+            legend.title.size = 0.8,
+            legend.text.size = 0.5)
+
+map3<- tm_shape(ncovr_sf) + 
+  tm_fill("HR60EBSL", style="quantile", title = "Local Smooth", palette = "Reds") +
+  tm_layout(legend.position = c("left", "bottom"), 
+            legend.title.size = 0.8,
+            legend.text.size = 0.5)
+
+tmap_arrange(map1, map2, map3) 
+```
+
+Notice that the quantiles are not the same, so that will make your comparison difficult.
+
 
 ## Summary
 
