@@ -468,7 +468,7 @@ In fact, if you look at the counties with the highest homicide rate in the ncovr
 
 This is a problem that was first noted by epidemiologists doing disease mapping. But a number of other disciplines have now noted this and used some of the approaches developed by public health researchers that confronted this problem when producing maps of disease (PRO TIP: techniques and approaches used by spatial epidemiologists are very similar to those used by criminologists -in case you ever think of changing careers or need inspiration for how to solve a crime analysis problem).
 
-One way of dealing with this is by **smoothing** the rates. This basically as the word implies aims for a smoother representation that avoids hard spikes associated with random noise. There are different ways of doing that. Some ways use a non-spatial approach to smoothing, using something called a **empirical bayesian smoother**. How does this work? This approach takes the raw rates and tries to “shrunk” them towards the overall average. What does this mean? Essentially, we compute a weighted average between the raw rate for each area and the global average across all areas, with weights proportional to the underlying population at risk. What this procedure does is to have the rates of smaller areas (those with a small population at risk) to have their rates adjusted considerably (brought closer to the global average), whereas the rates for the larger areas will barely change.
+One way of dealing with this is by **smoothing** or **shrinking** the rates. This basically as the word implies aims for a smoother representation that avoids hard spikes associated with random noise. There are different ways of doing that. Some ways use a non-spatial approach to smoothing, using something called a **empirical bayesian smoother**. How does this work? This approach takes the raw rates and tries to “shrunk” them towards the overall average. What does this mean? Essentially, we compute a weighted average between the raw rate for each area and the global average across all areas, with weights proportional to the underlying population at risk. What this procedure does is to have the rates of smaller areas (those with a small population at risk) to have their rates adjusted considerably (brought closer to the global average), whereas the rates for the larger areas will barely change.
 
 Here we are going to introduce the approach implemented in `DCluster`, a package developed for epidemiological research and detection of [clusters of disease](https://www.r-project.org/conferences/DSC-2003/Proceedings/GomezRubioEtAl.pdf).
 
@@ -482,7 +482,7 @@ In the new object we generate, which is a list, you have an element which contai
 ncovr_sf$HR60EBS <- res$smthrr * 100000
 ```
 
-Instead of shrinking to the global rate, we can shrink to a rate based on the neighbours of each county. If instead of shrinking to a global rate, we shrink to a local rate, we may be able to take unobserved heterogeneity into account; for this we need the list of neighbours (we will discuss this code in a later session, so for now just trust us we are computing the rate of the areas that surround each country):
+Instead of shrinking to the global rate, we can shrink to a rate based on the neighbours of each county. Shrinking to the global rate ignores the spatial dimension of the phenomenon being mapped out and may mask existing heterogeneity. If instead of shrinking to a global rate, we shrink to a local rate, we may be able to take unobserved heterogeneity into account. @Marshall_1991 proposed a local smoother estimator in which the crude rate is shrunk towards a loca, "neighbourhood", rate. To compute this we need the list of neighbours that surround each county (we will discuss this code in a later session, so for now just trust us we are computing the rate of the areas that surround each country):
 
 ```{r}
 ncovr_sp <- as(ncovr_sf, "Spatial")
@@ -519,11 +519,23 @@ map3<- tm_shape(ncovr_sf) +
 tmap_arrange(map1, map2, map3) 
 ```
 
-Notice that the quantiles are not the same, so that will make your comparison difficult.
+Notice that the quantiles are not the same, so that will make your comparison difficult. Let´s look at a boxplot of these variables. In the map of raw rates we have the most variation. 
 
+```{r}
+#Boxplots with base R graphics
+boxplot(ncovr_sf$HR60, ncovr_sf$HR60EBS, ncovr_sf$HR60EBSL,
+        main = "Different rates of homicide per 100,000 people",
+        names = c("Raw rate", "Bayes smoother", "Locat base smoother"),
+        ylab = "Rates")
+```
+
+The range for the raw rates is nearly 93. Much of the variation in observed homicide rates by county is attributable to statistical noise due to the small number of (observed and expected) homicides in low-population counties. Because of this noise, a disproportionate fraction of low-population counties are observed to have extremely high (or low) homicide rates when compared to typical counties in the United States. The second distribution shows that everything has been brought closer to the main mean, whereas the local smoother allows for a bit more variation. The general Bayes smoother has the opposite problem of mapping out the raw rates, it likely hides existing spatial variation. If you contrast the maps you will see how this results in a clearer and smoother spatial pattern for the rate that is estimated borrowing information from their neighbours.
 
 ## Summary
 
-This chapter introduced some basic principles of thematic maps. We learned how to make them using the `tmap` package, we learned about the importance of classification schemes, and how each one may produce a different looking map, which may tell a different story. For further reading, @Brewer_2016 provides a brief condensed introduction to thematic mapping for epidemiologists but that can be generally extrapolated for crime mapping purposes. We have talked about the potential to develop misleading maps and @Monmonier_1996 "How to lie with maps" provides good guidance to avoid that our negligent choices when producing a map confuse the readers. @Carr_2010 offers a more detailed treatment of small multiples and micromaps.
+This chapter introduced some basic principles of thematic maps. We learned how to make them using the `tmap` package, we learned about the importance of classification schemes, and how each one may produce a different looking map, which may tell a different story. For further reading, @Brewer_2016 provides a brief condensed introduction to thematic mapping for epidemiologists but that can be generally extrapolated for crime mapping purposes. We have talked about the potential to develop misleading maps and @Monmonier_1996 "How to lie with maps" provides good guidance to avoid that our negligent choices when producing a map confuse the readers. @Carr_2010 offers a more detailed treatment of small multiples and micromaps. 
+
+Mapping rates has been more thoroughly discussed within spatial epidemiology than in criminology. There is ample literature on disease mapping that address in more sophisticated ways some of the issues we introduce here (see @Waller_2004, @Lawson_2006, @Lawson_2021a, or @Lawson_2021b). Much of this work on spatial epidemiology adopts a Bayesian framework. We will talk a bit more about this, but if you want a friendly introduction to Bayesian data analysis there is no better introduction than @McElreath_2020.
+
 
 
