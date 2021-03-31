@@ -17,9 +17,12 @@ library(spatstat)
 library(maptools)
 library(crimedata)
 library(ggplot2)
+library(raster)
+library(SpatialKDE)
+library(leaflet)
 ```
 
-## Getting the data: introducing crimedata
+## Getting the data: introducing "crimedata"
 
 Dr. Ashby is the lead contributor to the **Crime Open Database (CODE)**, a service that makes it convenient to use crime data from multiple US cities in research on crime. All the data in CODE are available to use for free as long as you acknowledge the source of the data. The package `crimedata` was developed by Dr. Ashby to make it easier to read into R the data from this service.
 
@@ -82,7 +85,7 @@ window
 
 ```
 
-Now that we have created the window as an `owin` object let's get the points. First we will extract the coordinates from our sf point data into a matrix:
+Now that we have created the window as an `owin` object let's get the points. In the first place we need to reproject to the same projected coordinate systems we have for our boundary data using the familiar `st_transform()` funcion. Then we will extract the coordinates from our `sf` point data into a matrix using `unlist`, so that the functions from `statspat` can read the coordinates:
 
 ```{r}
 
@@ -101,7 +104,7 @@ plot(bur_ppp)
 
 Notice the warning message about duplicates. In spatial point pattern analysis an issue of significance is the presence of duplicates. The statistical methodology used for spatial point pattern processes is based largely on the assumption that processes are *simple*, that is, that the points cannot be coincident. That assumption may be unreasonable in many contexts (for example, the literature on repeat victimisation indeed suggests that we should expect the same households to be at a higher risk of being hit again). Even so the point (no pun intended) is that *"when the data has coincidence points, some statistical procedures will be severely affected. So it is always strongly advisable to check for duplicate points and to decide on a strategy for dealing with them if they are present"* (Baddeley et al., 2016: 60).
 
-We can check the duplication in a `ppp` object with the following syntax:
+We can check the duplication in a `ppp` object with the following syntax, it will return a logical indicating whether we have any duplication:
 
 ```{r}
 any(duplicated(bur_ppp))
@@ -114,7 +117,7 @@ To count the number of coincidence points we use the `multiplicity()` function. 
 multiplicity(bur_ppp)
 ```
 
-If you want to know how many locations have more than one event you can use:
+If you suspect many duplicates, it may be better start asking how many there are. For this you can use:
 
 ```{r}
 sum(multiplicity(bur_ppp) > 1)
@@ -129,11 +132,11 @@ hist(multiplicity(bur_ppp))
 
 ```
 
-In the case of crime, as we have hinted some of this may be linked to the nature of crime itself. Hint: repeat victimisation. We are just relying on open data, so it is hard to figure out if some of this is to do with data quality or some other feature that artificially may create duplicates records for the same address. In some jurisdictions, like the UK, duplication may artificially result from the anonymisation process that follows from the release of open data in crime ^[This is due to the way in which spatial anonymisation of police.uk data is carried out. This is done using geomasking, whereby there exist a pre-determined list of points that each crime event gets "snapped" to its nearest one. So, the coordinates provided in the open data are not the exact locations of crimes, but they come from a list of points generated for purposes of data publication. You can see the details in their webstie (https://data.police.uk/about/#anonymisation). This process is likely inflating the amount of duplication we may observe, because each snap point might have many crimes near it, resulting in those crimes being geo-coded to the same exact location. So keep in mind when analysing and working with this data set that it is not the same as working with the real locations. If you are interested in the effects of this read the paper @Tompson_2015.]
+In the case of crime, as we have hinted some of this may be linked to the nature of crime itself. Hint: repeat victimisation. We know that between 14% to 33% of all burglaries are repeat offences (@Chainey_2016). We are just relying on open data, so it is hard to figure out if these are repeats or whether some of this is to do with data quality or some other feature that artificially may create duplicates records for the same address. In some jurisdictions, like the UK, duplication may artificially result from the anonymisation process that follows from the release of open data in crime ^[This is due to the way in which spatial anonymisation of police.uk data is carried out. This is done using geomasking, whereby there exist a pre-determined list of points that each crime event gets "snapped" to its nearest one. So, the coordinates provided in the open data are not the exact locations of crimes, but they come from a list of points generated for purposes of data publication. You can see the details in their webstie (https://data.police.uk/about/#anonymisation). This process is likely inflating the amount of duplication we may observe, because each snap point might have many crimes near it, resulting in those crimes being geo-coded to the same exact location. So keep in mind when analysing and working with this data set that it is not the same as working with the real locations. If you are interested in the effects of this read the paper @Tompson_2015.]
 
-What to do about duplicates in spatial point pattern analysis is not always clear. You could simply delete the duplicates, but of course that may ignore issues such as repeat victimisation. You could also use jittering, which will add a small perturbation to the duplicate points so that they do not occupy the exact same space. Which again, may ignore things like repeat victimisation. Another alternative is to make each point "unique" and then attach the multiplicites of the points to the patterns as *marks*, as attributes of the points. Then you would need analytical techniques that take into account these marks.
+What to do about duplicates in spatial point pattern analysis is not always clear. You could simply delete the duplicates, but of course that may ignore issues such as repeat victimisation. You could also use jittering, which will add a small perturbation to the duplicate points so that they do not occupy the exact same space. Which again, may ignore things like repeat victimisation. Another alternative is to make each point "unique" and then attach the multiplicites of the points to the patterns as *marks* (some R functions will refer to this as weights), as attributes of the points. Then you would need analytical techniques that take into account these marks.
 
-If you were to be doing this for real you would want access to the real thing, not this public version of the data, as well as access to the data producers to check that duplicates are not artificial, and then go for the latter solution suggested above. We don't have access to the source data, so for the sake of simplicity and so that we can illustrate how `spatstat` works we will instead add some jittering to the data. The first argument for the function is the object, `retry` asks whether we want the algorithm to have another go if the jittering places a point outside the window (we want this so that we don't loose points), and the `drop` argument is used to ensure we get a `ppp` object as a result of running this function (which we do).
+If you were to be doing this for real you would want access to the real thing, not this public version of the data, as well as access to the data producers to check that duplicates are not artificial, and then go for the latter solution suggested above. We don't have access to the source data, so for the sake of simplicity at this point and so that we can illustrate how `spatstat` works we will instead add some jittering to the data. The first argument for the function is the object, `retry` asks whether we want the algorithm to have another go if the jittering places a point outside the window (we want this so that we don't loose points), and the `drop` argument is used to ensure we get a `ppp` object as a result of running this function (which we do).
 
 ```{r}
 jitter_bur <- rjitter(bur_ppp, retry=TRUE, nsim=1, drop=TRUE)
@@ -150,8 +153,7 @@ sum(multiplicity(jitter_bur) > 1)
 ## Inspecting our data with spatstat
 
 This package supports all kind of exploratory point pattern analysis. One example of this is **quadrant counting**. One could divide the window of observation into quadrants and count the number of points into each of these quadrants. 
-For example, if we want four quadrants along the X axis and 3 along the Y axis we could used those parameters in the `quadratcount()` function.
-Then we just use standard plotting functions from R base.
+For example, if we want four quadrants along the X axis and 3 along the Y axis we could used those parameters in the `quadratcount()` function. Then we just use standard plotting functions from R base.
 
 ```{r}
 Q <- quadratcount(jitter_bur, nx = 4, ny = 3)
@@ -177,7 +179,7 @@ quadrat.test(jitter_bur, nx = 3, ny = 2)
 
 Observing the results we see that the p value is well below conventional standards for rejection of the null hypothesis. Observing our data of burglary in Brooklyn would be extremely rare if the null hypothesis was true. We can then conclude that the burglary data is not randomly distributed in the observed space. But no cop nor criminologist would really question this. They would rarely be surprised by your findings! We do know that crime is not randomly distributed in space. 
 
-## Visualising hot spots of crime: Density estimates
+## Visualising hot spots of crime: density estimates with spatstat
 
 One of the most common methods to visualise hot spots of crime, when we are working with point pattern data, is to use kernel density estimates.  **Kernel density estimation** involves applying a function (known as a “kernel”) to each data point, which averages the location of that point with respect to the location of other data points.  The surface that results from this model allows us to produce **isarithmic maps**.
 
@@ -194,19 +196,21 @@ Essentially this method uses a statistical technique (kernel density estimation)
 
 The values that we attribute to the cells in crime mapping will typically refer to the number of crimes within the area’s unit of measurement. 
 
-Let's produce one of this density maps:
+Let's produce one of this density maps, just with the default arguments of the `density.ppp()` function:
 
 ```{r}
-ds <- density(jitter_bur)
+ds <- density.ppp(jitter_bur)
 class(ds)
 plot(ds, main='Burglary density in Brooklyn')
 ```
 
 The density function is estimating a kernel density estimate. Density is nothing but the number of points per unit area. This method computes the intensity continuously across the study area and the object returns a raster image. 
 
+The defaults in `density.ppp()` are not necessarily the optimal ones for your application. When doing spatial density analysis there are a number of things you have to decide upon (eg., bandwidth, kernel type, etc).
+
 To perform this analysis in R we need to define the **bandwidth** of the density estimation, which basically determines the area of influence of the estimation. There is no general rule to determine the correct bandwidth; generally speaking if the bandwidth is too small the estimate is too noisy, while if bandwidth is too high the estimate may miss crucial elements of the point pattern due to oversmoothing. 
 
-The key argument to pass to the density method for point patterm objects is `sigma=`, which determines the bandwidth of the kernel. In spatstat the functions `bw.diggle()`, `bw.ppl()`, and `bw.scott()` can be used to estimate the bandwidth according to difference methods. The helpfiles recommend the use of the first two. These functions run algorithms that aim to select an appropriate bandwith.
+The key argument to pass to the density method for point patterm objects is `sigma=`, which determines the bandwidth of the kernel. In  the`spatstat.core` package the functions `bw.diggle()`, `bw.ppl()`, and `bw.scott()` can be used to estimate the bandwidth according to difference methods. The helpfiles recommend the use of the first two. These functions run algorithms that aim to select an appropriate bandwith.
 
 ```{r}
 bw.diggle(jitter_bur)
@@ -214,22 +218,20 @@ bw.ppl(jitter_bur)
 bw.scott(jitter_bur)
 ```
 
-You can see the Diggle algorithm gives you the narrower bandwith. We can test how they work with our dataset using the following code:
+Scott´s rule generally provides larger bandwith than the other methods. We can test how they work with our dataset using the following code:
 
 ```{r}
 
 par(mfrow=c(2,2))
 plot(density.ppp(jitter_bur, sigma = bw.diggle(jitter_bur),edge=T),
-     main = paste("h = 0.000003"))
+     main = paste("Diggle"))
 
 plot(density.ppp(jitter_bur, sigma = bw.ppl(jitter_bur),edge=T),
-     main=paste("h =0.0005"))
+     main=paste("PPL"))
 
-plot(density.ppp(jitter_bur, sigma = bw.scott(jitter_bur)[2],edge=T),
-     main=paste("h = 0.0008"))
+plot(density.ppp(jitter_bur, sigma = bw.scott(jitter_bur) ,edge=T),
+     main=paste("h = Scott"))
 
-plot(density.ppp(jitter_bur, sigma = bw.scott(jitter_bur)[1],edge=T),
-     main=paste("h = 0.004"))
 
 ```
 
@@ -240,14 +242,14 @@ Apart from selecting the bandwidth we also need to specify the particular kernel
 ![](img/kerneltypes.png)
 Source: wikepedia
 
-You can read more about kernel types in the Wikipedia [entry](https://en.wikipedia.org/wiki/Kernel_(statistics)). This relates to the type of kernel drawn around each point in the process of counting points around each point. The use of these functions will result in slightly different estimations. They relate to the way we weight points within the radius: *“The normal distribution weighs all points in the study area, though near points are weighted more highly than distant points.  The other four techniques use a circumscribed circle around the grid cell.    The uniform distribution weighs all points within the circle equally.  The quartic function weighs near points more than far points, but the fall off is gradual. The triangular function weighs near points more than far points within the circle, but the fall off is more rapid. Finally, the negative exponential weighs near points much more highly than far points within the circle and the decay is very rapid.”* (Levine, 2013: 10.10).
+You can read more about kernel types in the Wikipedia [entry](https://en.wikipedia.org/wiki/Kernel_(statistics)). This relates to the type of kernel drawn around each point in the process of counting points around each point. The use of these functions will result in slightly different estimations. They relate to the way we weight points within the radius: *“The normal distribution weighs all points in the study area, though near points are weighted more highly than distant points.  The other four techniques use a circumscribed circle around the grid cell.    The uniform distribution weighs all points within the circle equally.  The quartic function weighs near points more than far points, but the fall off is gradual. The triangular function weighs near points more than far points within the circle, but the fall off is more rapid. Finally, the negative exponential weighs near points much more highly than far points within the circle and the decay is very rapid.”* @Levine_2013 (Chapter 10, p. 10).
 
-Which one to use? Levine (2013) produces the following guidance: *“The use of any of one of these depends on how much the user wants to weigh near points relative to far points.  Using a kernel function which has a big difference in the weights of near versus far points (e.g., the negative exponential or the triangular) tends to produce finer variations within the surface than functions which weight more evenly (e.g., the normal distribution, the quartic, or the uniform); these latter ones tend to smooth the distribution more*. However, Silverman (1986) has argued that it does not make that much difference as long as the kernel is symmetrical. Chainey (2013) suggest that in his experience most crime mappers prefer the quartic function, since it applies greater weight to crimes closer to the centre of the grid. The authors of the CrimeStat workbook (Smith and Bruce, 2008), on the other hand, suggest that the choice of the kernel should be based in our theoretical understanding of the data generating mechanisms. By this they mean that the processes behind spatial autocorrelation may be different according to various crime patterns and that this is something that we may want to take into account when selecting a particular function. They provide a table with some examples that may help you to understand what they mean:
+Which one to use? @Levine_2013 produces the following guidance: *“The use of any of one of these depends on how much the user wants to weigh near points relative to far points.  Using a kernel function which has a big difference in the weights of near versus far points (e.g., the negative exponential or the triangular) tends to produce finer variations within the surface than functions which weight more evenly (e.g., the normal distribution, the quartic, or the uniform); these latter ones tend to smooth the distribution more*. However, Silverman (1986) has argued that it does not make that much difference as long as the kernel is symmetrical. @Chainey_2013b suggests that in his experience most crime mappers prefer the quartic function, since it applies greater weight to crimes closer to the centre of the grid. The authors of the CrimeStat workbook @Smith_2008, on the other hand, suggest that the choice of the kernel should be based in our theoretical understanding of the data generating mechanisms. By this they mean that the processes behind spatial dependence may be different according to various crime patterns and that this is something that we may want to take into account when selecting a particular function. They provide a table with some examples that may help you to understand what they mean:
 
 ![](img/kerneltips.png)
 (Source: Smith and Bruce, 2008.)
 
-The default kernel in `density.ppp()` is the `gaussian`. But there are other options. We can use the `epanechnikov`, `quartic` or `disc`. There are also further options for customisation. We can compare these kernels:
+The default kernel in `density.ppp()` is the `gaussian`. But there are other options. We can use the `epanechnikov`, `quartic` or `disc`. There are also further options for customisation. We can compare these kernels, whilst using the `ppl` algorithm:
 
 ```{r}
 par(mfrow=c(2,2))
@@ -261,63 +263,87 @@ plot(density.ppp(jitter_bur, kernel = "disc", sigma = bw.ppl(jitter_bur),edge=T)
      main=paste("Disc"))
 ```
 
-When reading these maps you need to understand you are only looking at counts of crime in a smooth surface. Nothing more, nothing less. Unlike with choropleth maps we are not normalising the data. We are simply showing the areas where there is more crime, but we are not adjusting for anything (like number of people in the area, or number of houses to burgle). So, it is important you keep this in the back of your mind. As [this comic](https://xkcd.com/1138/) suggests you may end up reading too much into it if you don’t remember this. There are ways to produce density maps adjusting for a second variable, such as population size, but we do not have the time to cover this. 
+## Adding some context to our density.ppp objects
 
-
-There are also general considerations to keep in mind. Hot spots of crime are a simply a convenient perceptual construct. As Ned Levine (2013: 7.1) highlights *“Hot spots do not exist in reality, but are areas where there is sufficient clustering of certain activities (in this case, crime) such that they get labeled such. There is not a border around these incidents, but a gradient where people draw an imaginary line to indicate the location at which the hot spot starts.”*  Equally, there is not a unique solution to the identification of hot spots. Different techniques and algorithms will give you different answers. As Levine (2013: 7.7) emphasises: *“It would be very naive to expect that a single technique can reveal the existence of hot spots in a jurisdiction that are unequivocally clear. In most cases, analysts are not sure why there are hot spots in the first place. Until that is solved, it would be unreasonable to expect a mathematical or statistical routine to solve that problem.”* So, as with most data analysis exercises one has to try different approaches and use professional judgement to select a particular representation that may work best for a particular use. Equally, we should not reify what we produce and, instead, take the maps as a starting point for trying to understand the underlying patterns that are being revealed. Critically you want to try several different methods. You will be more persuaded a location is a hot spot if several methods for hot spot analysis point to the same location.
-
-## Adding some context
-
-Often it is convenient to use a basemap to provide context. In order to do that we first need to turn the image object generated by the `spatstat` package into a raster object, a more generic format for raster image used in R. Remember rasters from the first week? Now we finally get to use them a bit!
+Often it is convenient to use a basemap to provide context. In order to do that we first need to turn the image object generated by the `spatstat` package into a raster object, a more generic format for raster image used in R. Remember rasters from the first chapter? Now we finally get to use them a bit! First we store the density estimates produced by `density.ppp()` into an object (which will be of class `im`, a two dimensional pixel image) and then using the `raster::raster()` function we generate a raster object.
 
 ```{r, message=FALSE}
-library(raster)
-dmap1 <- density.ppp(jitter_bur, sigma = bw.ppl(jitter_bur),edge=T)
+dmap1 <- density.ppp(jitter_bur, sigma = bw.ppl(jitter_bur), kernel = "quartic", edge=T)
+
 r1 <- raster(dmap1)
+plot(r1)
+```
+
+We can remove the areas with very low density of burglaries:
+
+```{r}
 #remove very low density values
-r1[r1 < 0.0001 ] <- NA
-class(r1)
+r1[r1 < 2e-06 ] <- NA
+
 ```
 
 Now that we have the raster we can add it to a basemap. 
 
 Two-dimensional `RasterLayer` objects (from the `raster` package) can be turned into images and added to `Leaflet` maps using the `addRasterImage()` function.
 
-The `addRasterImage()` function works by projecting the `RasterLayer` object to EPSG:3857 and encoding each cell to an RGBA color, to produce a PNG image. That image is then embedded in the map widget.
+The `addRasterImage()` function works by projecting the `RasterLayer` object to EPSG:3857 and encoding each cell to an RGBA color, to produce a PNG image. That image is then embedded in the map widget. This is only suitable for small to medium sized rasters.
 
-It’s important that the `RasterLayer` object is tagged with a proper coordinate reference system. Many raster files contain this information, but some do not. Here is how you’d tag a raster layer object “r1” which contains WGS84 data:
+It’s important that the `RasterLayer` object is tagged with a proper coordinate reference system. Many raster files contain this information, but some do not. Here is how you’d tag a raster layer object “r1” which contains the EPSG:2263 data:
 
 ```{r, message=FALSE}
-library(leaflet)
 
-#make sure we have right CRS, which in this case is British National Grid
+#make sure we have right CRS, which in this case is the New York 2263
 
-epsg27700 <- "+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +towgs84=446.448,-125.157,542.06,0.15,0.247,0.842,-20.489 +units=m +no_defs"
+epsg2263 <- "+proj=lcc +lat_1=41.03333333333333 +lat_2=40.66666666666666 +lat_0=40.16666666666666 +lon_0=-74 +x_0=300000.0000000001 +y_0=0 +ellps=GRS80 +datum=NAD83 +to_meter=0.3048006096012192 +no_defs" 
 
-crs(r1) <- sp::CRS(epsg27700)
+crs(r1) <- sp::CRS(epsg2263)
 
-#we also create a colour palet
-pal <- colorNumeric(c("#0C2C84", "#41B6C4", "#FFFFCC"), values(r1),
-  na.color = "transparent")
+```
 
+You may be wondering what is all that gibberish that we are assigning to the "epsg2263" object. Remember when we talked about coordinate systems? There are different ways in which the information that identifies a CRS are stored. Three common formats include EPSG, PROJ4, and WKT formats. What you see above is the PROJ4 format. You can find how these different formats translate in the spatialreference.org online archive.
 
+![](img/spatialreference.jpg)
+
+Now we are ready to plot, although first we will create a more suitable colour palette and, since the values in the scale are quite close to 0 will multiple by a constant, to make the labels more readable. For this we use the `setValues function()` from `raster` package that allows us to manipulate the values in a `raster` object
+
+```{r}
+
+vals <- values(r1)*100000 #read values from r1, multiple by constant, store in vals
+r1 <-setValues(r1, vals) #change values in r1 by those we stored in vals
+
+pal <- colorNumeric("Oranges", values(r1),
+  na.color = "transparent") #Create color palette
 
 #and then make map!
 leaflet() %>% 
   addTiles() %>%
-  addRasterImage(r1, colors = pal, opacity = 0.8) %>%
+  addRasterImage(r1, colors = pal, opacity = 0.7) %>%
   addLegend(pal = pal, values = values(r1),
     title = "Burglary map")
   
-
-
-
-
-
-
 ```
 
-And there you have it. Perhaps those familiar with Fallowfield have some guesses as to what may be going on there?
+And there you have it. Perhaps those familiar with Brooklyn have some guesses as to what may be going on there?
+
+## Better density maps: using SpatialKDE with ggplot2
+
+One thing it should be obvious to you by now is that there are many different ways of doing something in R. One of the difficulties for learning R is that we are spoiled for choice in terms of how we solve a particular problem. This can be overwhelming at first. As long as it works for you, you should not worry too much about the particular tools you use. 
+
+The approach we followed above may be useful when you are exploring an issue, the interactivity that `leaflet` gives you can be quite handy in such context. You can move around, zoom in, zoom out. But say you want to produce a static map for primarily presentation purposes. In this case you may want to optimise some aesthetics aspects of the map design. For those kind of uses we particularly like `ggplot2` flexibility for customisation, but that´s just our personal choice. Here we will show you how to tackle the problem of mapping hotspots of burglary in brooklyn using `ggplot2`. We will also use a different package for estimating the density of burglaries: `SpatialKDE`.
+
+
+
+
+
+When reading these maps you need to understand you are only looking at counts of crime in a smooth surface. Nothing more, nothing less. Unlike with choropleth maps we are not normalising the data. We are simply showing the areas where there is more crime, but we are not adjusting for anything (like number of people in the area, or number of houses to burgle). So, it is important you keep this in the back of your mind. As [this comic](https://xkcd.com/1138/) suggests you may end up reading too much into it if you don’t remember this. There are ways to produce density maps adjusting for a second variable, such as population size, but we do not have the time to cover this. 
+
+There are also general considerations to keep in mind. Hot spots of crime are a simply a convenient perceptual construct. As Ned @Levine_2013 (Chapter 7, p. 1) highlights *“Hot spots do not exist in reality, but are areas where there is sufficient clustering of certain activities (in this case, crime) such that they get labeled such. There is not a border around these incidents, but a gradient where people draw an imaginary line to indicate the location at which the hot spot starts.”*  Equally, there is not a unique solution to the identification of hot spots. Different techniques and algorithms will give you different answers. As @Levine_2013 (Chapter 7, p. 7) emphasises: *“It would be very naive to expect that a single technique can reveal the existence of hot spots in a jurisdiction that are unequivocally clear. In most cases, analysts are not sure why there are hot spots in the first place. Until that is solved, it would be unreasonable to expect a mathematical or statistical routine to solve that problem.”* 
+
+So, as with most data analysis exercises one has to try different approaches and use professional judgment to select a particular representation that may work best for a particular use. Equally, we should not reify what we produce and, instead, take the maps as a starting point for trying to understand the underlying patterns that are being revealed. Critically you want to try several different methods. You will be more persuaded a location is a hot spot if several methods for hot spot analysis point to the same location. We will discuss other approaches in subsequent chapters.
+
+
+
+
 
 ### Homework 1
 *Ok, so see if you can do something like what we have done today, but for violent crime in the city centre. Produce the density estimates and then plot the density plot. In addition add a layer of points with the licenced premises we looked at last week.*
