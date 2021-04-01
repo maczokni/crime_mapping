@@ -60,7 +60,7 @@ In the point pattern analysis literature each point is often referred to as an *
 
 So let's start using spatstat.The first thing we need to do is to transform our `sf` object into a `ppp` object which is how `spatstat` likes to store its point patterns. Unfortunately, `spatstat` and many other packages for analysis of spatial data precede `sf`, so the transformation is a bit awkard. 
 
-Also before we do that, it is important to realise that a point pattern is defined as a series of events in a given area, or window, of observation. It is therefore extremely important to precisely define this window. In `spatstat` the function `owin()` is used to set the observation window. However, the standard function takes the coordinates of a rectangle or of a polygon from a matrix, and therefore it may be a bit tricky to use. Luckily the package `maptools` provides a way to transform a `SpatialPolygons` into an object of class `owin`, using the function `as.owin()`. Here are the steps: 
+Also before we do that, it is important to realise that a point pattern is defined as a series of events in a given area, or window, of observation. It is therefore extremely important to precisely define this window. In `spatstat` the function `owin()` is used to set the observation window. However, the standard function takes the coordinates of a rectangle or of a polygon from a matrix, and therefore it may be a bit tricky to use. Luckily the package `maptools` provides a way to transform a `SpatialPolygons` into an object of class `owin`, using the function `spatstat.geom::as.owin()`. Here are the steps: 
 
 First we transform the CRS of our Brooklyn polygon into projected coordinates  as opposed to geographic coordinates (WGS84), since only projected coordinates may be converted to `spatstats` class objects. As we saw in chapter 2, measuring distance in metres is a bit easier, so since with points a good deal of the analysis we subject them to involve measuring their distance from each other, moving to a projected system makes sense. For NYC the recommended projection is the New York State Plane Long Island Zone (EPSG 2263), that provides a high degree of accuracy and balances size and shape well:
 
@@ -153,7 +153,7 @@ sum(multiplicity(jitter_bur) > 1)
 ## Inspecting our data with spatstat
 
 This package supports all kind of exploratory point pattern analysis. One example of this is **quadrant counting**. One could divide the window of observation into quadrants and count the number of points into each of these quadrants. 
-For example, if we want four quadrants along the X axis and 3 along the Y axis we could used those parameters in the `quadratcount()` function. Then we just use standard plotting functions from R base.
+For example, if we want four quadrants along the X axis and 3 along the Y axis we could used those parameters in the `spatstat.geom::quadratcount()` function. Then we just use standard plotting functions from R base.
 
 ```{r}
 Q <- quadratcount(jitter_bur, nx = 4, ny = 3)
@@ -164,7 +164,7 @@ plot(Q, add = TRUE, cex = 2)
 
 These quadrants do not have the same size, given the irregular shape of Brookly, but even so, it looks as if some quadrants have a larger concentration of incidents. A key concept in spatial point pattern analysis is the idea of  **complete spatial randomness** (or CSR for short). When we look at a point pattern process the first step in the process is to ask whether it has been generated in a random manner. Under CSR, points are independent of each other and have the same propensity to be found at any location. 
 
-We can generate data that conform to complete spatial randomness using the `rpoispp()` function. The `r` at the beginning is used to denote we are simulating data (you will see this is common in R) and we are using a Poisson point process, a good probability distribution for these purposes. Let's generate 223 points in a random manner:
+We can generate data that conform to complete spatial randomness using the `spatstat.core::rpoispp()` function. The `r` at the beginning is used to denote we are simulating data (you will see this is common in R) and we are using a Poisson point process, a good probability distribution for these purposes. Let's generate 223 points in a random manner:
 
 ```{r}
 plot(rpoispp(223))
@@ -215,6 +215,8 @@ To perform this analysis in R we need to define the **bandwidth** of the density
 The key argument to pass to the density method for point patterm objects is `sigma=`, which determines the bandwidth of the kernel. In  the`spatstat.core` package the functions `bw.diggle()`, `bw.ppl()`, and `bw.scott()` can be used to estimate the bandwidth according to difference methods. The helpfiles recommend the use of the first two. These functions run algorithms that aim to select an appropriate bandwith.
 
 ```{r}
+set.seed(200) # We set this seed to ensure you get this same results when running
+              # these algorithms
 bw.diggle(jitter_bur)
 bw.ppl(jitter_bur)
 bw.scott(jitter_bur)
@@ -267,7 +269,7 @@ plot(density.ppp(jitter_bur, kernel = "disc", sigma = bw.ppl(jitter_bur),edge=T)
 
 ## Adding some context to our density.ppp objects
 
-Often it is convenient to use a basemap to provide context. In order to do that we first need to turn the image object generated by the `spatstat` package into a raster object, a more generic format for raster image used in R. Remember rasters from the first chapter? Now we finally get to use them a bit! First we store the density estimates produced by `density.ppp()` into an object (which will be of class `im`, a two dimensional pixel image) and then using the `raster::raster()` function we generate a raster object.
+Often it is convenient to use a basemap to provide context. In order to do that we first need to turn the image object generated by the `spatstat` package into a raster object, a more generic format for raster image used in R. Remember rasters from the first chapter? Now we finally get to use them a bit! First we store the density estimates produced by `density.ppp()` into an object (which will be of class `im`, a two dimensional pixel image) and then using the `raster::raster()` function we generate a raster object. 
 
 ```{r, message=FALSE}
 dmap1 <- density.ppp(jitter_bur, sigma = bw.ppl(jitter_bur), kernel = "quartic", edge=T)
@@ -325,6 +327,8 @@ leaflet() %>%
 
 And there you have it. Perhaps those familiar with Brooklyn have some guesses as to what may be going on there?
 
+## Edge effects
+
 ## Density maps using SpatialKDE with ggplot2
 
 One thing it should be obvious to you by now is that there are many different ways of doing something in R. One of the difficulties for learning R is that we are spoiled for choice in terms of how we solve a particular problem. This can be overwhelming at first. As long as a solution works for you, you should not worry too much about the particular tools you use. 
@@ -335,14 +339,19 @@ The approach we followed above may be useful when you are exploring an issue, th
 
 The next step for computing the density is to generate a grid for the area of study. Remember how with `spatstat` we first created a "window". The logic is the same, though there are some subtle differences. In `SpatialKDE` you use the `create_grid_rectangular()` function (there is also a `create_grid_hexagonal()` if you prefer to have the cells in the grid to have an hexagonal shape). This function takes as the first argument a `sf` object containing the geometry which needs to be covered by the grid. You can also provide as an argument the size of the cell.
 
-The size of the cells does not affect the intensity value, only the spatial resolution of the grid. Think of it as pixels, smaller size, more cells, better resolution. At the same time, more cells, more computation is needed (not that this should be a major issue with today´s computer power). @Chainey_2005 suggests that a good starting point is to divide the shorter side of the study area´s **minimum bounding rectangle (MBR)** by 150, as experience suggests this works well. And then, if necessary, produce KDE maps with smaller cell sizes to improve aesthetics. The MBR is simply the smallest rectangle you can draw that includes your area of interest (in this case the borough of Brooklyn). We can obtain such a rectangle with the `spatstat::boundingbox()` function. If we plot this, we will see the shorter side of this rectangle goes from East to West, the X range. The values are inside the generated object, so we can easily substrace them and then divide them by 150.
+The size of the cells does not affect the intensity value, only the spatial resolution of the grid. Think of it as pixels, smaller size, more cells, better resolution. At the same time, more cells, more computation is needed (not that this should be a major issue with today´s computer power). @Chainey_2005 suggests that a good starting point is to divide the shorter side of the study area´s **minimum bounding rectangle (MBR)** by 150, as experience suggests this works well. And then, if necessary, produce KDE maps with smaller cell sizes to improve aesthetics. The MBR is simply the smallest rectangle you can draw that includes your area of interest (in this case the borough of Brooklyn). We can obtain such a rectangle with the `spatstat::boundingbox()` function. If we plot this, we will see the shorter side of this rectangle goes from East to West, the X range. The values are inside the generated object, so we can easily subtract them and then divide them by 150.
 
 ```{r}
 mbr_brooklyn <- boundingbox(window) #create bounding box
 plot(mbr_brooklyn) #plot the box
-(mbr_brooklyn$xrange[2] - mbr_brooklyn$xrange[1])/150 #compute the size as suggested by Chainey and Rattcliffe (2005)
+
 
 ```
+
+```{r}
+(mbr_brooklyn$xrange[2] - mbr_brooklyn$xrange[1])/150 #compute the size as suggested by Chainey and Rattcliffe (2005)
+```
+
 Once we have settled in a value, this or some other, we just input it as an argument to create the grid.
 
 ```{r}
@@ -354,14 +363,38 @@ ggplot() + geom_sf(data = burgl_grid_chainey)
 
 Notice that the input we are using here is the object with the points (rather than the Brooklyn boundaries). This is what in geography is referred to as the **convex hull**, defined by the Wiki.GIS.com as "the boundary of the minimal convex set containing a given non-empty finite set of points in the plane". As @Ashby_XXXX notes : "This is the smallest shape that contains all the points in the data: if the crimes were represented by pins stuck into a board, the convex hull would be the shape made by an elastic band stretched around the outermost pins. This reduces (but doesn’t eliminate) the problem of calculating spurious density estimates for areas that are not covered by the data."
 
-The next step is to create the density estimates. We do this with `SpatialKDE:kde()`. Here we need to pass as arguments the `sf` dataframe containing the points, the bandwidth, the kernel, and the grid.
+The next step is to create the density estimates. We do this with `SpatialKDE:kde()`. Here we need to pass as arguments the `sf` dataframe containing the points, the bandwidth, the kernel (you can choose "uniform", "triweight", "epanechnikov", "triangular", or the default if you don´t choose one "quartic"), and the grid. We are setting as the `band_width` the value we obtained with the `ppl` algorithm in our previous run.
 
 ```{r}
-burglary_kde <- kde(nyc_burg, band_width = bw.ppl(jitter_bur),
+burglary_kde <- kde(nyc_burg, band_width = 537,
+                    kernel = "quartic",  # the default (and so not really needed)
                     grid = burgl_grid_chainey)
 
-ggplot() + geom_sf(data = burglary_kde)
+
 ```
+
+Inside the "burglary_kde" resulting `sf` object there is a variable named "kde_value" that assigns the intensity to each of the 12650 cells in our grid. We can plot the distribution of these values:
+
+```{r}
+hist(burglary_kde$kde_value)
+```
+As it is to be expected this is a highly skewed distribution. Most places do not have a lot of crime and there are a few locations that are hot spots for crime. As we will see in the next chapter this phenomenon is so extended that it is referred to as the **law of crime concentration** @Weisburd_2015.
+
+```{r}
+ggplot() +
+  geom_sf(data = burglary_kde)
+```
+
+
+This should look more like our previous `density.ppp` KDE using similar specs but it doesn´t. Why? The borders of the grid lines are not helping. To avoid this problem we need to tell R that we want the  
+
+```{r}
+ggplot() +
+  geom_sf(aes(colour = kde_value, fill = kde_value), data = burglary_kde) +
+  scale_colour_distiller(direction = 1) +
+  scale_fill_distiller(direction = 1)
+```
+
 
 ## Summary and further reading
 
