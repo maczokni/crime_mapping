@@ -150,7 +150,7 @@ If you were to be doing this for real you would want access to the real thing, n
 
 ```{r jitter_6}
 jitter_bur <- rjitter(bur_ppp, retry=TRUE, nsim=1, drop=TRUE)
-plot(jitter_bur)
+
 ```
 
 And you can check duplicates with the resulting object:
@@ -160,22 +160,21 @@ sum(multiplicity(jitter_bur) > 1)
 
 ```
 
-[[AWAITING STACKOVERFLOW ANSWER ON THIS: Later we will use the number of incidents in the same address as a *mark* or *weight* in our analysis, so let´s create a new `ppp` object that includes this mark. We need to proceded in steps. First, we create a new numerical vector with the count of incidents per location in our original `ppp` object:
+Later we will use the number of incidents in the same address as a *mark* or *weight* in our analysis, so let´s create a new `ppp` object that includes this mark. We need to proceed in steps. First, we create a new `ppp`, just a duplicate of the one we have been using
 
 ```{r}
-dup_b <- duplicated.ppp(bur_ppp)
-bur_counts <- multiplicity(bur_ppp)
+bur_ppp_m <- bur_ppp
 
 ```
-Now we can create a new ´ppp´ object that adds this numerical vector as the *mark* using the following argument in the main `ppp` function:
+
+Now we can assign to this `ppp` object the numerical vector as the *mark* using the `mark` function.
 
 ```{r}
-bur_ppp_m <- ppp(x = sf_nyc_burg_coords[,1], y = sf_nyc_burg_coords[,2],
-                   window = window, check = T,
-                 marks = bur_counts)
+marks(bur_ppp_m) <- multiplicity(bur_ppp)
 
 ```
-]]
+
+If you examine your environment you will be able to see the new object and that it has a 6th element, which is the mark we just assigned.
 
 ## Exploring our point pattern with spatstats: homogeneous or spatially varying intensity?
 
@@ -282,7 +281,7 @@ bw.ppl(jitter_bur)
 bw.scott(jitter_bur)
 ```
 
-Scott´s rule generally provides larger bandwidth than the other methods. Don´t be surprised if your results do not match exactly the ones we provide if you do not use the same seed, the computation means that they will vary every time we run these functions. We can test how they work with our dataset using the following code:
+Scott´s rule generally provides larger bandwidth than the other methods. Don´t be surprised if your results do not match exactly the ones we provide if you do not use the same seed, the computation means that they will vary every time we run these functions. Keep in mind these values will be expressed in the unit of the projected coordinate system you use (in this case US survey foot). We can test how they work with our dataset using the following code:
 
 ```{r plot_bandwidth_6}
 set.seed(200)
@@ -299,7 +298,7 @@ plot(density.ppp(jitter_bur, sigma = bw.scott(jitter_bur) ,edge=T),
 
 ```
 
-@Baddeley_2016 suggest the use of the `bw.ppl()` algorithm because in their experience it tends to produce the more appropriate values when the pattern consists predominantly of tight clusters. But they also insist that if your purpose it to detect a single tight cluster in the midst of random noise then the `bw.diggle()` method seems to work best.
+When looking for clusters, @Baddeley_2016 suggest the use of the `bw.ppl()` algorithm because in their experience it tends to produce the more appropriate values when the pattern consists predominantly of tight clusters. But they also insist that if your purpose it to detect a single tight cluster in the midst of random noise then the `bw.diggle()` method seems to work best.
 
 All these methods use a fixed bandwidth, the use the same bandwith for all locations. As noted by @Baddeley_2016 a "fixed smoothing bandwifth is unsatisfactory if the true intensity varies greatly across the spatial domain, because it is likely to cause oversmoothing in the high-intensity areas and undersmoothing in the low intensity areas" (p. 174). We can use an adaptive bandwidth method, were (1) a fraction of the points are selected at random and used to construct a tessellation; (2) a quadrat counting estimate of the intensity is produced; and (3) the process is repeated a set number of times and an average is computed. The `spatstat.core::adaptive.density` function takes as arguments the fraction of points to be sampled (`f`) and the number of samples to be taken (`nrep`).
 
@@ -333,6 +332,10 @@ plot(density.ppp(jitter_bur, kernel = "disc", sigma = 371, edge=T),
      main=paste("Disc"))
 ```
 You may have noticed an argument in `density.ppp` we have not discussed `edge=T`. What is this? When estimating the density we are not observing points outside our window. In the case of an island like Manhattan perhaps this is not an issue. But often when computing estimates for a given jurisdiction we need to think about what is happening in the jurisdiction next door to us. Our algorithm does not see the crimes in jurisdiction neighbouring ours and so the estimation around the edges of our boundaries receive fewer contributions in the computation. By setting `edge=T` we are effectively applying a correction that tries to compensate for this negative bias.
+
+## Density estimates using marks
+
+
 
 ## Adding some context to our density.ppp objects
 
