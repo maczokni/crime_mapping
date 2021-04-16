@@ -20,16 +20,24 @@ These are all very useful tools for the spatial crime analyst, and we will hope 
 
 The packages we will use in this chapter are: 
 
-```{r, message=FALSE}
+```{r libraries_2, message=FALSE}
+# Packages for reading data and data carpentry
 library(readr)
 library(dplyr)
-library(leaflet)
-library(RColorBrewer)
-library(sf)
 library(janitor)
 library(units)
-library(osmdata)
+
+# Packages for handling spatial data and for geospatial carpentry
+library(sf)
 library(tidygeocoder)
+
+# Packages for mapping and visualisation
+library(leaflet)
+library(RColorBrewer)
+
+# Packages providing accesss to spatial data
+library(osmdata)
+
 ```
 
 ## Exploring the relationship between alcohol outlets and crime
@@ -56,7 +64,7 @@ We will be using three different sources of data in this chapter. First, we will
 
 ### Reading in crime data
 
-```{r}
+```{r read_data_2a, message=FALSE}
 
 crimes <- read_csv("data/2019-06-greater-manchester-street.csv")
 
@@ -65,17 +73,19 @@ crimes <- read_csv("data/2019-06-greater-manchester-street.csv")
 
 Notice that in this case the columns are spelled with upper case "L". You should always familiarise yourself with your data set to make sure you are using the relevant column names. You can see just the column names using the `names()` function like so :
 
-```{r}
+```{r names_2a}
 
 names(crimes)
+
 ```
 
-Arg so messy! Let's use our handy helpful `clean_names()` function from the janitor package:
+So messy! Let's use our handy helpful `clean_names()` function from the `janitor` package:
 
-```{r}
-library(janitor)
+```{r clean_names_2a}
+
 crimes <- crimes %>% clean_names()
 names(crimes)
+
 ```
 
 Much better! Now let's get some boundary data for Manchester. 
@@ -90,14 +100,17 @@ To tinker with GeoJSON and see how it relates to geographical features, try [geo
 
 Let's read in a geoJSON spatial file, again from the web. This particular geojson represents the wards of Greater Manchester. 
 
-```{r}
+```{r read_data_2b}
+
 manchester_ward <- st_read("https://raw.githubusercontent.com/RUMgroup/Spatial-data-in-R/master/rumgroup/data/wards.geojson")
+
 
 ```
 
 Let's select only the city centre ward, using the `filter()` function from dplyr
 
-```{r}
+```{r select_centre_2b}
+
 city_centre <- manchester_ward %>%
   filter(wd16nm == "City Centre")
 
@@ -105,13 +118,13 @@ city_centre <- manchester_ward %>%
 
 Let's see how this looks, using the `plot()` function: 
 
-```{r}
+```{r plot_2b}
+
 plot(st_geometry(city_centre))
 
 ```
 
 Now we could use this to make sure that our points included in `cc_spatial` are in fact only licensed premises in the city centre. This will be your first spatial operation. Excited? Let's do this!
-
 
 ### Open Street Map and points of interest
 
@@ -119,21 +132,21 @@ To map our licenced premises we will be accessing data from Open Street Map, a d
 
 If we load the package `osmdata` we can use its functions to query the Open Street Map API.To find out more about the capabilities of this package, see the package documentation and the associated vignette online: [https://cran.r-project.org/web/packages/osmdata/vignettes/osmdata.html](https://cran.r-project.org/web/packages/osmdata/vignettes/osmdata.html). While this is outside the scope of our chapter here, you may want to explore `osmdata` more, as it is an international database, and has lots of data may come in handy for research and analysis. 
 
-
-Here we focus specifically on Manchester. To retreive data for a specific area, we must create a **bounding box**. You can think of the bounding box as a box drawn around the area that we are interested in (in this case, Manchester, UK) which tells the Open Street Map API that we want everything *inside* the box, but nothing *outside* the box. 
+Here we focus specifically on Manchester. To retrieve data for a specific area, we must create a **bounding box**. You can think of the bounding box as a box drawn around the area that we are interested in (in this case, Manchester, UK) which tells the Open Street Map API that we want everything *inside* the box, but nothing *outside* the box. 
 
 So, how can we name a bounding box specification to define the study region? One way to do this is through a search term. Here, we want to select Greater Manchester, so we can use the search term "greater manchester united kingdom" within the `getbb()` function (stands for *get bounding box*). Using this function we can also specify what format we want the data to be in. In this case, we want a spatial object, specifically an `sf` polygon object (from the `sf` package), which we name `bb_sf`.
 
 ```{r bb, message=F, warning=F}
 
 bb_sf <- getbb(place_name = "greater manchester united kingdom", format_out = "sf_polygon")
+
 ```
 
 
 We can see what this bounding box looks like by plotting it:
 
 
-```{r}
+```{r plot_bb}
 
 plot(st_geometry(bb_sf))
 
@@ -154,7 +167,7 @@ osm_bar_sf <- opq(bbox = bb_sf) %>%                               # select bound
 
 The resulting object `osm_bar_sf` contains lots of information. We can view the contents of the object by simply executing the object name into the **Console**.
 
-```{r printbars}
+```{r printbars, eval=FALSE}
 osm_bar_sf
 ```
 
