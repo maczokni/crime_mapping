@@ -1,6 +1,6 @@
 # Chapter 8: Time matters: a brief introduction into spatio-temporal visualisation
 
-The importance of place in criminology and crime analysis is widely recognise. We know certain areas can be crime hotspots. However time is just as important as place. We often hear that crime is "going up" or "going down" over time. These variations on the levels of crime along time also vary by space. [[[... ]]] These spatio temporal variations are of crucial importance for crime analysis, explanation, and prevention; yet traditionally the temporal and spatial analysis of crime has not been done in a combined manner. Although a great deal of energy has been devoted to produce accessible training material for crime analysts on geographic information systems and spatial analysis, most criminology degrees (even at postgraduate level) and training packages for crime analysis devote a very limited space (if any) to the appropriate visualisation and analysis of temporal and spatiotemporal data. Therefore, before we discuss the spatio temporal, we have to introduce a few key ideas and concepts about temporal crime analysis.
+The importance of place in criminology and crime analysis is widely recognise. We know certain areas can be crime hotspots. However time is just as important as place. We often hear that crime is "going up" or "going down" over time. These variations on the levels of crime along time also vary by space. These spatio temporal variations are of crucial importance for crime analysis, explanation, and prevention; yet traditionally the temporal and spatial analysis of crime has not been done in a combined manner. Although a great deal of energy has been devoted to produce accessible training material for crime analysts on geographic information systems and spatial analysis, most criminology degrees (even at postgraduate level) and training packages for crime analysis devote a very limited space (if any) to the appropriate visualisation and analysis of temporal and spatiotemporal data. Therefore, before we discuss the spatio temporal, we have to introduce a few key ideas and concepts about temporal crime analysis.
 
 **Temporal crime analysis** looks at trends in crime or incidents. A crime or incident trend is a broad direction or pattern that specific types or general crime and/or incidents are following. Three types of trend can be identified:
 
@@ -12,11 +12,14 @@ Decomposing these trends is an important part of what **time series** analysis i
 
 ```{r load_libraries_8, warnings=FALSE, message=FALSE}
 
-# Basic reading and manipulation of spatial data
+# Basic reading and data carpentry
 library(readr)
 library(dplyr)
-library(sf)
 library(lubridate) # adds functionality for better handling of temporal data
+
+# Packages for handling spatial data
+library(sf)
+library(spacetime)
 
 # General visualisation and ggplot plugins for temporal data
 library(ggplot2)
@@ -47,7 +50,7 @@ If you view the data you will see it has two columns, the date and the count of 
 ```{r turn_into_ts_8a, message=FALSE}
 
 #First we select the relevant column
-gmp_month_c <- select(gmp_month, count)
+gmp_month_c <- dplyr::select(gmp_month, count)
 #Then we create the time series object
 gmp_timeseries <- ts(gmp_month_c)
 
@@ -102,7 +105,7 @@ As you saw, the data from Police.Uk is aggregated by months. We do not know when
 
 Here, we will be looking at crimes from New York City on aggravated assault. The data comes from an open source initiative maintained by Matt Ashby [here](https://osf.io/zyaqn/). We have already filter and selected the data so that we are only working with aggravated assaults from New York for a period of five years. 
 
-```{r load_data_8b}
+```{r load_data_8b, message=FALSE}
 
 agassault_ny<-read_csv("https://raw.githubusercontent.com/maczokni/crimemapping_textbook_bookdown/master/data/agassault.csv")
 ```
@@ -257,7 +260,7 @@ We can adapt this code and what we learn in previous sections to decompose and e
 
 ```{r decompose_8b}
 
-agassault_ny_d2 <-select(agassault_ny_d, assaults)
+agassault_ny_d2 <-dplyr::select(agassault_ny_d, assaults)
 ny_timeseries <- ts(agassault_ny_d2, frequency=365, start=c(2014,1,1))
 ny_timeseriescomponents <- decompose(ny_timeseries)
 plot(ny_timeseriescomponents)
@@ -297,7 +300,7 @@ We can also plot objects that are not `sf` but have geographic coordinates.
 
 Let's load the data with the burglaries for Greater Manchester.
 
-```{r}
+```{r, message=FALSE}
 gmp_bur <- read_csv("https://raw.githubusercontent.com/maczokni/crimemapping_textbook_bookdown/master/data/gmp_bur.csv")
 ```
 
@@ -325,7 +328,7 @@ Ooops. What happened? Can you think of what is going on here? This is something 
 
 In week 4  we explained how it is important to check that spatial operations that use two spatial objects rely on both objects having the same coordinate reference system, otherwise funny things may happen. We can check the coordinate reference system with the `st_crs` function from `sf`.
 
-```{r}
+```{r, eval=FALSE}
 st_crs(manchester_ward)
 ```
 
@@ -339,7 +342,7 @@ burglary_sf <- st_as_sf(x = gmp_bur,
 
 If we now check:
 
-```{r}
+```{r, eval=FALSE}
 st_crs(burglary_sf)
 st_crs(manchester_ward) == st_crs(burglary_sf)
 ```
@@ -363,7 +366,6 @@ ggplot() + geom_sf(data = wards_WGS84, aes()) +
 
 
 ## Small multiples to show temporal variation
-
 
 We have covered small multiples before. You can indeed use facets to show how things change (or don't change) across time. Let's just focus on 2018 to simplify things a bit.
 
@@ -394,7 +396,12 @@ bur_per_ward <- bur_sf_2018 %>%
   count(wd16nm, Month) # by default, this saves the count to a column named 'n'
 ```
 
-We can now try to produce the small multiples.
+As noted by @Pebesma_2012, spatio-temporal data often come in the form of single tables expressed in one of the three followingformats:
+-*time-wide* where different columns reflect different moments in time,
+-*space-wide* where different columns reflect different measurement locations or areas, or
+-*long formats* where each record reflects a single time and space combination.
+
+What we have in "bur_per_ward" if we view the data frame is a table expressed in the long format, where each row represents a single month and ward combination. We can see as well this is not simple a data table but a `sf`object which embeds the geographical information that allow us to place it in a map. We can now try to produce the small multiples.
 
 
 ```{r}
@@ -428,7 +435,7 @@ ggplot(spa_df, aes(x=Month, y=n, group = wd16nm)) +
 
 As you can see we are grouping by ward. So in this case each line is the trend in crime for a single ward. We can use some of the power of `ggplot2` for example to extract the mean of Y and plot it along the trajectories. And we can also customise the graphic a bit.
 
-```{r}
+```{r, warning=FALSE}
 ggplot(spa_df, aes(x=Month, y=n, group=wd16nm)) + 
   geom_line(color="darkgrey") + guides(colour=FALSE) + xlab("Observation Time Point") + 
   stat_summary(aes(group = 1), geom = "point", fun.y = mean, shape = 17, size = 3) +
@@ -437,7 +444,7 @@ ggplot(spa_df, aes(x=Month, y=n, group=wd16nm)) +
 
 The `stat_summary` function is very helpful and we can use it to obtain other statistical summaries. See, for example, how we would plot the first and third quartile.
 
-```{r}
+```{r, warning=FALSE}
 ggplot(spa_df, aes(x=Month, y=n, group=wd16nm)) + 
   geom_line(color="darkgrey") + guides(colour=FALSE) + xlab("Observation Time Point") + 
   stat_summary(aes(group = 1), geom = "point", fun.y = quantile, 
@@ -485,15 +492,7 @@ You want a data viz person get excited? Mention animations! Now they are brought
 The next one is a non-spatial plot, in that we do not show a map. However we will show the varying rate of burglaries per month within each ward. It is interesting to see this as an animation over time, rather than in the small multiples format, because it can better drive home the message of change (and also it looks very cool!). 
 
 
-So first thing we do is to load the `gganimate` package: 
-
-```{r}
-
-
-```
-
-
-Then, we need to make sure that our temporal variable is a date object. We can use the `ymd()` function, from the fantastic `lubridate` package (really I cannot praise this package enough, it makes handling dates so easy...!) to make sure that our Month variable is a date object. 
+So first thing we do is to load the `gganimate` package. Then, we need to make sure that our temporal variable is a date object. We can use the `ymd()` function, from the fantastic `lubridate` package (really I cannot praise this package enough, it makes handling dates so easy...!) to make sure that our Month variable is a date object. 
 
 But we have no day you say! Only month! How can we use `ymd()` which clearly requires *y*ear *m*onth ad *day*! Well, one approach is to make this up, and just say that everything in our data happened on the 1st of the month. We can use the `paste0()` function to do this: 
 
@@ -520,7 +519,7 @@ anim <- ggplot(bur_per_ward, aes(x = wd16nm, y = n, fill=ifelse(wd16nm=="Fallowf
 
 Now, finally, we can animate this graph. Take the object of the static graph (anim) and add a form of transition, which will be used to animate the graph. In this case, we can use `transition_states()`. This transition splits your data into multiple states based on the levels in a given column, much like `ggplot2::facet_wrap()` splits up the data in multiple panels. It then shifts between the defined states and pauses at each state. Layers with data without the specified column will be kept constant during the animation (again, mimicking facet_wrap). States are the unquoted name of the column holding the state levels in the data. You can then use the `closest_state` to dynamically label the graph:
 
-```{r}
+```{r, message=FALSE}
 anim + transition_states(date_month, transition_length = 1, state_length = 1) +
   labs(title = "Month: {closest_state}")
 
@@ -550,14 +549,15 @@ anim_map + transition_states(date_month, transition_length = 1, state_length = 1
   labs(title = "Month: {closest_state}")
 ```
 
-
-Ta-daaa!
-
-What a way to end this course!
-
 ## Further reading
 
-We don't have time to go over it on details but you can find more information on [the official page](https://lubridate.tidyverse.org/) or in [this](https://mikoontz.github.io/data-carpentry-week/lesson_lubridate.html) tutorial. The relevant chapter in [R for Data Science](https://r4ds.had.co.nz/dates-and-times.html#introduction-10) is also very helpful.
+As noted there are packages that provide functionality for better handling of dates and time. It is worth to go over the details of ´lubridate´ in the official page (https://lubridate.tidyverse.org/) or in  tutorials for this package (such as https://mikoontz.github.io/data-carpentry-week/lesson_lubridate.html). The relevant chapter in @Wickham_2017 is also very helpful. There is a brand new package `clock` that aims to improve on `lubridate` and that is also worth exploring (for details see here: https://www.tidyverse.org/blog/2021/03/clock-0-1-0/). There is ample literature as well that dwells on the analysis and visualisation of time series data with R, such as @Chatfield_2019 or @Hyndman_2012, with the latter offering a free online version (https://otexts.com/fpp3/).
+
+We have relied on standard packages to explore our spatial and temporal data. But there are also packages that specialise in providing methods for handling spatio-temporal data in R. Central among them is `spacetime`, which takes as inputs older `sp` objects (although work in `sftime`, to work with `sf` objects is ongoing). You can read more about `spacetime` in @Pebesma_2012.
+
+
+
+
 
 
 
