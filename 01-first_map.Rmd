@@ -8,7 +8,7 @@ As we will discover throughout the book there are multiple R packages that have 
 
 In this chapter we will use the following packages: 
 
-```{r, warnings=FALSE, message=FALSE}
+```{r load_libraries_1, warnings=FALSE, message=FALSE}
 
 # Packages for reading data and data carpentry
 library(readr)
@@ -121,7 +121,7 @@ How can we do this? Well think about what we do when we read in a file. We say, 
 
 So if we're reading a csv, we also need to specity *where* to read the csv from. Where should R look to find this data? This is where normally you are putting in the path to your file. Something like: 
 
-```{r, eval=FALSE}
+```{r read_data_1a, eval=FALSE}
 
 my_data <- read_csv("path to my file here")
 
@@ -129,7 +129,7 @@ my_data <- read_csv("path to my file here")
 
 Well what if your data does not live on your laptop or PC? Well, if there is a way that R can still access this data just by following a path, then this approach will still work. So how can we apply this to getting data from the web? Well, all you need is the url that indicates the file location.
 
-```{r, eval=FALSE}
+```{r read_data_1b, eval=FALSE}
 
 my_data <- read_csv("www.data.com/the_data_i_want")
 
@@ -137,7 +137,7 @@ my_data <- read_csv("www.data.com/the_data_i_want")
 
 The lion share of the data we use in this book are stored in the webpage for this book and so can be retrieved from there. We will be providing the url and code needed to get this data as we go along. For the illustrations in this chapter we are using a csv file that looks at crime in Greater Manchester during June of 2019. The url for obtaining this file is shown below:
 
-```{r, message=FALSE}
+```{r really_read_data_1, message=FALSE}
 crimes <- read_csv("https://raw.githubusercontent.com/maczokni/crime_mapping/master/data/2019-06-greater-manchester-street.csv")
 
 ```
@@ -146,7 +146,7 @@ If you look at the *Environment* window in the top right corner of RStudio you s
 
 Let's have a look at the crimes dataframe with the `View()` function. This will open the data browser in RStudio
 
-```{r, eval=FALSE}
+```{r view_data_1, eval=FALSE}
 
 View(crimes)
 
@@ -154,7 +154,7 @@ View(crimes)
 
 If you rather just want your results in the console, you can use the `glimpse()` function from the `tibble` package. This function does just that, it gives you a quick glimpse of the first few cases in the dataframe. Notice that there are two columns (Longitude and Latitude) that provide the require geographical coordinates that we need to plot this data.
 
-```{r, eval=FALSE}
+```{r glimpse_1, eval=FALSE}
 
 glimpse(crimes)
 
@@ -187,7 +187,7 @@ There are a few answers here. In fact there are one each to map onto point, line
 
 First, and possibly most obvious, are the coordinates provided with each crime incident recorded. You can find this in the two columns - Longitude and Latitude. These two column help put each crime incident on a specific point on a map. For example, let's take the very first crime incident. Here we use the `head()` function and specify that we want the first 1 rows only with `n=1` parameter. 
 
-```{r}
+```{r head}
 
 head(crimes, n = 1)
 
@@ -199,7 +199,7 @@ You can see that the values are `r print(crimes$longitude[1])` for Longitude and
 
 Another column which contains information about *where* the crime happened is the aptly named *location* variable. This shows you a list of locations related to where the crimes happened. You may see a few values such as on or near XYZ street. Let's look again at the first entry.
 
-```{r}
+```{r hed_again}
 
 head(crimes, n = 1)
 
@@ -207,7 +207,7 @@ head(crimes, n = 1)
 
 You can see that the value is `r print(crimes$location[1])` this isn't great, as we might struggle to identify *which* parking area... Some other ones are more useful, let's look at the last entry for example with the `tail()` function.
 
-```{r}
+```{r tail}
 
 tail(crimes, n = 1)
 
