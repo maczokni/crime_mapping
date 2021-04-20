@@ -6,14 +6,16 @@ A key piece of information we explore in environmental criminology is the "exact
 
 In chapter 1, we generated some maps with point locations representing crimes in Greater Manchester (UK) and we saw how the large volume of events made it difficult to discern any spatial pattern. In previous chapters we saw how we could deal with this via aggregation of the point data to enumeration areas such census tracts or by virtue of binning. In this chapter we will introduce techniques that are used as an alternative visualisation for point patterns and that are based on the mathematics of density estimation. They are used to produce isarithmic maps, these are the kind of maps you often see in the weather reports displaying temperature. What we are doing is creating an interpolated surface from discrete data points. Or in simpler terms we are "effectively inventing data values for the areas on the map for which you don't have data or sample points" (http://cartonerd.blogspot.com/2015/02/when-is-heat-map-not-heat-map.html).
 
-Before we get to the detail of how we produce these maps we will briefly and very generally introduce the field of spatial point pattern analysis. The analysis of discrete locations are a subfield of spatial statistics. In this chapter we will indeed introduce a new R package called `spatstat`, that was developed for spatial point pattern analysis and modelling. It was written by Adrian Baddeley and Rolf Turner. There is a [webpage](http://spatstat.org) dedicated to this package.  In our book we are only going to provide you with an introductory practical entry into this field of techniques. If this package is not installed in your machine, make sure you install it before we carry on. In this chapter we will also be using the package `crimedata` developed by our colleague Matt Ashby, which you would also need to install.
+Before we get to the detail of how we produce these maps we will briefly and very generally introduce the field of spatial point pattern analysis. The analysis of discrete locations are a subfield of spatial statistics. In this chapter we will indeed introduce a new R package called `spatstat`, that was developed for spatial point pattern analysis and modelling. It was written by Adrian Baddeley and Rolf Turner. There is a [webpage](http://spatstat.org) dedicated to this package.  In our book we are only going to provide you with an introductory practical entry into this field of techniques. If this package is not installed in your machine, make sure you install it before we carry on. In this chapter we will also be using the package `crimedata` developed by our colleague Matt Ashby, which you would also need to install. 
 
 ```{r load_libraries_6, warnings=FALSE, message=FALSE}
 
-# Basic reading and manipulation of spatial data
+# Packages for reading data and data carpentry
 library(readr)
-library(sf)
 library(dplyr)
+
+# Packages for handling spatial data and for geospatial carpentry
+library(sf)
 library(maptools)
 library(raster) # We use this library for first time in this chapter (used for data represented in a raster model)
 
@@ -36,7 +38,7 @@ library(crimedata)
 
 Dr. Ashby is the lead contributor to the **Crime Open Database (CODE)**, a service that makes it convenient to use crime data from multiple US cities in research on crime. All the data in CODE are available to use for free as long as you acknowledge the source of the data. The package `crimedata` was developed by Dr. Ashby to make it easier to read into R the data from this service.
 
-The key function in `crimedata`  is `get_crime_data()`. We will be using the crime data from New York City police and for 2010, and we want the data to be in `sf` format. We will also filter the data to only include residential burglaries in Brooklyn. Equally we will download the geojson with the borough boundaries from the NYC open data portal. See the code below for details:
+The key function in `crimedata`  is `get_crime_data()`. We will be using the crime data from New York City police and for 2010, and we want the data to be in `sf` format. We will also filter the data to only include residential burglaries in Brooklyn. Equally we will download the geojson with the borough boundaries from the NYC open data portal. Running this may take a couple of minutes or so depending on your machine and configuration. See the code below for details:
 
 ```{r load_data_6, message=FALSE}
 # Large dataset, so it will take a while
@@ -237,7 +239,7 @@ plot(q)
 ```
 As you can see with its irregular shape it is difficult to divide Manhattan in equally shaped and sized quadrants and thus it is hard to assess if regions of equal area contain a similar number of points. Notice, however,how the third quadrant from the bottom seems to have less incidents thant the ones that surround it. A good portion of this quadrant is taken by Central Park, where you would not expect a burglary.
 
-Instead, we can use other forms of tessellation, like hexagons by using the `spatstas.eom::hextess` function. The numeric argument sets the size of the hexagons, you will need to play along to find an adequate value for your own applications. Rather than printing the numbers inside these hexagons (if you many this will make it difficult to read in a plot) we can map a color to the intensity (the number of points per hexagon):
+Instead, we can use other forms of tessellation, like hexagons by using the `spatstas.eom::hextess` function. This is similar to the binning we introduced in Chapter 4, only using different functions. The numeric argument sets the size of the hexagons, you will need to play along to find an adequate value for your own applications. Rather than printing the numbers inside these hexagons (if you many this will make it difficult to read in a plot) we can map a color to the intensity (the number of points per hexagon):
 
 ```{r hextess_6}
 
