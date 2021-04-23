@@ -2,7 +2,9 @@
 
 ## Introduction
 
-This session we begin to explore the analysis of local spatial autocorrelation statistics. Spatial autocorrelation is the correlation among data values, strictly due to the relative location proximity of the objects that the data refer to. It has been long known that values attribute values that are close together in space are unlikely to be independent. This is often referred to as Tobler's first law of geography : "everything is related to everything else, but near things are more related than distant things". For example, if area X has a high level of violence, we often observe that the areas geographically close to X tend to also exhibit high levels of violence. Spatial autocorrelation is the measure of this *correlation* between near things.
+This session we begin to explore the analysis of spatial autocorrelation statistics. Spatial autocorrelation is the correlation among data values, strictly due to the relative location proximity of the objects that the data refer to. It has been long known that values attribute values that are close together in space are unlikely to be independent. This is often referred to as Tobler's first law of geography : "everything is related to everything else, but near things are more related than distant things". For example, if area X has a high level of violence, we often observe that the areas geographically close to X tend to also exhibit high levels of violence. Spatial autocorrelation is the measure of this *correlation* between near things.
+
+In this chapter we are going to discuss ways in which you can quantify the answer to this question. We will start introducing methods to assess spatial clustering with point pattern data. Then, we will discuss measures of **global spatial autocorrelation** for lattice data, which essentially aim to answer the degree to which areas that are near each other tend to be more alike. We say global because we are interested in the degree of clustering not on the location of the clusters. In the final part of the chapter we will also cover techniques to identify local clusters of autocorrelation.
 
 We'll be making use of the following packages:
 
@@ -47,7 +49,7 @@ Imagine we want to know if the location of crime events are independent. Ripley�
 
 ### Get data
 
-For this exercise we travel to Buenos Aires, the capital and largest city in Argentina.  The city provides open data in geocoded crime from 2016 onwards. The data is freely available from the official source (http://mapa.seguridadciudad.gob.ar/). But we have added it already as supplementary material available from our GitHub repository. We will filter on "homicidios dolosos", intentional homicides and we are using all homicides from 2016. After reading the .csv file we turn it into a `sf` object and plot it. We are also reading a geojson file with the administrative boundary of Buenos Aires, that is already in EPGS:4326. The code below uses functions in ways we have demonstrated in earlier chapters.
+For this exercise we travel to Buenos Aires, the capital and largest city in Argentina.  The city provides open data in geocoded crime from 2016 onwards. The data is freely available from the official source (http://mapa.seguridadciudad.gob.ar/). But we have added it already as supplementary material available from our GitHub repository. We will filter on "homicidios dolosos", intentional homicides and we are using all homicides from 2016 and 2017. After reading the .csv file we turn it into a `sf` object and plot it. We are also reading a geojson file with the administrative boundary of Buenos Aires. The code below uses functions in ways we have demonstrated in earlier chapters.
 
 ```{r, message=FALSE, warning=FALSE}
 
@@ -59,9 +61,10 @@ delitos_sf <- st_as_sf(delitos,
                       coords = c("longitud", "latitud"),
                       crs = 4326)
 delitos_sf <- st_transform(delitos_sf, 5343)
-buenos_aires <- st_read("data/buenos_aires.geojson")
+buenos_aires <- st_read("data/buenos_aires.geojson", quiet = TRUE)
 
 ```
+
 After reading the files and turn them on `sf` objects, we can plot them.
 
 ```{r}
@@ -74,7 +77,7 @@ tm_shape(buenos_aires) +
 
 ```
 
-We will be using the `spatstat` functionality, thus, need to turn this spatial point pattern data into a `ppp` object. Before doing so, we will transform the data into a projected coordinate system. We aill also generate a **convex hull** to be used as the`owin` object. In geography (and mathematics) the convex hull or envelop, "for a set of points X in a real vector space V is the minimal convex set containing X". For this we use `st_convex_hull` from `sf` in conjunction with `st_union` (to union the points as multipoints). Other than that we are using code already explained in Chapter 6. As we will see there are duplicate points. Since the available documentation does not mention any masking of the locations for privacy purposes, we cant assume that´s the reason for it. For simplicity purpose we will do as in Chapter 6 and introduce a small degree of jittering with a rather narrow radius.
+We will be using the `spatstat` functionality, thus, need to turn this spatial point pattern data into a `ppp` object, using the boundaries of Buenos Aires as an `owin` object. We are using code already explained in Chapter 6. As we will see there are duplicate points. Since the available documentation does not mention any masking of the locations for privacy purposes, we cant assume that´s the reason for it. For simplicity purpose we will do as in Chapter 6 and introduce a small degree of jittering with a rather narrow radius.
 
 ```{r, warning=FALSE}
 
@@ -91,19 +94,19 @@ delitos_jit <- rjitter(delitos_ppp, retry=TRUE, nsim=1,
 
 ### Estimating and plotting the K-function
 
-For obtaining the observed K, we use the `spatstat::Kest` function. We can then plot it. `Kest` takes two key inputs, the `ppp` object and a character vector indicating the edge *corrections* we are using when estimating K. Edge corrections are neccessary because we do not have data on homicide outside our window of observation and, thus, cannot consider dependence with homicide events around the city of Buenos Aires. If we don´t apply edge correction we are ignoring the possibility of dependence between those events outside the window and those in the window close to the edge. There is also a convenient argument (`nlarge`) if your dataset is very large (not the case here) that uses a faster algorithm.
+For obtaining the observed K, we use the `spatstat::Kest` function. `Kest` takes two key inputs, the `ppp` object and a character vector indicating the edge *corrections* we are using when estimating K. Edge corrections are necessary because we do not have data on homicide outside our window of observation and, thus, cannot consider dependence with homicide events around the city of Buenos Aires. If we don´t apply edge correction we are ignoring the possibility of dependence between those events outside the window and those in the window close to the edge. There is also a convenient argument (`nlarge`) if your dataset is very large (not the case here) that uses a faster algorithm.
 
-As noted by @Baddeley_2016, "most users... will not need to know the theory behind edge correction, the details of the technique, or their relative merits" and "so long as some kind of edge correction is performed (which happens automatically in `spatstat`), the particular choice of edge correction technique is usually not critical." (p. 212). Here we show how we use two different corrections: isotropic and translation (for more details see @Baddeley_2016).
+As noted by @Baddeley_2016, "most users... will not need to know the theory behind edge correction, the details of the technique, or their relative merits" and "so long as some kind of edge correction is performed (which happens automatically in `spatstat`), the particular choice of edge correction technique is usually not critical." (p. 212). As a rule of thumb they suggest using translation or isotropic in smaller datasets, the border method in medium size datasets (1000 to 10000 points), and that there is no need for correction with larger datasets. Since this is a smallish dataset, we show how we use two different corrections: *isotropic* and *translation* (for more details see @Baddeley_2016).
 
 ```{r}
 k1 <- Kest(delitos_jit, correction = c("isotropic", "translate"))
 plot(k1)
 ```
-The graphic shows the K function using each of the corrections and the theoretical expected curve under a Poisson process of independence.
+The graphic shows the K function using each of the corrections and the theoretical expected curve under a Poisson process of independence. When there is clustering we expect the empirical K-function estimated from the observed data to lie above the empirical K-function for a completely random pattern. This indicates that a point has more "neighboring" points than it would be expected under a random process.
 
-It is possible to use simulations to draw the confidence interval around the theoretical expectations. This allow us to draw *envelope* plots, that can be interpreted as a statistical significance test. If the homicide data were generated at random we would expect the observed K function to overlap with the envelope of the theoretical expectation. @Baddeley_2016, in particular, suggest the use of global envelopes as a way to avoid data snooping.
+It is possible to use Nonte Carlo simulations to draw the confidence interval around the theoretical expectations. This allow us to draw *envelope* plots, that can be interpreted as a statistical significance test. If the homicide data were generated at random we would expect the observed K function to overlap with the envelope of the theoretical expectation. @Baddeley_2016, in particular, suggest the use of global envelopes as a way to avoid data snooping.
 
-For this we use the `spatstat::envelop` function. As arguments we use the data input, the function we are using (Kest), the number of simulations, and the parameters needed to obtain the global envelope.
+For this we use the `spatstat::envelop` function. As arguments we use the data input, the function we are using for generating K (`Kest`), the number of simulations, and the parameters needed to obtain the global envelope.
 
 ```{r, message=FALSE}
 E <- envelope(delitos_jit, Kest, nsim=39, rank = 1, global = TRUE,
@@ -111,7 +114,7 @@ E <- envelope(delitos_jit, Kest, nsim=39, rank = 1, global = TRUE,
 plot(E)
 ```
 
-We can see here that the spatial point pattern seems to be inconsistent with independent points. The problem, though, is that this test only work if we have a homogeneous process. The envelope will also fail to overlap with the observed K function if there are variations in intensity. We also saw the reverse, that it is hard to assess homogeneity without assuming independence. In Chapter 6 we saw how if we suspect the process is not homogeneous, we can estimate it with nonparametric techniques such as kernel density estimation.
+The problem, though, is that this test only work if we have a homogeneous process. The envelope will also fail to overlap with the observed K function if there are variations in intensity. We also saw the reverse, that it is hard to assess homogeneity without assuming independence. In Chapter 6 we saw how if we suspect the process is not homogeneous, we can estimate it with nonparametric techniques such as kernel density estimation.
 
 ```{r}
 
@@ -138,15 +141,16 @@ plot(E_i)
 
 ## Exploring spatial dependence in lattice data
 
-## Get data
+### Get data
 
-We are going to take some of the data from past weeks. In getting the data ready you will have one more opportunity to practice how to read data into R but also how to perform some basic spatial checks, transformations and operations. First let's get the LSOA boundary data and change the coordinate system.
+[[[Need to put in British grid]]]
+
+We are going to take some of the data from past weeks. In getting the data ready you will have one more opportunity to practice how to read data into R but also how to perform some basic spatial checks, transformations and operations. First let's get the LSOA boundary data.
 
 ```{r}
 shp_name <- "data/BoundaryData/england_lsoa_2011.shp"
-manchester_lsoa <- st_read(shp_name)
-lsoa_WGS84 <- st_transform(manchester_lsoa, 4326)
-rm(manchester_lsoa)
+manchester_lsoa <- st_read(shp_name, quiet=TRUE)
+
 
 ```
 
@@ -154,44 +158,44 @@ Let's add the burglary data from Greater Manchester. We have practiced this code
 
 ```{r, message=FALSE, warning=FALSE}
 #Read into R
-crimes <- read.csv("https://raw.githubusercontent.com/jjmedinaariza/CrimeMapping/master/gmpcrime.csv")
-#Filter out to select burglary
-burglary <- filter(crimes, crime_type == "Burglary")
+burglary <- read_csv("https://raw.githubusercontent.com/jjmedinaariza/CrimeMapping/master/gmpcrime.csv") %>%
+  filter(crime_type == "Burglary")
 #Transform into spatial object
-burglary_spatial = st_as_sf(burglary, coords = c("long", "lat"), 
+burglary_spatial <- st_as_sf(burglary, coords = c("long", "lat"), 
                  crs = 4326, agr = "constant")
+burglary_spatial <- st_transform(burglary_spatial, 27700)
 #Remove redundant non spatial burglary object
 rm(burglary)
-rm(crimes)
+
 #Select burglaries that intersect with the Manchester city LSOA map.
-bur_mc <- st_intersects(lsoa_WGS84, burglary_spatial)
+bur_mc <- st_intersects(manchester_lsoa, burglary_spatial)
 bur_mc <- burglary_spatial[unlist(bur_mc),]
 #Remove redundant objects
 rm(burglary_spatial)
 ```
 
-We now have the burglaries data, let's now count how many burglaries there are within each LSOA polygon. This is a point in polygon operation that we covered in chapter 2 when we counted the number of violent crimes in the buffers of the licenced premises for example. 
+We now have the burglary data, let's now count how many burglaries there are within each LSOA polygon. This is a point in polygon operation that we covered in chapter 2 when we counted the number of violent crimes in the buffers of the licenced premises for example. 
 
 ```{r, message=FALSE, warning=FALSE}
 #Point in polygon spatial operation (be patient this can take time)
 burglaries_per_lsoa <- bur_mc %>% 
-  st_join(lsoa_WGS84, ., left = FALSE) %>% 
+  st_join(manchester_lsoa, ., left = FALSE) %>% 
   count(code)
 #Let's rename the column with the count of burglaries (n) into something more meaningful
 burglaries_per_lsoa <- rename(burglaries_per_lsoa, burglary = n)
 #Plot with tmap
-tm_shape(burglaries_per_lsoa) + 
-  tm_fill("burglary", style = "quantile", palette = "Reds") +
-  tm_borders(alpha = 0.1) +
-  tm_layout(main.title = "Burglary counts", main.title.size = 0.7 ,
-            legend.position = c("right", "bottom"), legend.title.size = 0.8)
+tm_shape(burglaries_per_lsoa) +
+  tm_bubbles("burglary", border.lwd=NA, perceptual = TRUE) +            
+  tm_borders(alpha=0.1) +
+  tm_layout(legend.position = c("right", "bottom"),
+            legend.title.size = 0.8,
+            legend.text.size = 0.5)
+
 ```
 
 Do you see any patterns? Are burglaries randomly spread around the map? Or would you say that areas that are closer to each other tend to be more alike? Is there evidence of clustering? Do burglaries seem to appear in certain pockets of the map? 
 
-In this session we are going to discuss ways in which you can quantify the answer to this question. We will discuss measures of **global spatial autocorrelation**, which essentially aim to answer the degree to which areas that are near each other tend to be more alike. We say global because we are interested in the degree of clustering not on the location of the clusters. Later we will also cover techniques to identify local clusters of autocorrelation, but for now we will focus in quantifying whether areas are (on average) alike their neighbours.
-
-## What is a neighbour?
+### What is a neighbour?
 
 Previously we asked whether areas are alike their neighbours or to areas that are close. But what is a neighbour? Or what do we mean by close? How can one define a set of neighbours for each area? If we want to know if what we measure in a particular area is similar to what happens on its neighbouring areas, we need to establish what we mean by a neighbour. 
 
@@ -207,29 +211,18 @@ Alternatively we may define neighbours **by distance**. You can consider neighbo
 
 In sum, adjacency is an important concept in some spatial analysis. In some cases objects are considered adjacent when they “touch”, e.g. neighbouring countries. Contiguity measures tend to be more common when studying areas. It can also be based on distance. This is the most common approach when analysing point data, but can also be relevant when studying areas.
 
-## Putting 'neighbourness' in our analysis - constructing a spatial weight matrix
-
 You will come across the term **spatial weight matrix** at some point or, using mathematical notation, "W". Essentially the spatial weight matrix is a n by n matrix with, often, ones and zeroes (in the case of contiguity based definitions) identifying if any two observations are neighbours. So you can think of the spatial weight matrix as the new data table that we are constructing with our definition of neighbours (whichever definition that is).
 
 So how do you build such a matrix with R? Well, let's turn to that. But to make things a bit simpler, let's focus not on the whole of Manchester, but just in the LSOAs within the city centre. Calculating a spatial weights matrix is a computationally intensive process, which means it takes a long time. The larger area you have (which will have more LSOAs) the longer this will take.
 
-We will use familiar code to clip the spatial object with the counts of burglaries to only those that intersect with the City Centre ward. Again, we have covered this code elsewhere, so we won't explain here in detail. 
+We will use code we covered in Chapter 2 to clip the spatial object with the counts of burglaries to only those that intersect with the City Centre ward. 
 
-```{r}
-#Read a geojson file with Manchester wards
-manchester_ward <- st_read("https://raw.githubusercontent.com/RUMgroup/Spatial-data-in-R/master/rumgroup/data/wards.geojson")
-#Create a new object that only has the city centre ward
-df1 <- manchester_ward %>%
+```{r, warning = FALSE, message = FALSE}
+#Read a geojson file with Manchester wards and select only the city centre ward
+manchester_ward <- st_read("https://raw.githubusercontent.com/RUMgroup/Spatial-data-in-R/master/rumgroup/data/wards.geojson", quiet = TRUE) %>%
   filter(wd16nm == "City Centre")
-#Change coordinate systems
-cc_ward <- st_transform(df1, 4326)
-#Check if they match those of the imd_gm object
-st_crs(cc_ward) == st_crs(burglaries_per_lsoa)
-#Get rid of objects we no longer need
-rm(manchester_ward)
-rm(df1)
 #Intersect
-cc_intersects <- st_intersects(cc_ward, burglaries_per_lsoa)
+cc_intersects <- st_intersects(manchester_ward, burglaries_per_lsoa)
 cc_burglary <- burglaries_per_lsoa[unlist(cc_intersects),]
 #Plot with tmap
 tmap_mode("view")
@@ -241,22 +234,17 @@ tm_shape(cc_burglary) +
 
 ```
 
-So now we have a new spatial object `cc_burglary` with the 23 LSOA units that compose the City Centre of Manchester. By focusing in a smaller subset of areas we can understand perhaps a bit better what comes next. But again we carry on. Do you perceive here some degree of spatial autocorrelation?
+So now we have a new spatial object "cc_burglary" with the 23 LSOA units that compose the City Centre of Manchester. By focusing in a smaller subset of areas we can understand perhaps a bit better what comes next. 
 
-### Homework 1
+### Creating a list of neighbours based on contiguity
 
-*The id argument in the tm_fill ensures that when you click over any of the areas you get not only the count of burglaries in that LSOA (the quantity we are mapping) gets displayed within a bubble, but you also get to see the code that identifies that LSOA.*
+It would be very, very tedious having to identify the neighbours of all the areas in our study area by hand. That's why we love computers. We can automate tedious work so that they do it and we have more time to do fun stuff. We can use code to get the computer to establish what areas are next to each other (if we are using a contiguity based definition of being a neighbour).
 
-*Move your cursor over the LSOA covering the West of Beswick. You will see this area had 58 burglaries in 2017 and that the LSOA identifier is E01033688. Using the rook criteria identify the first order neighbors of this LSOA. List their identifiers. Are things different if we use the queen criteria? If so, how does it change? Now. Think and think hard about what the lecture by Luc Anseling discussed. Have you identified all the neighbours of this area? (there are multiple ways of answering this question, just make sure you reason your answer).*
-
-## Creating a list of neighbours
-
-It would be very, very tedious having to identify the neighbours of all the areas in our study area by hand, in the way we have done in homework 1. That's why we love computers. We can automate tedious work so that they do it and we have more time to do fun stuff. We can use code to get the computer to establish what areas are next to each other (if we are using a contiguity based definition of being a neighbour).
-
-We have already discussed how the `sf` package is new kid in town and although package developers are quickly trying to adapt their packages to work with `sf`, many of the existing spatial packages still expect spatial objects. So to illustrate the concepts in this week session we are first going to turn our `sf` object into spatial objects, so we can make use of the functions from the `sp` package that allow us to create a list of neighbours.
+We have already discussed how the `sf` package is new kid in town and although package developers are quickly trying to adapt their packages to work with `sf`, many of the existing spatial packages still expect spatial objects based on the older standards of `sp`. So to illustrate the concepts in this week session we are first going to turn our `sf` object into spatial objects, so we can make use of the functions from the `sp` package that allow us to create a list of neighbours.
 
 ```{r}
 #We coerce the sf object into a new sp object that we are calling bur_ccsp (remember names are arbitrary)
+st_crs(cc_burglary)
 bur_ccsp <- as(cc_burglary, "Spatial")
 
 ```
@@ -269,7 +257,7 @@ cc_burglary$lsoa_code <- as.character(cc_burglary$code)
 
 In order to identify neighbours we will use the `poly2nb()` function from the `spdep` package that we loaded at the beginning of our session. The `spdep` package provides basic functions for building neighbour lists and spatial weights, tests for spatial autocorrelation for areal data like Moran's I (more on this below), and functions for fitting spatial regression models. 
 
-This function builds a neighbours list based on regions with contiguous boundaries. If you look at the documentation you will see that you can pass a "queen" argument that takes TRUE or FALSE as options.If you do not specify this argument the default is set to true, that is, if you don't specify `queen = FALSE` this function will return a list of first order neighbours using the Queen criteria. 
+This function builds a neighbours list based on regions with contiguous boundaries. If you look at the documentation you will see that you can pass a `queen` argument that takes `TRUE` or `FALSE` as options. If you do not specify this argument the default is set to true, that is, if you don't specify `queen = FALSE` this function will return a list of first order neighbours using the Queen criteria. 
 
 ```{r}
 
@@ -287,7 +275,7 @@ This is basically telling us that using this criteria each LSOA polygon has an a
 
 For more details we can look at the structure of w.
 
-```{r}
+```{r, eval = FALSE}
 str(w)
 ```
 
@@ -302,21 +290,24 @@ xy <- coordinates(bur_ccsp)
 plot(w, xy, col='red', lwd=2, add=TRUE)
 ```
 
-## Generating the weight matrix
+### Generating the weight matrix
 
-We can transform w into a spatial weights matrix. A spatial weights matrix reflects the intensity of the geographic relationship between observations. For this we use the `spdep` function `nb2mat()`.
+We can transform w, the list of neighbours, into a spatial weights matrix. A spatial weights matrix reflects the intensity of the geographic relationship between observations. For this we use the `spdep` function `nb2mat()`. The argument `style` sets what kind of matrix we want. `B` stands for the basic binary coding, you get a 1 for neighbours, and a 0 if the areas are not neighbours.
 
 ```{r}
 wm <- nb2mat(w, style='B')
+
+```
+
+You can view this matrix autoprinting the object:
+
+```{r, eval = FALSE)}
 wm
 ```
 
-This matrix has values of 0 or 1 indicating whether the elements listed in the rows are adjacent (using our definition, which in this case was the Queen criteria) with each other. The diagonal is full of zeroes. An area cannot be a neighbour of itself. So, if you look at the first two and the second column you see a 1. That means that the LSOA with the code E01005065 is a neighbour of the second LSOA (as listed in the rows) which is E01005066. You will zeroes for many of the other columns because this LSOA only has 4 neighbours.
+This matrix has values of 0 or 1 indicating whether the elements listed in the rows are adjacent (using our definition, which in this case was the Queen criteria) with each other. The diagonal is full of zeroes. An area cannot be a neighbour of itself. So, if you look at the first two and the second column you see a 1. That means that the LSOA with the code E01005065 is a neighbour of the second LSOA (as listed in the rows) which is E01005066. You will have zeroes for many of the other columns because this LSOA only has 4 neighbours.
 
-### Homework 2
-*Looking at this matrix identify the other 3 neigbours of E01005065*
-
-In many computations we will see that the matrix is **row standardised**. We can obtain a row standardise matrix changing the code:
+In many computations we will see that the matrix is **row standardised**. We can obtain a row standardise matrix changing the code, specifically setting the `style` to `W` (the indicator for row standardised in this function):
 
 ```{r}
 wm_rs <- nb2mat(w, style='W')
@@ -324,6 +315,10 @@ wm_rs
 ```
 
 Row standardisation of a matrix ensure that the sum of the rows adds up to 1. So, for example, if you have four neighbours and that has to add up to 4, you need to divide 1 by 4, which gives you 0.25. So in the columns for a polygon with 4 neighbours you will see 0.25 in the column representing each of the neighbours.
+
+### Spatial weight matrix based on distance
+
+
 
 ## Moran's I
 
@@ -391,7 +386,7 @@ But don't just take our word for how important this is, or how it's commonly app
 
 *You know what is coming, don't you? Yes, you need to compute the Moran's I for burglary again. But this time, you need to do it for the whole of Manchester city. I won't mark you down if you don't try this. But why wouldn't you?*
 
-## Local spatial autocorrelation
+## Local spatial autocorrelation with lattice data
 
 So now we know about global measures of spatial association, in particular the Moran's I statistic, which provide a mechanism to make inferences about a population from a sample. While this is useful for us to be able to assess quantitatively whether crime events cluster in a non-random manner, in the words of [Jerry Ratcliffe](https://pdfs.semanticscholar.org/26d2/356618cd759d04348f1e51c8209b0175bfce.pdf) "this simply explains what most criminal justice students learn in their earliest classes." For example, consider the study of robberies in Philadelphia:
 
@@ -404,7 +399,7 @@ Aggregated to the police districts, this returns a global Moran’s I value (ran
 In this section we will learn about local indicators of spatial association (LISA) and show how they allow for the decomposition of global indicators, such as Moran's I, into the contribution of each observation. The LISA statistics serve two purposes. On one hand, they may be interpreted as indicators of local pockets of nonstationarity, or hot spots. On the other hand, they may be used to assess the influence of individual locations on the magnitude of the global statistic and to identify “outliers” [(Anselin, Luc. "Local indicators of spatial association—LISA." Geographical analysis 27.2 (1995): 93-115.)](http://onlinelibrary.wiley.com/doi/10.1111/j.1538-4632.1995.tb00338.x/full). 
 
 
-## Getting Manchester data and weights 
+### Getting Manchester data and weights 
 
 To explore local indicators of spatial correlation, let's go back to using all of Manchester, rather than just City Centre ward. We want to have enough data to see local variation, and while the code may take slightly longer to run, we can have a go at more meaningful stats. 
 
@@ -432,7 +427,7 @@ ww <-  nb2listw(w, style='W')
 
 ```
 
-## Generating and visualising the LISA measures
+### Generating and visualising the LISA measures
 
 The first step before we can generate the LISA map is to compute the local Moran's I. The initial part of the video presentation by Luc Anselin that we expected you to watch explains the formula and logic underpinning these computations and we won't reiterate here that detail. But at least a a general reminder:
 
@@ -649,3 +644,7 @@ So essentially this map now tells us that there was statistically significant mo
 ### Homework 4
 
 *Using the same approach as Homework 1, can you tell me the code (ie. the LSOA identifier (e.g. E01033688)) for the safest neighbourhood to move to if you want to ensure that you have low levels of burglary to your house*
+
+## Further Reading
+
+
