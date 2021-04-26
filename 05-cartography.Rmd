@@ -12,6 +12,7 @@ In this chapter we will be working with some data published by Hungarian police 
 
 library(sf)
 library(readr)
+library(dplyr)
 
 
 
@@ -65,6 +66,8 @@ We've been working with thematic maps thus far. There are many decisions that go
 We can use the `ggplot2` package to plot our thematic map, using the `geom_sf()` function. To shade each polygon with the values of a specific variable, we use the `fill = ` argument within the `aes()` (aesthetics) function. Most simply: 
 
 ```{r themmap}
+
+library(ggplot2)
 
 ggplot(data = hu_dd) + 
   geom_sf(aes(fill = total_breath_tests)) + 
@@ -183,25 +186,147 @@ ggplot(data = hu_dd) +
 ```
 
 
-But with a graduated symbol map we can get a little more creative. Sure, one approach may be to once again change the size of the symbol, but we could get a little more creative and use charts. 
+But with a graduated symbol map we can get a little more creative. Sure, one approach may be to once again change the size of the symbol, but we could get a little more creative and use charts. For example there is the library `scatterpie` which has the function `geom_scatterpie()` which allows us to present our ratios in pie charts. 
+
+
+To use this function, we need our data to be in a dataframe which has separate columns for latitude and longitude (rather than a geometry object), where each observation has a unique id, and where we have a separate column for each proportion we wish to visualise. 
+
+
+To create this, we first need to get the centroid of each polygon to get our longitude and latitude. We also need to calculate the number of negative breath tests. We then need to extract the coordinates into longitude and latitude columns, and finally we can drop the geometry and keep only the columns we need for this new dataframe. 
+
 
 
 ```{r}
 
 
-
 scatter_map_df <- hu_dd %>% 
-  mutate(centroids = st_centroid(.),
-         cent_coords = st_coordinates(centroids), 
-         neg_tests = total_breath_tests - positive_breath_tests)
-
-
+  mutate(cent_lng = st_coordinates(st_centroid(.))[,1],    # extract centroid longitude
+         cent_lat = st_coordinates(st_centroid(.))[,2],    # extract centroid latitude
+         neg_tests = total_breath_tests - positive_breath_tests) %>%     # calculate negative tests
+  st_drop_geometry() %>%       # remove the geometry column
+  select(cent_lng, cent_lat, osm_id, positive_breath_tests, neg_tests)   # keep only necessary columns
 
 ```
 
+
+We now have this new dataframe which has coordinates for the centroid of each polygon, and we can use the `geom_scatterpie()` function from the `scatterpie` package to plot a pie chart of the proportion of positive to negative breath tests in each county in Hungary: 
+
+
+```{r}
+ggplot(data = hu_dd) + 
+  geom_sf(data = hu_dd, fill = "light yellow", col = "white") + 
+  scatterpie::geom_scatterpie(data=scatter_map_df, aes(x=cent_lng, y=cent_lat, group=osm_id), cols=c("positive_breath_tests", "neg_tests")) + 
+  theme_minimal()
+
+```
+
+In this case, it's not super informative to visualise this, as discussed above our positive rates range between  `r hu_dd %>% filter(pos_rate == min(pos_rate)) %>% pull(pos_rate)` %, and `r hu_dd %>% filter(pos_rate == max(pos_rate)) %>% pull(pos_rate)` %. However with more evenly distributed proportions this may be something to try. 
+
 ## Colour
 
-A number of studies have shown the desirability of monochrome colour (over greyscale) thematic maps, as they are linked to less observer variability in interpretation (@Lawson_2006)
+When choosing a colour palette, the first thing to consider is what kind of colour scheme we need. This will depend on the variable we are trying to visualise. We go back, once again, to the first week of the course, where we discussed *Levels of Measurement*. Remember those? Still important!
+
+
+Depending on the kind of varaible we want to visualise, we might want a Qualitative colour scheme (for categorical nominal variables), a Sequential colour scheme (for categorial ordinal, or for numeric variables) or a Diverging colour scheme (for categorial ordinal, or for numeric variables). 
+
+For qualitative colour schemes, we want each category (each value for the variable) to have a perceptible difference in colour. For sequential and diverging color schemes, we will want mappings from data to color that are not just numerically but also perceptually uniform. 
+
+
+
+- **sequential scales** (also called gradients) go from low to high saturation of a colour. 
+- **diverging scales** represent a scale with a neutral mid-point (as when we are showing temperatures, for instance, or variance in either direction from a zero point or a mean value), where the steps away from the midpoint are perceptually even in both directions. 
+- **qualitative scales** identify as different the different values of your categorical nominal variable from each other. 
+
+
+
+For your sequetial and diverging scales, the goal in each case is to generate a perceptually uniform scheme, where hops from one level to the next are seen as having the same magnitude. 
+
+Of course, perceptual uniformity matters for your qualitative scales for your unordered categorical variables as well. We often use color to represent data for different countries, or political parties, or types of people, and so on. In those cases we want the colors in our qualitative palette to be easily distinguishable, but also have the same valence for the viewer. Unless we are doing it deliberately, we do not want one color to perceptually dominate the others. 
+
+
+
+The main message here is that you should generally not put together your color palettes in an ad hoc way. It is too easy to go astray. In addition to the considerations we have been discussing, there we might also want to avoid producing plots that confuse people who are colour blind, for example, and color blindness comes in a variety of forms. Fortunately for us, almost all of the work has been done for us already. Different color spaces have been defined and standardized in ways that account for these uneven or nonlinear aspects of human color perception.
+
+
+A good resource is [colorbrewer](http://colorbrewer2.org/). We have come across @Brewer_2016 in Chapter 3. Colorbrewer is a resource developed by Cynthia Brewer and colleagues in order to help implement good colour practice in data visualisation and cartography.  This site offers many colour schemes we can make use of for our maps, which are easily integrated into R using the `Rcolorbrewer` package.
+
+
+```{r, loadrcolorbrewer}
+library(RColorBrewer)
+
+```
+
+
+Once you have the package loaded, we can look at all the associated palettes with the function `display.brewer.all()`.
+
+```{r, dsplayallcolourbrewerpallettes}
+
+display.brewer.all()
+
+```
+
+The above gives a wide choice of pallettes, and while they are applicable to all sorts of data visualisations, they were created especially for the case of thematic maps. 
+
+
+We might use the above code to pick a palette we like. We might then want to examine the colours more closely. To do this we can use the `display.brewer.pal()` function, and specify `n=` - the number of colours we need, as well as the palette name with `name = `: 
+
+
+```{r}
+
+display.brewer.pal(n = 5, "Spectral")
+
+```
+
+Let's go back to our thematic map of the quantiles of total breath tests per county. We might be interested in this map to show distribution of policing activity for example. We made this map earlier with the default colour scheme, which didn't really communicate to use the graduated nature of our data we were visualising. To properly do this, we may imagine using a *seqantial* scale. We can use one of the sequential scales available within `RColorBrewer` with adding the `scale_fill_brewer()` function to our ggplot. In this function we can specify the `type=` parameter, i.e. if we want to use sequential, divergining, or qualitative colour schemes (specified as either "seq" (sequential), "div" (diverging) or "qual" (qualitative)). We can then specify our preferred palette with the `palette = ` argument. 
+
+Let's demonstrate here with the "YlOrRd" sequential palette: 
+
+```{r, colourbbrewerratefill}
+
+ggplot(data = hu_dd) + 
+  geom_sf(aes(fill = total_quantiles), lwd = 0.5, col = "white") + 
+  scale_fill_brewer(type = "seq", palette = "YlOrRd") + 
+  theme_minimal()
+
+```
+
+This looks much better, and communicates our message much more clearly. Is this accessible to our colourblind colleagues? Earlier, when we asked to view all the palettes with the `display.brewer.all()` function, we did not specify any arguments. However, we can do so in order to filter only those palettes which are accessible for all audiences. We can include the parameter `colorblindFriendly = ` to do so: 
+
+```{r}
+
+display.brewer.all(colorblindFriendly = TRUE)
+
+```
+
+You can see there are a few palettes missing from our earlier results, when we did not specify this requirement. My recommendation is to always use one of these palettes. 
+
+
+Another way to ensure that we are making accessible maps is to use greyscale (if your map is being printed, this may also save some money). To introduce a greyscale palette, you can use the function `scale_fill_grey() ` from the `ggplot2` package: 
+
+
+```{r greyscaletestsmap}
+
+ggplot(data = hu_dd) + 
+  geom_sf(aes(fill = total_quantiles), lwd = 0.5, col = "white") + 
+  scale_fill_grey() + 
+  theme_minimal()
+
+```
+
+
+Sometimes you might prefer such a map. However, do keep in mind, a number of studies have shown the desirability of monochrome colour (over greyscale) thematic maps, as they are linked to less observer variability in interpretation (@Lawson_2006). So you might want to use something like this instead: 
+
+```{r}
+
+ggplot(data = hu_dd) + 
+  geom_sf(aes(fill = total_quantiles), lwd = 0.5, col = "white") + 
+  scale_fill_brewer(type = "seq", palette = "Greens") + 
+  theme_minimal()
+
+```
+
+Overall, the key thing is to be conscious with the colours you choose to represent your data. Make sure that they are accessible for all audiences, and best represent the patterns in your data which you want to communicate to your audiences. 
+
 
 ## Text
 
