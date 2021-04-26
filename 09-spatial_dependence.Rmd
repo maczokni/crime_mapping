@@ -14,6 +14,7 @@ We'll be making use of the following packages:
 library(readr)
 library(dplyr)
 library(lubridate)
+library(purrr)
 
 # Packages for handling spatial data and for geospatial carpentry
 library(sf)
@@ -40,7 +41,7 @@ Both processes may lead to observed clustering:
 -First order clustering near particular locations in the region of study takes place when we observe more points in certain neighborhoods or street segments or whatever our unit of interest is.
 -Second order clustering means that we observe more points around a given location in a way that is associated with the appearance of points around this given location.
 
-This may sound subtle and in practice it may be difficult, nearly impossible, to distinguish "first order inhomogeneity" and "second order clustering due to interactions between points" based on a single point pattern.`[^1]
+This may sound subtle and in practice it may be difficult, nearly impossible, to distinguish "first order inhomogeneity" and "second order clustering due to interactions between points" based on a single point pattern. [^1]
 [^1]: These observations are citing the answer provided by "whuber" and "Ege Rubak" in Stack Exchange about this issue (https://stats.stackexchange.com/questions/411402/spatial-point-process-does-an-inhomogeneous-first-order-intensity-function-affe).
 
 A technique commonly used to assess whether points are independent is Ripley´s K-function. @Baddeley_2016 defines the K function as the "cumulative average number of data points lying within a distance *r* of a typical data point, corrected for edge effects, and standardised by dividing by the intensity." (p. 204). This is a test that, as we will see, assumes that the process is homogeneous.
@@ -150,7 +151,7 @@ We are going to take some of the data from past weeks. In getting the data ready
 ```{r}
 shp_name <- "data/BoundaryData/england_lsoa_2011.shp"
 manchester_lsoa <- st_read(shp_name, quiet=TRUE)
-
+st_crs(manchester_lsoa)
 
 ```
 
@@ -199,7 +200,7 @@ Do you see any patterns? Are burglaries randomly spread around the map? Or would
 
 Previously we asked whether areas are alike their neighbours or to areas that are close. But what is a neighbour? Or what do we mean by close? How can one define a set of neighbours for each area? If we want to know if what we measure in a particular area is similar to what happens on its neighbouring areas, we need to establish what we mean by a neighbour. 
 
-There are various ways of defining a neighbour. We can say that two areas are neighbours if they share boundaries, if they are next to each other. In this case we talk of neighbours by **contiguity**. By contiguous you can, at the same time, mean all areas that share common boundaries (what we call contiguity using the **rook** criteria, like in chess) or areas that share common boundaries and common *corners*, that is, that have any point in common (and we call this contiguity using the **queen** criteria). 
+There are various ways of defining a neighbour. Most rely on topological or geometrical relationships among the areas. First, we can say that two areas are neighbours if they share boundaries, if they are next to each other. In this case we talk of neighbours by **contiguity**. By contiguous you can, at the same time, mean all areas that share common boundaries (what we call contiguity using the **rook** criteria, like in chess) or areas that share common boundaries and common *corners*, that is, that have any point in common (and we call this contiguity using the **queen** criteria). When we use this criteria we can refine our definition by defining the intensity of neighbourliness "as a function of the lenght of the common border as a proportion of the total border" (@Haining_2020) (p. 89).
 
 When defining neighbours by contiguity we may also specify the *order* of contiguity. **First order contiguity** means that we are focusing on areas immediately contiguous. **Second order** means that we consider neighbours only those areas that are immediately contiguous to our first order neighbours (only the yellow areas in the figure below) and you could go on and on. Look at the graphic below for clarification:
 
@@ -207,11 +208,13 @@ When defining neighbours by contiguity we may also specify the *order* of contig
 
 [Source](https://www.slideshare.net/CoreySparks/spatial-statistics-presentation-texas-am-census-rdc) 
 
-Alternatively we may define neighbours **by distance**. You can consider neighbours those areas that distant-wise are close to each other (regardless of whether boundaries are shared). In other words, areas will be defined as neighbours if they are within a specified radius.
+Secondly, we may define neighbours **by geographical distance**. You can consider neighbours those areas that distant-wise are close to each other (regardless of whether boundaries are shared). The distance metric often will be euclidean, but other commonly used distance metrics could also be employed (for example, Manhattan). Often one takes the centroid of the polygon as the location to take the distance from. More sophisticated approaches may involve taking a population weighted centroid, where the location of the centroid depends on the distribution of the population within an area. 
 
-In sum, adjacency is an important concept in some spatial analysis. In some cases objects are considered adjacent when they “touch”, e.g. neighbouring countries. Contiguity measures tend to be more common when studying areas. It can also be based on distance. This is the most common approach when analysing point data, but can also be relevant when studying areas.
+Other approaches to define neighbours are graph-based, attribute-based, or interaction-based (eg., flow of goods or people between areas). Contiguity and distance are the two most commonly used methods, though.
 
 You will come across the term **spatial weight matrix** at some point or, using mathematical notation, "W". Essentially the spatial weight matrix is a n by n matrix with, often, ones and zeroes (in the case of contiguity based definitions) identifying if any two observations are neighbours. So you can think of the spatial weight matrix as the new data table that we are constructing with our definition of neighbours (whichever definition that is).
+
+When working with contiguity measures the problem of "islands" sometimes arise. The spatial weight matrix in this case would have zeroes for the row representing this "island". This is not permitted in the subsequent statistical use of this kind of matrix. A common solution is to "join" islands to the spatial units in the "mainland" that are closer.
 
 So how do you build such a matrix with R? Well, let's turn to that. But to make things a bit simpler, let's focus not on the whole of Manchester, but just in the LSOAs within the city centre. Calculating a spatial weights matrix is a computationally intensive process, which means it takes a long time. The larger area you have (which will have more LSOAs) the longer this will take.
 
@@ -242,9 +245,9 @@ It would be very, very tedious having to identify the neighbours of all the area
 
 We have already discussed how the `sf` package is new kid in town and although package developers are quickly trying to adapt their packages to work with `sf`, many of the existing spatial packages still expect spatial objects based on the older standards of `sp`. So to illustrate the concepts in this week session we are first going to turn our `sf` object into spatial objects, so we can make use of the functions from the `sp` package that allow us to create a list of neighbours.
 
-```{r}
+```{r, warning=FALSE}
 #We coerce the sf object into a new sp object that we are calling bur_ccsp (remember names are arbitrary)
-st_crs(cc_burglary)
+
 bur_ccsp <- as(cc_burglary, "Spatial")
 
 ```
@@ -283,7 +286,7 @@ We can graphically represent the links using the following code:
 
 ```{r}
 #We first plot the boundaries
-plot(bur_ccsp, col='gray', border='blue', lwd=2)
+plot(bur_ccsp, col='white', border='blue', lwd=2)
 #Then we use the coordinates function to obtain the coordinates of the polygon centroids
 xy <- coordinates(bur_ccsp)
 #Then we draw lines between the polygons centroids for neighbours that are listed as linked in w
@@ -318,7 +321,113 @@ Row standardisation of a matrix ensure that the sum of the rows adds up to 1. So
 
 ### Spatial weight matrix based on distance
 
+#### Defining neighbours based on a critical threshold of distance
 
+As noted earlier we can also build the spatial weight matrix using some metric of distance. Remember that metrics such as Euclidean distance only makes sense if you have projected data. This is so because it does not take into account the curvature of the earth. If you have non projected data, you can either transform the data into a projected system (what we have been doing in earlier examples) or you need to use distance metrics that work with the curvature of earth (e.g., arc-distance or great-circle distance).
+
+The simplest spatial distanced-based weights matrix is obtained defining a given radius within each area and only consider as neighbours other areas that fall within such radius. So that we avoid "islands", the radius needs to be chosen in a way that guarantees that each location has at least one neighbor. So the first step would be to find an appropriate radius for establishing neighbourliness. 
+
+Previous to this we need the centroids for the polygons. We already showed above how to obtain this using `sp::coordinates()`, so we don´t really need to run this again.
+
+```{r, eval=FALSE}
+
+xy <- coordinates(bur_ccsp)
+
+```
+
+Then we use the `spdep::knearneigh()` function to find the nearest neighbour to each centroid. Then we turn the created object into a `nb` object as defined earlier using `spdep::knn2nb`:
+
+```{r}
+
+knn_bur <- knearneigh(xy)
+k_bur <- knn2nb(knn_bur)
+
+```
+
+Now we have a `nb` list that for each area define its nearest neighbour. What we need to do is to compute the distance from each centroid to its nearest neighbour (`spdep::nbdists()` will do this for us) and then find out what is the maximum distance (we can use `base::max()`), so that we use this as the critical threshold to define the radius we will use (to avoid the appearance of isolates in our matrix).
+
+```{r}
+radius <- max(unlist(nbdists(k_bur, xy)))
+radius
+```
+
+Now that we now the maximum radius we can use to avoid isolates we can use `spdep::dnearneigh()` to generate a list of neigbhours within the radius we will specify. Notice the difference between `knearneigh()`, that we used earlier, and `dnearneigh()`. The first function generates a `knn` class object with the single nearest neighbour to each area *i*, whereas `dnearneigh()` generates a `nb` object with *all* the areas *j* within a given radius of area *i* being defined as neighbours.
+
+For `dnearneigh()` we need to define as parameters the object with the coordinates, the lower distance bound andthe upper distance bound (the "radius" we just calculated). If you were to be working with non projected data you would need to specify `longlat` as `TRUE`. The function assumes we have projected data and, thus, we don´t need to specify this argument in our case, since our data are indeed using the British Grid projection. As we did with the `nb` objects generated through contiguity we can use `summary()` to get a sense of the resulting list of neighbours.
+
+```{r}
+bur_dist_1 <- dnearneigh(xy, 0, radius)
+summary(bur_dist_1)
+
+```
+And as earlier we can also plot the results:
+
+```{r}
+#We first plot the boundaries
+plot(bur_ccsp, col='white', border='blue', lwd=2)
+# Then we plot the distance-based neighbours
+plot(bur_dist_1, xy, lwd=2, col="red", add=TRUE)
+
+```
+We could now use this `nb` object to generate a spatial weight matrix in the same way as earlier:
+
+```{r}
+wm_d <- nb2mat(bur_dist_1, style='B')
+
+```
+If we we autoprint the object we will see this is a matrix with 1 and 0 just as the contiguity-based matrix we generated earlier.
+
+#### Using the inverse distance weights
+
+Instead of just using a critical threshold of distance to define a neighbour we could use a function to define the weight assigned to the distance between two areas. Typical functions used are the inverse distance, the inverse distance raised to a power, and the negative exponential. All these functions essentially do the same, they decrease the weight as the distance increases. They impose a **distance decay** effect. Sometimes these functions are combined with a distance threshold (@Haining_2020).
+
+The first steps in the procedure simply reproduce what we did earlier up to the point where we generated the "bur_dist_1" object, so we won´t repeat them here and simply invoke this object [^2]. Once we get to this point we need to generate the inverse distances. This requires us to take the following steps:
+-Calculate the distance between all neighbours
+-Compute the inverse distance for this calculated distances
+-Assign them as weight values
+[^2]: We adapt code and instructions provided by the tutorials of the Center for Spatial Data Science of the University of Chicago prepared by Anselin and Morrison.
+
+Let´s go one step at the time. First we use `spdep::nbdists()` to generate all the distances:
+
+```{r}
+distances <- nbdists(bur_dist_1, xy)
+
+```
+
+Now that we have an object with all the distances we need to compute the inverse distances. Taking the inverse simply involves dividing 1 by each of the disances. We can easily do that with the following code:
+
+```{r}
+
+inv_distances <- lapply(distances, function(x) (1/x))
+
+```
+
+if you look inside the generated object you will see all the inverse distances:
+
+```{r, eval = FALSE}
+
+View(inv_distances)
+
+```
+
+You will notice that the values are rather small. The projection we use measures distance in meters. Considering our polygons are census geographies "close" to the ideas of neighbourhoods you will have distances between their centroids that are large. If we take the inverse, as we did, we will unavoidably produce small values very close to zero. We could rescale this to obtain values that are not this small:
+
+```{r}
+
+inv_distances_r <- lapply(distances, function(x) (1/(x/100)))
+
+```
+
+Once we have generated the inverse distance we can move to generate the weights based on these using `nb2mat()`.
+
+```{r}
+
+wm_id <- nb2mat(bur_dist_1,
+                glist = inv_distances_r,
+                style='B')
+```
+
+The `glist` argument identifies the inverse distances and the `style` set to `"B"` ensures we are not using row standardisation. If we view this object we will see that rather than zeroes and ones we see the inverse distances used as weights.
 
 ## Moran's I
 
