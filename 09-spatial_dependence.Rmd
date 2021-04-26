@@ -144,47 +144,44 @@ plot(E_i)
 
 ### Get data
 
-[[[Need to put in British grid]]]
-
-We are going to take some of the data from past weeks. In getting the data ready you will have one more opportunity to practice how to read data into R but also how to perform some basic spatial checks, transformations and operations. First let's get the LSOA boundary data.
+We are going to take some of the data from past weeks. In getting the data ready you will have one more opportunity to practice how to read data into R but also how to perform some basic spatial checks, transformations and operations. First let's get the LSOA boundary data, which is the projected British National Grid reference system.
 
 ```{r}
 shp_name <- "data/BoundaryData/england_lsoa_2011.shp"
 manchester_lsoa <- st_read(shp_name, quiet=TRUE)
-st_crs(manchester_lsoa)
 
 ```
 
-Let's add the burglary data from Greater Manchester. We have practiced this code in previous chapters so we won't go over it on detail again, but try to remember and understand what each line of code rather than blindly cut and paste. 
+Let's add the burglary data from Greater Manchester. We have practiced this code in previous chapters so we won't go over it on detail again.
 
 ```{r, message=FALSE, warning=FALSE}
-#Read into R
+# Read into R
 burglary <- read_csv("https://raw.githubusercontent.com/jjmedinaariza/CrimeMapping/master/gmpcrime.csv") %>%
   filter(crime_type == "Burglary")
-#Transform into spatial object
+# Transform into spatial object
 burglary_spatial <- st_as_sf(burglary, coords = c("long", "lat"), 
                  crs = 4326, agr = "constant")
 burglary_spatial <- st_transform(burglary_spatial, 27700)
-#Remove redundant non spatial burglary object
+# Remove redundant non spatial burglary object
 rm(burglary)
 
-#Select burglaries that intersect with the Manchester city LSOA map.
+# Select burglaries that intersect with the Manchester city LSOA map.
 bur_mc <- st_intersects(manchester_lsoa, burglary_spatial)
 bur_mc <- burglary_spatial[unlist(bur_mc),]
-#Remove redundant objects
+# Remove redundant objects
 rm(burglary_spatial)
 ```
 
-We now have the burglary data, let's now count how many burglaries there are within each LSOA polygon. This is a point in polygon operation that we covered in chapter 2 when we counted the number of violent crimes in the buffers of the licenced premises for example. 
+We now have the burglary data, let's now count how many burglaries there are within each LSOA polygon. This is a point in polygon operation that we covered in chapter 2. 
 
 ```{r, message=FALSE, warning=FALSE}
-#Point in polygon spatial operation (be patient this can take time)
+# Point in polygon spatial operation (be patient this can take time)
 burglaries_per_lsoa <- bur_mc %>% 
   st_join(manchester_lsoa, ., left = FALSE) %>% 
   count(code)
-#Let's rename the column with the count of burglaries (n) into something more meaningful
+# Let's rename the column with the count of burglaries (n) into something more meaningful
 burglaries_per_lsoa <- rename(burglaries_per_lsoa, burglary = n)
-#Plot with tmap
+# Plot with tmap
 tm_shape(burglaries_per_lsoa) +
   tm_bubbles("burglary", border.lwd=NA, perceptual = TRUE) +            
   tm_borders(alpha=0.1) +
@@ -221,13 +218,13 @@ So how do you build such a matrix with R? Well, let's turn to that. But to make 
 We will use code we covered in Chapter 2 to clip the spatial object with the counts of burglaries to only those that intersect with the City Centre ward. 
 
 ```{r, warning = FALSE, message = FALSE}
-#Read a geojson file with Manchester wards and select only the city centre ward
+# Read a geojson file with Manchester wards and select only the city centre ward
 manchester_ward <- st_read("https://raw.githubusercontent.com/RUMgroup/Spatial-data-in-R/master/rumgroup/data/wards.geojson", quiet = TRUE) %>%
   filter(wd16nm == "City Centre")
-#Intersect
+# Intersect
 cc_intersects <- st_intersects(manchester_ward, burglaries_per_lsoa)
 cc_burglary <- burglaries_per_lsoa[unlist(cc_intersects),]
-#Plot with tmap
+# Plot with tmap
 tmap_mode("view")
 tm_shape(cc_burglary) + 
   tm_fill("burglary", style = "quantile", palette = "Reds", id="code") +
@@ -264,14 +261,14 @@ This function builds a neighbours list based on regions with contiguous boundari
 
 ```{r}
 
-w <- poly2nb(bur_ccsp, row.names=bur_ccsp$lsoa_code)
-class(w)
+nb_bur <- poly2nb(bur_ccsp, row.names=bur_ccsp$lsoa_code)
+class(nb_bur)
 ```
 
 This has created a `nb`, neighbour list object. We can get some idea of what's there if we ask for a summary.
 
 ```{r}
-summary(w)
+summary(nb_bur)
 ```
 
 This is basically telling us that using this criteria each LSOA polygon has an average of 4.3 neighbours (when we just focus on the city centre) and that all areas have some neighbours (there is no islands). The link number distribution gives you the number of links (neighbours) per area. So here we have 3 polygons with 2 neighbours, 3 with 3, 6 with 4, and so on. The summary function here also identifies the areas sitting at both extreme of the distribution.
@@ -279,7 +276,7 @@ This is basically telling us that using this criteria each LSOA polygon has an a
 For more details we can look at the structure of w.
 
 ```{r, eval = FALSE}
-str(w)
+str(nb_bur)
 ```
 
 We can graphically represent the links using the following code:
@@ -290,7 +287,7 @@ plot(bur_ccsp, col='white', border='blue', lwd=2)
 #Then we use the coordinates function to obtain the coordinates of the polygon centroids
 xy <- coordinates(bur_ccsp)
 #Then we draw lines between the polygons centroids for neighbours that are listed as linked in w
-plot(w, xy, col='red', lwd=2, add=TRUE)
+plot(nb_bur, xy, col='red', lwd=2, add=TRUE)
 ```
 
 ### Generating the weight matrix
@@ -298,7 +295,7 @@ plot(w, xy, col='red', lwd=2, add=TRUE)
 We can transform w, the list of neighbours, into a spatial weights matrix. A spatial weights matrix reflects the intensity of the geographic relationship between observations. For this we use the `spdep` function `nb2mat()`. The argument `style` sets what kind of matrix we want. `B` stands for the basic binary coding, you get a 1 for neighbours, and a 0 if the areas are not neighbours.
 
 ```{r}
-wm <- nb2mat(w, style='B')
+wm <- nb2mat(nb_bur, style='B')
 
 ```
 
@@ -313,7 +310,7 @@ This matrix has values of 0 or 1 indicating whether the elements listed in the r
 In many computations we will see that the matrix is **row standardised**. We can obtain a row standardise matrix changing the code, specifically setting the `style` to `W` (the indicator for row standardised in this function):
 
 ```{r}
-wm_rs <- nb2mat(w, style='W')
+wm_rs <- nb2mat(nb_bur, style='W')
 wm_rs
 ```
 
@@ -335,7 +332,7 @@ xy <- coordinates(bur_ccsp)
 
 ```
 
-Then we use the `spdep::knearneigh()` function to find the nearest neighbour to each centroid. Then we turn the created object into a `nb` object as defined earlier using `spdep::knn2nb`:
+Then we use the `spdep::knearneigh()` function to find the nearest neighbour to each centroid. This function will just do that, look for the centroid closest to each of the other centroids. Then we turn the created object with this information into a `nb` object as defined earlier using `spdep::knn2nb`:
 
 ```{r}
 
@@ -434,7 +431,6 @@ The `glist` argument identifies the inverse distances and the `style` set to `"B
 The most well known measure of spatial autocorrelation is the Moran's I. It was developed by Patrick Alfred Pierce Moran, an Australian statistician. You can find the formula and some explanation in [the wikipedia article](https://en.wikipedia.org/wiki/Moran's_I). The video lecture by Luc Anselin covers an explanation of Moran's I. We strongly recommend you watch the video. You can also find helpful [this link](https://pro.arcgis.com/en/pro-app/tool-reference/spatial-statistics/h-how-spatial-autocorrelation-moran-s-i-spatial-st.htm) if things are still unclear. The formula you see may look intimidating but it is nothing but the formula for standard correlation expanded to incorporate the spatial weight matrix.
 
 Before we can use the functions from `spdep` to compute the global Moran's I we need to create a `listw` type spatial weights object (instead of the matrix we used above). To get the same value as above we use `style='B'` to use binary (TRUE/FALSE) distance weights.
-
 
 ```{r}
 ww <-  nb2listw(w, style='B')
