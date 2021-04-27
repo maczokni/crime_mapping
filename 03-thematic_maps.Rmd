@@ -33,6 +33,9 @@ library(tmaptools)
 # Packages for spatial analysis
 library(DCluster)
 
+# Packages with spatial datasets
+library(geodaData)
+
 ```
 
 ## Thematic maps: key terms and ideas
@@ -424,34 +427,26 @@ As noted by @Cameron_2005: "In the final analysis, although choropleth maps are 
 
 In previous sections we discussed how to map rates. It seems a fairly straightforward issue, you calculate a rate by dividing your numerator (eg: number of crimes) by an appropriately selected denominator (eg: daytime population). You get your variable with the relevant rate and you map it using a choropleth map. However, things are not always that simple. Rates are funny animals. @Gelman_1999 goes so far as to suggest that all maps of rates are misleading. The problem at hand is well known in spatial epidemiology: " plotting observed rates can have serious drawbacks when sample sizes vary by area, since very high (and low) observed rates are found disproportionately in poorly-sampled areas" (@Gelman_1999, p. 3221). There is associated noise for those areas where the denominators give us a small sample size. And it is hard to solve this problem.
 
-Let´s illustrate with an example. We are going to use historic data on homicide across US counties. The dataset was used as the basis for the study by @Baller_2006. It contains data on homicide counts and rates for various decades across the US as well as information on structural factors often thought to be associated with violence. The data is freely available through the webpage of Geoda, a clever point-and-click interface developed by Luc Anselin (a spatial econometrician and coauthor of the above paper) and his team, to make spatial analysis accessible.
+Let´s illustrate with an example. We are going to use historic data on homicide across US counties. The dataset was used as the basis for the study by @Baller_2006. It contains data on homicide counts and rates for various decades across the US as well as information on structural factors often thought to be associated with violence. The data is freely available through the webpage of Geoda, a clever point-and-click interface developed by Luc Anselin (a spatial econometrician and coauthor of the above paper) and his team, to make spatial analysis accessible. It is also available as one of the packages in the `geodaData` package.
 
-```{r, eval=FALSE}
-##R in Windows have some problems with https addresses, that's why we need to do this first:
-urlfile<-'https://geodacenter.github.io/data-and-lab/data/ncovr.zip'
-download.file(urlfile, 'ncovr.zip')
-#Let's unzip and create a new directory (ncovr) in our working directory to place the files
-unzip('ncovr.zip', exdir = 'ncovr')
-
-```
-
-Remember that to treat the data as spatial we need to load the shapefile. With that we can create a spatial object:
+To read a data available in a library we have loaded we can use the `data()` function. If we check the `class()` of this object we will see it was already stored in `geodaData` as a `sf` object.
 
 ```{r}
-shp_name <- "ncovr/ncovr/NAT.shp"
-ncovr_sf <- st_read(shp_name)
+
+data("ncovr")
+class(ncovr)
 ```
 
 Let's look at the ncvor data. We can start by looking ath the homicide rate for 1960.
 
 ```{r}
-summary(ncovr_sf$HR60)
+summary(ncovr$HR60)
 ```
 
 We can see that the county with the highest homicide rate in the 1960s had a rate of 92.937 homicides per 100,000 individuals. That is very high. Just to put it into context in the UK is about 0.92. Where is that place? I can tell you is a place called Borden. Check it out:
 
 ```{r}
-borden <- filter(ncovr_sf, NAME == "Borden")
+borden <- filter(ncovr, NAME == "Borden")
 borden$HR60
 
 ```
@@ -473,7 +468,7 @@ borden$PO60
 Well, there were about 1076 people living there.
 
 ```{r}
-summary(ncovr_sf$PO60)
+summary(ncovr$PO60)
 
 ```
 
@@ -498,22 +493,22 @@ Here we are going to introduce the approach implemented in `DCluster`, a package
 [[vjeck theexpected and whether there is some functin i am missing here]]
 
 ```{r}
-res <- empbaysmooth(ncovr_sf$HC60, ncovr_sf$PO60)
+res <- empbaysmooth(ncovr$HC60, ncovr$PO60)
 ```
 
 In the new object we generate, which is a list, you have an element which contains the computed rates. We can add those to our dataset:
 
 ```{r}
-ncovr_sf$HR60EBS <- res$smthrr * 100000
+ncovr$HR60EBS <- res$smthrr * 100000
 ```
 
 Instead of shrinking to the global rate, we can shrink to a rate based on the neighbours of each county. Shrinking to the global rate ignores the spatial dimension of the phenomenon being mapped out and may mask existing heterogeneity. If instead of shrinking to a global rate, we shrink to a local rate, we may be able to take unobserved heterogeneity into account. @Marshall_1991 proposed a local smoother estimator in which the crude rate is shrunk towards a loca, "neighbourhood", rate. To compute this we need the list of neighbours that surround each county (we will discuss this code in a later session, so for now just trust us we are computing the rate of the areas that surround each country):
 
 ```{r}
-ncovr_sp <- as(ncovr_sf, "Spatial")
+ncovr_sp <- as(ncovr, "Spatial")
 w_nb <- poly2nb(ncovr_sp, row.names=ncovr_sp$FIPSNO)
-eb2 <- EBlocal(ncovr_sf$HC60, ncovr_sf$PO60, w_nb)
-ncovr_sf$HR60EBSL <- eb2$est * 100000
+eb2 <- EBlocal(ncovr$HC60, ncovr$PO60, w_nb)
+ncovr$HR60EBSL <- eb2$est * 100000
 
 ```
 
@@ -523,19 +518,19 @@ We can now plot the maps and compare them:
 tmap_mode("plot")
 current_style <- tmap_style("col_blind")
 
-map1<- tm_shape(ncovr_sf) + 
+map1<- tm_shape(ncovr) + 
   tm_fill("HR60", style="quantile", title = "Raw rate", palette = "Reds") +
   tm_layout(legend.position = c("left", "bottom"), 
             legend.title.size = 0.8,
             legend.text.size = 0.5)
 
-map2<- tm_shape(ncovr_sf) + 
+map2<- tm_shape(ncovr) + 
   tm_fill("HR60EBS", style="quantile", title = "EB Smooth", palette = "Reds") +
   tm_layout(legend.position = c("left", "bottom"), 
             legend.title.size = 0.8,
             legend.text.size = 0.5)
 
-map3<- tm_shape(ncovr_sf) + 
+map3<- tm_shape(ncovr) + 
   tm_fill("HR60EBSL", style="quantile", title = "Local Smooth", palette = "Reds") +
   tm_layout(legend.position = c("left", "bottom"), 
             legend.title.size = 0.8,
@@ -548,7 +543,7 @@ Notice that the quantiles are not the same, so that will make your comparison di
 
 ```{r}
 #Boxplots with base R graphics
-boxplot(ncovr_sf$HR60, ncovr_sf$HR60EBS, ncovr_sf$HR60EBSL,
+boxplot(ncovr$HR60, ncovr$HR60EBS, ncovr$HR60EBSL,
         main = "Different rates of homicide per 100,000 people",
         names = c("Raw rate", "Bayes smoother", "Locat base smoother"),
         ylab = "Rates")
