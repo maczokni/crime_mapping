@@ -50,7 +50,7 @@ Imagine we want to know if the location of crime events are independent. Ripley�
 
 ### Get data
 
-For this exercise we travel to Buenos Aires, the capital and largest city in Argentina.  The city provides open data in geocoded crime from 2016 onwards. The data is freely available from the official source (http://mapa.seguridadciudad.gob.ar/). But we have added it already as supplementary material available from our GitHub repository. We will filter on "homicidios dolosos", intentional homicides and we are using all homicides from 2016 and 2017. After reading the .csv file we turn it into a `sf` object and plot it. We are also reading a geojson file with the administrative boundary of Buenos Aires. The code below uses functions in ways we have demonstrated in earlier chapters.
+For this exercise we travel to Buenos Aires, the capital and largest city in Argentina.  The government of Buenos Aires provides open data in geocoded crime from 2016 onwards. The data is freely available from the official source (http://mapa.seguridadciudad.gob.ar/). But we have added it already as supplementary material available from our GitHub repository. We will filter on "homicidios dolosos", intentional homicides and we are using all homicides from 2016 and 2017. After reading the .csv file we turn it into a `sf` object and plot it. We are also reading a geojson file with the administrative boundary of Buenos Aires. The code below uses functions in ways we have demonstrated in earlier chapters.
 
 ```{r, message=FALSE, warning=FALSE}
 
@@ -197,7 +197,7 @@ Do you see any patterns? Are burglaries randomly spread around the map? Or would
 
 Previously we asked whether areas are alike their neighbours or to areas that are close. But what is a neighbour? Or what do we mean by close? How can one define a set of neighbours for each area? If we want to know if what we measure in a particular area is similar to what happens on its neighbouring areas, we need to establish what we mean by a neighbour. 
 
-There are various ways of defining a neighbour. Most rely on topological or geometrical relationships among the areas. First, we can say that two areas are neighbours if they share boundaries, if they are next to each other. In this case we talk of neighbours by **contiguity**. By contiguous you can, at the same time, mean all areas that share common boundaries (what we call contiguity using the **rook** criteria, like in chess) or areas that share common boundaries and common *corners*, that is, that have any point in common (and we call this contiguity using the **queen** criteria). When we use this criteria we can refine our definition by defining the intensity of neighbourliness "as a function of the lenght of the common border as a proportion of the total border" (@Haining_2020) (p. 89).
+There are various ways of defining a neighbour. Most rely on topological or geometrical relationships among the areas. First, we can say that two areas are neighbours if they share boundaries, if they are next to each other. In this case we talk of neighbours by **contiguity**. By contiguous you can, at the same time, mean all areas that share common boundaries (what we call contiguity using the **rook** criteria, like in chess) or areas that share common boundaries and common *corners*, that is, that have any point in common (and we call this contiguity using the **queen** criteria). When we use this criteria we can refine our definition by defining the intensity of neighbourliness "as a function of the lenght of the common border as a proportion of the total border" (@Haining_2020) (p. 89). Given that in criminology we mostly work with irregular lattice data (such as police districts or census geographies), the queen criteria makes more sense. There is little theoretical justification for why, say, a police district would only exhibit dependence according to the roook criteria.
 
 When defining neighbours by contiguity we may also specify the *order* of contiguity. **First order contiguity** means that we are focusing on areas immediately contiguous. **Second order** means that we consider neighbours only those areas that are immediately contiguous to our first order neighbours (only the yellow areas in the figure below) and you could go on and on. Look at the graphic below for clarification:
 
@@ -207,7 +207,7 @@ When defining neighbours by contiguity we may also specify the *order* of contig
 
 Secondly, we may define neighbours **by geographical distance**. You can consider neighbours those areas that distant-wise are close to each other (regardless of whether boundaries are shared). The distance metric often will be euclidean, but other commonly used distance metrics could also be employed (for example, Manhattan). Often one takes the centroid of the polygon as the location to take the distance from. More sophisticated approaches may involve taking a population weighted centroid, where the location of the centroid depends on the distribution of the population within an area. 
 
-Other approaches to define neighbours are graph-based, attribute-based, or interaction-based (eg., flow of goods or people between areas). Contiguity and distance are the two most commonly used methods, though.
+Other approaches to define neighbours are graph-based, attribute-based, or interaction-based (eg., flow of goods or people between areas). Contiguity and distance are the two most commonly used methods, though. You should be guided by theory in how you define the neighbors in your study, unfortunately "substantive theory regarding spatial effects remain an underdeveloped research area in most of the social sciences" (@Darmofal_2015, p. 23). In this context, it may make sense to explore various definitions and see if our findings are robust to these specifications.
 
 You will come across the term **spatial weight matrix** at some point or, using mathematical notation, "W". Essentially the spatial weight matrix is a n by n matrix with, often, ones and zeroes (in the case of contiguity based definitions) identifying if any two observations are neighbours. So you can think of the spatial weight matrix as the new data table that we are constructing with our definition of neighbours (whichever definition that is).
 
@@ -348,7 +348,7 @@ radius <- max(unlist(nbdists(k_bur, xy)))
 radius
 ```
 
-Now that we now the maximum radius we can use to avoid isolates we can use `spdep::dnearneigh()` to generate a list of neigbhours within the radius we will specify. Notice the difference between `knearneigh()`, that we used earlier, and `dnearneigh()`. The first function generates a `knn` class object with the single nearest neighbour to each area *i*, whereas `dnearneigh()` generates a `nb` object with *all* the areas *j* within a given radius of area *i* being defined as neighbours.
+Now that we now the maximum radius we can use to avoid isolates we can use `spdep::dnearneigh()` to generate a list of neigbhours within the radius we will specify. Notice the difference between `knearneigh()`, that we used earlier, and `dnearneigh()`. The first function generates a `knn` class object with the single nearest neighbour to each area $i$, whereas `dnearneigh()` generates a `nb` object with *all* the areas $j$ within a given radius of area $i$ being defined as neighbours.
 
 For `dnearneigh()` we need to define as parameters the object with the coordinates, the lower distance bound andthe upper distance bound (the "radius" we just calculated). If you were to be working with non projected data you would need to specify `longlat` as `TRUE`. The function assumes we have projected data and, thus, we don´t need to specify this argument in our case, since our data are indeed using the British Grid projection. As we did with the `nb` objects generated through contiguity we can use `summary()` to get a sense of the resulting list of neighbours.
 
@@ -428,9 +428,9 @@ The `glist` argument identifies the inverse distances and the `style` set to `"B
 
 ## Moran's I
 
-The most well known measure of spatial autocorrelation is the Moran's I. It was developed by Patrick Alfred Pierce Moran, an Australian statistician. Like the more familiar Pearson´s correlation coefficient, which is used to measure the dependency between a pair of variables, Moran´s I aims to measure dependency. This statistic measures how one area is similar to others surrounding it in a given attribute or variable. When the value of an attribute in  areas defined as neighbours in our spatial weight matrix are similar Moran's I will be large and positive (closer to 1). When the value of an attribute in neighbouring areas are dissimilar Moran's I will be negative, tending to -1. In the first case, when there is positive spatial dependence, we speak of clustering. In the latter, what we observe is spatial dispersion (areas alike, in an attribute, "repel" each other). When Moran´s I is close to zero, we fail to find evidence for either dispersion or clustering.
+The most well known measure of spatial autocorrelation is the Moran's I. It was developed by Patrick Alfred Pierce Moran, an Australian statistician. Like the more familiar Pearson´s correlation coefficient, which is used to measure the dependency between a pair of variables, Moran´s I aims to measure dependency. This statistic measures how one area is similar to others surrounding it in a given attribute or variable. When the value of an attribute in  areas defined as neighbours in our spatial weight matrix are similar Moran's I will be large and positive (closer to 1). When the value of an attribute in neighbouring areas are dissimilar Moran's I will be negative, tending to -1. In the first case, when there is positive spatial dependence, we speak of clustering. In the latter, what we observe is spatial dispersion (areas alike, in an attribute, "repel" each other). In social science applications, positive spatial autocorrelation is more likely to be expected. There are fewer social processes that would lead us to expect negative spatial autocorrelation. When Moran´s I is close to zero, we fail to find evidence for either dispersion or clustering. The null hypothesis in a test of spatial autocorrelation is that the values of the attribute in question are randomly distributed across space.
 
-Moran's I is a weighted product-moment correlation coefficient, where the weights reflect geographic proximity. It is defined as:
+Moran's I is a weighted product-moment correlation coefficient, where the weights reflect geographic proximity. Unlike autocorrelation in timeseries (which is unidimensional: the future cannot affect the past), spatial autocorrelation is multidimensional, the dependence between an area and its neighbors is either simultaneous or reciprocal. Moran´s I is defined as:
 
 $$
 
@@ -439,7 +439,7 @@ I = \frac{N}{W}\ \frac{\sum_{i} \sum_{j} w_{ij}   (x_{i}-\overline{x})(x_{j}-\ov
 $$
 where $N$ is the number of spatial areas indexed by $i$ and $j$; $x$ is our variable of interest; $\overline{x}$ is the mean of $x$; $w_{ij}$ is the spatial weight matrix with zeroes in the diagonal; and $W$ is the sum of all of $w_{ij}$.
 
-We can easily compute this statistic with the `spdep::moran.test()` function. This function does not take as an input the spatial weight matrix that we create using `nb2mat()`. Instead it prefers to read this information from a `listw` class object. This kind of object includes the same information than the matrix, but it does it in a more efficient way that helps with the computation. So the first step to use `moran.test()` is to turn our matrix into a `listw` class object.
+We can easily compute this statistic with the `spdep::moran.test()` function. This function does not take as an input the spatial weight matrix that we create using `nb2mat()`. Instead it prefers to read this information from a `listw` class object. This kind of object includes the same information than the matrix, but it does it in a more efficient way that helps with the computation (see @Brunsdon_2015, p. 230 for details). So the first step to use `moran.test()` is to turn our matrix into a `listw` class object.
 
 Before we can use the functions from `spdep` to compute the global Moran's I we need to create a `listw` type spatial weights object (instead of the matrix we used above). Let´s use the object we created using the contiguity criteria. To get the same value as above we use `style='B'` to use binary (TRUE/FALSE) weights.
 
@@ -454,9 +454,11 @@ Now we can use the `moran()` function. Have a look at `?moran` to see a descript
 moran.test(bur_ccsp$burglary, ww)
 ```
 
-So the Moran's I here is 0.12, which does not look very large. With this statistic we have a benchmarking problem. Whereas with standard correlation the value is always restricted to lie within the range of -1 to 1, the range of Moran´s I varies with the W matrix. How can we establish the range for our particular matrix? It has been shown that the maximum and minimum values of $I$ are the maximum and minimum values of the eigenvalues of $\frac{(W + W^T)}{2}$. Don´t worry if you don´t know what an eigenvalue is at this point. The thing is we can use this understanding to calculate the Moran´s range using the following code:
+So the Moran's I here is 0.12, which does not look very large. With this statistic we have a benchmarking problem. Whereas with standard correlation the value is always restricted to lie within the range of -1 to 1, the range of Moran´s I varies with the W matrix. How can we establish the range for our particular matrix? It has been shown that the maximum and minimum values of $I$ are the maximum and minimum values of the eigenvalues of $\frac{(W + W^T)}{2}$ (see @Brunsdon_2015, p. 232 for details). Don´t worry if you don´t know what an eigenvalue is at this point. The thing is we can use this understanding to calculate the Moran´s range using the following code:
 
 ```{r}
+# Adapted from Brunsdon and Comber (2015)
+
 moran_range <- function(lw) {
   wmat <- listw2mat(lw)
   return(range(eigen((wmat + t(wmat))/2)$values))
@@ -515,32 +517,20 @@ Aggregated to the police districts, this returns a global Moran’s I value (ran
 
 In this section we will learn about local indicators of spatial association (LISA) and show how they allow for the decomposition of global indicators, such as Moran's I, into the contribution of each observation. The LISA statistics serve two purposes. On one hand, they may be interpreted as indicators of local pockets of nonstationarity, or hot spots. On the other hand, they may be used to assess the influence of individual locations on the magnitude of the global statistic and to identify “outliers” [(Anselin, Luc. "Local indicators of spatial association—LISA." Geographical analysis 27.2 (1995): 93-115.)](http://onlinelibrary.wiley.com/doi/10.1111/j.1538-4632.1995.tb00338.x/full). 
 
-
 ### Getting Manchester data and weights 
 
 To explore local indicators of spatial correlation, let's go back to using all of Manchester, rather than just City Centre ward. We want to have enough data to see local variation, and while the code may take slightly longer to run, we can have a go at more meaningful stats. 
 
-So this is our `burglaries_per_lsoa` object that we're referring back to. To check what our data look like, we can always plot again with `tmap`:
+So this is our `burglaries_per_lsoa` object that we're referring back to. Now that we have the data we need to coerce into a spatial object, as before, for it to work well with the functions we use from the `sp` package, and then generate the weight matrix. Again, what we do here is stuff we did above for the global correlation. In fact, if you did the optional homework already, you will also have run this code.
 
-```{r}
-tmap_mode("plot")
-tm_shape(burglaries_per_lsoa) + 
-  tm_fill("burglary", style = "quantile", palette = "Reds") +
-  tm_borders(alpha = 0.1) +
-  tm_layout(main.title = "Burglary counts", main.title.size = 0.7 ,
-            legend.position = c("right", "bottom"), legend.title.size = 0.8)
-
-```
-
-Looks good! Now that we have the data we need to coerce into a spatial object, as before, for it to work well with the functions we use from the `sp` package, and then generate the weight matrix. Again, what we do here is stuff we did above for the global correlation. In fact, if you did the optional homework already, you will also have run this code.
-
-```{r}
+```{r, warning=FALSE}
 #Coerce sf into sp
 burglary_m <- as(burglaries_per_lsoa, "Spatial")
 #Generate list of neighbours using the Queen criteria
-w <- poly2nb(burglary_m, row.names=burglary_m$lsoa_code)
+lw <- poly2nb(burglary_m, row.names=burglary_m$lsoa_code)
 #Generate list with weights using row standardisation
-ww <-  nb2listw(w, style='W')
+ww <-  nb2listw(lw, style='W')
+
 
 ```
 
@@ -563,12 +553,13 @@ You can also see here that the positive spatial autocorrelation is more noticeab
 
 ```{r}
 moran(burglary_m$burglary, ww, n=length(ww$neighbours), S0=Szero(ww))
+moran_range(ww)
 moran.mc(burglary_m$burglary, ww, nsim=99999)
 ```
 
-You can see that the global Moran's is 0.32 and that is highly significant. There is indeed global spatial autocorrelation, when we look at all of Manchester (not just city centre ward). Knowing this we can try to decompose this, figure out what is driving this global measure.
+You can see that the global Moran's is 0.32 (for a range of I between -.5 to 1.02) and that is highly significant. There is indeed global spatial autocorrelation, when we look at all of Manchester (not just city centre ward). Knowing this we can try to decompose this, figure out what is driving this global measure.
 
-To compute the local Moran we can use a function from the `spdep` package.
+To compute the local Moran we can use a function from the `spdep` package: `localmoran()`.
 
 ```{r}
 locm_bm <- localmoran(burglary_m$burglary, ww)
@@ -576,7 +567,6 @@ summary(locm_bm)
 ```
 
 The first column provides the summary statistic for the local moran statistic. Being local you will have one for each of the areas. The last column gives you a p value for this statistic. In order to produce the LISA map we need to do some previous work. First we are going to create some new variables that we are going to need:
-
 
 First we scale the variable of interest. When we scale burglary what we are doing is re-scaling the values so that the mean is zero. See an explanation of what this does [here](http://www.gastonsanchez.com/visually-enforced/how-to/2014/01/15/Center-data-in-R/). 
 
@@ -590,12 +580,9 @@ burglary_m$s_burglary <- scale(burglary_m$burglary) %>% as.vector()
 
 We've also added `as.vector()` to the end, to make sure that the data type we get out of this is a vector, that maps neatly into our dataframe. 
 
-
 Now we also want to account for the spatial dependence of our values. Remember how we keep saying about "The First Law of Geography", according to [Waldo Tobler](https://en.wikipedia.org/wiki/Waldo_R._Tobler), is "everything is related to everything else, but near things are more related than distant things." Seriously, we should all just tattoo this onto our foreheads because this is the key message of the module...!
 
-
 So what do we mean by this spatial dependence? When a value observed in one location depends on the values observed at neighbouring locations, there is a **spatial dependence**. And spatial data may show spatial dependence in the variables and error terms.
-
 
 *Why should spatial dependence occur?* There are two reasons commonly given. First, data collection of observations associated with spatial units may reflect measurement error. This happens when the boundaries for which information is collected do not accurately reflect the nature of the underlying process generating the sample data. A second reason for spatial dependence is that the spatial dimension of a social or economic characteristic may be an important aspect of the phenomenon. For example, based on the premise that location and distance are important forces at work, regional science theory relies on notions of spatial interaction and diffusion effects, hierarchies of place and spatial spillovers. 
 
@@ -608,26 +595,18 @@ There are two types of dependence, spatial error and spatial lag. Here we focus 
 
 ![](img/spatial_lag.png)
 
-
 This will be important to keep in mind when considering spatial regression. With spatial lag in ordinary least square regression, the assumption of uncorrelated error terms is violated, because near things will have associated error terms. Similarly, the assumption of independent observations is also violated, as the observations are influenced by the other observations near them. As a result, the estimates are biased and inefficient. Spatial lag is suggestive of a possible diffusion process – events in one place predict an increased likelihood of similar events in neighboring places.
-
-
 
 So to be able to account for the spatial lag in our model, we must create a variable to account for this. We can do this with the `lag.listw()` function. Remember from last week: a spatial lag in this context is simply the average value of the burglary count in the areas that are considered neighbours of each LSOA. So we are plotting the value of burglary against the average value of burglary in the neighbours. 
 
-
 For this we need our `listw` object, which is the `ww` object created earlier, when we generated the list with weights using row standardisation. We then pass this `listw` object into the `lag.listw()` function, which computes  the spatial lag of a numeric vector using a `listw` sparse representation of a spatial weights matrix. 
-
-
 
 ```{r}
 #create a spatial lag variable and save it to a new column
 burglary_m$lag_s_burglary <- lag.listw(ww, burglary_m$s_burglary)
 ```
 
-
 Make sure to check the summaries to ensure nothing weird is going on
-
 
 ```{r}
 
@@ -646,35 +625,23 @@ moran.plot(x, ww)
 
 We are now going to create a new variable to identify the quadrant in which each observation falls within the Moran Scatter plot, so that we can tell apart the high-high, low-low, high-low, and low-high areas. We will only identify those that are significant according to the p value that was provided by the local moran function.
 
-
 Before we get started, let's quickly review the tools we will use. 
 
 All our data is in this `burglary_m` dataframe. This has a variable for the LSOA code (`code`), a variable for the number of burglaries (`burglary`), and then also the two variables we created, the scaled measure of burglary (`s_burglary`), and the spatial lag measure (`lag_s_burglary`).
 
-
 We also have our `locm_bm` object, which we created with the `localmoran()` function, that has calculated a variety of measures for each of our observations, which we explored with the `summary()` function. You can see (if you scroll up) that the 5th element in this object is the p-value ("Pr(z > 0)"). To call the nth element of an object, you can use the square brackets after its name. So to return the nth column of thing, you can use `thing[,n]`. Again this should not be new to you, as we've been doing this sort of thing for a while. 
-
 
 So the data we need for each observation, in order to identify whether it belongs to the high-high, low-low, high-low, or low-high quadrants are the standardised burglary score, the spatial lag score, and the p-value. 
 
-
-
 Essentially all we'll be doing, is assigning a variable values based on where in the plot it is. So for example, if it's in the upper right, it is high-high, and has values larger than 0 for both the burglary and the spatial lag values.  It it's in the upper left, it's low-high, and has a value larger than 0 for the spatial lag value, but lower than 0 on the burglary value. And so on, and so on. Here's an image to illustrate:
-
-
 
 ![](img/moran_plot_annotate.png)
 
-
 So let's first initialise this variable. In this instance we are creating a new column in the `burglary_m` dataframe and calling it `quad_sig`. 
-
-
 
 We are using the `mutate()` function from the dplyr package to create our new variable, just as we have in previous labs. 
 
 We also use nested ifelse() statements. Nested ifelse() just means that it's an ifelse() inside another ifelse() statement. To help us with these sorts of situations is the `ifelse()` function. We saw this with the previous exercises, but I'll describe it brielfy again. It allows us to conditionally assign some value to some variable. The structure of the function is so that you have to pass it a condition, then a value to assign if the condition is true, and then another value if the condition is false. You are basically using this function to say: "if this condition is true, do first thing, else, do the second thing". It would look something like this:
-
-
 
 ```{r, eval=FALSE}
 
@@ -743,20 +710,14 @@ qtm(burglary_m, fill="quad_sig", fill.title="LISA")
 
 ```
 
-
 Very nice!
-
-
-
 
 So how do we interpret these results? Well keep in mind: 
 
 - The LISA value for each location is determined from its individual contribution to the global Moran's I calculation.
 - Whether or not this value is statistically significant is assessed by comparing the actual value to the value calculated for the same location by randomly reassigning the data among all the areal units and recalculating the values each time (the Monte Carlo simulation approach discussed earlier).
 
-
 So essentially this map now tells us that there was statistically significant moderate clustering in burglaries in Manchester.  When reporting your results, report at least the Moran’s I test value and the p value.  So, for this test, you should report Moran’s I = 0.32, p < .001. Including the LISA cluster map is also a great way of showing how the attribute is actually clustering.  
-
 
 ### Homework 4
 
