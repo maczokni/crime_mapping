@@ -15,7 +15,6 @@ We'll be making use of the following packages:
 library(readr)
 library(dplyr)
 library(lubridate)
-library(purrr)
 
 # Packages for handling spatial data and for geospatial carpentry
 library(sf)
@@ -180,6 +179,8 @@ We now have the burglary data, let's now count how many burglaries there are wit
 burglaries_per_lsoa <- bur_mc %>% 
   st_join(manchester, ., left = FALSE) %>% 
   count(code)
+# Remove redundant objects
+rm(bur_mc)
 # Let's rename the column with the count of burglaries (n) into something more meaningful
 burglaries_per_lsoa <- rename(burglaries_per_lsoa, burglary = n)
 # Plot with tmap
@@ -225,6 +226,9 @@ ward <- st_read("https://raw.githubusercontent.com/RUMgroup/Spatial-data-in-R/ma
 # Intersect
 cc_intersects <- st_intersects(ward, burglaries_per_lsoa)
 cc_burglary <- burglaries_per_lsoa[unlist(cc_intersects),]
+# Remove redundant objects
+rm(ward)
+rm(cc_intersects)
 # Plot with tmap
 tmap_mode("view")
 tm_shape(cc_burglary) + 
@@ -248,12 +252,6 @@ We have already discussed how the `sf` package is new kid in town and although p
 
 bur_ccsp <- as(cc_burglary, "Spatial")
 
-```
-
-Let's also change the code variable to be a character vector (rather than a factor) as we will need it to be in this format later on: 
-
-```{r}
-cc_burglary$lsoa_code <- as.character(cc_burglary$code)
 ```
 
 In order to identify neighbours we will use the `poly2nb()` function from the `spdep` package that we loaded at the beginning of our session. The `spdep` package provides basic functions for building neighbour lists and spatial weights, tests for spatial autocorrelation for areal data like Moran's I (more on this below), and functions for fitting spatial regression models. 
@@ -312,7 +310,7 @@ In many computations we will see that the matrix is **row standardised**. We can
 
 ```{r}
 wm_rs <- nb2mat(nb_bur, style='W')
-wm_rs
+
 ```
 
 Row standardisation of a matrix ensure that the sum of the rows adds up to 1. So, for example, if you have four neighbours and that has to add up to 4, you need to divide 1 by 4, which gives you 0.25. So in the columns for a polygon with 4 neighbours you will see 0.25 in the column representing each of the neighbours.
@@ -670,23 +668,36 @@ nrow(locm_bm[locm_bm[,5] <= 0.05,])
 
 We can see that only 23 areas have p-values under 0.05 threshold. So this is in line with our results, and we can rest assured. Well, this is exciting, but where are these regions?
 
-Let's put'em on a map, just simply, using quick thematic map (`tmap::qtm()`): 
+Let's put'em on a map, using the standard colours used in this kind of maps:
+
+```{r, echo=FALSE}
+tmap_mode("view")
+```
 
 
 ```{r}
 
-qtm(burglary_m, fill="quad_sig", fill.title="LISA")
-
+tm_shape(burglary_m) + 
+  tm_fill("quad_sig",
+          palette= c("red","blue","white"),
+          labels = c("High-High","Low-Low", "non-significant"),
+          alpha=0.5) +
+  tm_borders(alpha=.5) +
+  tm_layout(frame = FALSE,
+            legend.position = c("right", "bottom"), 
+            legend.title.size = 0.8,
+            legend.text.size = 0.5,
+            main.title = "LISA with the p-values",
+            main.title.position = "centre",
+            main.title.size = 1.2)
 ```
-
-Very nice!
 
 So how do we interpret these results? Well keep in mind: 
 
 - The LISA value for each location is determined from its individual contribution to the global Moran's I calculation.
 - Whether or not this value is statistically significant is assessed by comparing the actual value to the value calculated for the same location by randomly reassigning the data among all the areal units and recalculating the values each time (the Monte Carlo simulation approach discussed earlier).
 
-So essentially this map now tells us that there was statistically significant moderate clustering in burglaries in Manchester.  When reporting your results, report at least the Moran’s I test value and the p value.  So, for this test, you should report Moran’s I = 0.32, p < .001. Including the LISA cluster map is also a great way of showing how the attribute is actually clustering.  
+So essentially this map now tells us that there was statistically significant moderate clustering in burglaries in Manchester. If you were familiar with the city you could see they are located around the city centre, areas of university student residencies, and some pockets of social exclusion.  When reporting your results, report at least the Moran’s I test value and the p value.  So, for this test, you should report Moran’s I = 0.32, p < .001. Including the LISA cluster map is also a great way of showing how the attribute is actually clustering.  
 
 ## Further Reading
 
