@@ -1,13 +1,24 @@
----
-always_allow_html: true
----
-
 # Spatial regression models
-
 
 ## Introduction
 
-Last week we provided you with an introduction to regression analysis with R. The data we used had a spatial component. We were modelling the geographical distribution of homicide across US counties. However, we did not incorporate this spatial component into our models. As we have explained througout the semester criminal events often cluster geographically in space. So if we want to develop a regression model for crime we may have to recognise this spatial component. Remember as well, from last week, that regression models assume independence between the observations. That is, a regression model is formally assuming that what happens in area Xi is not in any way related (it is independent) of what happens in area Xii. But if those two areas are adjacent in geographical space we know that there is a good chance that this assumption may be violated. In previous weeks we covered formal tests for spatial autocorrelation, which allow us to test whether this assumption is met or not. So before we fit a regression model with spatial data we need to explore the issue of autocorrelation. We already know how to do this. In this session, we will examine the data from last week, explore whether autocorrelation is an issue, and then introduce models that allow us to take into account spatial autocorrelation. We will see that there are two basic ways of adjusting for spatial autocorrelation: through a spatial lag model or through a spatial error model.
+In science one of our main concerns is to develop models of the world, models that help us to understand the world a bit better or to predict how things will develop better. Crime analysis also is interested in understanding the processes that may drive crime, that is a key element in the SARA process (e.g., understanding your problem). Statistics provides a set of tools that help researchers build and test scientific models, and to develop predictions.
+
+Our models can be simple. We can think that unemployment is a factor that may help us to understand why cities differ in their level of violent crime. We could express such a model like this:
+
+![](img/model1.png) 
+
+Surely we know the world is complex and likely there are other things that may help us to understand why some cities have more crime than others. So, we may want to have tools that allow us to examine such models. Like, for example, the one below:
+
+![](img/model2.png) 
+
+In this chapter we cover regression analysis for spatial data, a key tool for testing models. Regression is a flexible technique that allows you to "explain" or "predict" a given outcome (Y), variously called your outcome, response or dependent variable, as a function of a number of what is variously called inputs, features or independent, explanatory, or predictive variables (X1, X2, X3, etc.). Following Gelman and Hill (2007), we will try to stick for the most part to the terms outputs and inputs.
+
+We assume that you may have covered regression analysis in previous training. If that is not the case or you want a quick refresher, we suggest you consult *Appendix B* in the website for this book.
+
+A key assumption of regression analysis is the independence between the observations. That is, a regression model is formally assuming that what happens in area $Xi$ is not in any way related (it is independent) of what happens in area $Xii$. But if those two areas are adjacent in geographical space we know that there is a good chance that this assumption may be violated. 
+
+In previous weeks we covered formal tests for spatial autocorrelation, which allow us to test whether this assumption is met or not. So before we fit a regression model with spatial data we need to explore the issue of autocorrelation. We already know how to do this. In this session, we will see that there are two basic ways of adjusting for spatial autocorrelation: through a spatial lag model or through a spatial error model.
 
 Before we do any of this, we need to load the libraries we will use today:
 
@@ -17,7 +28,6 @@ library(tmap)
 library(sp)
 library(spdep)
 ```
-
 
 Then we will bring back the data from last week:
 

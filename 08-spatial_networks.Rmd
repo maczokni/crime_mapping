@@ -1,4 +1,4 @@
-# Chapter 7: Understanding and interpreting hot spots of crime in context
+# Chapter 8: Exploring crime along networks
 
 
 ## Crime concentration in micro places. 
@@ -54,32 +54,7 @@ plot(st_geometry(ldn),  add = TRUE)
 ```
 
 
-## Micro Grid Cells
 
-In chapter 4 we discussed alternatives to our choropleth maps, and one of these was to use a grid map. This is a process whereby a tessalating grid of a shape such as squares or hexagons is overlaid on top of our area of interest, and our points are aggregated to such a grid. 
-
-
-@Chainey_2021 recommend
-
-
-We explored this using `ggplot2` package. Here we can revisit this with another approach, using the `raster` package: 
-
-```{r}
-library(raster)
-
-
-pixelsize <-  0.01
-box <-  (extent(ldn) / pixelsize) * pixelsize
-template = raster(box, crs = 4326,
-	nrows = (box@ymax - box@ymin) / pixelsize, 
-	ncols = (box@xmax - box@xmin) / pixelsize)
-
-btp_crimes$PRESENT <-  1
-btp_crimes_raster <- rasterize(btp_crimes, template, field = 'PRESENT', fun = sum)
-
-plot(btp_crimes_raster)
-plot(st_geometry(ldn), border='#00000040', add=T)
-```
 
 
 
@@ -101,57 +76,7 @@ leaflet() %>%
 ```
 
 
-## Getis-Ord GI*
 
-One major issue with the above, which is another issue associated with kernel density estimation is that the choice of a threshold for what is and is not a hot spot is arbitrary, making use of KDE imprecise and subject to misinterpretation.
-
-One commonly used technique to work around that issues was developed by Arthur Getis and JK Ord in the early 1990s. When you develop an algorithm, you get to name it after yourself, so this is called the Getis-Ord GI* statistic.
-
-This statistic is based on the observation that the distribution of differences in crime intensity between neighbouring areas across a map will follow a normal curve. Therefore, the amount of difference between an area and its neighbors can then be converted to a z-score reflecting the number of standard deviations (σ) that the crime level in an area differs from neighborhood normal. Areas with high z-scores (indicating a crime significantly above the mean) are identified as hot spots, while areas with low z-scores are identified as cold spots.
-
-```{r}
-
-
-
-getisgrid <-  rasterToPolygons(btp_crimes_raster)
-
-# Create the list of neighbors
-
-library(spdep)
-neighbors <-  poly2nb(getisgrid)
-weighted_neighbors = nb2listw(neighbors, zero.policy=T)
-
-# Perform the local G analysis (Getis-Ord GI*)
-
-getisgrid$HOTSPOT = as.vector(localG(getisgrid$layer, weighted_neighbors))
-
-# Color the grid cells based on the z-score
-
-breaks = quantile(getisgrid$HOTSPOT, na.rm = TRUE)
-palette=c("#0000FF80", "#8080FF80", "#FFFFFF80", "#FF808080", "#FF000080")
-col = palette[cut(getisgrid$HOTSPOT, breaks)]
-
-# Plot
-
-plot(getisgrid, col=col, border=NA)
-plot(st_geometry(ldn), border="gray", add=T)
-
-```
-
-Or on a leaflet map to aid interpretation: 
-
-```{r}
-
-pal <- colorQuantile(c("#0000FF80", "#8080FF80", "#FFFFFF80", "#FF808080", "#FF000080"),getisgrid$HOTSPOT, 
-  na.color = "transparent")
-
-leaflet(getisgrid) %>% 
-  addTiles() %>%
-  addPolygons(fillColor =  ~pal(HOTSPOT), fillOpacity = 0.8, weight = 0) %>% 
-  addLegend(pal = pal, values = ~HOTSPOT, opacity = 0.7, 
-            title = 'BTP crimes')
-
-```
 
 
 ## Spatial point patterns along networks
