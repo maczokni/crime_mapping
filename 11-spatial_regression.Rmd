@@ -113,15 +113,11 @@ Notice the main change affects the numerical predictors. The unstandardised coef
 
 Standardising in the way described here will help you to make fairer comparisons. This standardised coefficients are comparable in a way that the unstandardised coefficients are not. We can now see what inputs have a comparatively stronger effect. It is very important to realise, though, that one **should not** compare standardised coefficients *across different models*.
 
-
-
-
-
 ## Looking at the residuals and testing for spatial autocorrelation in regression
 
-Residuals, as we have explained, give you an idea of the distance between our observed Y values and the predicted Y values. So in essence they are deviations of observed reality from your model. Your regression line or hyperplane is optimised to be the one that best represent your data if those assumptions are met. Residuals are very helpful to diagnose, then, whether your model is a good representation of reality or not. Most diagnostics of the assumptions for OLS regression rely on exploring the residuals. 
+Residuals measure the distance between our observed Y values, $Y$, and the predicted Y values, $\hat{Y}$. So in essence they are deviations of observed reality from your model. Your regression line or hyperplane (in the case of multiple regression) is optimised to be the one that best represent your data if the assumptions of the model are met. Residuals are very helpful to diagnose, then, whether your model is a good representation of reality or not. Most diagnostics of the assumptions for regression rely on exploring the residuals. 
 
-Now that we have fitted the model we can extract the residuals. If you look at the fit_1 object in your RStudio environment or if you run the `str()` function to look inside this object you will see that this object is a list with differet elements, one of which is the residuals. An element of this object then includes the residual for each of your observations (the difference between the observed value and the value predicted by your model). We can extract the residuals using the `residuals()` function and add them to our spatial data set.
+Now that we have fitted the model we can extract the residuals. If you look at the "fit_1" object in your RStudio environment or if you run the `str()` function to look inside this object you will see that this object is a list with differet elements, one of which is the residuals. An element of this object then includes the residual for each of your observations (the difference between the observed value and the value predicted by your model). We can extract the residuals using the `residuals()` function and add them to our spatial data set.
 
 ```{r}
 ncovr$res_fit1 <- residuals(fit_1)
@@ -133,9 +129,10 @@ We could also extract the predicted values if we wanted. We would use the `fitte
 
 ```{r}
 ncovr$fitted_fit1 <- fitted(fit_1)
+
 ```
 
-Now look at the second county in the dataset. It has a homice rate in 1990 of 15.88. This is the observed value. If we look at the new column we have created ("fitted_fit1"), our model predicts a homicide rate of 2.41. That is, knowing the level unemployment, whether the county is North or South, the level of resource deprivation, etc., we are predicting a homicide rate of 2.41. Now, this is lower than the observed value, so our model is underpredicting the level of homicide in this case. If you observed the residual you will see that it has a value of 13.46, which is simply the difference between the observed and the predicted value.
+Now look, for example, at the second county in the dataset: the county of Ferry in Washington. It had a homicide rate in 1990 of 15.88. This is the observed value. If we look at the new column we have created ("fitted_fit1"), our model predicts a homicide rate of 2.41. That is, knowing the level unemployment, whether the county is North or South, the level of resource deprivation, etc., we are predicting a homicide rate of 2.41. Now, this is lower than the observed value, so our model is underpredicting the level of homicide in this case. If you observed the residual you will see that it has a value of 13.46, which is simply the difference between the observed (15.88) and the predicted value (2.41).bThis is normal. The world is too complex to be encapsulated by our models and their predictions will depart from the observed world.
 
 With spatial data one useful thing to do is to look at any spatial patterning in the distribution of the residuals. Notice that the residuals are the difference between the observed values for homicide and the predicted values for homicide, so you want your residual to NOT display any spatial patterning. If, on  the  other  hand,  your  model  display  a  patterning  in  the  areas of  the  study  region where  it performs  predicts  badly,  then  you  may have  a  problem.  This  is  telling  your  model  is  not  a  good representation  of  the  social  phenomena  you  are  studying  across  the full  study  area:  there  is systematically more distortion in some areas than in others. 
 
@@ -149,12 +146,12 @@ ncovr$sd_breaks <- scale(ncovr$res_fit1)[,1] # because scale is made for matrice
 summary(ncovr$sd_breaks)
 ```
 
-Next we use a new style, `fixed`, within the `tm_fill` function. When we break the variable into classes using the `fixed` argument we need to specify the boundaries of the classes. We do this using the breaks argument. In this case we are going to ask R to create 7 classes based on standard deviations away from the mean. Remember that a value of 1 would be 1 standard deviation higher than the mean, and -1 respectively lower. If we assume normal distribution, then 68% of all counties should lie within the middle band from -1 to +1 (you can find a refresher of this [on Wikipedia](https://en.wikipedia.org/wiki/68%E2%80%9395%E2%80%9399.7_rule)).
+Next we use a new style, `fixed`, within the `tm_fill` function. When we break the variable into classes using the `fixed` argument we need to specify the boundaries of the classes. We do this using the breaks argument. In this case we are going to ask R to create 7 classes based on standard deviations away from the mean. Remember that a value of 1 would be 1 standard deviation higher than the mean, and -1 respectively lower. If we assume normal distribution, then 68% of all counties should lie within the middle band from -1 to +1.
 
 ```{r, message=FALSE}
 my_breaks <- c(-14,-3,-2,-1,1,2,3,14)
 
-tm_shape(ncovr_sf) + 
+tm_shape(ncovr) + 
   tm_fill("sd_breaks", title = "Residuals", style = "fixed", breaks = my_breaks, palette = "-RdBu") +
   tm_borders(alpha = 0.1) +
   tm_layout(main.title = "Residuals", main.title.size = 0.7 ,
@@ -173,7 +170,7 @@ w <- poly2nb(ncovr_sp, row.names=ncovr_sp$FIPSNO)
 summary(w)
 ```
 
-This should give you an idea of the distribution of connectedness across the data, with counties having on average nearly 6 neighbours. Now we can generate the row standardise spatial weight matrix and the Moran Scatterplot.
+This should give you an idea of the distribution of connectedness across the data, with counties having on average nearly 6 neighbours. Now we can generate the row standardised spatial weight matrix and the Moran Scatterplot.
 
 ```{r}
 wm <- nb2mat(w, style='B')
@@ -186,7 +183,9 @@ We obtain the Moran's test for regression residuals using the function `lm.moran
 lm.morantest(fit_1, rwm, alternative="two.sided")
 ```
 
-You will notice we obtain a statistically significant value for Moran's I. The value of the Moran's I test is not too high, but we still need to keep it in mind. If we diagnose that spatial autocorrelation is an issue, that is, that the errors (the residuals) are related systematically among themselves, then we have a problem and need to use a more appropriate approach: a spatial regression model.
+You will notice we obtain a statistically significant value for Moran's I.If we diagnose that spatial autocorrelation is an issue, that is, that the errors (the residuals) are related systematically among themselves, then we have a problem and need to use a more appropriate approach: a spatial regression model.
+
+[[What are the implications of not doing this?]]
 
 ## What to do now?
 
@@ -196,11 +195,11 @@ There are  two  general  ways  of  incorporating  spatial  dependence in  a regr
  
 The difference between these two models is both technical and conceptual. The **spatial error model** treats the spatial autocorrelation as a nuisance that needs to be dealt with.  A spatial error model basically implies that the: 
  
-*"spatial  dependence  observed  in  our  data  does  not  reflect  a  truly spatial  process,  but  merely  the geographical clustering of the sources of the behaviour of interest. For example, citizens in adjoining neighbohoods may favour the same (political) candidate not because they talk to their neighbors, but because citizens  with  similar  incomes  tend to  cluster  geographically,  and  income  also  predicts  vote  choice. Such spatial dependence can be termed attributional dependence"* (Darmofal, 2015: 4)
+*"spatial  dependence  observed  in  our  data  does  not  reflect  a  truly spatial  process,  but  merely  the geographical clustering of the sources of the behaviour of interest. For example, citizens in adjoining neighbohoods may favour the same (political) candidate not because they talk to their neighbors, but because citizens  with  similar  incomes  tend to  cluster  geographically,  and  income  also  predicts  vote  choice. Such spatial dependence can be termed attributional dependence"* (@Darmofal_2015 p: 4)
  
-The **spatially lagged model**, on the other hand, incorporates spatial dependence explicitly by adding a  "spatially  lagged"  variable  $y$ on  the  right  hand  side  of  our  regression  equation.  Its  distinctive characteristic  is  that  it  includes  aspatially  lagged  "dependent"  variable  among  the  explanatory factors. It's basically explicitly saying that the values of y in the neighbouring areas of observation $n_i$ is an important predictor of $y$ on each individual area $n_i$ . This is one way of saying that the spatial dependence  may  be  produced  by  a  spatial  process  suchas  the  diffusion  of  behaviour  between neighboring units:  
+The **spatially lagged model**, on the other hand, incorporates spatial dependence explicitly by adding a  "spatially  lagged"  variable  $y$ on  the  right  hand  side  of  our  regression  equation.  Its  distinctive characteristic  is  that  it  includes  as patially  lagged  "dependent"  variable  among  the  explanatory factors. It iss basically explicitly saying that the values of $y$ in the neighbouring areas of observation $n_i$ is an important predictor of $y_i$ on each individual area $n_i$ . This is one way of saying that the spatial dependence  may  be  produced  by  a  spatial  process  such as  the  diffusion  of  behaviour  between neighboring units:  
  
-*"If so the behaviour is likely to be highly social in nature, and understanding the interactions between interdependent units is critical to understanding the behaviour in question. For example, citizens may discuss politics across adjoining neighbours such that an increase in support for a candidate in one neighbourhood  directly  leads  to  an  increase  in  support  for  the  candidate  in    adjoining neighbourhoods"* (Darmofal, 2015: 4)
+*"If so the behaviour is likely to be highly social in nature, and understanding the interactions between interdependent units is critical to understanding the behaviour in question. For example, citizens may discuss politics across adjoining neighbours such that an increase in support for a candidate in one neighbourhood  directly  leads  to  an  increase  in  support  for  the  candidate  in    adjoining neighbourhoods"* (@Darmofal_2015 p: 4).
 
 ## Spatial Regimes
 

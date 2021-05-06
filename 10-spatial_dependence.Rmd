@@ -3,7 +3,7 @@
 
 ## Introduction
 
-This session we begin to explore the analysis of spatial autocorrelation statistics. Spatial autocorrelation is the correlation among data values, strictly due to the relative location proximity of the objects that the data refer to. It has been long known that values attribute values that are close together in space are unlikely to be independent. This is often referred to as Tobler's first law of geography : "everything is related to everything else, but near things are more related than distant things". For example, if area X has a high level of violence, we often observe that the areas geographically close to X tend to also exhibit high levels of violence. Spatial autocorrelation is the measure of this *correlation* between near things.
+This session we begin to explore the analysis of spatial autocorrelation statistics. Spatial autocorrelation is the correlation among data values, strictly due to the relative location proximity of the objects that the data refer to. It has been long known that values attribute values that are close together in space are unlikely to be independent. This is often referred to as Tobler's first law of geography : "everything is related to everything else, but near things are more related than distant things". For example, if area $n_i$ has a high level of violence, we often observe that the areas geographically close to $n_i$ tend to also exhibit high levels of violence. Spatial autocorrelation is the measure of this *correlation* between near things.
 
 In this chapter we are going to discuss ways in which you can quantify the answer to this question. We will start introducing methods to assess spatial clustering with point pattern data. Then, we will discuss measures of **global spatial autocorrelation** for lattice data, which essentially aim to answer the degree to which areas that are near each other tend to be more alike. We say global because we are interested in the degree of clustering not on the location of the clusters. In the final part of the chapter we will also cover techniques to identify local clusters of autocorrelation.
 
@@ -111,7 +111,7 @@ For this we use the `spatstat::envelop` function. As arguments we use the data i
 
 ```{r, message=FALSE}
 E <- envelope(delitos_jit, Kest, nsim=39, rank = 1, global = TRUE,
-              verbose = FALSE) # We use this for sparser reporting
+              verbose = FALSE) # We set verbose to false for sparser reporting
 plot(E)
 ```
 
@@ -138,9 +138,12 @@ E_i <- envelope(delitos_jit, Kinhom, nsim=39, rank = 1, global = TRUE,
               verbose = FALSE) # We use this for sparser reporting
 plot(E_i)
 ```
+
+
 [[[]]]
 
-## Exploring spatial dependence in lattice data
+
+## Exploring spatial autocorrelation in lattice data
 
 ### Get data
 
@@ -172,7 +175,7 @@ bur_mc <- burglary_sf[unlist(bur_mc),]
 rm(burglary_sf)
 ```
 
-We now have the burglary data, let's now count how many burglaries there are within each LSOA polygon. This is a point in polygon operation that we covered in chapter 2. 
+We now have the burglary data, let's now count how many burglaries there are within each LSOA polygon. This is a *point in polygon* operation that we covered in chapter 2. 
 
 ```{r, message=FALSE, warning=FALSE}
 # Point in polygon spatial operation (be patient this can take time)
@@ -209,7 +212,7 @@ When defining neighbours by contiguity we may also specify the *order* of contig
 
 Secondly, we may define neighbours **by geographical distance**. You can consider neighbours those areas that distant-wise are close to each other (regardless of whether boundaries are shared). The distance metric often will be euclidean, but other commonly used distance metrics could also be employed (for example, Manhattan). Often one takes the centroid of the polygon as the location to take the distance from. More sophisticated approaches may involve taking a population weighted centroid, where the location of the centroid depends on the distribution of the population within an area. 
 
-Other approaches to define neighbours are graph-based, attribute-based, or interaction-based (eg., flow of goods or people between areas). Contiguity and distance are the two most commonly used methods, though. You should be guided by theory in how you define the neighbors in your study, unfortunately "substantive theory regarding spatial effects remain an underdeveloped research area in most of the social sciences" (@Darmofal_2015, p. 23). In this context, it may make sense to explore various definitions and see if our findings are robust to these specifications.
+Other approaches to define neighbours are graph-based, attribute-based, or interaction-based (eg., flow of goods or people between areas). Contiguity and distance are the two most commonly used methods, though. 
 
 You will come across the term **spatial weight matrix** at some point or, using mathematical notation, "W". Essentially the spatial weight matrix is a n by n matrix with, often, ones and zeroes (in the case of contiguity based definitions) identifying if any two observations are neighbours. So you can think of the spatial weight matrix as the new data table that we are constructing with our definition of neighbours (whichever definition that is).
 
@@ -359,7 +362,7 @@ summary(bur_dist_1)
 And as earlier we can also plot the results:
 
 ```{r}
-#We first plot the boundaries
+# We first plot the boundaries
 plot(bur_ccsp, col='white', border='blue', lwd=2)
 # Then we plot the distance-based neighbours
 plot(bur_dist_1, xy, lwd=2, col="red", add=TRUE)
@@ -371,6 +374,7 @@ We could now use this `nb` object to generate a spatial weight matrix in the sam
 wm_d <- nb2mat(bur_dist_1, style='B')
 
 ```
+
 If we we autoprint the object we will see this is a matrix with 1 and 0 just as the contiguity-based matrix we generated earlier.
 
 #### Using the inverse distance weights
@@ -425,7 +429,25 @@ wm_id <- nb2mat(bur_dist_1,
 
 The `glist` argument identifies the inverse distances and the `style` set to `"B"` ensures we are not using row standardisation. If we view this object we will see that rather than zeroes and ones we see the inverse distances used as weights.
 
-## Moran's I
+### Spatial weight matrix based on k-neighbors
+
+@Chi_2020 suggest that using the distance based spatial weight matrix tend to result in too few neighbours for rural areas and many neighbours for urban areas. In this case they point out that the k-nearest neighbourhood structure may be more appropriate.
+
+[[]]
+
+### Choosing the correct matrix
+
+As we will see later, the spatial weight matrix not only is used for exploring spatial autocorrelation. It also plays a key role in the context of spatial regression. How we specify the matrix is important.
+
+As noted above, contiguity and distance are the two most commonly used methods, though. In earlier applications researchers would select a particular matrix without a strong rationale for it. You should be guided by theory in how you define the neighbors in your study, unfortunately "substantive theory regarding spatial effects remain an underdeveloped research area in most of the social sciences" (@Darmofal_2015, p. 23) or as ... put it "there is limited theory available regarding how to select which spatial matrix to use."
+
+In this context, it may make sense to explore various definitions and see if our findings are robust to these specifications. @Aldstat_2006 developed an algorithm (AMOEBA) which is a design for the construction of a spatial weights matrix using empirical data that can also simultaneously identify the geometric form of spatial clusters. @Chi_2020 propose to use this as a possible starting point in the comparisons, though the procedure is not yet fully implemented in R (there is an `AMOEBA` package but it only generates a vector with the spatial clusters, not the matrix). They also suggest using the spatial weight matrix corresponding to high spatial autocorrelation and high statistical significance as more appropriate for exploratory data analysis of a given variable, and for the purpose of regression to use the matrix with the highest correlation and significance when exploring the residuals of the model.
+
+## Measuring global autocorrelation
+
+[[[get the whole of manchester for this: it is below]]]
+
+### Moran's I
 
 The most well known measure of spatial autocorrelation is the Moran's I. It was developed by Patrick Alfred Pierce Moran, an Australian statistician. Like the more familiar Pearson´s correlation coefficient, which is used to measure the dependency between a pair of variables, Moran´s I aims to measure dependency. This statistic measures how one area is similar to others surrounding it in a given attribute or variable. When the value of an attribute in  areas defined as neighbours in our spatial weight matrix are similar Moran's I will be large and positive (closer to 1). When the value of an attribute in neighbouring areas are dissimilar Moran's I will be negative, tending to -1. In the first case, when there is positive spatial dependence, we speak of clustering. In the latter, what we observe is spatial dispersion (areas alike, in an attribute, "repel" each other). In social science applications, positive spatial autocorrelation is more likely to be expected. There are fewer social processes that would lead us to expect negative spatial autocorrelation. When Moran´s I is close to zero, we fail to find evidence for either dispersion or clustering. The null hypothesis in a test of spatial autocorrelation is that the values of the attribute in question are randomly distributed across space.
 
@@ -447,7 +469,7 @@ ww <-  nb2listw(nb_bur, style='B')
 
 ```
 
-Now we can use the `moran()` function. Have a look at `?moran` to see a description of this in R. The function is defined as `moran(y, ww, n, Szero(ww))`. Note the odd arguments n and S0. I think they are odd, because “ww” has that information. Anyway, we supply them and it works. There probably are cases where it makes sense to use other values.
+Now we can use the `moran.test()` function. 
 
 ```{r}
 moran.test(bur_ccsp$burglary, ww)
@@ -504,6 +526,18 @@ The X axis represents the values of our burglary variable in each unit (each LSO
 As with any correlation measure, you could get **positive spatial autocorrelation**, that would mean that as you move further to the right in the X axis you have higher levels of burglary in the surrounding area. This is what we see here. But the correlation is fairly low and as we saw is not statistically significant. You can also obtain **negative spatial autocorrelation**. That is, that would mean that areas with high level of crime *tend* (it's all about the global average effect!) to be surrounded by areas with low levels of crime. This is clearly not what we see here.
 
 It is very important to understand that global statistics like the spatial autocorrelation (Global Moran's I) tool assess the overall pattern and trend of your data. They are most effective when the spatial pattern is consistent across the study area. In other words, you may have clusters (local pockets of autocorrelation), without having clustering (global autocorrelation). This may happen if the sign of the clusters negate each other.
+
+### Geary´s C
+
+Another measure of global autocorrelation is Geary´s C.
+[[[wikepedia]]]
+
+For obtaining this statistic we can use `spdep::geary.test()`:
+
+```{r}
+geary.test(bur_ccsp$burglary, ww)
+```
+
 
 ## Local spatial autocorrelation with lattice data
 
