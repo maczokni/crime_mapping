@@ -8,11 +8,16 @@ In the previous chapter we explored ways to visualise the concentration of crime
 
 There are a number of tools that have been developed to detect local clusters. In crime analysis is common the use of the local $Gi^*$ statistic. Whereas in spatial epidemiology a number of techniques have been developed for detecting areas with an unusually high risk of disease. Although originally developed in the context of studying disease, the techniques can also be applied to the study of crime. Most of the methods in spatial epidemiology are based on the idea of "moving windows", such as the spatial scan statistic developed by @Kulldorff_1997. Several packages bring this scan statistics to R. There are also other packages that use different algorithms to detect disease clusters, such as AMOEBA, that is based in the Getis-Ord algorithm. As we will see we are spoiled for choice in this regard.
 
-In crime analysis is also relevant the study of repeat victimisation. bla bla bla...
+In crime analysis is also relevant the study of near repeat victimisation. bla bla bla...
 
 For this section we will need the following packages:
 
 ```{r}
+
+library(dplyr)
+
+# Packages for handling spatial data and for geospatial carpentry
+library(sf)
 
 # Packages for detecting clusters
 library(DCluster)
@@ -22,12 +27,48 @@ library(smerc)
 library(surveillance)
 library(DClusterm)
 
+# Packages for detecting near repeat victimisation
+## You will need to install the following package from github
+## You can use the following code for it: 
+## remotes::install_github("wsteenbeek/NearRepeat", build_vignettes = TRUE)
+library(NearRepeat)
 
+# Packages for visualisation and mapping
+library(tmap)
+```
 
+## Spatial scan statistics
+
+### Getting the data
+
+For this chapter we travel to Toronto. We will be looking at crime data provided by their Police Service through their Public Safety Data Portal. We will be looking at serious traffic collisions in 2018. The source of the data comes from police reports where an officer attended an event related to a traffic collision. Please note that this dataset does not include all traffic collision events. The data only includes events where a person sustained a major or fatal injury in a traffic collision 
+event The cartographic boundary for the city comes from the census office of Canada. The data can be read from our GitHub repository with the following code:
+
+```{r, message = FALSE, warning = FALSE}
+toronto <- st_read("https://raw.githubusercontent.com/maczokni/crime_mapping/master/data/toronto_c.geojson")
+traffic <- st_read("https://raw.githubusercontent.com/maczokni/crime_mapping/master/data/traffic.geojson")
+
+tm_shape(toronto) +
+  tm_polygons(alpha = 0.3) +
+  tm_shape(traffic) +
+  tm_dots(size = 0.01) +
+   tm_layout(main.title = "Serious traffic collisions in Toronto", 
+            main.title.size = 1 ,
+            legend.outside = TRUE,  # Takes the legend outside the main map 
+            legend.title.size = 0.8)
 
 ```
 
+As you can see, and it is often the case, the data requires some cleaning. Some points lie outside the city boundaries and that´s not the only issue. First there are many rows that share the same event unique id because the rows represent persons involved, not accidents. In typical crazy administrative fashion that you are likely to encounter in real life datasets the "unique" ids are said by the data documentation not to be unique and that "it may repeat year over year". So we will filter the data on the unique ID and the date of the collision hoping this will give us unique traffic collisions. For filtering unique rows we can rely on the magic of `dplyr::distinct()`. This function gives distinct records for which all attributes and geometries are distinct. To make it easier to operate in our case we will first get rid of all unneccesary variables using `select`.
 
+```{r}
+
+traffic <- select(traffic, ACCNUM, DATE)
+traffic <- distinct(traffic_u)
+
+```
+
+We are now left with just 6002 records.
 
 ## Micro Grid Cells
 
