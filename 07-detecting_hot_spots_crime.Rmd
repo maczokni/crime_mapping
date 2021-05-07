@@ -41,8 +41,7 @@ library(tmap)
 
 ### Getting the data
 
-For this chapter we travel to Toronto. We will be looking at crime data provided by their Police Service through their Public Safety Data Portal. We will be looking at serious traffic collisions in 2018. The source of the data comes from police reports where an officer attended an event related to a traffic collision. Please note that this dataset does not include all traffic collision events. The data only includes events where a person sustained a major or fatal injury in a traffic collision 
-event The cartographic boundary for the city comes from the census office of Canada. The data can be read from our GitHub repository with the following code:
+For this chapter we travel to Toronto. We will be looking at crime data provided by their Police Service through their Public Safety Data Portal. We will be looking at serious traffic collisions from 2006 to 2020. The source of the data comes from police reports where an officer attended an event related to a traffic collision. Please note that this dataset does not include all traffic collision events. The data only includes events where a person sustained a major or fatal injury in a traffic collision event The cartographic boundary for the city comes from the census office of Canada. The data can be read from our GitHub repository with the following code:
 
 ```{r, message = FALSE, warning = FALSE}
 toronto <- st_read("https://raw.githubusercontent.com/maczokni/crime_mapping/master/data/toronto_c.geojson")
@@ -63,12 +62,16 @@ As you can see, and it is often the case, the data requires some cleaning. Some 
 
 ```{r}
 
-traffic <- select(traffic, ACCNUM, DATE)
-traffic <- distinct(traffic_u)
+traffic <- select(traffic, ACCNUM, DATE, YEAR)
+traffic <- distinct(traffic)
+table(traffic$YEAR)
 
 ```
 
 We are now left with just 6002 records.
+
+
+
 
 ## Micro Grid Cells
 
