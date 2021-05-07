@@ -1,0 +1,749 @@
+# Chapter 8: Exploring crime along spatial networks
+
+
+## Introduction
+
+[[[Need to tidy up intro to just focus on networks]]]
+In the previous chapter 
+
+However at the end of the chapter we raised some issues...    
+
+One way to address this issue is to consider examining our data using **micro-places** as our unit of analysis. This is suggested by @Chainey_2021 as an optimal way forward. They recommend considering street segments, street junctions, or micro grid cells as appropriate units of analyses, which may address some of the problems of heterogeneity and arbitrary borders, discussed in Chapter 4 under the topic of MAUP, as well as some of the problems with isarithmic maps outlined above. 
+
+
+In this chapter we will cover some other ways to think about crime concentration in micro places by putting "hot spots" in context. Specifically we will explore the following: 
+
+- linking data to meaningful micro-places such as **street segment** (or in this case, underground line segment) or **street junction** (or in this case underground station)
+- introducing **hot routes**
+- evaluating crime concentration in these types of micro places using **Gini coefficient** and **Lorenz curve**
+- **street profile analysis** - an alternative (non-spatial) way to visualise crime along a network 
+
+
+```{r, message=FALSE, warning=FALSE}
+# Packages for reading data and data carpentry
+library(readr)
+library(readxl)
+library(janitor)
+library(tidyr)
+library(dplyr)
+
+# Packages for handling spatial data
+library(sf)
+library(lwgeom)
+
+# Packages for visualisation and mapping
+library(ggplot2)
+
+# Packages providing accesss to spatial data
+library(rnaturalearth)
+
+```
+
+```{r, message=FALSE, warning=FALSE}
+
+btp_crimes <- read_csv("data/btp_crimes_2019.csv") %>% clean_names()
+
+btp_crimes <- st_as_sf(btp_crimes, coords = c("longitude", "latitude"), 
+                 crs = 4326, agr = "constant")
+
+ldn <- ne_states(country = "united kingdom", returnclass = "sf") %>% filter(grepl("London", type_en) & name != "Derry") %>% st_transform(4326)
+
+plot(st_geometry(btp_crimes))
+plot(st_geometry(ldn),  add = TRUE)
+
+
+```
+
+
+
+
+
+
+We can make this more accessible for the analyst to explore, for example by overlaying on a leaflet map, like we did with KDE map in the previous chapter. 
+
+```{r, warning=FALSE, message=FALSE}
+library(leaflet)
+
+pal <- colorNumeric(c("#0C2C84", "#41B6C4", "#FFFFCC"), values(btp_crimes_raster),
+  na.color = "transparent")
+
+leaflet() %>% 
+  addTiles() %>%
+  addRasterImage(btp_crimes_raster, colors = pal, opacity = 0.8) %>%
+  addLegend(pal = pal, values = values(btp_crimes_raster),
+    title = "BTP Crimes")
+
+
+```
+
+
+
+
+
+## Spatial point patterns along networks
+
+Another approach is to assign the crimes to some meaningful micro-place, such as a street segment, or street junction. This is recommended by @Chainey_2021. It is not only in the case of street networks that understanding spatial point patterns along a network might be more meaningful, there are other networks we might want to consider. 
+For example, with the British Transport Police data we are working, we can actually understand our crimes to have happened on or around the London Underground network. That is what we will illustrate these processes with here, using specifically the Bakerloo line as an illustrative example.
+
+London Underground is made up of 11 lines and 380 stops along its network. We can acquire data from the TfL Open API, whereby you can query for each individual line. If you are interested, see the [TfL API](). For simplicity sake we provide these data here, the stops in a .csv file, and the line in .geojson format. 
+
+```{r}
+
+bakerloo_stops <- read_csv("data/bakerloo_stops.csv")
+bakerloo_stops <- st_as_sf(bakerloo_stops, coords = c("stn_lon", "stn_lat"), crs = 4326)
+bakerloo_line <- st_read("data/bakerloo_line.geojson")
+
+
+```
+
+
+You can visualise the bakerloo line here using `ggplot2`.
+
+
+```{r plotlinestops}
+
+library(ggplot2)
+
+ggplot()+ 
+  geom_sf(data = bakerloo_stops) + 
+  geom_sf(data = bakerloo_line) + 
+  geom_sf(data = ldn, fill = NA) + 
+  theme_void() + 
+  theme(panel.grid.major = element_line(colour = "white")) 
+
+```
+
+### Selecting the relevant crimes for our micro-places
+
+We will also need to select only those crimes which we can consider to have happened on or near the Bakerloo Line. When carrying out your analysis you might have some flag or other variable in the data which indicates whether or not a crime occurred on or near a specific location. 
+
+
+In the case of the poile.uk data we have a column that we consider them to have happened on or near a specific location. This is the `location` column. If we have a glance we can see the sort of information it contains: 
+
+```{r}
+
+btp_crimes %>% dplyr::select(location) %>% head()
+
+```
+
+We can see that these crimes occurred on or near `r btp_crimes %>% pull(location) %>% head() %>% unique() %>% gsub("On or near ", "", .)`. We can use this information to include only those stations which are on the Bakerloo line. 
+
+We fist need a list of all the station names. We can get this from our `bakerloo_stops` object which contains the names of the stations in the `stn_name` variable. In order to search for *any* of these station names, we can collapse them into an *or* string (separated by the `|` operator, which means *or*): 
+
+```{r}
+
+bk_sntns_list <- paste(bakerloo_stops$stn_name, collapse = "|")
+
+
+```
+
+
+We can then use the `grepl()` function, which is a pattern matching function, which returns `TRUE` when a particular string is contained within another string. In other words, if the station name is in the location column. For example, if we are looking for crimes which occurred on or near Baker Street *or* Embankment we can paste them together with the or operator like this: `Baker Street|Embankment`, and then use this to find cases where either of these appear. 
+
+If for example the location text said "On or near Oxford Circus", we would not select this crime: 
+
+```{r}
+
+grepl("Baker Street|Embankment", "On or near Oxford Circus")
+
+```
+
+But if the crime occurred "On or near Baker Street" then we would: 
+
+```{r}
+
+grepl("Baker Street|Embankment", "On or near Baker Street")
+
+```
+
+Using the `bk_sntns_list` object we created above, which has all the stops along the Bakerloo Line, we can filter the whole `btp_crimes` object to include only those which ocurred on or near them.
+
+
+```{r}
+
+bakerloo_crimes <- btp_crimes %>% 
+  filter(grepl(bk_sntns_list, location))
+
+
+```
+
+
+We can see a total of `r nrow(bakerloo_crimes)` crimes can be attributed to having occurred on or near the stops of the Bakerloo Line. 
+
+
+However, not all data sets will have such a handly `location` variable in the data set, and then we need to consider other ways of filtering only those crimes which are relevant to our specific micro places. 
+
+One way is to use the spatial information available with our data, and perform spatial operations such as building a buffer and subsetting only those points which fall within a buffer. See [Chapter 2: Geospatial Operations]() for more detail on the relevant functions and explanations for what is going on with each line.  
+
+```{r getbufferedcrimes}
+
+#create a buffer around the bakerloo_line object into a new object called bakerloo_line_buff
+bakerloo_line_buff <- st_buffer(bakerloo_line, 0.005)
+# subset only those crimes which are located within this buffer
+bakerloo_crimes <- st_intersection(bakerloo_line_buff, btp_crimes)
+
+```
+
+You may see with this approach we have ended up with total of `r nrow(bakerloo_crimes)` crimes. This number is different to what we got earlier, as we are probably erring on the side of including more crimes with a buffer - it may be that it happened on a station that falls on another line, but within the buffer we created. It is important to be aware of the strengths and limitations of the different approaches, and be explicit when drawing inferences from the data. 
+
+### Assigning (joining) crimes to micro-places
+
+Now that we have our relevant crimes, we want to join them to the appropriate micro-places. We will focus on line segments here. 
+
+
+First, if we have a look at our line object, we have only one observation for the entire line. What we want is to break our line into sections. How you do this depends really much on what you want to show. In this case, it might be meaningful to consider each segment of the line between stops. In this case, we can use the shapefile of the stops (`bakerloo_stops`) to break up our line (`bakerloo_line`). However, as Henry and Lisa note, network layers typically contain streets of unequal length. This means that longer segments might show up as hot simply because they have more space to contain more crimes. Therefore in such cases it is advisable in this analysis to use equal length street segments, where possible. 
+In this case however, let's stick to the stops. To split our linestring (`bakerloo_line`) into many linestrings using the stops (`bakerloo_stops`) we can use the `st_split()` function from the `lwgeom` package and `st_collection_extract()` function from `sf`. Furter, as the `st_split()` function is expecting a blade argument of length 1, we can use the `st_combine()` (from sf) function to group our tube stations alltogether: 
+
+```{r splitlinetopts}
+library(lwgeom)
+
+parts <- st_split(bakerloo_line, st_combine(bakerloo_stops$geometry)) %>% st_collection_extract("LINESTRING")
+
+parts
+```
+
+You can see we now have a new object called `parts` which is a linestring containing 24 features, the segments between our 25 tube stations, all as unique lines. You can also see that this is a geometry set of 24 features, let's turn it into a simple features collection, and label each of the segments with a number by taking each element of parts and binding it together as a dataframe. 
+
+
+```{r makebkrloosections}
+
+datalist = list()
+for (i in 1:nrow(parts)) {
+  
+  datalist[[i]] <- st_as_sf(data.frame(section = i), 
+                            geometry = st_geometry(parts)[i])
+  
+}
+
+bakerloo_sections <- do.call(rbind, datalist)
+
+```
+
+We now have the object `bakerloo_sections` which contains the 24 segments into which we sliced the bakerloo line, using the stops as points. The next step is to assign the points to each segment. 
+
+Let's first have a look at our data: 
+
+```{r plotalltogether}
+
+ggplot()+ 
+  geom_sf(data = bakerloo_sections) + 
+  geom_sf(data = bakerloo_stops) + 
+  geom_sf(data = bakerloo_crimes, col = "blue") + 
+  theme_void() + 
+  theme(panel.grid.major = element_line(colour = "white"))
+
+
+```
+
+Great, we see that we have the Bakerloo Line, its Stations, and only those crimes which we had deemed relevant. Now what we want to do is snap each one of these crime points to the nearest line section (remember we have the 24 sections in the `parts` object). 
+
+To do this, we can use the `st_nearest_feature()` function. This will return, for each point, the ID of the nearest segment. This function is also covered in greater detail in [Chapter 2: Geospatial Operations]() so I won't go into too much detail here. 
+
+```{r getnearest}
+
+bline_segments <- st_nearest_feature(bakerloo_crimes, bakerloo_sections)
+
+bline_segments
+
+```
+
+It is simply a list of the ID numbers of matched line segments for each of the `r length(bakerloo_crimes)` crime points in the `bakerloo_crimes` object. We can use this to create a frequency table and save this in a dataframe to be joined to the linesegment object. We will also need to replace our missing values with 0s, since in this case the segments which do not appear in our frequency table had 0 crimes snapped to them. We use the `replace_na()` function from the tidyr package.  
+
+```{r joinfreqdf}
+
+library(tidyr)
+
+#make list of nearest into df of frequency
+sections_freq <- as.data.frame(table(bline_segments))
+#make sure id is numeric
+sections_freq$bline_segments <- as.numeric(as.character(sections_freq$bline_segments))
+
+#join to sections object and replace NAs with 0s
+bakerloo_sections <- left_join(bakerloo_sections, sections_freq, by = c("section" = "bline_segments")) %>% 
+  mutate(Freq = replace_na(Freq, 0)) 
+
+```
+
+Now we have an sf object with each section labelled with the number of crimes that were snapped to it as they were the nearest segment. So essentially, the number of crimes on (and around, depending on your buffer decisions) each segment. We could map this count line: 
+
+```{r countmap}
+
+midpoint_crimes <- mean(bakerloo_sections$Freq)
+
+ggplot() + 
+  geom_sf(data = bakerloo_sections, aes(colour = Freq), lwd = 2) + 
+  geom_sf(data = bakerloo_stops) + 
+  theme_void() + 
+  theme(panel.grid.major = element_line(colour = "white")) +  #theme void is buggy with geom_sf() so need this too
+  scale_colour_gradient2(name = "Number of crimes", 
+                         midpoint = midpoint_crimes,
+                         low = "#ffffcc", mid = "#fd8d3c", high = "#800026")
+
+```
+
+But of course we want to account for things like the length of each segment as they are unequal. 
+
+
+### Calculating a crime rate 
+
+For our comparison of crime along a network to be meaningful, we must calculate a crime rate. 
+
+To calculate a rate we need a denominator. In this case, length may be a good one, so the length of each street segment needs to be calculated. We can do this using the `st_length()` function. Since our data are all in WGS84 projection, this will return the length of each segment in meters. 
+
+```{r getlength}
+
+bakerloo_sections$length <- st_length(bakerloo_sections)
+
+```
+
+
+Once we have all the lengths, a new column needs to be created in the network layer to record a crime per metre score. This is calculated by dividing the number of crimes linked to a street segment by its length.
+
+```{r getcrimepermeter}
+
+bakerloo_sections$crime_per_m <- bakerloo_sections$Freq / bakerloo_sections$length
+
+```
+
+
+We now have our crimes per meter score! On to mapping!
+
+## Hot Routes: a way to present crime along a network. 
+
+In order to map hot spots along a network, we can use a technique called *hot routes*. It was used as early as 2003 by [Andrew Newton](https://www.ntu.ac.uk/staff-profiles/social-sciences/andy-newton) to map [crime and disorder on the bus network in Merseyside](https://ethos.bl.uk/OrderDetails.do?uin=uk.bl.ethos.400407). A useful how-to guide was later produced by [Henry Partridge](https://www.trafforddatalab.io/about.html) and [Lisa Tompson](https://twitter.com/Lisa_Tompson) and can be accessed in the associated [JDI brief](https://www.ucl.ac.uk/jdibrief/documents/hot-routes/Hot-Routes-All) or [journal article](https://discovery.ucl.ac.uk/id/eprint/20057/1/Hot_Routes_Tompson_Partridge_Shepherd.pdf).  
+
+
+Hot Routes was devised to be a straightforward spatial technique that analyses crime patterns that are associated with a linear network (e.g. streets and other transportation networks). It allows an analyst to map crime concentrations along different segments of the network and visualise this through colour. 
+
+We can create a Hot Routes visualisation by thematically shading each street segment with a colour (and line thickness if desired) that corresponds to the range of the rate of crime per metre.
+
+For this, let's convert our crimes per meter (`crime_per_m`) variable to numeric from a "units" object, and then use ggplot once again. 
+
+
+```{r ratemap}
+
+bakerloo_sections$crime_per_m <- as.numeric(bakerloo_sections$crime_per_m)
+
+midpoint_rates <- mean(bakerloo_sections$crime_per_m)
+
+ggplot() + 
+  geom_sf(data = bakerloo_sections, aes(colour = crime_per_m), lwd = 2) + 
+  geom_sf(data = bakerloo_stops) + 
+  theme_void() + 
+  theme(panel.grid.major = element_line(colour = "white")) +  #theme void is buggy with geom_sf() so need this too
+  scale_colour_gradient2(name = "Rate of crimes per meter", 
+                         midpoint = midpoint_rates,
+                         low = "#ffffcc", mid = "#fd8d3c", high = "#800026")
+
+```
+
+
+And if we wanted to add thickness as well we can by specifying the size argument: 
+
+```{r ratemapwthickness}
+
+ggplot() + 
+  geom_sf(data = bakerloo_sections, aes(colour = crime_per_m, size = crime_per_m), show.legend = "line") + 
+  geom_sf(data = bakerloo_stops) + 
+  theme_void() + 
+  theme(panel.grid.major = element_line(colour = "white")) +  #theme void is buggy with geom_sf() so need this too
+  scale_colour_gradient2(name = "Rate of crimes per meter (colour)", 
+                         midpoint = midpoint_rates,
+                         low = "#ffffcc", mid = "#fd8d3c", high = "#800026") +
+  scale_size_continuous(name = "Rate of crimes per meter (width)") 
+
+```
+
+All done! We have now managed to create a hot routes map of crimes on or near the Barkerloo Line recorded by British Transport Police in 2019. 
+
+
+## Quantifying crime concentration at micro-places
+
+In crime and place literature we explore the concentration of crime at micro places. [more text and refs here]. 
+
+One way to measure inequality in the distribution of a quantitative variable is to use  Lorenz curve, and associated Gini coefficient. The Lorenz curve is a probability plot (a P–P plot) comparing the distribution of a variable against a hypothetical uniform distribution of that variable. It can usually be represented by a function $L(F)$, where $F$, the cumulative portion of the population, is represented by the horizontal axis, and $L$, the cumulative portion of the variable of interest (e.g. crime), is represented by the vertical axis. WHile Lorenz curves are used typically to graph inequality of distribution of wealthm they can be applied in this case to explore unequal distribution of crimes between micro-places. A perfectly equal distribution would be depicted by the straight line $y = x$ @lorenz1905methods, @zeileis2012package. 
+
+The corresponding Gini coefficient represents the ratio of the area between the line of perfect equality and the observed Lorenz curve to the area between the line of perfect equality and the line of perfect inequality @gastwirth1972estimation. The closer the coefficient is to 1, the more unequal the distribution is @zeileis2012package.
+
+
+In R we can implement these tests using the functions in the `ineq` package. To obtain a Lorenz curve, we can use the `Lc()` function. `Lc()` computes the (empirical) ordinary and generalized Lorenz curve of a vector $x$ (in this case, our `crimes_per_m` variable). The function also computes a generalized Lorenz curve ( $= ordinary Lorenz curve * mean(x)$). The result can be interpreted like this: $p*100$ percent account for $L(p)*100$ percent of $x$. 
+
+
+Let's illustrate with the segments of the Bakerloo line: 
+
+
+
+```{r}
+
+library(ineq)
+
+bk_lorenz <- Lc(bakerloo_sections$crime_per_m)
+
+
+```
+
+Our resulting `bk_lorenz` object has 3 elements. First, the `p` represents the cumulative percent of crimes (per meter) for each line segment. Then, `L` contains the values of the ordinary Lorenz curve, while the  `L.general` element the values for the generalised Lorenz curve. 
+
+We can plot the Lorenz curve with the `plot()` function from base R. 
+
+
+```{r}
+
+plot(bk_lorenz)
+
+```
+
+Upon seeing this, we can consider that many of the segments of the Bakerloo crime contribute very little to overall crimes, and it is instead the top few which contribute most of the crimes. From a visual inspection, it appears that the Bakerloo line very precisely fits the Pareto Principle, whereby 20% of the segments seem to account for 80% of the crimes (per meter length of the segment). 
+
+We can quantify this further using the Gini coefficient. 
+
+```{r}
+
+ineq(bakerloo_sections$crime_per_m, type="Gini")
+
+```
+
+
+This score of `r round(ineq(bakerloo_sections$crime_per_m, type="Gini")*100,1)`% is quite high. The Gini Index is calculated from the Lorenz curve, by taking the area betwee the line of equality and the Lorenz curve, and dividing this by the total area under the line of equality. This number is bounded between 0 (perfect equality where the Lorenz curve sits right on top of the line of equality) and 1 (perfect inequality, where the Lorenz curve sits right on top of the x axis and bends at right angle), so the closer we get to 1 the higher the inequality in the distribution in our value of interest, in this case crimes per meter. 
+
+
+
+
+## Street Profile Analysis
+
+it may not always be necessary to include the geographic component of this visualisation. Instead, another approach could be to make use of [street profile analysis](https://www.researchgate.net/publication/297605497_Street_profile_analysis_A_new_method_for_mapping_crime_on_major_roadways) introduced by Valerie Spicer, Justin Song, Patricia Brantingham, Andrew Park, and Martin Andresen in their 2016 paper 'Street profile analysis: A new method for mapping crime on major roadways' published in Applied Geography. 
+
+
+Street profile analysis was initially developed as a method for visualising temporal and spatial crime patterns along major roadways in metropolitan areas. The idea is that the geographical location of the street may not actually be as important as the ability to visualise data from multiple years in a comparable way. So the approach is to treat the street in question as the x-axis of a graph, with a start point (A) and end point (B) breaking it into some interval (I think they use 100m intervals). Then, you can visualise how crime is distributed along this street by plotting count or rate of crimes on the y-axis, and have multiple lines for different years for example. You can add context by re-introducing some key intersections, or other points of interest.
+
+In their paper, Spicer and colleagues demonstrate this using the example of Kingsway Avenue in Vancouver, BC
+
+![](/img/kingsway_spa.jpeg)
+
+In this section I will go through how we can apply street profile analysis in R. 
+
+
+### Linking the data to the nodes
+
+For street profile analysis (or let's call it network profile analysis here, as we are applying this to the Bakerloo Line example), instead of linking the crimes to the nearest line segment, we actually want to link to the nearest station. To do this, we can go back to the stage where we had our line, our stops, and our relevant crimes: 
+
+```{r}
+
+ggplot()+ 
+  geom_sf(data = bakerloo_sections) + 
+  geom_sf(data = bakerloo_stops) + 
+  geom_sf(data = bakerloo_crimes, col = "blue") + 
+  theme_void() + 
+  theme(panel.grid.major = element_line(colour = "white"))
+
+
+```
+
+Like last time, we can use the `st_nearest_feature()` function to snap the crimes (in blue) to the line segments. This time, we can do the same, but snap to the points (the stations) instead. This will return, for each point, the ID of the nearest segment. 
+
+```{r snaptoclosest}
+
+bk_stn_crimes <- st_nearest_feature(bakerloo_crimes, bakerloo_stops)
+
+
+```
+
+
+If we want, we can have a look at the results. 
+
+```{r}
+bk_stn_crimes
+
+```
+
+In the results above, we see printed the stop ID for the closest stop to each crime incident. 
+
+Now we need to count the frequency of each stop ID (as this tells us the number of crimes that are close to it, therefore assigned to it), and join this with out stops dataframe, just like we did with the lines earlier: 
+
+```{r}
+
+#make list of nearest into df of frequency
+stops_w_crimes <- as.data.frame(table(bk_stn_crimes))
+
+#join to sections object and replace NAs with 0s also rename Freq variable to num_crimes
+bakerloo_stops <- left_join(bakerloo_stops %>% mutate(stopid = rownames(.)), 
+                            stops_w_crimes, 
+                            by = c( "stopid" = "bk_stn_crimes")) %>% 
+  mutate(Freq = replace_na(Freq, 0)) %>% 
+  rename(num_violent_crimes = Freq)
+
+```
+
+Great now we have a dataframe of each stop and the number of crimes that happened closest possibly to it. We could make a street profile of it with this count (in fact we will in a moment) but first let's discuss about rates!
+
+### Calculate a rate for nodes
+
+In order to calculate a crime rate for each station, we need to think about what is an acceptable denominator. How can we best estimate the number of opportunities present for the particular crime type we are interested in, and how might that be captured in some available data set? For our line segments, we could use length as a denominator, and we had an outcome of the crimes per meter length of the line segment. However, there is no such value for our stations (and for other nodes, such as street junctions). 
+
+In an upcoming paper "Alternative denominators in transport crime rates" [the pre-print for which is available on OSF here](https://osf.io/5qv38/) we considered the various types of denominators that may be available to crime analysts focusing on estimating ambient populations to calculate crime risk. These can be: 
+
+- residential population in the area surrounding the station (available from the Census)
+- workplace population in the area surrounding the station (also available from the Census)
+- number of lines passing through each station (available from station information, or even a network map)
+- number of trains passing through each station (available from station information, maybe a timetable)
+- number of passengers entering/exiting each station (available from transit authority, maybe via a survey like the [Rolling Origin Destination Survey](https://data.london.gov.uk/dataset/tfl-rolling-origin-and-destination-survey), or smartcard data (eg Oyster card in London))
+
+and possibly some other options that we have not thought of. 
+
+
+Here, for simplicity we can use the [Rolling Origin Destination Survey](https://data.london.gov.uk/dataset/tfl-rolling-origin-and-destination-survey) (RODS) data. We can download this directly from TfL API portal with the link [](), like we can the Lines and Stops data, but again, we include this data with the book. The most recent data comes from 2017, so we will use that. If you were to follow the download link then it downloads a .zip file with many possible denominator options in there. Here we will use the file `Total entries and exits by borough-time of day 2017.xls`, which contains entry and exit data for each station. As it is an Excel file, we will use the function `read_xls()` from the `readxl` library. 
+
+
+The entry and exit data sets are two separate sheets in this excel file, so we will have to read them in one sheet at a time, using `read_xls()` function from the `readxl` package. From having seen the data before, I also know that **1)** the variable names are in line 4 so we can skip up to there (the `skip=` argument in the `read_xls()` function), **2) **that the names are messy, so we clean them up using the `clean_names()` function in the `janitor` package, and **3)** that for some reason the 'station' variable is in two columns, so we have to name these as station number and station name using `rename()` function in the `dplyr` library (loaded earlier). It seems like a lot of cleaning of the data, but it could be worse, and some of the data cleaning we have already done for you in terms of the station names... 
+
+
+```{r getrods2}
+
+library(readxl)
+library(janitor)
+#load entries and exits data
+#first entries
+rods_entries <- read_xls("data/Total entries and exits by borough-time of day 2017.xls", sheet = "entries",
+                 skip = 4, col_names = TRUE) %>% clean_names() %>% rename(stn_num = station, 
+                                                                          stn_name = x3)
+#then exits
+rods_exits <- read_xls("data/Total entries and exits by borough-time of day 2017.xls", sheet = "exits",
+                         skip = 4, col_names = TRUE) %>% clean_names() %>% rename(stn_num = station, 
+                                                                                  stn_name = x3)
+
+```
+
+
+Then finally we can link the entry and exit data together with `left_join()` from dplyr, and sum them together to get the whole day's worth of entries and exits (because we don't care about time of day for our purposes here) using `group_by()` and `summarise()`, then create a final variable called `total_pax` using the `mutate()` function. The `total_pax` variable that tells us how many trips we can expect to go through that station on a given day, giving us a nice denominator to calculate crime rate! 
+
+
+```{r linkrods}
+
+rods <- rods_exits %>%                    
+  left_join(., rods_entries) %>%                            # join up the exit and entry data
+  group_by(borough, stn_num, stn_name) %>%                  # sum all time periods within the day
+  summarise(total_exiting = sum(number_exiting),
+            total_entering = sum(number_entering)) %>% 
+  filter(stn_num != "Total for borough") %>%               # remove the borough totals
+  mutate(total_pax = total_exiting + total_entering)       # create grand total of pax trips
+
+
+```
+
+
+Now we have our denominator for calculating the crime rate! Let's join it to our Bakerloo Line stations to do so. 
+
+
+
+
+
+
+```{r joinrodstobakreloo1}
+
+bakerloo_stops <- left_join(bakerloo_stops, rods)
+
+
+```
+
+Now we can calculate the rate by dividing the number of crimes (`num_crimes`) by the total number of daily passengers (`total_pax`), and let's times by 10,000 to get crimes per 10,000 pax for each station. 
+
+```{r calcrate}
+
+bakerloo_stops$violent_crime_rate <- bakerloo_stops$num_violent_crimes/ bakerloo_stops$total_pax * 10000
+
+```
+
+Great now we have a rate! Our top station for violent and sexual offences is `r bakerloo_stops %>% arrange(desc(violent_crime_rate)) %>% head(n = 1) %>%  pull(stn_name)`, which has `r round(bakerloo_stops %>% arrange(desc(violent_crime_rate)) %>% head(n = 1) %>%  pull(violent_crime_rate), 2)` such crimes per 10,000 passengers, while our lowest are the stations which recorded no such crimes (`r bakerloo_stops %>% filter(violent_crime_rate == 0) %>%  pull(stn_name)`). Great, now let's actually visualise crime along the stations of the Bakerloo Line using Street Profile Analysis!
+
+### Visualising with Street Profile Analysis
+
+
+
+Now we have (almost) everything we need to visualise crime along the Bakerloo line using Street Profile Analysis. What we want to do, is imagine the Bakerloo line is the x axis, and then use the y axis to show the crime rate. Of course for this, we want to know the order in which the stations follow each other. 
+
+Annoyingly, the TfL API doesn't actually have any sort of sequence information with the stops ( [see discussion by other users here](https://techforum.tfl.gov.uk/t/how-to-get-all-tube-stations-list-fare-and-station-details/890/3) ) so we have to make our own lookup table: 
+
+```{r makelookup}
+
+bakerloo_order <- data.frame( stop_num = c(1:25),
+                              stn_name = c("Harrow & Wealdstone",
+                                           'Kenton',
+                                           'South Kenton',
+                                           'North Wembley',
+                                           'Wembley Central',
+                                           'Stonebridge Park',
+                                           'Harlesden',
+                                           'Willesden Junction',
+                                           'Kensal Green',
+                                           "Queen's Park",
+                                           'Kilburn Park',
+                                           'Maida Vale',
+                                           'Warwick Avenue',
+                                           'Paddington',
+                                           'Edgware Road',
+                                           'Marylebone',
+                                           'Baker Street',
+                                           "Regent's Park",
+                                           'Oxford Circus',
+                                           'Piccadilly Circus',
+                                           'Charing Cross',
+                                           'Embankment',
+                                           'Waterloo',
+                                           'Lambeth North',
+                                           'Elephant & Castle')
+)
+
+
+```
+
+
+In other cases you might have some sort of sequence information, or you might need to make a different sequence. For example, if you are plotting your Street Profile Analysis of a major roadway, like @Spicer_2016, you might want to list the streets which intersect it, in order from one end to the other. 
+
+
+Once the ordered list exists, we can join this to the original dataframe to have a sequence to order our stops by: 
+
+```{r makeseqnum}
+
+bakerloo_stops <- left_join(bakerloo_stops, bakerloo_order)
+
+```
+
+And then we can use this to order our stop names, and finally present the Street (or rather Route) Profile for the Bakerloo line considering violent and sexual offences: 
+
+```{r}
+
+
+ggplot(bakerloo_stops, aes(x = reorder(stn_name, stop_num), y = violent_crime_rate, group = line)) + 
+  geom_point() + 
+  geom_line() + 
+  xlab("Bakerloo Line") + 
+  ylab("Crime Rate per 10,000 passengers") + 
+  theme_bw() + 
+  theme(axis.text.x = element_text(angle = 60, hjust = 1))
+
+
+```
+
+
+
+Very cool! This is a non-geographical way to visualise crime rates along micro places, while still taking into account some spatial information, namely the sequence of these nodes along our line segment. 
+
+What is really a strength of Street Profile ANalysis is that you can compare different things along the same route, which may be difficult to compare on a two-dimensional map. For exmple, we could compare how crime changes along the network between different months of the year here. 
+
+
+
+For this, we can create a dataframe of crimes per month for each station: 
+
+For each crime find the nearest station (`st_nearest_feature()`) and assign the station id to a new column, then group by month and nearest station. 
+
+```{r}
+
+monthy_crimes <- bakerloo_crimes %>% 
+  mutate(nearest_stn_id = st_nearest_feature(bakerloo_crimes, bakerloo_stops)) %>% 
+  st_drop_geometry() %>% 
+  group_by(nearest_stn_id, month) %>% 
+  count() %>% 
+  pivot_wider(names_from = month, values_from = n)  %>% 
+  left_join(bakerloo_stops, ., by = c("stop_num" = "nearest_stn_id")) %>% 
+  replace(is.na(.), 0)
+
+
+
+
+
+
+```
+
+
+And now we can compare between different months by adding each month on as a ggplot layer. For example, if we wanted to see January, February, and March:  
+
+
+
+```{r}
+
+
+ggplot(monthy_crimes, aes(x = reorder(stn_name, stop_num), group = line)) + 
+  geom_point(aes(y = `2019-01`, col = "Jan")) + 
+  geom_line(aes(y = `2019-01`, col = "Jan")) + 
+  geom_point(aes(y = `2019-02`, col = "Feb")) + 
+  geom_line(aes(y = `2019-02`, col = "Feb")) +
+  geom_point(aes(y = `2019-03`, col = "Mar")) + 
+  geom_line(aes(y = `2019-03`, col = "Mar")) +
+  xlab("Bakerloo Line") + 
+  ylab("Crime Rate per 10,000 passengers") + 
+  theme_bw() + 
+  theme(axis.text.x = element_text(angle = 60, hjust = 1)) + 
+  scale_colour_manual(values=c("#66c2a5", "#8da0cb", "#fc8d62"), 
+                      labels = c("Jan", "Feb", "Mar"), 
+                      guide="legend", name="Month")
+
+
+```
+
+
+We could also visualise different crime types, or different sources of data, the possibilities are many, and this is where the strength of this method is evident, over a map, where only one variable at one time can be displayed. 
+
+
+
+
+<!-- ## 1 Spatial point patterns along networks -->
+
+<!-- Have a look at this maps.  Can we say that the spatial point process is random here? Can you identify the areas where we have hotspots of crime? Think about these questions for a little while. -->
+
+<!-- ![](img/nonrandompoints.png) -->
+<!-- (Source: Okabe and Sugihara, 2012) -->
+
+<!-- Ok, so most likely you concluded that the process wasn't random, which it isn't in truth. It is also likely that you identified a number of potential hotspots? -->
+
+<!-- Now, look at the two maps below: -->
+
+<!-- ![](img/randompoints.png) -->
+<!-- (Source: Okabe and Sugihara, 2012) -->
+
+<!-- We are representing the same spatial point pattern process in each of them. But we do have additional information in map B. We now know the street layout. The structure we observed in the map is accounted by the street layout. So what look like a non random spatial point process when we considered the full two dimensional space, now looks less random when we realise that the points can only appear alongside the linear network.  -->
+
+<!-- This problem is common in criminal justice applications. Crime is geocoded alongside a linear street network. Even if in physical space crime can take place along a spatial continuum, once crime is geocoded it will only be possible alongside the street network used for the geocoding process.  -->
+
+<!-- For exploring this kind of spatial point pattern processes along networks we need special techniques. Some researchers have developed special applications, such as [SANET](http://sanet.csis.u-tokyo.ac.jp/sub_en/manual.html). The `spatstat` package also provides some functionality for this kind of data structures. -->
+
+<!-- In `spatstat` a point pattern on a linear network is represented by an object of class `lpp`. The functions `lpp()` and `as.lpp()` convert raw data into an object of class `lpp` (but they require a specification of the underlying network of lines, which is represented by an object of class `linnet`). For simplicity and illustration purposes we will use the `chicago` dataset that is distributed as part of the `spatstat` package. The `chicago` data is of class `lpp` and contains information on crime in an area of Chicago.  -->
+
+<!-- ```{r} -->
+<!-- data("chicago") -->
+<!-- plot(chicago) -->
+<!-- summary(chicago) -->
+<!-- ``` -->
+
+<!-- An `lpp` object contains the linear network information, the spatial coordinates of the data points, and any number of columns of *marks* (in this case the mark is telling us the type of crime we are dealing with). It also contains the local coordinates `seg` and `tp` for the data points. The local coordinate `seg` is an integer identifying the particular street segment the data point is located in. A segment is each of the sections of a street between two vertices (marking the intersection with another segment). The local coordinate `tp` is a real number between 0 and 1 indicating the position of the point within the segement: `tp=0` corresponds to the first endpoint and `tp=1` correspond to the second endpoint. -->
+
+<!-- The visual inspection of the map suggest that the intensity of crime along the network is not spatially uniform. Crime seems to be concentrated in particular segments. Like we did before we can estimate the density of data points along the networks using Kernel estimation (with the `density.lpp()` function), only now we only look at the street segments (rather than areas of the space that are outside the segments). The authors of the package are planning to introduce methods for automatic bandwidth selection but for now this is not possible, so we have to select a bandwidth. We could for example select 60 feet. -->
+
+<!-- ```{r} -->
+<!-- d60 <- density.lpp(unmark(chicago), 60) -->
+<!-- ``` -->
+
+<!-- We use `unmark()` to ignore the fact the data points are marked (that is they provide marks with informtation, in this case about the crime type). By using `unmark()` in this example we will run density estimation for all crimes (rather than by type of crime). We can see the results below: -->
+
+<!-- ```{r} -->
+<!-- plot(d60) -->
+<!-- ``` -->
+
+<!-- If rather than colour you want to use the thickness of the street segment to identify hotpspots you would need to modify the code as shown below: -->
+
+<!-- ```{r} -->
+<!-- plot(d60, style="width", adjust=2.5) -->
+<!-- ``` -->
+
+
+
+<!-- This is very important for crime research, as offending will be constrained by all sorts of networks. Traditionally, hotspot analysis has been directed at crimes that are assumed to be situated across an infinite homogeneous environment (e.g., theft of motor vehicle), we must develop an increased awareness of perceptible geographical restrictions. There has been increasing recognition in recent years that the spatial existence of many phenomena is constrained by networks.  -->
+
+<!-- These networks may be roads or rail networks, but there may be many more:  -->
+
+<!-- > Environmental crimes could exist along waterways such as streams, canals, and rivers; and thefts of metal could occur along utility networks such as pipelines. Those -->
+<!-- sociologically inclined might be able to offer more examples in the way of interpersonal networks.  -->
+
+<!-- - [Tompson, Lisa, Henry Partridge, and Naomi Shepherd. "Hot routes: Developing a new technique for the spatial analysis of crime." Crime Mapping: A Journal of Research and Practice 1, no. 1 (2009): 77-96.](http://discovery.ucl.ac.uk/20057/) -->
+
+
+<!-- While sometimes there may be issues with linking points to routes due to problems such as bad geocoding, as we had discusses in great detail in week 4, there are obivious advantages to considering crime as distributed along networks, rather than continuous space.  -->
