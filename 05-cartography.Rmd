@@ -196,7 +196,7 @@ To create this, we first need to get the centroid of each polygon to get our lon
 
 
 
-```{r}
+```{r, warning=FALSE}
 
 
 scatter_map_df <- hu_dd %>% 
@@ -330,7 +330,7 @@ Overall, the key thing is to be conscious with the colours you choose to represe
 
 ## Text
 
-There are important pieces of information with every map which are represente by text. 
+There are important pieces of information with every map which are represented by text. 
 
 ### Titles and subtitles
 
@@ -441,7 +441,7 @@ ggplot(data = hu_dd) +
 
 ```
 
-Or you want to specifically highlight a county of interest, let's say Budapest. In this case, we might actually want to keep our annotation off the map. We can do this byusing the `nudge_x` and `nudge_y` parameters of the `geom_sf_label()` function. 
+Or you want to specifically highlight a county of interest, let's say Budapest. In this case, we might actually want to keep our annotation off the map. We can do this by using the `nudge_x` and `nudge_y` parameters of the `geom_sf_label()` function. 
 
 ```{r addcountynamesBPonly}
 
@@ -453,6 +453,10 @@ ggplot(data = hu_dd) +
   ggtitle("Number of breathalyser tests per county", subtitle = "January 2020")
 
 ```
+
+
+But this floating label is a little ambiguous. We might want to use an arrow to point out Budapest on the map. To do this, we can use `geom_curve()` within `ggplot2`. We will need two sets of x and y values for this segment, the start point (`x` and `y`) and the end point (`xend` and `yend`). The end point will be the coordinates where we want the arrow pointing to. This would be some x,y pair within Budapest. We can use the `st_coordinates()  ` function once again the extract the centroid, this time of the Budapest polygon. Let's extract the longitude of the centroid into an object called `bp_x` for our x value, and the latitude of the centroid into an object called `bp_y` for our y value. 
+
 
 ```{r}
 
@@ -466,7 +470,7 @@ bp_y <- hu_dd %>% filter(name == "Budapest") %>%
 
 ```
 
-
+Great, so we have the end point for our segment, but where should it start. Well we want it pointing from our label, so we can think back to how we adjusted this label with the `nudge_x` and `nudge_y` parameters inside the `geom_sf_label()` function earlier. We can add (or subtract) these values to our bp_x and bp_y objects to determine the start points for our curve. Finally, we can also specify some characteristics of the arrow head on our curve with the `arrow = ` parameter. Here we specify we want 2 milimeter size. 
 
 
 ```{r}
@@ -494,6 +498,23 @@ ggplot(data = hu_dd) +
 
 ### Production notes
 
+You should always include production notes with your map. This includes some information about you who made it, as well as any attributions for data. Here we can string together a series of information we want to include, appended with a newline character, in order to keep our notes nice and legible: 
+
+```{r}
+
+caption_text <- paste("Map created by Reka Solymosi (@r_solymosi)", 
+                       "Contains data from Police Hungary",
+                       "http://www.police.hu/hu/a-rendorsegrol/statisztikak/kozrendvedelem", 
+                       "Map data copyrighted OpenStreetMap contributors", 
+                       "available from https://www.openstreetmap.org", 
+                       sep = "\n")
+
+
+```
+
+
+Then we can include this `caption_text` object as a caption in the function `labs()`. 
+
 ```{r}
   
 
@@ -512,22 +533,156 @@ ggplot(data = hu_dd) +
                 nudge_x = -0.1) + 
   theme_minimal() + 
   ggtitle("Number of breathalyser tests per county", subtitle = "January 2020") + 
-  labs(caption = "This map contains data from: Police Hungary available on: http://www.police.hu/hu/a-rendorsegrol/statisztikak/kozrendvedelem
-       \n and OSM")
+  labs(caption = caption_text)
 
 ```
 
 
 ## Composition
 
-### Orientation indicator
-
-### Scale indicator
-
-### Borders
+### Orientation and scale indicators
 
 
-## Inset maps
+
+```{r orientation, warning=FALSE}
+library(ggspatial)
+
+ggplot(data = hu_dd) + 
+  geom_sf(aes(fill = total_quantiles), lwd = 0.5, col = "white") + 
+  scale_fill_brewer(type = "seq", palette = "Greens", name = "Total tests") + 
+  geom_curve(x = bp_x - 0.1, 
+             y = bp_y + 0.9, 
+             xend = bp_x , 
+             yend = bp_y, 
+             arrow = arrow(length = unit(2, "mm"))) +
+  geom_sf_label(data = hu_dd %>% filter(name == "Budapest"), 
+                aes(label = name), 
+                nudge_y = 0.9, 
+                nudge_x = -0.1) + 
+  theme_minimal() + 
+  ggtitle("Number of breathalyser tests per county", subtitle = "January 2020") + 
+  labs(caption = caption_text) + 
+  annotation_north_arrow(height = unit(7, "mm"), width = unit(5, "mm")) 
+
+
+```
+
+
+```{r scale, warning=FALSE}
+
+
+ggplot(data = hu_dd) + 
+  geom_sf(aes(fill = total_quantiles), lwd = 0.5, col = "white") + 
+  scale_fill_brewer(type = "seq", palette = "Greens", name = "Total tests") + 
+  geom_curve(x = bp_x - 0.1, 
+             y = bp_y + 0.9, 
+             xend = bp_x , 
+             yend = bp_y, 
+             arrow = arrow(length = unit(2, "mm"))) +
+  geom_sf_label(data = hu_dd %>% filter(name == "Budapest"), 
+                aes(label = name), 
+                nudge_y = 0.9, 
+                nudge_x = -0.1) + 
+  theme_minimal() + 
+  ggtitle("Number of breathalyser tests per county", subtitle = "January 2020") + 
+  labs(caption = caption_text) + 
+  annotation_north_arrow(height = unit(7, "mm"), width = unit(5, "mm"), pad_x = unit(5, "mm"), pad_y = unit(1, "mm")) + 
+  annotation_scale(line_width = 0.5, height = unit(1, "mm"), pad_x = unit(6, "cm"))
+
+
+```
+
+### Strip away grids
+
+Possibly the longitude and latitude and the grid are not adding much to our understanding of the map here. Instead we can strip these away. By using `theme_minimal()`, we're already stripping away a lot of the elements, but we can further specify to eliminate those which remain inside an additional `theme()` function. Specifically, we want to set the `panel.grid`, `axis.title`, `axis.text`, `axis.ticks`, and `panel.background` all to `element.blank()` to entirely remove these. 
+
+```{r nogrid, warning=FALSE}
+
+
+ggplot(data = hu_dd) + 
+  geom_sf(aes(fill = total_quantiles), lwd = 0.5, col = "white") + 
+  scale_fill_brewer(type = "seq", palette = "Greens", name = "Total tests") + 
+  geom_curve(x = bp_x - 0.1, 
+             y = bp_y + 0.9, 
+             xend = bp_x , 
+             yend = bp_y, 
+             arrow = arrow(length = unit(2, "mm"))) +
+  geom_sf_label(data = hu_dd %>% filter(name == "Budapest"), 
+                aes(label = name), 
+                nudge_y = 0.9, 
+                nudge_x = -0.1) + 
+  theme_minimal() + 
+  ggtitle("Number of breathalyser tests per county", subtitle = "January 2020") + 
+  labs(caption = caption_text) + 
+  annotation_north_arrow(height = unit(7, "mm"), width = unit(5, "mm"), pad_x = unit(5, "mm"), pad_y = unit(1, "mm")) + 
+  annotation_scale(line_width = 0.5, height = unit(1, "mm"), pad_x = unit(6, "cm")) + 
+  theme(panel.grid = element_blank(),
+        axis.title = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        panel.background = element_blank())
+
+
+```
+
+
+## Context
+
+### Basemap
+
+The `annotation_map_tile()` function also from the `ggspatial` package. 
+
+```{r basemap, warning=FALSE, message=FALSE}
+
+
+ggplot(data = hu_dd) + 
+  annotation_map_tile() + 
+  geom_sf(aes(fill = total_quantiles), lwd = 0.5, col = "white") + 
+  scale_fill_brewer(type = "seq", palette = "Greens", name = "Total tests") + 
+  geom_curve(x = bp_x - 0.1, 
+             y = bp_y + 0.9, 
+             xend = bp_x , 
+             yend = bp_y, 
+             arrow = arrow(length = unit(2, "mm"))) +
+  geom_sf_label(data = hu_dd %>% filter(name == "Budapest"), 
+                aes(label = name), 
+                nudge_y = 0.9, 
+                nudge_x = -0.1) + 
+  theme_minimal() + 
+  ggtitle("Number of breathalyser tests per county", subtitle = "January 2020") + 
+  labs(caption = caption_text) + 
+  annotation_north_arrow(height = unit(7, "mm"), width = unit(5, "mm"), pad_x = unit(5, "mm"), pad_y = unit(2, "mm")) + 
+  annotation_scale(line_width = 0.5, height = unit(1, "mm"), pad_x = unit(6, "cm")) + 
+  theme(panel.grid = element_blank(),
+        axis.title = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        panel.background = element_blank())
+
+
+```
+
+<!-- ### Geographical features -->
+
+
+<!-- ```{r} -->
+
+<!-- rivers <- st_read("/Users/reka/Downloads/wise_large_rivers/Large_rivers.shp") -->
+<!-- rivers <- st_transform(rivers, st_crs(hungary)) -->
+<!-- lakes <- st_read("/Users/reka/Downloads/wise_large_lakes/Large_lakes.shp") -->
+<!-- lakes <- st_transform(lakes, st_crs(hungary)) -->
+<!-- hu_rivers <- st_intersects(rivers, hungary) -->
+<!-- hu_rivers <- rivers[unlist(hu_rivers),] -->
+<!-- hu_lakes <- st_intersects(lakes, hungary) -->
+<!-- hu_lakes <- lakes[unlist(hu_lakes),] -->
+
+<!-- plot(st_geometry(hungary)) -->
+<!-- plot(st_geometry(hu_lakes), add = T) -->
+
+
+<!-- ``` -->
+
+### Inset maps
 
 (INSET MAPS)
 https://geocompr.github.io/post/2019/ggplot2-inset-maps/
