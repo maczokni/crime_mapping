@@ -330,13 +330,193 @@ Overall, the key thing is to be conscious with the colours you choose to represe
 
 ## Text
 
+There are important pieces of information with every map which are represente by text. 
+
 ### Titles and subtitles
+
+To give your map a title and subtitle, you can use the appropriate functions from the `ggplot2()` package.
+
+
+```{r titlesubtitle}
+
+
+ggplot(data = hu_dd) + 
+  geom_sf(aes(fill = total_quantiles), lwd = 0.5, col = "white") + 
+  scale_fill_brewer(type = "seq", palette = "Greens") + 
+  theme_minimal() + 
+  ggtitle("Number of breathalyser tests per county", subtitle = "January 2020")
+
+```
 
 ### Legend
 
+```{r legend}
+
+
+ggplot(data = hu_dd) + 
+  geom_sf(aes(fill = total_quantiles), lwd = 0.5, col = "white") + 
+  scale_fill_brewer(type = "seq", palette = "Greens", name = "Total tests") + 
+  theme_minimal() + 
+  ggtitle("Number of breathalyser tests per county", subtitle = "January 2020")
+
+```
+
+We can also change the levels. For example, we can replace the "," with a " - " if we'd like using the `gsub()` function, and assign the new levels object in the `labels = ` parameter of the `scale_fill_brewer()` function: 
+
+
+
+```{r legendlabels}
+
+new_levels <- gsub(","," - ",levels(hu_dd$total_quantiles))
+
+ggplot(data = hu_dd) + 
+  geom_sf(aes(fill = total_quantiles), lwd = 0.5, col = "white") + 
+  scale_fill_brewer(type = "seq", palette = "Greens", name = "Total tests", labels = new_levels) + 
+  theme_minimal() + 
+  ggtitle("Number of breathalyser tests per county", subtitle = "January 2020")
+
+```
+
+Or we could completely rename them if we liked:
+
+```{r legendlabels2}
+
+new_levels <- c("< 4796", "4796 to < 10785", "10785  to < 15070", "> 15070")
+
+ggplot(data = hu_dd) + 
+  geom_sf(aes(fill = total_quantiles), lwd = 0.5, col = "white") + 
+  scale_fill_brewer(type = "seq", palette = "Greens", name = "Total tests", labels = new_levels) + 
+  theme_minimal() + 
+  ggtitle("Number of breathalyser tests per county", subtitle = "January 2020")
+
+```
+
+You can change the labels however you would like, but do keep in mind any loss of information you may introduce. For example with this second version, we no longer know what are the minimum and maximum balues on our map, as we've removed that information with our new levels. Again, no wrong answers here, but whatever best fits the data and the purpose of the map. 
+
+
 ### Annotation
 
-### production notes
+Sometimes you might want to include some textual information on your map as well. From `ggplot2` versions v.3.1.0 the functions `geom_sf_text()` and `geom_sf_label()` make it very smooth for us to do this. 
+
+```{r addcountynames}
+
+ggplot(data = hu_dd) + 
+  geom_sf(aes(fill = total_quantiles), lwd = 0.5, col = "white") + 
+  scale_fill_brewer(type = "seq", palette = "Greens", name = "Total tests") + 
+  geom_sf_label(aes(label = name)) + 
+  theme_minimal() + 
+  ggtitle("Number of breathalyser tests per county", subtitle = "January 2020")
+
+```
+
+You may notice there is some overlapping here which renders some names unreadable. Well while [there is work in this space to develop the function geom_sf_label_repel()](https://github.com/slowkow/ggrepel/issues/111) at the time of writing this is not yet available. However this application of the `geom_label_repel()` function from the `ggrepel` package advised by @Yutani_2018 achieves the same outcome: 
+
+
+```{r}
+
+library(ggrepel)
+
+ggplot(data = hu_dd) + 
+  geom_sf(aes(fill = total_quantiles), lwd = 0.5, col = "white") + 
+  scale_fill_brewer(type = "seq", palette = "Greens", name = "Total tests") + 
+  geom_label_repel(data = hu_dd, aes(label = name, geometry = geometry), stat = "sf_coordinates", min.segment.length = 0) + 
+  theme_minimal() + 
+  ggtitle("Number of breathalyser tests per county", subtitle = "January 2020") 
+    
+
+
+
+```
+
+This map looks really busy, you might want to include only a few labels, which are of interest. For example, you might want to label only those which are in the top quartile: 
+
+```{r addcountynamestoponly}
+
+ggplot(data = hu_dd) + 
+  geom_sf(aes(fill = total_quantiles), lwd = 0.5, col = "white") + 
+  scale_fill_brewer(type = "seq", palette = "Greens", name = "Total tests") + 
+  geom_sf_label(data = hu_dd %>% filter(total_breath_tests >= 15070), aes(label = name)) + 
+  theme_minimal() + 
+  ggtitle("Number of breathalyser tests per county", subtitle = "January 2020")
+
+```
+
+Or you want to specifically highlight a county of interest, let's say Budapest. In this case, we might actually want to keep our annotation off the map. We can do this byusing the `nudge_x` and `nudge_y` parameters of the `geom_sf_label()` function. 
+
+```{r addcountynamesBPonly}
+
+ggplot(data = hu_dd) + 
+  geom_sf(aes(fill = total_quantiles), lwd = 0.5, col = "white") + 
+  scale_fill_brewer(type = "seq", palette = "Greens", name = "Total tests") + 
+  geom_sf_label(data = hu_dd %>% filter(name == "Budapest"), aes(label = name), nudge_y = 0.9, nudge_x = -0.1) + 
+  theme_minimal() + 
+  ggtitle("Number of breathalyser tests per county", subtitle = "January 2020")
+
+```
+
+```{r}
+
+bp_x <- hu_dd %>% filter(name == "Budapest") %>% 
+  mutate(cent_lng = st_coordinates(st_centroid(.))[,1]) %>% 
+  pull(cent_lng)
+
+bp_y <- hu_dd %>% filter(name == "Budapest") %>% 
+  mutate(cent_lat = st_coordinates(st_centroid(.))[,2]) %>% 
+  pull(cent_lat)
+
+```
+
+
+
+
+```{r}
+  
+
+
+ggplot(data = hu_dd) + 
+  geom_sf(aes(fill = total_quantiles), lwd = 0.5, col = "white") + 
+  scale_fill_brewer(type = "seq", palette = "Greens", name = "Total tests") + 
+  geom_curve(x = bp_x - 0.1, 
+             y = bp_y + 0.9, 
+             xend = bp_x , 
+             yend = bp_y, 
+             arrow = arrow(length = unit(2, "mm"))) +
+  geom_sf_label(data = hu_dd %>% filter(name == "Budapest"), 
+                aes(label = name), 
+                nudge_y = 0.9, 
+                nudge_x = -0.1) + 
+  theme_minimal() + 
+  ggtitle("Number of breathalyser tests per county", subtitle = "January 2020")
+
+```
+
+
+
+### Production notes
+
+```{r}
+  
+
+
+ggplot(data = hu_dd) + 
+  geom_sf(aes(fill = total_quantiles), lwd = 0.5, col = "white") + 
+  scale_fill_brewer(type = "seq", palette = "Greens", name = "Total tests") + 
+  geom_curve(x = bp_x - 0.1, 
+             y = bp_y + 0.9, 
+             xend = bp_x , 
+             yend = bp_y, 
+             arrow = arrow(length = unit(2, "mm"))) +
+  geom_sf_label(data = hu_dd %>% filter(name == "Budapest"), 
+                aes(label = name), 
+                nudge_y = 0.9, 
+                nudge_x = -0.1) + 
+  theme_minimal() + 
+  ggtitle("Number of breathalyser tests per county", subtitle = "January 2020") + 
+  labs(caption = "This map contains data from: Police Hungary available on: http://www.police.hu/hu/a-rendorsegrol/statisztikak/kozrendvedelem
+       \n and OSM")
+
+```
+
 
 ## Composition
 
