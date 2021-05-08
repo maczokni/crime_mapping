@@ -2,6 +2,8 @@
 
 ## Introduction
 
+[[[Bla bla bla hot spots of crime]]]
+
 In the previous chapter we explored ways to visualise the concentration of crime incidents in particular location. We used tesselation and kernel density estimation as a way to do this. As noted by @Chainey_2020:
 
 >"Hot spot maps generated using KDE are useful for showing where crime concentrates but may fail to determine unambiguosly what is hot (in hot spot analysis terms) from what is not hot. That is, a KDE hot spot map may fail to separate the significant spatial concentrations of crime from those spatial distributions of less interest, or from random variation"
@@ -18,6 +20,8 @@ library(dplyr)
 
 # Packages for handling spatial data and for geospatial carpentry
 library(sf)
+library(raster)
+library(spdep)
 
 # Packages for detecting clusters
 library(DCluster)
@@ -35,71 +39,110 @@ library(NearRepeat)
 
 # Packages for visualisation and mapping
 library(tmap)
+library(leaflet)
 ```
 
-## Spatial scan statistics
+## Getting the data: break and enter in Toronto
 
-### Getting the data
+For this chapter we travel to Toronto. We will be looking at crime data provided by their Police Service through their Public Safety Data Portal (https://data.torontopolice.on.ca/). We will explore residential break and enter offences for 2019. Beware there is also geomasking going on here. The open data does not include the exact coordinates for these events. For privacy reasons they have been geocoded to the next street intersection. When aggregating the incidents at the neighbourhoud level, as we will do later in this chapter, this may be less problematic. But if you were to be interested in the spatial point pattern level of resolution, you would be coming across artificially created "hot spots" in those street intersections. That´s a problem with most of these open data on crime, but for illustration purposes of the techniques it is ok to use this data - as long as we remember these caveats. 
 
-For this chapter we travel to Toronto. We will be looking at crime data provided by their Police Service through their Public Safety Data Portal. We will be looking at serious traffic collisions from 2006 to 2020. The source of the data comes from police reports where an officer attended an event related to a traffic collision. Please note that this dataset does not include all traffic collision events. The data only includes events where a person sustained a major or fatal injury in a traffic collision event The cartographic boundary for the city comes from the census office of Canada. The data can be read from our GitHub repository with the following code:
+The cartographic boundary for the city comes from the census office of Canada. We will also need the neighbourhood boundaries for Toronto, which we obtain from the Toronto open data portal (https://open.toronto.ca/). These data is free to redistribute, so for convenience we have assembled it and can be read from our GitHub repository with the following code:
 
 ```{r, message = FALSE, warning = FALSE}
 toronto <- st_read("https://raw.githubusercontent.com/maczokni/crime_mapping/master/data/toronto_c.geojson")
-traffic <- st_read("https://raw.githubusercontent.com/maczokni/crime_mapping/master/data/traffic.geojson")
-
+break_enter <- st_read("https://raw.githubusercontent.com/maczokni/crime_mapping/master/data/break_enter.geojson") %>%
+  filter((premises_t == "Apartment" | premises_t == "Commercial") & reportedye == "2019")
+neighbourhoods <- st_read("https://raw.githubusercontent.com/maczokni/crime_mapping/master/data/nh_profiles_short.geojson")
+  
+#toronto <- st_transform(toronto, 2029)
+#traffic <- st_transform(traffic, 2029)
 tm_shape(toronto) +
   tm_polygons(alpha = 0.3) +
-  tm_shape(traffic) +
+  tm_shape(neighbourhoods) +
+  tm_polygons(alpha = 0.3) +
+  tm_shape(break_enter) +
   tm_dots(size = 0.01) +
-   tm_layout(main.title = "Serious traffic collisions in Toronto", 
+   tm_layout(main.title = "Break and enter in Toronto", 
             main.title.size = 1 ,
             legend.outside = TRUE,  # Takes the legend outside the main map 
             legend.title.size = 0.8)
 
 ```
 
-As you can see, and it is often the case, the data requires some cleaning. Some points lie outside the city boundaries and that´s not the only issue. First there are many rows that share the same event unique id because the rows represent persons involved, not accidents. In typical crazy administrative fashion that you are likely to encounter in real life datasets the "unique" ids are said by the data documentation not to be unique and that "it may repeat year over year". So we will filter the data on the unique ID and the date of the collision hoping this will give us unique traffic collisions. For filtering unique rows we can rely on the magic of `dplyr::distinct()`. This function gives distinct records for which all attributes and geometries are distinct. To make it easier to operate in our case we will first get rid of all unneccesary variables using `select`.
+As you can see, and it is often the case, the data requires some cleaning. Some points lie outside the city boundaries, for this we will use code introduced in Chapter 2, and that´s not the only issue.  We also want to make sure there are no records with the same id, there are some in this dataset. So we will filter the data on the unique ID. For filtering unique rows we can rely on the magic of `duplicated()`. This function gives distinct records for which the values in the selected variable are the same. 
 
 ```{r}
 
-traffic <- select(traffic, ACCNUM, DATE, YEAR)
-traffic <- distinct(traffic)
-table(traffic$YEAR)
+break_enter <- subset(break_enter, !duplicated(break_enter$event_uniq))
+# intersection
+break_enter_intersect <- st_intersects(toronto, break_enter)
+# subsetting
+break_enter <- break_enter[unlist(break_enter_intersect ),]
 
 ```
 
-We are now left with just 6002 records.
-
-
-
-
 ## Micro Grid Cells
 
-[[[Is this redundant?]]]
+In chapter 4 we discussed alternatives to our choropleth maps, and one of these was to use a grid map. This is a process whereby a tessalating grid of a shape such as squares or hexagons is overlaid on top of our area of interest, and our points are aggregated to such a grid. We explored this using `ggplot2` package. We also used this approach when discussing quadrat counting with `ppp` objects and using the functionality provided by the `spatstat` package.
 
-In chapter 4 we discussed alternatives to our choropleth maps, and one of these was to use a grid map. This is a process whereby a tessalating grid of a shape such as squares or hexagons is overlaid on top of our area of interest, and our points are aggregated to such a grid. 
+Here we can revisit this with another approach, using the `raster` package: 
 
-
-@Chainey_2021 recommend
-
-
-We explored this using `ggplot2` package. Here we can revisit this with another approach, using the `raster` package: 
+[[code needs explaining]]
 
 ```{r}
-library(raster)
-
-
-pixelsize <-  0.01
-box <-  (extent(ldn) / pixelsize) * pixelsize
-template = raster(box, crs = 4326,
+pixelsize <-  0.004
+box <-  (extent(toronto) / pixelsize) * pixelsize
+template <- raster(box, crs = 4326,
 	nrows = (box@ymax - box@ymin) / pixelsize, 
 	ncols = (box@xmax - box@xmin) / pixelsize)
 
-btp_crimes$PRESENT <-  1
-btp_crimes_raster <- rasterize(btp_crimes, template, field = 'PRESENT', fun = sum)
+break_enter$PRESENT <-  1
+break_enter_raster <- rasterize(break_enter, 
+                                template, 
+                                field = 'PRESENT', 
+                                fun = sum)
 
-plot(btp_crimes_raster)
-plot(st_geometry(ldn), border='#00000040', add=T)
+plot(break_enter_raster)
+plot(st_geometry(toronto), border='#00000040', add=T)
+```
+
+This kind of map is helpful if you want to get a sense of the distribution over the whole city, but oftenwise from an operational point of view the interest is at a larger scale of resolution. We want to deep in and observe the micro-places that may be attracting crime within certain parts of the city. We can do this by focusing on particular neighbourhoods.
+
+Let´s find out the neighbourhood with most events. First, we use `st_intersects()` to count points within polygons and then add this to the "neighbourhoods" `sf` object. Then we use `slice_max()` to select the rows with the highest values. Setting the argument `n` to 3, we get the three neighbourhoods with more incidents. For sparser reporting we previously `select()` only the variable containing the neighbourhood name and the count of break and enter occurrences. Using `as.data.frame()` ensures that we don´t retain the geometry and additional elements of the `sf` object when autoprinting the results.
+
+```{r, message = FALSE}
+# add point count to each polygon
+neighbourhoods$b_e_count <- lengths(st_intersects(neighbourhoods, break_enter))
+# identify the neighbourhood with most incidents
+as.data.frame(neighbourhoods) %>% 
+  dplyr::select(Neighbourh, b_e_count) %>%
+  slice_max(b_e_count, n = 3) 
+```
+
+Let´s look at Kensington-Chinatown, which is an area
+
+```{r, warning = FALSE, message = FALSE}
+
+kensington <- filter(neighbourhoods, 
+                     Neighbourh == "Kensington-Chinatown")
+break_enter_intersect <- st_intersects(kensington, break_enter)
+# subsetting
+break_enter_k <- break_enter[unlist(break_enter_intersect ),]
+
+ 
+pixelsize <-  0.0005
+box <-  (extent(kensington) / pixelsize) * pixelsize
+template <- raster(box, crs = 4326,
+	nrows = (box@ymax - box@ymin) / pixelsize, 
+	ncols = (box@xmax - box@xmin) / pixelsize)
+
+break_enter_raster_k <- rasterize(break_enter_k, 
+                                template, 
+                                field = 'PRESENT', 
+                                fun = sum)
+
+plot(break_enter_raster_k)
+plot(st_geometry(kensington), border='#00000040', add=T)
 ```
 
 ## Getis-Ord GI*
@@ -108,17 +151,15 @@ One major issue with the above, which is another issue associated with kernel de
 
 One commonly used technique to work around that issues was developed by Arthur Getis and JK Ord in the early 1990s. When you develop an algorithm, you get to name it after yourself, so this is called the Getis-Ord GI* statistic.
 
-This statistic is based on the observation that the distribution of differences in crime intensity between neighbouring areas across a map will follow a normal curve. Therefore, the amount of difference between an area and its neighbors can then be converted to a z-score reflecting the number of standard deviations (σ) that the crime level in an area differs from neighborhood normal. Areas with high z-scores (indicating a crime significantly above the mean) are identified as hot spots, while areas with low z-scores are identified as cold spots.
+This statistic is based on the observation that the distribution of differences in crime intensity between neighbouring areas across a map will follow a normal curve. Therefore, the amount of difference between an area and its neighbors can then be converted to a z-score reflecting the number of standard deviations ($σ$) that the crime level in an area differs from neighborhood normal. Areas with high z-scores (indicating a crime significantly above the mean) are identified as hot spots, while areas with low z-scores are identified as cold spots.
 
 ```{r}
 
-
-
-getisgrid <-  rasterToPolygons(btp_crimes_raster)
+getisgrid <-  rasterToPolygons(break_enter_raster)
 
 # Create the list of neighbors
 
-library(spdep)
+
 neighbors <-  poly2nb(getisgrid)
 weighted_neighbors = nb2listw(neighbors, zero.policy=T)
 
@@ -135,11 +176,9 @@ col = palette[cut(getisgrid$HOTSPOT, breaks)]
 # Plot
 
 plot(getisgrid, col=col, border=NA)
-plot(st_geometry(ldn), border="gray", add=T)
+plot(st_geometry(toronto), border="gray", add=T)
 
 ```
-
-
 
 Or on a leaflet map to aid interpretation: 
 
@@ -152,7 +191,7 @@ leaflet(getisgrid) %>%
   addTiles() %>%
   addPolygons(fillColor =  ~pal(HOTSPOT), fillOpacity = 0.8, weight = 0) %>% 
   addLegend(pal = pal, values = ~HOTSPOT, opacity = 0.7, 
-            title = 'BTP crimes')
+            title = 'Break and enter')
 
 ```
 
