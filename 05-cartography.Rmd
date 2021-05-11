@@ -594,7 +594,7 @@ ggplot(data = hu_dd) +
 
 ### Strip away grids
 
-Possibly the longitude and latitude and the grid are not adding much to our understanding of the map here. Instead we can strip these away. By using `theme_minimal()`, we're already stripping away a lot of the elements, but we can further specify to eliminate those which remain inside an additional `theme()` function. Specifically, we want to set the `panel.grid`, `axis.title`, `axis.text`, `axis.ticks`, and `panel.background` all to `element.blank()` to entirely remove these. 
+Possibly the longitude and latitude and the grid are not adding much to our understanding of the map here. Instead we can strip these away. By using `theme_minimal()`, we're already stripping away a lot of the elements, but we can further specify to eliminate all elements with the `theme_void()` argument instead. 
 
 ```{r nogrid, warning=FALSE}
 
@@ -611,16 +611,11 @@ ggplot(data = hu_dd) +
                 aes(label = name), 
                 nudge_y = 0.9, 
                 nudge_x = -0.1) + 
-  theme_minimal() + 
+  theme_void() + 
   ggtitle("Number of breathalyser tests per county", subtitle = "January 2020") + 
   labs(caption = caption_text) + 
   annotation_north_arrow(height = unit(7, "mm"), width = unit(5, "mm"), pad_x = unit(5, "mm"), pad_y = unit(1, "mm")) + 
-  annotation_scale(line_width = 0.5, height = unit(1, "mm"), pad_x = unit(6, "cm")) + 
-  theme(panel.grid = element_blank(),
-        axis.title = element_blank(),
-        axis.text = element_blank(),
-        axis.ticks = element_blank(),
-        panel.background = element_blank())
+  annotation_scale(line_width = 0.5, height = unit(1, "mm"), pad_x = unit(6, "cm"))
 
 
 ```
@@ -648,16 +643,11 @@ ggplot(data = hu_dd) +
                 aes(label = name), 
                 nudge_y = 0.9, 
                 nudge_x = -0.1) + 
-  theme_minimal() + 
+  theme_void() + 
   ggtitle("Number of breathalyser tests per county", subtitle = "January 2020") + 
   labs(caption = caption_text) + 
   annotation_north_arrow(height = unit(7, "mm"), width = unit(5, "mm"), pad_x = unit(5, "mm"), pad_y = unit(2, "mm")) + 
-  annotation_scale(line_width = 0.5, height = unit(1, "mm"), pad_x = unit(6, "cm")) + 
-  theme(panel.grid = element_blank(),
-        axis.title = element_blank(),
-        axis.text = element_blank(),
-        axis.ticks = element_blank(),
-        panel.background = element_blank())
+  annotation_scale(line_width = 0.5, height = unit(1, "mm"), pad_x = unit(6, "cm")) 
 
 
 ```
@@ -684,19 +674,91 @@ ggplot(data = hu_dd) +
 
 ### Inset maps
 
+Inset maps provide context. You might use this to show where your main map fits into the context of a larger area, for example, here we might illustrate how Hungary is situated within Europe.  You might also use an inset map in another situation, where you have additional areas which you want to show which may be geographically far but politically related to your region. For example, we might want to portray a map of the United States of America, and make sure to include Hawaii and Alaska on the map. The basic principles behind these maps is the same. Essentially we must create two map objects, and then bring these together. Let's illustrate how. 
+
+
+First, we need to create the map we will be displaying in the inset map. In this case, let's highlight the location of Hungary on the map. We can do this by creating a map of Europe (let's use the `rnaturalearth` package for this). We create a list of the countries from the world map `countries1101, and filter only Europe (we also exclude Russia because it is so big it makes the rest of Europe hard do see on a smaller map, and Iceland as it's far, also making the map bigger than we need). 
 
 ```{r}
 
 library(rnaturalearth)
-world <- countries110()
-europe <- world[world$region_un=="Europe"&world$name!='Russia',]
 
-world<- ne_countries(returnclass = "sf", scale = 'small')
-plot(st_geometry(europe))
+europe_countries <- st_as_sf(countries110) %>% 
+  filter(region_un=="Europe" & name != "Russia" & name != "Iceland") %>% pull(name)
+
+europe <- ne_countries(geounit = europe_countries, type = 'map_units', returnclass = "sf")
 
 ```
 
-(INSET MAPS)
-https://geocompr.github.io/post/2019/ggplot2-inset-maps/
+Now we can create a map where we highlight Hungary by making its border red and a thicker line width. Remember to add `theme_void()` in order to remove any background elements.  
 
-## Interactivity
+```{r}
+
+inset_map <- ggplot() + 
+  geom_sf(data = europe, fill = "white") + 
+  geom_sf(data = europe %>% filter(name == "Hungary"), fill = "white" , col = "red", lwd = 2) + 
+  theme_void() + 
+  theme(panel.border = element_rect(colour = "black", fill=NA))
+  
+
+```
+
+We now have this separate map, which highlights where Hungary can be found, right there in Central Europe. To display this jointly with our map of breathalyser test, we must join the two maps. We will need both as objects. We've already assigned out inset map to the object `inset_map` but we must take our main map, and also assign it to an object. Let's call this main map. 
+
+
+```{r makemainmap}
+
+main_map <- ggplot(data = hu_dd) + 
+  geom_sf(aes(fill = total_quantiles), lwd = 0.5, col = "white") + 
+  scale_fill_brewer(type = "seq", palette = "Greens", name = "Total tests") + 
+  geom_curve(x = bp_x - 0.1, 
+             y = bp_y + 0.9, 
+             xend = bp_x , 
+             yend = bp_y, 
+             arrow = arrow(length = unit(2, "mm"))) +
+  geom_sf_label(data = hu_dd %>% filter(name == "Budapest"), 
+                aes(label = name), 
+                nudge_y = 0.9, 
+                nudge_x = -0.1) + 
+  theme_minimal() + 
+  ggtitle("Number of breathalyser tests per county", subtitle = "January 2020") + 
+  labs(caption = caption_text) + 
+  annotation_north_arrow(height = unit(7, "mm"), width = unit(5, "mm"), pad_x = unit(5, "mm"), pad_y = unit(1, "mm")) + 
+  annotation_scale(line_width = 0.5, height = unit(1, "mm"), pad_x = unit(6, "cm")) + 
+  theme(panel.grid = element_blank(),
+        axis.title = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        panel.background = element_blank())
+
+```
+
+
+
+
+Great, now to join them.  For this, we will turn to functions from the `cowplot` package. 
+
+```{r cowplot}
+
+library(cowplot)
+
+```
+
+
+First, we set up an empty drawing layer for our ggplot using the `ggdraw()` function. Then we layer on the two maps both using the `draw_plot()` function. This allows us to draw plots and sub plots. This function places a plot (which we specify as the first parameter of this function) somewhere onto the drawing canvas. By default, coordinates run from 0 to 1, and the point (0, 0) is in the lower left corner of the canvas. We want to therefore specify where the plots go on our canvas explicitly. Alongside position, we can also specify size. This is important, we usually make the inset map smaller. 
+
+
+```{r insetmaptogether, warning = FALSE}
+
+hu_dd_with_inset <- ggdraw() +
+  draw_plot(main_map) +
+  draw_plot(inset_map, x = 0.67, y = 0, width = 0.35, height = 0.35)
+
+hu_dd_with_inset
+
+```
+
+You can play around with where you position your inset map by adjusting the x and y coordinates. You can also play around with the size of it by adjusting the parameters for height and width. 
+
+
+<!-- ## Interactivity -->
