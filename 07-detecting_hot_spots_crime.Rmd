@@ -24,10 +24,10 @@ library(raster)
 library(spdep)
 
 # Packages for detecting clusters
-library(rgeoda)
+
 library(DCluster)
 library(SpatialEpi)
-library(AMOEBA)
+
 library(smerc)
 library(surveillance)
 library(DClusterm)
@@ -257,4 +257,57 @@ tmap_arrange(map1, map2, nrow=1)
 ```
 
 ## Scan Statistics
+
+bla bla bla
+
+```{r}
+names(neighbourhoods)
+```
+
+compute rate
+
+```{r, eval = FALSE}
+
+neighbourhoods <- neighbourhoods %>%
+  mutate(b_e_rate = b_e_count / as.numeric(dwellings))
+```
+
+What´s going on? Well, that´s the thing with real life data. There´s always something that may drive you insane. If you use `class()` on the column with the "dwellings" you will see that the data are stored as `character` class. What is more you see commas separating some of the digits. R will coerce this into NAs. So we need to do some tidying beforehand. We will turn the vector into numeric using `as.numeric()` and we will use `gsub()` to replace the commas (`","`) with nothingness (`""`).
+
+```{r}
+neighbourhoods$dwellings <- as.numeric(gsub(",", "", neighbourhoods$dwellings))
+
+```
+
+Now we can compute the rate and do a quick map.
+
+```{r}
+neighbourhoods <- neighbourhoods %>%
+  mutate(b_e_rate = (b_e_count / as.numeric(dwellings)) * 1000)
+current_style <- tmap_style("col_blind")
+tm_shape(neighbourhoods) + 
+  tm_fill("b_e_rate", style="headtails", title = "Break and Enter per 1000 dwellings (2018-2019") +
+  tm_layout(legend.position = c("left", "top"), 
+            legend.title.size = 0.7,
+            legend.text.size = 0.5)
+```
+
+The package `DCluster` was one of the first to introduce tools to assess spatial clusters. This package, like many that are influenced by the epidemiological literature, take as key inputs the observed cases (in criminology this will be criminal occurrences) and expected cases. In epidemiology expected cases are often standardised to account for population heterogeneity. In crime analysis this is not as common (although in some circumstances it should be!). For this example we will the  expected counts are computed using the overall incidence ratio (i.e., total number of cases divided by the total population).
+
+```{r}
+neighbourhoods$b_e_expected <- neighbourhoods$dwellings * sum(neighbourhoods$b_e_count) / sum(neighbourhoods$dwellings)
+
+```
+
+This package requires as well the centroids for the polygons we are using. To extract this we can use `sf::st_centroid()`. All the GEOS functions underlying `sf` need projected coordinates to work properly, so we need to reproject first to an adequate projection:
+
+```{r}
+# Reproject
+neighbourhoods <- st_transform(neighbourhoods, crs = 26717)
+# Get centroids
+nh_centroid <- st_centroid(neighbourhoods)
+nh_centroid <- nh_centroid %>%
+  dplyr::mutate(x = st_coordinates(.)[,1],
+                y = st_coordinates(.)[,2])
+```
 
