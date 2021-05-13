@@ -24,6 +24,7 @@ library(raster)
 library(spdep)
 
 # Packages for detecting clusters
+library(rgeoda)
 library(DCluster)
 library(SpatialEpi)
 library(AMOEBA)
@@ -49,6 +50,7 @@ library(RColorBrewer)
 For this chapter we travel to Toronto. We will be looking at crime data provided by their Police Service through their Public Safety Data Portal (https://data.torontopolice.on.ca/). We will explore residential break and enter offences for 2019. Beware there is also geomasking going on here. The open data does not include the exact coordinates for these events. For privacy reasons they have been geocoded to the next street intersection. When aggregating the incidents at the neighbourhoud level, as we will do later in this chapter, this may be less problematic. But if you were to be interested in the spatial point pattern level of resolution, you would be coming across artificially created "hot spots" in those street intersections. That´s a problem with most of these open data on crime, but for illustration purposes of the techniques it is ok to use this data - as long as we remember these caveats. 
 
 The cartographic boundary for the city comes from the census office of Canada. We will also need the neighbourhood boundaries for Toronto, which we obtain from the Toronto open data portal (https://open.toronto.ca/). These data is free to redistribute, so for convenience we have assembled it and can be read from our GitHub repository with the following code:
+
 
 ```{r, message = FALSE, warning = FALSE}
 toronto <- st_read("data/toronto_c.geojson")
@@ -87,7 +89,7 @@ tm_shape(toronto) +
 
 As you can see, and it is often the case, the data requires some cleaning. Some points lie outside the city boundaries, for this we will use code introduced in Chapter 2, and that´s not the only issue.  We also want to make sure there are no records with the same id, there are some in this dataset. So we will filter the data on the unique ID. For filtering unique rows we can rely on the magic of `duplicated()`. This function gives distinct records for which the values in the selected variable are the same. 
 
-```{r}
+```{r, message=FALSE}
 
 break_enter <- subset(break_enter, !duplicated(break_enter$event_uniq))
 # intersection
@@ -117,7 +119,7 @@ plot(break_enter_raster)
 plot(st_geometry(toronto), border='#00000040', add=T)
 ```
 
-This kind of map is helpful if you want to get a sense of the distribution over the whole city, but oftenwise from an operational point of view the interest is at a larger scale of resolution. We want to deep in and observe the micro-places that may be attracting crime within certain parts of the city. We can do this by focusing on particular neighbourhoods.
+This kind of map is helpful if you want to get a sense of the distribution over the whole city, but oftenwise from a crime analyst operational point of view the interest is at a larger scale of resolution. We want to deep in and observe the micro-places that may be attracting crime within certain parts of the city. We can do this by focusing on particular neighbourhoods.
 
 Let´s find out the neighbourhood with most events. First, we use `st_intersects()` to count points within polygons and then add this to the "neighbourhoods" `sf` object. Then we use `slice_max()` to select the rows with the highest values. Setting the argument `n` to 3, we get the three neighbourhoods with more incidents. For sparser reporting we previously `select()` only the variable containing the neighbourhood name and the count of break and enter occurrences. Using `as.data.frame()` ensures that we don´t retain the geometry and additional elements of the `sf` object when autoprinting the results.
 
@@ -159,8 +161,10 @@ break_enter_raster_k <- mask(break_enter_raster_k, kensington)
 plot(break_enter_raster_k)
 ```
 
+Let´s add some context. We will use `mapview` for it. This is another great package if you want to give your audience some interactivity. It does what is says in the tin: 
+>it "provides functions to very quickly and conveniently create interactive visualisations of spatial data. Its main goal is to fill the gap of quick (not presentation grade) interactive plotting to examine and visually investigate both aspects of spatial data, the geometries and their attributes. It can also be considered a data-driven API for the leaflet package as it will automatically render correct map types, depending on the type of the data (points, lines, polygons, raster)." 
 
-Let´s add some context. We will use `mapview` for it. This is another great package if you want to give your audience some interactivity. It does what is says in the tin: it "provides functions to very quickly and conveniently create interactive visualisations of spatial data. Its main goal is to fill the gap of quick (not presentation grade) interactive plotting to examine and visually investigate both aspects of spatial data, the geometries and their attributes. It can also be considered a data-driven API for the leaflet package as it will automatically render correct map types, depending on the type of the data (points, lines, polygons, raster)." With very few lines of code you can get an interactive plot. Here we first will use `RColorBrewer::brewer.pal()` to define a convenient palette and then use `mapview::mapview()` to plot our raster. Below you see how we increase the transparency with the `alpha.region` argument and how we use `col.regions` to change from the default palette to the one we created.
+With very few lines of code you can get an interactive plot. Here we first will use `RColorBrewer::brewer.pal()` to define a convenient palette and then use `mapview::mapview()` to plot our raster. Below you see how we increase the transparency with the `alpha.region` argument and how we use `col.regions` to change from the default palette to the one we created.
 
 ```{r, message=FALSE, warning=FALSE}
 
@@ -170,38 +174,39 @@ mapview(break_enter_raster_k,
         col.regions = my.palette)
 ```
 
+## Local Getis-Ord
 
-## Getis-Ord GI*
+The maps above and the ones we introduced in chapter 6 produced through kernel density estimation are helpful for visualising the varying intensity of crime across the study region of interest. However, as we noted in Chapter 6, it may be hard to discern random variation from clustering of crime incidents simply using these techniques. There are a number of statistical tools that have been developed to extract the signal from the noise, to determine what is hot from random variation, and that were originally designed to detect clusters of disease.
 
-The maps above and the ones we introduced in chapter 6 produced through kernel density estimation are helpful for visualising the varying intensity of crime across the study region of interest. As we noted in Chapter 6 it may be hard to discern random variation from clustering of crime incidents simply using these techniques. There are a number of statistical tools that have been developed to extract the signal from the noise, to determine what is hot from random variation.
+In crime analysis is common to use a technique developed by Arthur Getis and JK Ord in the early 1990s (@Getis_1992 and @Ord_1995), partly because it was implemented in the widely successful ArcGIS as part of their hot spot analysis tool. This statistic provides a measure of spatial dependence at the local level. They are not testing homogeneity, they are testing dependence of a given attribute around neighbouring areas (which could be operationalised as micro cells in a grid, as above, or could be some form of administrative areas). 
 
-In crime analysis is common to use a technique developed by Arthur Getis and JK Ord in the early 1990s (@Getis_1992 and @Ord_1995), partly because it was implemented in the widely successful ArcGIS as part of their hot spot analysis tool. Getis and Ord developed what is referred to as the Getis-Ord GI* statistic. This statistic provides a measure of spatial dependence at the local level. They are not testing homogeneity, they are testing dependence of a given attribute around neighbouring areas (which could be operationalised as micro cells in a grid, as above, or could be some form of administrative areas). 
+There are two variants of the local Getis-Ord statistic. The local $G$ is computed a ratio of the weighted average of the values of the attribute of interest in the neighboring locations, not including the value at the location. It is generally used for spread and diffusion studies. The local $G^*$ includes the value at the location in both numerator and denominator. It is more generally used for clustering studies. High positive values indicate the possibility of a local cluster of high values of the variable being analysed ("hot spot"), very low relative values a similar cluster of low values ("cold spot"). "A value larger than the mean (or, a positive value for a standardized z-value) suggests a High-High cluster or hot spot, a value smaller than the mean (or, negative for a z-value) indicates a Low-Low cluster or cold spot." (@Anselin_2020a) 
 
->"This statistic is based on the observation that the distribution of differences in crime intensity between neighbouring areas across a map will follow a normal curve. Therefore, the amount of difference between an area and its neighbors can then be converted to a z-score reflecting the number of standard deviations ($σ$) that the crime level in an area differs from neighborhood normal. Areas with high z-scores (indicating a crime significantly above the mean) are identified as hot spots, while areas with low z-scores are identified as cold spots." @Minn_2020
+For statistical inference, a Bonferroni-type test is suggested in the the papers by Getis and Ord, where tables of critical values are included. The critical values for the 95th percentile under the assumptions discussed by @Ord_1995 are for $n$=30: 2.93, $n$=50: 3.08, $n$=100: 3.29, $n$=500: 3.71, and for $n$=1000: 3.89. @Anselin_2020a suggest that this analytical approximation may not be reliable in practice and that conditional permutation is advisable. Inference with these local measures are also complicated by problems of multiple comparisons, so it is typically advisable to use some form of adjustment to this problem.
 
-The first step in computing this statistics involved defining the neighbours of each area. And to do that first we have to turn each cell in our grid into a polygon, so we basically move from the raster to the vector model by virtue of using `raster::rasterToPolygons`. What is a neighbour and the code related to defining neighbours is a topic we explain in much greater detail in chapter 10 when we discuss more generally related measures of dependence. For now, just take the code at face value and understand we are simply looking at each cell and consider that immediately adjacent cells are its neighbours (that´s what the default argument in `spdep::poly2nd()` is doing). What `nb2listw()` does is something we will return to in Chapter 10.
+The first step in computing the Getis and Ord statistics involves defining the neighbours of each area. And to do that first we have to turn each cell in our grid into a polygon, so we basically move from the raster to the vector model by virtue of using `raster::rasterToPolygons`. 
 
 ```{r}
-
 # Move to vector model
-
 getisgrid <-  rasterToPolygons(break_enter_raster_k)
 
-# Create the list of neighbors
+```
 
+What is a neighbour and the code related to defining neighbours is a topic we explain in much greater detail in chapter 10 when we discuss more generally related measures of dependence. For now, just take the code at face value and understand we are simply looking at each cell and establishing that immediately adjacent cells are its neighbours. Only to indicate that `include.self()` ensures we get the $G^*$ variation of the local Getis-Ord test, the second variation we mentioned above.
+
+```{r}
 neighbors <-  poly2nb(getisgrid)
-weighted_neighbors <- nb2listw(neighbors, zero.policy=T)
+weighted_neighbors <- nb2listw(include.self(neighbors), zero.policy=T)
 
 
 ```
 
-Now that we have the data ready we can compute the statistic using the `localG()` function. We can then add the computed local $Gi^*$ to each cell.
+Now that we have the data ready we can, analytically, compute the statistic using the `localG()` function. We can then add the computed local $Gi^*$ to each cell.
 
 ```{r, message=FALSE, warning=FALSe}
 
 # Perform the local G analysis (Getis-Ord GI*)
-sum(is.na(getisgrid))
-getisgrid$HOTSPOT <- as.vector(localG(getisgrid$layer, weighted_neighbors))
+getisgrid$HOTSPOT_z <- as.vector(localG(getisgrid$layer, weighted_neighbors))
 
 
 ```
@@ -209,39 +214,50 @@ getisgrid$HOTSPOT <- as.vector(localG(getisgrid$layer, weighted_neighbors))
 We can then see the produced z scores:
 
 ```{r}
-summary(getisgrid$HOTSPOT)
+summary(getisgrid$HOTSPOT_z)
 
 ```
 
-How do you interpret these? They are z scores. So you expect large absolute values to index the existence of cold spots (if they are negative) or hot spots (if they are positive). How large is large? The critical values for the 95th percentile under the assumptions discussed by @Ord_1995 are for $n$=30: 2.93, $n$=50: 3.08, $n$=100: 3.29, $n$=500: 3.71, and for $n$=1000: 3.89. Our sample size is 475 cells.  
+How do you interpret these? They are z scores. So you expect large absolute values to index the existence of cold spots (if they are negative) or hot spots (if they are positive). Our sample size is 475 cells and there are only a very small handful of cells with values that reach the critical value in our dataset.
+
+A known problem with this statistic is that of multiple comparisons. As noted by @Pebesma_2021: "although the apparent detection of hotspots from values of local indicators has been quite widely adopted, it remains fraught with difficulty because adjustment of the inferential basis to accommodate multiple comparisons is not often chosen." So we need to ensure the critical values we use adjust for this. We can use `stats::p.adjust()` to count the number of observations that this statistic identifies as hot spots using different solutions for the multiple comparison problem, such as Bonferroni, False Discovery Rate, or the method developed by Benjamini and Yekutielli (BY).
 
 ```{r}
-
-# Color the grid cells based on the z-score
-
-breaks <- quantile(getisgrid$HOTSPOT, na.rm = TRUE)
-palette <- c("#0000FF80", "#8080FF80", "#FFFFFF80", "#FF808080", "#FF000080")
-col <- palette[cut(getisgrid$HOTSPOT, breaks)]
-
-# Plot
-
-plot(getisgrid, col=col, border=NA)
-plot(st_geometry(kensington), border="gray", add=T)
+p_values <- 2 * pnorm(abs(c(getisgrid$HOTSPOT_z)), lower.tail = FALSE)
+p_values_mc <- cbind(p_values, 
+              p.adjust(p_values, "bonferroni"), 
+              p.adjust(p_values, "fdr"), 
+              p.adjust(p_values, "BY"))
+colnames(p_values_mc) <- c("None", "Bonferroni", 
+                           "False Discovery Rate", "BY (2001)")
+apply(p_values_mc, 2, function(x) sum(x < 0.05))
 ```
-
-Or on a leaflet map to aid interpretation: 
+We can now plot this significant clusters in the map. First we will do some recoding to identify these cells in the spatial polygon object.
 
 ```{r}
+# Creates p values for Bonferroni adjustment
+getisgrid$HOTSPOT_bonf <- p.adjust(p_values, "bonferroni")
+# Create character vector based on Z score and p values (since this is a spatial polygon tidier functions such as mutate won´t do the job and have to use base R)
+getisgrid$HOTSPOT <- "Not significant"
+getisgrid$HOTSPOT[getisgrid$HOTSPOT_bonf < 0.05 & getisgrid$HOTSPOT_z > 0] <- "Hot spot"
+getisgrid$HOTSPOT[getisgrid$HOTSPOT_bonf < 0.05 & getisgrid$HOTSPOT_z < 0] <- "Cold spot"
+table(getisgrid$HOTSPOT)
 
-pal <- colorQuantile(c("#0000FF80", "#8080FF80", "#FFFFFF80", "#FF808080", "#FF000080"),getisgrid$HOTSPOT, 
-  na.color = "transparent")
+```
+We can now map these values.
 
-leaflet(getisgrid) %>% 
-  addTiles() %>%
-  addPolygons(fillColor =  ~pal(HOTSPOT), fillOpacity = 0.8, weight = 0) %>% 
-  addLegend(pal = pal, values = ~HOTSPOT, opacity = 0.7, 
-            title = 'Break and enter')
+```{r}
+tmap_mode("plot")
+map1 <- tm_shape(st_as_sf(getisgrid)) + 
+  tm_fill(c("HOTSPOT_z"), 
+          title="Z scores")
+map2 <- tm_shape(st_as_sf(getisgrid)) +
+  tm_fill(c("HOTSPOT"), 
+          title="Hot spots")
+tmap_arrange(map1, map2, nrow=1)
+
 
 ```
 
+## Scan Statistics
 
