@@ -1,5 +1,9 @@
 # Chapter 2: Basic geospatial operations in R
 
+```{r include = FALSE}
+knitr::opts_chunk$set(cache = F)
+```
+
 ## Introduction
 
 In this chapter we get your hands dirty with **spatial manipulation of data**. Thus far, our data manipulation exercises (using `dplyr`) were such that you might be familiar with, from your earlier exposures to data analysis. For example, linking datasets using a common column is a task which you can perform on spatial or non-spatial data. These are referred to as attribute operations. However today we will explore some exercises in data manipulation which are specific to *spatial* data analysis. We will be learning some key spatial operations, a set of functions that allow you to create new and manipulate spatial data.
@@ -104,8 +108,7 @@ Let's read in a geoJSON spatial file, again from the web. This particular geojso
 
 ```{r read_data_2b}
 
-manchester_ward <- st_read("https://raw.githubusercontent.com/RUMgroup/Spatial-data-in-R/master/rumgroup/data/wards.geojson")
-
+manchester_ward <- st_read("data/wards.geojson")
 
 ```
 
@@ -175,7 +178,7 @@ osm_bar_sf
 
 This confirms details like the bounding box coordinates, but also provides information on the features collected from the query. As one might expect, most information relating to bar locations has been recorded using points (i.e. two-dimensional vertices, coordinates) of which we have `r nrow(osm_bar_sf$osm_points)` at the time of writing. We also have around fifty polygons. For now, let's extract the point information.
 
-```{r stationpoints}
+```{r barpoints}
 osm_bar_sf <- osm_bar_sf$osm_points 
 ```
 
@@ -246,7 +249,7 @@ crimes <- st_as_sf(crimes, coords = c("longitude", "latitude"),
 
 Now let's check the CRS of this spatial version of our licensed premises: 
 
-```{r check_crs_again, eval=FALSE}
+```{r check_crs_again}
 st_crs(crimes)
 ```
 
@@ -255,7 +258,7 @@ We can now see that we have this coordinate system as WGS 84. We need to then ma
 So let's look at our city centre ward boundary file: 
 
 
-```{r check_crs_wards, eval=FALSE}
+```{r check_crs_wards}
 
 st_crs(city_centre)
 
@@ -265,14 +268,14 @@ We see that this is in fact in a projected coordinate system, namely the British
 
 ```{r define_crs_wards}
 
-city_centre <- st_transform(city_centre, EPSG = 4326)
+city_centre <- st_transform(city_centre, crs = 4326)
 
 ```
 
 
 Now we can check the projection again: 
 
-```{r check_crs_wards_again, eval=FALSE}
+```{r check_crs_wards_again}
 
 st_crs(city_centre)
 
@@ -289,7 +292,7 @@ st_crs(crimes) == st_crs(city_centre)
 
 It is true! Finally, to check our bar data from Open Street Map: 
 
-```{r, eval=FALSE}
+```{r}
 
 st_crs(osm_bar_sf)
 
@@ -322,7 +325,7 @@ So if we really want to focus on city centre, we should create spatial objects f
 
 First things first, we check whether they have the same CRS. 
 
-```{r check_crs_once_more, eval=FALSE}
+```{r check_crs_once_more}
 
 st_crs(city_centre) == st_crs(crimes)
 
@@ -621,14 +624,14 @@ install.packages("RColorBrewer") #for getting nice colours for your maps
 
 Once you have them installed, load them up with the `library()` function. To make a map, just load the leaflet library. You then create a map with this simple bit of code:
 
-```{r}
+```{r, cache=FALSE}
 m <- leaflet() %>%
   addTiles()  
 ```
 
 
 And just print it:
-```{r}
+```{r, cache=FALSE}
 m  
 ```
 
@@ -636,7 +639,7 @@ Not a super useful map, but it was really easy to make! You might of course want
 
 You can add a point manually:
 
-```{r}
+```{r, cache=FALSE}
 m <- leaflet() %>%
   addTiles()  %>% 
   addMarkers(lng=-2.230899, lat=53.464987, popup="University of Manchester")
@@ -647,7 +650,7 @@ If you click over the highlighted point you will read our input text "University
 
 You can add many points manually, with some popup text as well:
 
-```{r}
+```{r, cache=FALSE}
 
 latitudes = c(53.464987, 53.472726, 53.466649) 
 longitudes = c(-2.230899, -2.245481, -2.243421) 
@@ -666,13 +669,13 @@ First, let's pick a colour palette. We do this with the `colorBin()` function. W
 
 Let's create this palette and save in an object called `pal`: 
 
-```{r}
+```{r, cache=FALSE}
 pal <- colorBin("RdPu", domain = crimes_per_prem$n, bins = 5, pretty = TRUE)
 ```
 
 Now we can make a leaflet map, where we add these polygons (the buffers) with the `addPolygons()` function, and call our palette, specifying again the variable to use for shading, as well as some other parameters. One to highlight specifically is the `label` parameter. This allows us to use a variable as a label for when a user clicks on our polygon (buffer). Here we specify the name of the bar with `label = ~as.character(name)`.This way we not only shade each buffer with the number of crimes which fall inside it, but also include a little popup label with the name of the establishment: 
 
-```{r}
+```{r, cache=FALSE}
 
 leaflet(crimes_per_prem) %>% 
   addTiles() %>% 
@@ -749,7 +752,7 @@ lic_prem <- lic_prem %>%
 
 Now we have these licenced premises geocoded, with brand new latitude and longitude information! We can use this to make a leaflet map of our venues!
 
-```{r}
+```{r, cache=FALSE}
 
 lic_prem$latitude <- as.numeric(lic_prem$lat)
 lic_prem$longitude <- as.numeric(lic_prem$long)
@@ -772,7 +775,7 @@ To illustrate how to measure distance we will download data from the city of Mad
 
 ```{r}
 #read csv data
-comisarias <- read_csv("https://raw.githubusercontent.com/maczokni/crime_mapping/master/data/nationalpolice.csv")
+comisarias <- read_csv("data/nationalpolice.csv")
 #set crs, read into sf object, and double check crs
 polCRS <- st_crs(4326)
 comisarias_sf <- st_as_sf(comisarias, coords = c("X", "Y"), crs = polCRS)
@@ -781,8 +784,10 @@ st_crs(comisarias_sf)
 comisarias_sf$id <- as.numeric(rownames(comisarias_sf))
 
 #Read as sf boundary data for Madrid city
-madrid <- st_read("https://raw.githubusercontent.com/maczokni/crime_mapping/master/data/madrid.geojson") 
+madrid <- st_read("data/madrid.geojson") 
+```
 
+```{r, cache=FALSE}
 #plot with leaflet to check all is fine
 leaflet(comisarias_sf) %>% 
   addTiles() %>%
@@ -914,13 +919,19 @@ Now we are ready to use this data to plot a map. First we will adjust some aesth
 ```{r}
 # Create more appropriate icon, taking it from Wikepedia commons and adjusting size
 police_icon <- makeIcon("https://upload.wikimedia.org/wikipedia/commons/a/ad/189-woman-police-officer-1.svg", iconWidth = 12, iconHeight = 20)
+```
 
+
+```{r}
 # Bin ranges for a nicer color scale
 bins <- c(0,0.02,1.74,3.82,7.95,18.18)
 # Create a binned color palette
 pal <- colorBin(c("#0868AC", "#43A2CA", "#7BCCC4", "#BAE4BC", "#F0F9E8"), 
                 domain = police_distances$distance_km, bins = bins, 
                 reverse = TRUE)
+```
+
+```{r, cache=FALSE}
 
 full_map <- leaflet() %>% 
   addTiles() %>% 

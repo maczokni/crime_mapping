@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 6 Chapter 5: Visualisation: good cartographic design | Crime Mapping and Spatial Data Analysis using R</title>
+  <meta name="description" content="Chapter 6 Chapter 5: Visualisation: good cartographic design | Crime Mapping and Spatial Data Analysis using R" />
+  <meta name="generator" content="bookdown 0.21 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 6 Chapter 5: Visualisation: good cartographic design | Crime Mapping and Spatial Data Analysis using R" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="Chapter 6 Chapter 5: Visualisation: good cartographic design | Crime Mapping and Spatial Data Analysis using R" />
+  <meta name="github-repo" content="maczokni/crime_mapping" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 6 Chapter 5: Visualisation: good cartographic design | Crime Mapping and Spatial Data Analysis using R" />
+  
+  <meta name="twitter:description" content="Chapter 6 Chapter 5: Visualisation: good cartographic design | Crime Mapping and Spatial Data Analysis using R" />
+  
+
+<meta name="author" content="Juanjo Medina and Reka Solymosi" />
+
+
+<meta name="date" content="2021-05-13" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="chapter-4-variations-of-thematic-mapping.html"/>
+
+<script src="libs/header-attrs-2.7.2/header-attrs.js"></script>
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<script src="libs/htmlwidgets-1.5.3/htmlwidgets.js"></script>
+<link href="libs/leaflet-1.3.1/leaflet.css" rel="stylesheet" />
+<script src="libs/leaflet-1.3.1/leaflet.js"></script>
+<link href="libs/leafletfix-1.0.0/leafletfix.css" rel="stylesheet" />
+<script src="libs/proj4-2.6.2/proj4.min.js"></script>
+<script src="libs/Proj4Leaflet-1.0.1/proj4leaflet.js"></script>
+<link href="libs/rstudio_leaflet-1.3.1/rstudio_leaflet.css" rel="stylesheet" />
+<script src="libs/leaflet-binding-2.0.4.1/leaflet.js"></script>
+<script src="libs/leaflet-providers-1.9.0/leaflet-providers_1.9.0.js"></script>
+<script src="libs/leaflet-providers-plugin-2.0.4.1/leaflet-providers-plugin.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Crime Mapping and Spatial Data Analysis using R</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Prelude</a>
+<ul>
+<li class="chapter" data-level="0.1" data-path="index.html"><a href="index.html#introduction"><i class="fa fa-check"></i><b>0.1</b> Introduction</a></li>
+<li class="chapter" data-level="0.2" data-path="index.html"><a href="index.html#disclaimer"><i class="fa fa-check"></i><b>0.2</b> Disclaimer</a></li>
+</ul></li>
+<li class="chapter" data-level="1" data-path="preamble-how-to-use-this-book.html"><a href="preamble-how-to-use-this-book.html"><i class="fa fa-check"></i><b>1</b> Preamble: how to use this book</a></li>
+<li class="chapter" data-level="2" data-path="chapter-1-producing-your-first-crime-map.html"><a href="chapter-1-producing-your-first-crime-map.html"><i class="fa fa-check"></i><b>2</b> Chapter 1: Producing your first crime map</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="chapter-1-producing-your-first-crime-map.html"><a href="chapter-1-producing-your-first-crime-map.html#introduction-1"><i class="fa fa-check"></i><b>2.1</b> Introduction</a></li>
+<li class="chapter" data-level="2.2" data-path="chapter-1-producing-your-first-crime-map.html"><a href="chapter-1-producing-your-first-crime-map.html#geospatial-perspective-key-terms-and-ideas"><i class="fa fa-check"></i><b>2.2</b> Geospatial Perspective: key terms and ideas</a>
+<ul>
+<li class="chapter" data-level="2.2.1" data-path="chapter-1-producing-your-first-crime-map.html"><a href="chapter-1-producing-your-first-crime-map.html#place"><i class="fa fa-check"></i><b>2.2.1</b> Place</a></li>
+<li class="chapter" data-level="2.2.2" data-path="chapter-1-producing-your-first-crime-map.html"><a href="chapter-1-producing-your-first-crime-map.html#attributes"><i class="fa fa-check"></i><b>2.2.2</b> Attributes</a></li>
+<li class="chapter" data-level="2.2.3" data-path="chapter-1-producing-your-first-crime-map.html"><a href="chapter-1-producing-your-first-crime-map.html#spatial-objects"><i class="fa fa-check"></i><b>2.2.3</b> Spatial objects</a></li>
+<li class="chapter" data-level="2.2.4" data-path="chapter-1-producing-your-first-crime-map.html"><a href="chapter-1-producing-your-first-crime-map.html#networks"><i class="fa fa-check"></i><b>2.2.4</b> Networks</a></li>
+<li class="chapter" data-level="2.2.5" data-path="chapter-1-producing-your-first-crime-map.html"><a href="chapter-1-producing-your-first-crime-map.html#maps-and-their-types"><i class="fa fa-check"></i><b>2.2.5</b> Maps and their types</a></li>
+<li class="chapter" data-level="2.2.6" data-path="chapter-1-producing-your-first-crime-map.html"><a href="chapter-1-producing-your-first-crime-map.html#map-projections-and-geographic-coordinate-systems"><i class="fa fa-check"></i><b>2.2.6</b> Map projections and geographic coordinate systems</a></li>
+<li class="chapter" data-level="2.2.7" data-path="chapter-1-producing-your-first-crime-map.html"><a href="chapter-1-producing-your-first-crime-map.html#summary"><i class="fa fa-check"></i><b>2.2.7</b> Summary</a></li>
+</ul></li>
+<li class="chapter" data-level="2.3" data-path="chapter-1-producing-your-first-crime-map.html"><a href="chapter-1-producing-your-first-crime-map.html#getting-crime-data-to-put-on-a-map-reading-data-from-the-web"><i class="fa fa-check"></i><b>2.3</b> Getting crime data to put on a map: reading data from the web</a></li>
+<li class="chapter" data-level="2.4" data-path="chapter-1-producing-your-first-crime-map.html"><a href="chapter-1-producing-your-first-crime-map.html#from-dataframes-to-spatial-objects-finding-spatial-information-in-our-data"><i class="fa fa-check"></i><b>2.4</b> From dataframes to spatial objects: finding spatial information in our data</a>
+<ul>
+<li class="chapter" data-level="2.4.1" data-path="chapter-1-producing-your-first-crime-map.html"><a href="chapter-1-producing-your-first-crime-map.html#the-point"><i class="fa fa-check"></i><b>2.4.1</b> The point</a></li>
+<li class="chapter" data-level="2.4.2" data-path="chapter-1-producing-your-first-crime-map.html"><a href="chapter-1-producing-your-first-crime-map.html#the-line"><i class="fa fa-check"></i><b>2.4.2</b> The line</a></li>
+<li class="chapter" data-level="2.4.3" data-path="chapter-1-producing-your-first-crime-map.html"><a href="chapter-1-producing-your-first-crime-map.html#the-polygon"><i class="fa fa-check"></i><b>2.4.3</b> The polygon</a></li>
+</ul></li>
+<li class="chapter" data-level="2.5" data-path="chapter-1-producing-your-first-crime-map.html"><a href="chapter-1-producing-your-first-crime-map.html#mapping-crime-events-with-simple-features-and-ggplot2"><i class="fa fa-check"></i><b>2.5</b> Mapping crime events with simple features and ggplot2</a>
+<ul>
+<li class="chapter" data-level="2.5.1" data-path="chapter-1-producing-your-first-crime-map.html"><a href="chapter-1-producing-your-first-crime-map.html#the-simple-features-framework"><i class="fa fa-check"></i><b>2.5.1</b> The simple features framework</a></li>
+<li class="chapter" data-level="2.5.2" data-path="chapter-1-producing-your-first-crime-map.html"><a href="chapter-1-producing-your-first-crime-map.html#a-brief-intro-to-ggplot2-and-the-grammar-of-graphics"><i class="fa fa-check"></i><b>2.5.2</b> A brief intro to ggplot2 and the grammar of graphics</a></li>
+<li class="chapter" data-level="2.5.3" data-path="chapter-1-producing-your-first-crime-map.html"><a href="chapter-1-producing-your-first-crime-map.html#using-ggplot2-for-mapping-crime-event-locations-as-points"><i class="fa fa-check"></i><b>2.5.3</b> Using ggplot2 for mapping crime event locations as points</a></li>
+</ul></li>
+<li class="chapter" data-level="2.6" data-path="chapter-1-producing-your-first-crime-map.html"><a href="chapter-1-producing-your-first-crime-map.html#from-mapping-crime-events-as-points-to-mapping-number-of-crimes-in-an-area"><i class="fa fa-check"></i><b>2.6</b> From mapping crime events as points to mapping number of crimes in an area</a>
+<ul>
+<li class="chapter" data-level="2.6.1" data-path="chapter-1-producing-your-first-crime-map.html"><a href="chapter-1-producing-your-first-crime-map.html#finding-boundary-data-for-areas-using-shapefiles"><i class="fa fa-check"></i><b>2.6.1</b> Finding boundary data for areas: using shapefiles</a></li>
+<li class="chapter" data-level="2.6.2" data-path="chapter-1-producing-your-first-crime-map.html"><a href="chapter-1-producing-your-first-crime-map.html#reading-shapefiles-into-r"><i class="fa fa-check"></i><b>2.6.2</b> Reading shapefiles into R</a></li>
+<li class="chapter" data-level="2.6.3" data-path="chapter-1-producing-your-first-crime-map.html"><a href="chapter-1-producing-your-first-crime-map.html#data-wrangling-with-dplyr"><i class="fa fa-check"></i><b>2.6.3</b> Data wrangling with dplyr</a></li>
+<li class="chapter" data-level="2.6.4" data-path="chapter-1-producing-your-first-crime-map.html"><a href="chapter-1-producing-your-first-crime-map.html#join-data-to-sf-object"><i class="fa fa-check"></i><b>2.6.4</b> Join data to sf object</a></li>
+<li class="chapter" data-level="2.6.5" data-path="chapter-1-producing-your-first-crime-map.html"><a href="chapter-1-producing-your-first-crime-map.html#mapping-our-data-at-polygon-level"><i class="fa fa-check"></i><b>2.6.5</b> Mapping our data at polygon level</a></li>
+</ul></li>
+<li class="chapter" data-level="2.7" data-path="chapter-1-producing-your-first-crime-map.html"><a href="chapter-1-producing-your-first-crime-map.html#further-reading"><i class="fa fa-check"></i><b>2.7</b> Further reading</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="chapter-2-basic-geospatial-operations-in-r.html"><a href="chapter-2-basic-geospatial-operations-in-r.html"><i class="fa fa-check"></i><b>3</b> Chapter 2: Basic geospatial operations in R</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="chapter-2-basic-geospatial-operations-in-r.html"><a href="chapter-2-basic-geospatial-operations-in-r.html#introduction-2"><i class="fa fa-check"></i><b>3.1</b> Introduction</a></li>
+<li class="chapter" data-level="3.2" data-path="chapter-2-basic-geospatial-operations-in-r.html"><a href="chapter-2-basic-geospatial-operations-in-r.html#exploring-the-relationship-between-alcohol-outlets-and-crime"><i class="fa fa-check"></i><b>3.2</b> Exploring the relationship between alcohol outlets and crime</a></li>
+<li class="chapter" data-level="3.3" data-path="chapter-2-basic-geospatial-operations-in-r.html"><a href="chapter-2-basic-geospatial-operations-in-r.html#get-the-data"><i class="fa fa-check"></i><b>3.3</b> Get the data</a>
+<ul>
+<li class="chapter" data-level="3.3.1" data-path="chapter-2-basic-geospatial-operations-in-r.html"><a href="chapter-2-basic-geospatial-operations-in-r.html#reading-in-crime-data"><i class="fa fa-check"></i><b>3.3.1</b> Reading in crime data</a></li>
+<li class="chapter" data-level="3.3.2" data-path="chapter-2-basic-geospatial-operations-in-r.html"><a href="chapter-2-basic-geospatial-operations-in-r.html#meet-a-new-format-geojson"><i class="fa fa-check"></i><b>3.3.2</b> Meet a new format: geojson</a></li>
+<li class="chapter" data-level="3.3.3" data-path="chapter-2-basic-geospatial-operations-in-r.html"><a href="chapter-2-basic-geospatial-operations-in-r.html#open-street-map-and-points-of-interest"><i class="fa fa-check"></i><b>3.3.3</b> Open Street Map and points of interest</a></li>
+</ul></li>
+<li class="chapter" data-level="3.4" data-path="chapter-2-basic-geospatial-operations-in-r.html"><a href="chapter-2-basic-geospatial-operations-in-r.html#attribute-operations"><i class="fa fa-check"></i><b>3.4</b> Attribute operations</a></li>
+<li class="chapter" data-level="3.5" data-path="chapter-2-basic-geospatial-operations-in-r.html"><a href="chapter-2-basic-geospatial-operations-in-r.html#spatial-operations"><i class="fa fa-check"></i><b>3.5</b> Spatial operations</a>
+<ul>
+<li class="chapter" data-level="3.5.1" data-path="chapter-2-basic-geospatial-operations-in-r.html"><a href="chapter-2-basic-geospatial-operations-in-r.html#reprojecting-coordinates"><i class="fa fa-check"></i><b>3.5.1</b> Reprojecting coordinates</a></li>
+<li class="chapter" data-level="3.5.2" data-path="chapter-2-basic-geospatial-operations-in-r.html"><a href="chapter-2-basic-geospatial-operations-in-r.html#subsetting-points"><i class="fa fa-check"></i><b>3.5.2</b> Subsetting points</a></li>
+<li class="chapter" data-level="3.5.3" data-path="chapter-2-basic-geospatial-operations-in-r.html"><a href="chapter-2-basic-geospatial-operations-in-r.html#building-buffers"><i class="fa fa-check"></i><b>3.5.3</b> Building buffers</a></li>
+<li class="chapter" data-level="3.5.4" data-path="chapter-2-basic-geospatial-operations-in-r.html"><a href="chapter-2-basic-geospatial-operations-in-r.html#counting-points-within-a-polygon"><i class="fa fa-check"></i><b>3.5.4</b> Counting Points within a Polygon</a></li>
+<li class="chapter" data-level="3.5.5" data-path="chapter-2-basic-geospatial-operations-in-r.html"><a href="chapter-2-basic-geospatial-operations-in-r.html#distances-finding-the-nearest-point"><i class="fa fa-check"></i><b>3.5.5</b> Distances: Finding the nearest point</a></li>
+<li class="chapter" data-level="3.5.6" data-path="chapter-2-basic-geospatial-operations-in-r.html"><a href="chapter-2-basic-geospatial-operations-in-r.html#measuring-distances"><i class="fa fa-check"></i><b>3.5.6</b> Measuring distances</a></li>
+</ul></li>
+<li class="chapter" data-level="3.6" data-path="chapter-2-basic-geospatial-operations-in-r.html"><a href="chapter-2-basic-geospatial-operations-in-r.html#plotting-interactive-maps-with-leaflet"><i class="fa fa-check"></i><b>3.6</b> Plotting interactive maps with leaflet</a></li>
+<li class="chapter" data-level="3.7" data-path="chapter-2-basic-geospatial-operations-in-r.html"><a href="chapter-2-basic-geospatial-operations-in-r.html#geocoding"><i class="fa fa-check"></i><b>3.7</b> Geocoding</a></li>
+<li class="chapter" data-level="3.8" data-path="chapter-2-basic-geospatial-operations-in-r.html"><a href="chapter-2-basic-geospatial-operations-in-r.html#measuring-distance-more-thoroughly"><i class="fa fa-check"></i><b>3.8</b> Measuring distance more thoroughly</a>
+<ul>
+<li class="chapter" data-level="3.8.1" data-path="chapter-2-basic-geospatial-operations-in-r.html"><a href="chapter-2-basic-geospatial-operations-in-r.html#how-far-are-police-stations-in-madrid"><i class="fa fa-check"></i><b>3.8.1</b> How far are police stations in Madrid?</a></li>
+<li class="chapter" data-level="3.8.2" data-path="chapter-2-basic-geospatial-operations-in-r.html"><a href="chapter-2-basic-geospatial-operations-in-r.html#distance-in-geographical-space"><i class="fa fa-check"></i><b>3.8.2</b> Distance in geographical space</a></li>
+<li class="chapter" data-level="3.8.3" data-path="chapter-2-basic-geospatial-operations-in-r.html"><a href="chapter-2-basic-geospatial-operations-in-r.html#a-practical-example-to-evaluate-distance"><i class="fa fa-check"></i><b>3.8.3</b> A practical example to evaluate distance</a></li>
+</ul></li>
+<li class="chapter" data-level="3.9" data-path="chapter-2-basic-geospatial-operations-in-r.html"><a href="chapter-2-basic-geospatial-operations-in-r.html#further-reading-1"><i class="fa fa-check"></i><b>3.9</b> Further reading</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html"><a href="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html"><i class="fa fa-check"></i><b>4</b> Chapter 3: Mapping rates and counts: choropleth and proportional symbol maps</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html"><a href="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html#introduction-3"><i class="fa fa-check"></i><b>4.1</b> Introduction</a></li>
+<li class="chapter" data-level="4.2" data-path="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html"><a href="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html#thematic-maps-key-terms-and-ideas"><i class="fa fa-check"></i><b>4.2</b> Thematic maps: key terms and ideas</a>
+<ul>
+<li class="chapter" data-level="4.2.1" data-path="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html"><a href="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html#choropleth-maps"><i class="fa fa-check"></i><b>4.2.1</b> Choropleth maps</a></li>
+<li class="chapter" data-level="4.2.2" data-path="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html"><a href="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html#what-do-we-use-choropleth-maps-for"><i class="fa fa-check"></i><b>4.2.2</b> What do we use choropleth maps for?</a></li>
+<li class="chapter" data-level="4.2.3" data-path="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html"><a href="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html#proportional-and-graduate-symbol-maps-mapping-crime-counts"><i class="fa fa-check"></i><b>4.2.3</b> Proportional and graduate symbol maps: mapping crime counts</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html"><a href="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html#creating-proportional-symbol-maps-mapping-count-data-with-tmap"><i class="fa fa-check"></i><b>4.3</b> Creating proportional symbol maps: mapping count data with tmap</a></li>
+<li class="chapter" data-level="4.4" data-path="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html"><a href="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html#mapping-rates-rather-than-counts"><i class="fa fa-check"></i><b>4.4</b> Mapping rates rather than counts</a>
+<ul>
+<li class="chapter" data-level="4.4.1" data-path="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html"><a href="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html#generating-the-rates"><i class="fa fa-check"></i><b>4.4.1</b> Generating the rates</a></li>
+<li class="chapter" data-level="4.4.2" data-path="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html"><a href="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html#creating-a-choropleth-map-with-tmap"><i class="fa fa-check"></i><b>4.4.2</b> Creating a choropleth map with tmap</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html"><a href="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html#classification-systems-for-thematic-maps"><i class="fa fa-check"></i><b>4.5</b> Classification systems for thematic maps</a></li>
+<li class="chapter" data-level="4.6" data-path="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html"><a href="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html#interactive-mapping-with-tmap"><i class="fa fa-check"></i><b>4.6</b> Interactive mapping with tmap</a></li>
+<li class="chapter" data-level="4.7" data-path="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html"><a href="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html#smoothing-rates-adjusting-for-small-sample-noise"><i class="fa fa-check"></i><b>4.7</b> Smoothing rates: adjusting for small sample noise</a></li>
+<li class="chapter" data-level="4.8" data-path="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html"><a href="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html#further-reading-2"><i class="fa fa-check"></i><b>4.8</b> Further reading</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="chapter-4-variations-of-thematic-mapping.html"><a href="chapter-4-variations-of-thematic-mapping.html"><i class="fa fa-check"></i><b>5</b> Chapter 4: Variations of thematic mapping</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="chapter-4-variations-of-thematic-mapping.html"><a href="chapter-4-variations-of-thematic-mapping.html#introduction-4"><i class="fa fa-check"></i><b>5.1</b> Introduction</a></li>
+<li class="chapter" data-level="5.2" data-path="chapter-4-variations-of-thematic-mapping.html"><a href="chapter-4-variations-of-thematic-mapping.html#binning-points"><i class="fa fa-check"></i><b>5.2</b> Binning points</a>
+<ul>
+<li class="chapter" data-level="5.2.1" data-path="chapter-4-variations-of-thematic-mapping.html"><a href="chapter-4-variations-of-thematic-mapping.html#the-binning-process"><i class="fa fa-check"></i><b>5.2.1</b> The Binning Process</a></li>
+<li class="chapter" data-level="5.2.2" data-path="chapter-4-variations-of-thematic-mapping.html"><a href="chapter-4-variations-of-thematic-mapping.html#different-binning-techniques"><i class="fa fa-check"></i><b>5.2.2</b> Different Binning Techniques</a></li>
+<li class="chapter" data-level="5.2.3" data-path="chapter-4-variations-of-thematic-mapping.html"><a href="chapter-4-variations-of-thematic-mapping.html#benefits-of-binning"><i class="fa fa-check"></i><b>5.2.3</b> Benefits of Binning</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="chapter-4-variations-of-thematic-mapping.html"><a href="chapter-4-variations-of-thematic-mapping.html#transforming-polygons"><i class="fa fa-check"></i><b>5.3</b> Transforming polygons</a>
+<ul>
+<li class="chapter" data-level="5.3.1" data-path="chapter-4-variations-of-thematic-mapping.html"><a href="chapter-4-variations-of-thematic-mapping.html#dorling-cartogram"><i class="fa fa-check"></i><b>5.3.1</b> Dorling Cartogram</a></li>
+</ul></li>
+<li class="chapter" data-level="5.4" data-path="chapter-4-variations-of-thematic-mapping.html"><a href="chapter-4-variations-of-thematic-mapping.html#bivariate-maps"><i class="fa fa-check"></i><b>5.4</b> Bivariate Maps</a>
+<ul>
+<li class="chapter" data-level="5.4.1" data-path="chapter-4-variations-of-thematic-mapping.html"><a href="chapter-4-variations-of-thematic-mapping.html#step-1-bin-our-variables-of-interest"><i class="fa fa-check"></i><b>5.4.1</b> Step 1: Bin our variables of interest</a></li>
+<li class="chapter" data-level="5.4.2" data-path="chapter-4-variations-of-thematic-mapping.html"><a href="chapter-4-variations-of-thematic-mapping.html#step-2-new-variable"><i class="fa fa-check"></i><b>5.4.2</b> Step 2: New variable</a></li>
+<li class="chapter" data-level="5.4.3" data-path="chapter-4-variations-of-thematic-mapping.html"><a href="chapter-4-variations-of-thematic-mapping.html#step-3-create-colour-scheme"><i class="fa fa-check"></i><b>5.4.3</b> Step 3: Create colour scheme</a></li>
+<li class="chapter" data-level="5.4.4" data-path="chapter-4-variations-of-thematic-mapping.html"><a href="chapter-4-variations-of-thematic-mapping.html#step-4-join-colour-scheme"><i class="fa fa-check"></i><b>5.4.4</b> Step 4: Join colour scheme</a></li>
+<li class="chapter" data-level="5.4.5" data-path="chapter-4-variations-of-thematic-mapping.html"><a href="chapter-4-variations-of-thematic-mapping.html#step-5-create-legend"><i class="fa fa-check"></i><b>5.4.5</b> Step 5: Create legend</a></li>
+<li class="chapter" data-level="5.4.6" data-path="chapter-4-variations-of-thematic-mapping.html"><a href="chapter-4-variations-of-thematic-mapping.html#step-6-map"><i class="fa fa-check"></i><b>5.4.6</b> Step 6: Map</a></li>
+</ul></li>
+<li class="chapter" data-level="5.5" data-path="chapter-4-variations-of-thematic-mapping.html"><a href="chapter-4-variations-of-thematic-mapping.html#a-note-of-caution-maup"><i class="fa fa-check"></i><b>5.5</b> A note of caution: MAUP</a>
+<ul>
+<li class="chapter" data-level="5.5.1" data-path="chapter-4-variations-of-thematic-mapping.html"><a href="chapter-4-variations-of-thematic-mapping.html#why-does-maup-matter"><i class="fa fa-check"></i><b>5.5.1</b> Why does MAUP matter?</a></li>
+<li class="chapter" data-level="5.5.2" data-path="chapter-4-variations-of-thematic-mapping.html"><a href="chapter-4-variations-of-thematic-mapping.html#what-can-we-do"><i class="fa fa-check"></i><b>5.5.2</b> What can we do?</a></li>
+</ul></li>
+<li class="chapter" data-level="5.6" data-path="chapter-4-variations-of-thematic-mapping.html"><a href="chapter-4-variations-of-thematic-mapping.html#references-and-further-reading"><i class="fa fa-check"></i><b>5.6</b> References and further reading</a>
+<ul>
+<li class="chapter" data-level="5.6.1" data-path="chapter-4-variations-of-thematic-mapping.html"><a href="chapter-4-variations-of-thematic-mapping.html#binning"><i class="fa fa-check"></i><b>5.6.1</b> Binning</a></li>
+<li class="chapter" data-level="5.6.2" data-path="chapter-4-variations-of-thematic-mapping.html"><a href="chapter-4-variations-of-thematic-mapping.html#maup"><i class="fa fa-check"></i><b>5.6.2</b> MAUP</a></li>
+<li class="chapter" data-level="5.6.3" data-path="chapter-4-variations-of-thematic-mapping.html"><a href="chapter-4-variations-of-thematic-mapping.html#transforming-polygons-1"><i class="fa fa-check"></i><b>5.6.3</b> Transforming polygons</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="chapter-5-visualisation-good-cartographic-design.html"><a href="chapter-5-visualisation-good-cartographic-design.html"><i class="fa fa-check"></i><b>6</b> Chapter 5: Visualisation: good cartographic design</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="chapter-5-visualisation-good-cartographic-design.html"><a href="chapter-5-visualisation-good-cartographic-design.html#introduction-5"><i class="fa fa-check"></i><b>6.1</b> Introduction</a></li>
+<li class="chapter" data-level="6.2" data-path="chapter-5-visualisation-good-cartographic-design.html"><a href="chapter-5-visualisation-good-cartographic-design.html#data-representation"><i class="fa fa-check"></i><b>6.2</b> Data representation</a>
+<ul>
+<li class="chapter" data-level="6.2.1" data-path="chapter-5-visualisation-good-cartographic-design.html"><a href="chapter-5-visualisation-good-cartographic-design.html#thematic-maps"><i class="fa fa-check"></i><b>6.2.1</b> Thematic maps</a></li>
+<li class="chapter" data-level="6.2.2" data-path="chapter-5-visualisation-good-cartographic-design.html"><a href="chapter-5-visualisation-good-cartographic-design.html#symbols"><i class="fa fa-check"></i><b>6.2.2</b> Symbols</a></li>
+<li class="chapter" data-level="6.2.3" data-path="chapter-5-visualisation-good-cartographic-design.html"><a href="chapter-5-visualisation-good-cartographic-design.html#rate-v-count"><i class="fa fa-check"></i><b>6.2.3</b> Rate v count</a></li>
+</ul></li>
+<li class="chapter" data-level="6.3" data-path="chapter-5-visualisation-good-cartographic-design.html"><a href="chapter-5-visualisation-good-cartographic-design.html#colour"><i class="fa fa-check"></i><b>6.3</b> Colour</a></li>
+<li class="chapter" data-level="6.4" data-path="chapter-5-visualisation-good-cartographic-design.html"><a href="chapter-5-visualisation-good-cartographic-design.html#text"><i class="fa fa-check"></i><b>6.4</b> Text</a>
+<ul>
+<li class="chapter" data-level="6.4.1" data-path="chapter-5-visualisation-good-cartographic-design.html"><a href="chapter-5-visualisation-good-cartographic-design.html#titles-and-subtitles"><i class="fa fa-check"></i><b>6.4.1</b> Titles and subtitles</a></li>
+<li class="chapter" data-level="6.4.2" data-path="chapter-5-visualisation-good-cartographic-design.html"><a href="chapter-5-visualisation-good-cartographic-design.html#legend"><i class="fa fa-check"></i><b>6.4.2</b> Legend</a></li>
+<li class="chapter" data-level="6.4.3" data-path="chapter-5-visualisation-good-cartographic-design.html"><a href="chapter-5-visualisation-good-cartographic-design.html#annotation"><i class="fa fa-check"></i><b>6.4.3</b> Annotation</a></li>
+<li class="chapter" data-level="6.4.4" data-path="chapter-5-visualisation-good-cartographic-design.html"><a href="chapter-5-visualisation-good-cartographic-design.html#production-notes"><i class="fa fa-check"></i><b>6.4.4</b> Production notes</a></li>
+</ul></li>
+<li class="chapter" data-level="6.5" data-path="chapter-5-visualisation-good-cartographic-design.html"><a href="chapter-5-visualisation-good-cartographic-design.html#composition"><i class="fa fa-check"></i><b>6.5</b> Composition</a>
+<ul>
+<li class="chapter" data-level="6.5.1" data-path="chapter-5-visualisation-good-cartographic-design.html"><a href="chapter-5-visualisation-good-cartographic-design.html#orientation-and-scale-indicators"><i class="fa fa-check"></i><b>6.5.1</b> Orientation and scale indicators</a></li>
+<li class="chapter" data-level="6.5.2" data-path="chapter-5-visualisation-good-cartographic-design.html"><a href="chapter-5-visualisation-good-cartographic-design.html#strip-away-grids"><i class="fa fa-check"></i><b>6.5.2</b> Strip away grids</a></li>
+</ul></li>
+<li class="chapter" data-level="6.6" data-path="chapter-5-visualisation-good-cartographic-design.html"><a href="chapter-5-visualisation-good-cartographic-design.html#context"><i class="fa fa-check"></i><b>6.6</b> Context</a>
+<ul>
+<li class="chapter" data-level="6.6.1" data-path="chapter-5-visualisation-good-cartographic-design.html"><a href="chapter-5-visualisation-good-cartographic-design.html#basemap"><i class="fa fa-check"></i><b>6.6.1</b> Basemap</a></li>
+<li class="chapter" data-level="6.6.2" data-path="chapter-5-visualisation-good-cartographic-design.html"><a href="chapter-5-visualisation-good-cartographic-design.html#inset-maps"><i class="fa fa-check"></i><b>6.6.2</b> Inset maps</a></li>
+</ul></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Crime Mapping and Spatial Data Analysis using R</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="chapter-5-visualisation-good-cartographic-design" class="section level1" number="6">
+<h1><span class="header-section-number">Chapter 6</span> Chapter 5: Visualisation: good cartographic design</h1>
+<div id="introduction-5" class="section level2" number="6.1">
+<h2><span class="header-section-number">6.1</span> Introduction</h2>
+<p>This chapter aims to focus on introducing good practice in map design and presentation. When putting a map together you need to think about its intended audience (their level of expertise, whether you want them to interact with the map), purpose, and format of delivery (e.g., printed, web, projected in a screen, etc). There are many design decisions you need to consider: fonts, labels, colour, legends, layout, etc. In this chapter we provide a general introduction to some basic design principles for map production. These themes, and the appropriate election of symbol representation, are the subject matter of cartography, the art and science of map making. Within cartography a considerable body of research and scholarship has focused on studying the visual and psychological implications of our mapping choices. As noted on previous chapters one of the problems with maps is that powerful as a tool as they, they can lead to misunderstanding. What the mapmaker chooses to emphasise and what the map reader see may not be the same thing. We will work you through an example of a fairly basic map and the process of taking to a point where it could be ready for presentation to an audience other that yourself.</p>
+<p>In this chapter we will be working with some data published by Hungarian police available online <a href="http://www.police.hu/hu/a-rendorsegrol/statisztikak/kozrendvedelem">http://www.police.hu/hu/a-rendorsegrol/statisztikak/kozrendvedelem</a>. Specifically we will be looking at some statistics related to drink driving. Drunk driving is one of a number of problems police confront that relate to impaired and dangerous driving. Hungary has a strict drink driving policy, with the maximum drink diving limit being 0.0 BAC. Most European countries are at 0.5 BAC, while the UK is 0.8 (except 0.5 for Scotland). We have record for each county the number of brethalyser checks carried out, and the number of these which returned a positive result. Let’s read in this data from January 2020 (taken from <a href="http://www.police.hu/sites/default/files/Kozrendvedelem%20SK%202021_01.pdf">here</a>),</p>
+<div class="sourceCode" id="cb244"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb244-1"><a href="chapter-5-visualisation-good-cartographic-design.html#cb244-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
+<span id="cb244-2"><a href="chapter-5-visualisation-good-cartographic-design.html#cb244-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
+<span id="cb244-3"><a href="chapter-5-visualisation-good-cartographic-design.html#cb244-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb244-4"><a href="chapter-5-visualisation-good-cartographic-design.html#cb244-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb244-5"><a href="chapter-5-visualisation-good-cartographic-design.html#cb244-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb244-6"><a href="chapter-5-visualisation-good-cartographic-design.html#cb244-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb244-7"><a href="chapter-5-visualisation-good-cartographic-design.html#cb244-7" aria-hidden="true" tabindex="-1"></a>hungary <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="st">&quot;data/hungary.geojson&quot;</span>)</span></code></pre></div>
+<pre><code>## Reading layer `hungary&#39; from data source `/Users/reka/Desktop/crime_mapping/crime_mapping_knitting/data/hungary.geojson&#39; using driver `GeoJSON&#39;
+## Simple feature collection with 20 features and 7 fields
+## Geometry type: POLYGON
+## Dimension:     XY
+## Bounding box:  xmin: 16.11389 ymin: 45.73713 xmax: 22.89771 ymax: 48.58526
+## Geodetic CRS:  WGS 84</code></pre>
+<div class="sourceCode" id="cb246"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb246-1"><a href="chapter-5-visualisation-good-cartographic-design.html#cb246-1" aria-hidden="true" tabindex="-1"></a>drink_driving <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;data/drink_driving.csv&quot;</span>)</span></code></pre></div>
+<pre><code>## 
+## ── Column specification ────────────────────────────────────────────────────────
+## cols(
+##   name = col_character(),
+##   total_breath_tests = col_double(),
+##   positive_breath_tests = col_double()
+## )</code></pre>
+<div class="sourceCode" id="cb248"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb248-1"><a href="chapter-5-visualisation-good-cartographic-design.html#cb248-1" aria-hidden="true" tabindex="-1"></a>hu_dd <span class="ot">&lt;-</span> <span class="fu">left_join</span>(hungary, drink_driving, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;name&quot;</span> <span class="ot">=</span> <span class="st">&quot;name&quot;</span>))</span></code></pre></div>
+<p>We can now use this example to talk through the important principles of good visualisation of spatial data. We draw specifically from two areas of research: cartography and data visualisation.</p>
+<p>Cartographers have always been concerned about the appearance of maps and how the display marries form with function <span class="citation"><a href="chapter-5-visualisation-good-cartographic-design.html#ref-Field_2012" role="doc-biblioref">Field and Demaj</a> (<a href="chapter-5-visualisation-good-cartographic-design.html#ref-Field_2012" role="doc-biblioref">2012</a>)</span>. As there is no definitive definition for what is meant by <em>cartographic design</em> it can be challenging to evaluate what makes <em>good</em> design. However there are themes and elements which can be used to guide the map maker, and offer points of reflection to encourage thoughtful designs.</p>
+<p>Te primary aim of maps is the communication of information in an honest and ethical way. This means each map should have a clear goal and know its audience, show all relevant data and not use the data to lie or mislead <span class="citation">(<a href="#ref-Dent_2009" role="doc-biblioref"><strong>Dent_2009?</strong></a>)</span>. It should also be reproducible, transparent, cite all data sources, and consider diversity in its audience <span class="citation">(<a href="#ref-Dent_2009" role="doc-biblioref"><strong>Dent_2009?</strong></a>)</span>. So what does that mean for specifically implementing these into practice. While a good amount of critical thought from the map maker will be required, there are aids we can rely upon. For example, <span class="citation">(<a href="#ref-Field_2007" role="doc-biblioref"><strong>Field_2007?</strong></a>)</span> developed a map evaluation checklist which you can access here: <a href="http://downloads.esri.com/MappingCenter2007/arcGISResources/more/MapEvaluationGuidelines.pdf">http://downloads.esri.com/MappingCenter2007/arcGISResources/more/MapEvaluationGuidelines.pdf</a>. The questions fall into three broad categories: <em>Cartographic Requirements</em> such as what is the rationale for the map, who are the audience?. <em>Cartographic Complication and Design</em> such as are all the relevant features included and do the colours, symbold, and other features legible and appropriate to achieve the map’s objectives? And finally, <em>Map Elements and Page Layout</em> which tackle some specific features such as orientation indicator, scale indicator, legend, titles and subtitles, and production notes. We will discuss these elements in this chapter to some degree, and the recommended reading will guide the reader to further advice on these topics.</p>
+<p>Data visualisation is a somewhat newer field, however, it seems to encompass the same guiding principles when consdiering what makes good design. According to <span class="citation"><a href="chapter-5-visualisation-good-cartographic-design.html#ref-Kirk_2016" role="doc-biblioref">Kirk</a> (<a href="chapter-5-visualisation-good-cartographic-design.html#ref-Kirk_2016" role="doc-biblioref">2016</a>)</span> three principles offer a guide when deciding what makes a <em>good</em> data visualisation. It must be:</p>
+<ul>
+<li>Trustworthy</li>
+<li>Accessible, and</li>
+<li>Elegant</li>
+</ul>
+<p>The first principle, of trust speaks to the integrity, accuracy, and legitimacy of any data visualisation we produce. <span class="citation"><a href="chapter-5-visualisation-good-cartographic-design.html#ref-Kirk_2016" role="doc-biblioref">Kirk</a> (<a href="chapter-5-visualisation-good-cartographic-design.html#ref-Kirk_2016" role="doc-biblioref">2016</a>)</span> suggests this principle to be held above all else, as our primary goal is to communicate truth (as far as we know it) and avoid at all cost to present what we know to be misleading content. Accessibility refers to our visualisation being useful, understandable, and unobtrusive, as well as accessible for all users. There are many things to consider in your audience such as <em>dynamic of need</em> (do they have to engage with your visualisation, or is it voluntary?), <em>subject-matter knowledge</em> are they experts in the area, are they lay people to whom you must communicate a complex message?, and many other factors (see <span class="citation"><a href="chapter-5-visualisation-good-cartographic-design.html#ref-Kirk_2016" role="doc-biblioref">Kirk</a> (<a href="chapter-5-visualisation-good-cartographic-design.html#ref-Kirk_2016" role="doc-biblioref">2016</a>)</span>). Finally, elegance refers to aesthetics, attention to detail, and an element of <em>doing as little design as possible</em> - meaning a certain invisibility whereby the viewer of your visualisation focussed on the content, rather than the design - that is the main point is the message that you are trying to communicate with your data!</p>
+<p>In this chapter, we will aim to bring together the above principles, and work through a practical example of how to apply this to achieve good visualisations. Specifically we will cover:</p>
+<ul>
+<li>data representation</li>
+<li>colour</li>
+<li>text
+<ul>
+<li>titles and subtitles</li>
+<li>legend</li>
+<li>annotation</li>
+<li>production notes</li>
+</ul></li>
+<li>composition
+<ul>
+<li>orientation indicator</li>
+<li>scale indicator</li>
+<li>borders</li>
+</ul></li>
+<li>inset maps</li>
+<li>interactivity (??)</li>
+</ul>
+</div>
+<div id="data-representation" class="section level2" number="6.2">
+<h2><span class="header-section-number">6.2</span> Data representation</h2>
+<div id="thematic-maps" class="section level3" number="6.2.1">
+<h3><span class="header-section-number">6.2.1</span> Thematic maps</h3>
+<p>We’ve been working with thematic maps thus far. There are many decisions that go into making a thematic map, which we have explored at length in the previous chapters, such as how (and whether) to bin your data (Chapter 3) and how (or whether) to transform your polygons (Chapter 4). These are important considerations on how to represent your data to your audience, and require a technical understanding, not only an aesthetic one. So please do read over those chapters carefully when thinking about how to represent your data.</p>
+<p>We can use the <code>ggplot2</code> package to plot our thematic map, using the <code>geom_sf()</code> function. To shade each polygon with the values of a specific variable, we use the <code>fill =</code> argument within the <code>aes()</code> (aesthetics) function. Most simply:</p>
+<div class="sourceCode" id="cb249"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb249-1"><a href="chapter-5-visualisation-good-cartographic-design.html#cb249-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb249-2"><a href="chapter-5-visualisation-good-cartographic-design.html#cb249-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb249-3"><a href="chapter-5-visualisation-good-cartographic-design.html#cb249-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> hu_dd) <span class="sc">+</span> </span>
+<span id="cb249-4"><a href="chapter-5-visualisation-good-cartographic-design.html#cb249-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill =</span> total_breath_tests)) <span class="sc">+</span> </span>
+<span id="cb249-5"><a href="chapter-5-visualisation-good-cartographic-design.html#cb249-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/themmap-1.png" width="672" /></p>
+<p>We can change the colour and size of the borders of our polygons with arguments inside the <code>geom_sf()</code> function, but outside the <code>aes()</code> function, as long as we’re not using our data to define these. For example we can change the line width (<code>lwd =</code>) to 0, eliminating bordering lines between our polygons:</p>
+<div class="sourceCode" id="cb250"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb250-1"><a href="chapter-5-visualisation-good-cartographic-design.html#cb250-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> hu_dd) <span class="sc">+</span> </span>
+<span id="cb250-2"><a href="chapter-5-visualisation-good-cartographic-design.html#cb250-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill =</span> total_breath_tests), <span class="at">lwd =</span> <span class="dv">0</span>) <span class="sc">+</span> </span>
+<span id="cb250-3"><a href="chapter-5-visualisation-good-cartographic-design.html#cb250-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/themmapnobord-1.png" width="672" /></p>
+<p>Or we can change the colour of the borders with the <code>col =</code> argument:</p>
+<div class="sourceCode" id="cb251"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb251-1"><a href="chapter-5-visualisation-good-cartographic-design.html#cb251-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> hu_dd) <span class="sc">+</span> </span>
+<span id="cb251-2"><a href="chapter-5-visualisation-good-cartographic-design.html#cb251-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill =</span> total_breath_tests), <span class="at">lwd =</span> <span class="fl">0.5</span>, <span class="at">col =</span> <span class="st">&quot;white&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb251-3"><a href="chapter-5-visualisation-good-cartographic-design.html#cb251-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/themmapwhitebord-1.png" width="672" /></p>
+<p>Here we have a continuous fill for our values, however we can employ our learning from Chapter 3 and apply a classification system, such as quantiles. To do this we might create a new variable which contains the quantiles of our numeric variable, and then use that as our <code>fill =</code>.</p>
+<div class="sourceCode" id="cb252"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb252-1"><a href="chapter-5-visualisation-good-cartographic-design.html#cb252-1" aria-hidden="true" tabindex="-1"></a>hu_dd <span class="ot">&lt;-</span> hu_dd <span class="sc">%&gt;%</span> </span>
+<span id="cb252-2"><a href="chapter-5-visualisation-good-cartographic-design.html#cb252-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">total_quantiles =</span> <span class="fu">cut</span>(total_breath_tests, <span class="at">breaks =</span> <span class="fu">round</span>(<span class="fu">quantile</span>(total_breath_tests),<span class="dv">0</span>), <span class="at">include.lowest =</span> <span class="cn">TRUE</span>, <span class="at">dig.lab=</span><span class="dv">10</span>))</span>
+<span id="cb252-3"><a href="chapter-5-visualisation-good-cartographic-design.html#cb252-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb252-4"><a href="chapter-5-visualisation-good-cartographic-design.html#cb252-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb252-5"><a href="chapter-5-visualisation-good-cartographic-design.html#cb252-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> hu_dd) <span class="sc">+</span> </span>
+<span id="cb252-6"><a href="chapter-5-visualisation-good-cartographic-design.html#cb252-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill =</span> total_quantiles), <span class="at">lwd =</span> <span class="fl">0.5</span>, <span class="at">col =</span> <span class="st">&quot;white&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb252-7"><a href="chapter-5-visualisation-good-cartographic-design.html#cb252-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/unnamed-chunk-144-1.png" width="672" /></p>
+<p>The colour scheme is terrible, but we will talk about colour in the next section, so we can forgive that for now…</p>
+</div>
+<div id="symbols" class="section level3" number="6.2.2">
+<h3><span class="header-section-number">6.2.2</span> Symbols</h3>
+<p>You might not want to display your map as thematic map, you may want to use symbols. Again we explored this in Chapter 3, here is one way you can use graduated symbol map with <code>ggplot()</code>. You can take the centroid of each county polygon using the <code>st_centroid()</code> function from the <code>sf</code> package, and then when mapping with <code>geom_sf()</code>, within the <code>aes()</code> function specity the <code>size =</code> argument to the variable you wish to visualise:</p>
+<div class="sourceCode" id="cb253"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb253-1"><a href="chapter-5-visualisation-good-cartographic-design.html#cb253-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> hu_dd) <span class="sc">+</span> </span>
+<span id="cb253-2"><a href="chapter-5-visualisation-good-cartographic-design.html#cb253-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>() <span class="sc">+</span> </span>
+<span id="cb253-3"><a href="chapter-5-visualisation-good-cartographic-design.html#cb253-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> <span class="fu">st_centroid</span>(hu_dd), <span class="fu">aes</span>(<span class="at">size =</span> total_breath_tests)) <span class="sc">+</span> </span>
+<span id="cb253-4"><a href="chapter-5-visualisation-good-cartographic-design.html#cb253-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div>
+<pre><code>## Warning in st_centroid.sf(hu_dd): st_centroid assumes attributes are constant
+## over geometries of x</code></pre>
+<pre><code>## Warning in st_centroid.sfc(st_geometry(x), of_largest_polygon =
+## of_largest_polygon): st_centroid does not give correct centroids for longitude/
+## latitude data</code></pre>
+<p><img src="crime_mapping_files/figure-html/gradsymbmap-1.png" width="672" />
+Like with the thematic map you can play around with colour and shape:</p>
+<div class="sourceCode" id="cb256"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb256-1"><a href="chapter-5-visualisation-good-cartographic-design.html#cb256-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> hu_dd) <span class="sc">+</span> </span>
+<span id="cb256-2"><a href="chapter-5-visualisation-good-cartographic-design.html#cb256-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">fill =</span> <span class="st">&quot;light yellow&quot;</span>, <span class="at">col =</span> <span class="st">&quot;white&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb256-3"><a href="chapter-5-visualisation-good-cartographic-design.html#cb256-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> <span class="fu">st_centroid</span>(hu_dd), <span class="fu">aes</span>(<span class="at">size =</span> total_breath_tests), <span class="at">col =</span> <span class="st">&quot;orange&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb256-4"><a href="chapter-5-visualisation-good-cartographic-design.html#cb256-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div>
+<pre><code>## Warning in st_centroid.sf(hu_dd): st_centroid assumes attributes are constant
+## over geometries of x</code></pre>
+<pre><code>## Warning in st_centroid.sfc(st_geometry(x), of_largest_polygon =
+## of_largest_polygon): st_centroid does not give correct centroids for longitude/
+## latitude data</code></pre>
+<p><img src="crime_mapping_files/figure-html/gradsymbmapcol-1.png" width="672" /></p>
+<div class="sourceCode" id="cb259"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb259-1"><a href="chapter-5-visualisation-good-cartographic-design.html#cb259-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> hu_dd) <span class="sc">+</span> </span>
+<span id="cb259-2"><a href="chapter-5-visualisation-good-cartographic-design.html#cb259-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">fill =</span> <span class="st">&quot;light yellow&quot;</span>, <span class="at">col =</span> <span class="st">&quot;white&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb259-3"><a href="chapter-5-visualisation-good-cartographic-design.html#cb259-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> <span class="fu">st_centroid</span>(hu_dd), <span class="fu">aes</span>(<span class="at">size =</span> total_breath_tests), <span class="at">col =</span> <span class="st">&quot;orange&quot;</span>, <span class="at">shape =</span> <span class="dv">17</span>) <span class="sc">+</span> </span>
+<span id="cb259-4"><a href="chapter-5-visualisation-good-cartographic-design.html#cb259-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div>
+<pre><code>## Warning in st_centroid.sf(hu_dd): st_centroid assumes attributes are constant
+## over geometries of x</code></pre>
+<pre><code>## Warning in st_centroid.sfc(st_geometry(x), of_largest_polygon =
+## of_largest_polygon): st_centroid does not give correct centroids for longitude/
+## latitude data</code></pre>
+<p><img src="crime_mapping_files/figure-html/gradsymbmapcoltriangle-1.png" width="672" /></p>
+<div class="sourceCode" id="cb262"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb262-1"><a href="chapter-5-visualisation-good-cartographic-design.html#cb262-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> hu_dd) <span class="sc">+</span> </span>
+<span id="cb262-2"><a href="chapter-5-visualisation-good-cartographic-design.html#cb262-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">fill =</span> <span class="st">&quot;light yellow&quot;</span>, <span class="at">col =</span> <span class="st">&quot;white&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb262-3"><a href="chapter-5-visualisation-good-cartographic-design.html#cb262-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> <span class="fu">st_centroid</span>(hu_dd), <span class="fu">aes</span>(<span class="at">size =</span> total_breath_tests), <span class="at">col =</span> <span class="st">&quot;orange&quot;</span>, <span class="at">shape =</span> <span class="dv">13</span>) <span class="sc">+</span> </span>
+<span id="cb262-4"><a href="chapter-5-visualisation-good-cartographic-design.html#cb262-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div>
+<pre><code>## Warning in st_centroid.sf(hu_dd): st_centroid assumes attributes are constant
+## over geometries of x</code></pre>
+<pre><code>## Warning in st_centroid.sfc(st_geometry(x), of_largest_polygon =
+## of_largest_polygon): st_centroid does not give correct centroids for longitude/
+## latitude data</code></pre>
+<p><img src="crime_mapping_files/figure-html/gradsymbmapcoldiamond-1.png" width="672" /></p>
+<p>How you choose to represent your data will depend on your decisions to the questions asked above about audience, message, integrity, and so on.</p>
+</div>
+<div id="rate-v-count" class="section level3" number="6.2.3">
+<h3><span class="header-section-number">6.2.3</span> Rate v count</h3>
+<p>In chapter 3 we have discussed this already in great detail, so again I will not dwell on this, but it is important that your data are meaningful and easy to interpret. We might, in this case for example, want to consider the rate of positive breath tests per test carried out in each county. To compute this, we might want to consider the proportion of positive results on the breatalyser tests (where the person had been drinking and their result is over the limit). To compute this, we can simply divide the positive results by the total test, and multiply by 100. We also include the <code>round()</code> function in there</p>
+<div class="sourceCode" id="cb265"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb265-1"><a href="chapter-5-visualisation-good-cartographic-design.html#cb265-1" aria-hidden="true" tabindex="-1"></a>hu_dd <span class="ot">&lt;-</span> hu_dd <span class="sc">%&gt;%</span> </span>
+<span id="cb265-2"><a href="chapter-5-visualisation-good-cartographic-design.html#cb265-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">pos_rate =</span> <span class="fu">round</span>(positive_breath_tests<span class="sc">/</span>total_breath_tests<span class="sc">*</span><span class="dv">100</span>,<span class="dv">1</span>))</span></code></pre></div>
+<p>We can see the county with the highers proportion of test yielding drink drivers is Pest megye with 3 %, while the county with the lowest is Hajdú-Bihar with 0.2 %.</p>
+<p>We can visualise this rate on our thematic map in exactly the same way as the count data, but using our new variable in the <code>fill =</code> argument:</p>
+<div class="sourceCode" id="cb266"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb266-1"><a href="chapter-5-visualisation-good-cartographic-design.html#cb266-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> hu_dd) <span class="sc">+</span> </span>
+<span id="cb266-2"><a href="chapter-5-visualisation-good-cartographic-design.html#cb266-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill =</span> pos_rate), <span class="at">lwd =</span> <span class="fl">0.5</span>, <span class="at">col =</span> <span class="st">&quot;white&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb266-3"><a href="chapter-5-visualisation-good-cartographic-design.html#cb266-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/themmapwhitebord2-1.png" width="672" /></p>
+<p>But with a graduated symbol map we can get a little more creative. Sure, one approach may be to once again change the size of the symbol, but we could get a little more creative and use charts. For example there is the library <code>scatterpie</code> which has the function <code>geom_scatterpie()</code> which allows us to present our ratios in pie charts.</p>
+<p>To use this function, we need our data to be in a dataframe which has separate columns for latitude and longitude (rather than a geometry object), where each observation has a unique id, and where we have a separate column for each proportion we wish to visualise.</p>
+<p>To create this, we first need to get the centroid of each polygon to get our longitude and latitude. We also need to calculate the number of negative breath tests. We then need to extract the coordinates into longitude and latitude columns, and finally we can drop the geometry and keep only the columns we need for this new dataframe.</p>
+<div class="sourceCode" id="cb267"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb267-1"><a href="chapter-5-visualisation-good-cartographic-design.html#cb267-1" aria-hidden="true" tabindex="-1"></a>scatter_map_df <span class="ot">&lt;-</span> hu_dd <span class="sc">%&gt;%</span> </span>
+<span id="cb267-2"><a href="chapter-5-visualisation-good-cartographic-design.html#cb267-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">cent_lng =</span> <span class="fu">st_coordinates</span>(<span class="fu">st_centroid</span>(.))[,<span class="dv">1</span>],    <span class="co"># extract centroid longitude</span></span>
+<span id="cb267-3"><a href="chapter-5-visualisation-good-cartographic-design.html#cb267-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">cent_lat =</span> <span class="fu">st_coordinates</span>(<span class="fu">st_centroid</span>(.))[,<span class="dv">2</span>],    <span class="co"># extract centroid latitude</span></span>
+<span id="cb267-4"><a href="chapter-5-visualisation-good-cartographic-design.html#cb267-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">neg_tests =</span> total_breath_tests <span class="sc">-</span> positive_breath_tests) <span class="sc">%&gt;%</span>     <span class="co"># calculate negative tests</span></span>
+<span id="cb267-5"><a href="chapter-5-visualisation-good-cartographic-design.html#cb267-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_drop_geometry</span>() <span class="sc">%&gt;%</span>       <span class="co"># remove the geometry column</span></span>
+<span id="cb267-6"><a href="chapter-5-visualisation-good-cartographic-design.html#cb267-6" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(cent_lng, cent_lat, osm_id, positive_breath_tests, neg_tests)   <span class="co"># keep only necessary columns</span></span></code></pre></div>
+<p>We now have this new dataframe which has coordinates for the centroid of each polygon, and we can use the <code>geom_scatterpie()</code> function from the <code>scatterpie</code> package to plot a pie chart of the proportion of positive to negative breath tests in each county in Hungary:</p>
+<div class="sourceCode" id="cb268"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb268-1"><a href="chapter-5-visualisation-good-cartographic-design.html#cb268-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> hu_dd) <span class="sc">+</span> </span>
+<span id="cb268-2"><a href="chapter-5-visualisation-good-cartographic-design.html#cb268-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> hu_dd, <span class="at">fill =</span> <span class="st">&quot;light yellow&quot;</span>, <span class="at">col =</span> <span class="st">&quot;white&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb268-3"><a href="chapter-5-visualisation-good-cartographic-design.html#cb268-3" aria-hidden="true" tabindex="-1"></a>  scatterpie<span class="sc">::</span><span class="fu">geom_scatterpie</span>(<span class="at">data=</span>scatter_map_df, <span class="fu">aes</span>(<span class="at">x=</span>cent_lng, <span class="at">y=</span>cent_lat, <span class="at">group=</span>osm_id), <span class="at">cols=</span><span class="fu">c</span>(<span class="st">&quot;positive_breath_tests&quot;</span>, <span class="st">&quot;neg_tests&quot;</span>)) <span class="sc">+</span> </span>
+<span id="cb268-4"><a href="chapter-5-visualisation-good-cartographic-design.html#cb268-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/unnamed-chunk-147-1.png" width="672" /></p>
+<p>In this case, it’s not super informative to visualise this, as discussed above our positive rates range between 0.2 %, and 3 %. However with more evenly distributed proportions this may be something to try.</p>
+</div>
+</div>
+<div id="colour" class="section level2" number="6.3">
+<h2><span class="header-section-number">6.3</span> Colour</h2>
+<p>When choosing a colour palette, the first thing to consider is what kind of colour scheme we need. This will depend on the variable we are trying to visualise. We go back, once again, to the first week of the course, where we discussed <em>Levels of Measurement</em>. Remember those? Still important!</p>
+<p>Depending on the kind of varaible we want to visualise, we might want a Qualitative colour scheme (for categorical nominal variables), a Sequential colour scheme (for categorial ordinal, or for numeric variables) or a Diverging colour scheme (for categorial ordinal, or for numeric variables).</p>
+<p>For qualitative colour schemes, we want each category (each value for the variable) to have a perceptible difference in colour. For sequential and diverging color schemes, we will want mappings from data to color that are not just numerically but also perceptually uniform.</p>
+<ul>
+<li><strong>sequential scales</strong> (also called gradients) go from low to high saturation of a colour.</li>
+<li><strong>diverging scales</strong> represent a scale with a neutral mid-point (as when we are showing temperatures, for instance, or variance in either direction from a zero point or a mean value), where the steps away from the midpoint are perceptually even in both directions.</li>
+<li><strong>qualitative scales</strong> identify as different the different values of your categorical nominal variable from each other.</li>
+</ul>
+<p>For your sequetial and diverging scales, the goal in each case is to generate a perceptually uniform scheme, where hops from one level to the next are seen as having the same magnitude.</p>
+<p>Of course, perceptual uniformity matters for your qualitative scales for your unordered categorical variables as well. We often use color to represent data for different countries, or political parties, or types of people, and so on. In those cases we want the colors in our qualitative palette to be easily distinguishable, but also have the same valence for the viewer. Unless we are doing it deliberately, we do not want one color to perceptually dominate the others.</p>
+<p>The main message here is that you should generally not put together your color palettes in an ad hoc way. It is too easy to go astray. In addition to the considerations we have been discussing, there we might also want to avoid producing plots that confuse people who are colour blind, for example, and color blindness comes in a variety of forms. Fortunately for us, almost all of the work has been done for us already. Different color spaces have been defined and standardized in ways that account for these uneven or nonlinear aspects of human color perception.</p>
+<p>A good resource is <a href="http://colorbrewer2.org/">colorbrewer</a>. We have come across <span class="citation">(<a href="#ref-Brewer_2016" role="doc-biblioref"><strong>Brewer_2016?</strong></a>)</span> in Chapter 3. Colorbrewer is a resource developed by Cynthia Brewer and colleagues in order to help implement good colour practice in data visualisation and cartography. This site offers many colour schemes we can make use of for our maps, which are easily integrated into R using the <code>Rcolorbrewer</code> package.</p>
+<div class="sourceCode" id="cb269"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb269-1"><a href="chapter-5-visualisation-good-cartographic-design.html#cb269-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(RColorBrewer)</span></code></pre></div>
+<p>Once you have the package loaded, we can look at all the associated palettes with the function <code>display.brewer.all()</code>.</p>
+<div class="sourceCode" id="cb270"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb270-1"><a href="chapter-5-visualisation-good-cartographic-design.html#cb270-1" aria-hidden="true" tabindex="-1"></a><span class="fu">display.brewer.all</span>()</span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/dsplayallcolourbrewerpallettes-1.png" width="672" /></p>
+<p>The above gives a wide choice of pallettes, and while they are applicable to all sorts of data visualisations, they were created especially for the case of thematic maps.</p>
+<p>We might use the above code to pick a palette we like. We might then want to examine the colours more closely. To do this we can use the <code>display.brewer.pal()</code> function, and specify <code>n=</code> - the number of colours we need, as well as the palette name with <code>name =</code>:</p>
+<div class="sourceCode" id="cb271"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb271-1"><a href="chapter-5-visualisation-good-cartographic-design.html#cb271-1" aria-hidden="true" tabindex="-1"></a><span class="fu">display.brewer.pal</span>(<span class="at">n =</span> <span class="dv">5</span>, <span class="st">&quot;Spectral&quot;</span>)</span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/unnamed-chunk-148-1.png" width="672" /></p>
+<p>Let’s go back to our thematic map of the quantiles of total breath tests per county. We might be interested in this map to show distribution of policing activity for example. We made this map earlier with the default colour scheme, which didn’t really communicate to use the graduated nature of our data we were visualising. To properly do this, we may imagine using a <em>seqantial</em> scale. We can use one of the sequential scales available within <code>RColorBrewer</code> with adding the <code>scale_fill_brewer()</code> function to our ggplot. In this function we can specify the <code>type=</code> parameter, i.e. if we want to use sequential, divergining, or qualitative colour schemes (specified as either “seq” (sequential), “div” (diverging) or “qual” (qualitative)). We can then specify our preferred palette with the <code>palette =</code> argument.</p>
+<p>Let’s demonstrate here with the “YlOrRd” sequential palette:</p>
+<div class="sourceCode" id="cb272"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb272-1"><a href="chapter-5-visualisation-good-cartographic-design.html#cb272-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> hu_dd) <span class="sc">+</span> </span>
+<span id="cb272-2"><a href="chapter-5-visualisation-good-cartographic-design.html#cb272-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill =</span> total_quantiles), <span class="at">lwd =</span> <span class="fl">0.5</span>, <span class="at">col =</span> <span class="st">&quot;white&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb272-3"><a href="chapter-5-visualisation-good-cartographic-design.html#cb272-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">type =</span> <span class="st">&quot;seq&quot;</span>, <span class="at">palette =</span> <span class="st">&quot;YlOrRd&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb272-4"><a href="chapter-5-visualisation-good-cartographic-design.html#cb272-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/colourbbrewerratefill-1.png" width="672" /></p>
+<p>This looks much better, and communicates our message much more clearly. Is this accessible to our colourblind colleagues? Earlier, when we asked to view all the palettes with the <code>display.brewer.all()</code> function, we did not specify any arguments. However, we can do so in order to filter only those palettes which are accessible for all audiences. We can include the parameter <code>colorblindFriendly =</code> to do so:</p>
+<div class="sourceCode" id="cb273"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb273-1"><a href="chapter-5-visualisation-good-cartographic-design.html#cb273-1" aria-hidden="true" tabindex="-1"></a><span class="fu">display.brewer.all</span>(<span class="at">colorblindFriendly =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/unnamed-chunk-149-1.png" width="672" /></p>
+<p>You can see there are a few palettes missing from our earlier results, when we did not specify this requirement. My recommendation is to always use one of these palettes.</p>
+<p>Another way to ensure that we are making accessible maps is to use greyscale (if your map is being printed, this may also save some money). To introduce a greyscale palette, you can use the function <code>scale_fill_grey()</code> from the <code>ggplot2</code> package:</p>
+<div class="sourceCode" id="cb274"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb274-1"><a href="chapter-5-visualisation-good-cartographic-design.html#cb274-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> hu_dd) <span class="sc">+</span> </span>
+<span id="cb274-2"><a href="chapter-5-visualisation-good-cartographic-design.html#cb274-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill =</span> total_quantiles), <span class="at">lwd =</span> <span class="fl">0.5</span>, <span class="at">col =</span> <span class="st">&quot;white&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb274-3"><a href="chapter-5-visualisation-good-cartographic-design.html#cb274-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_grey</span>() <span class="sc">+</span> </span>
+<span id="cb274-4"><a href="chapter-5-visualisation-good-cartographic-design.html#cb274-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/greyscaletestsmap-1.png" width="672" /></p>
+<p>Sometimes you might prefer such a map. However, do keep in mind, a number of studies have shown the desirability of monochrome colour (over greyscale) thematic maps, as they are linked to less observer variability in interpretation (<span class="citation"><a href="chapter-5-visualisation-good-cartographic-design.html#ref-Lawson_2006" role="doc-biblioref">Lawson</a> (<a href="chapter-5-visualisation-good-cartographic-design.html#ref-Lawson_2006" role="doc-biblioref">2021b</a>)</span>). So you might want to use something like this instead:</p>
+<div class="sourceCode" id="cb275"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb275-1"><a href="chapter-5-visualisation-good-cartographic-design.html#cb275-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> hu_dd) <span class="sc">+</span> </span>
+<span id="cb275-2"><a href="chapter-5-visualisation-good-cartographic-design.html#cb275-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill =</span> total_quantiles), <span class="at">lwd =</span> <span class="fl">0.5</span>, <span class="at">col =</span> <span class="st">&quot;white&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb275-3"><a href="chapter-5-visualisation-good-cartographic-design.html#cb275-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">type =</span> <span class="st">&quot;seq&quot;</span>, <span class="at">palette =</span> <span class="st">&quot;Greens&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb275-4"><a href="chapter-5-visualisation-good-cartographic-design.html#cb275-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/unnamed-chunk-150-1.png" width="672" /></p>
+<p>Overall, the key thing is to be conscious with the colours you choose to represent your data. Make sure that they are accessible for all audiences, and best represent the patterns in your data which you want to communicate to your audiences.</p>
+</div>
+<div id="text" class="section level2" number="6.4">
+<h2><span class="header-section-number">6.4</span> Text</h2>
+<p>There are important pieces of information with every map which are represented by text.</p>
+<div id="titles-and-subtitles" class="section level3" number="6.4.1">
+<h3><span class="header-section-number">6.4.1</span> Titles and subtitles</h3>
+<p>To give your map a title and subtitle, you can use the appropriate functions from the <code>ggplot2()</code> package.</p>
+<div class="sourceCode" id="cb276"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb276-1"><a href="chapter-5-visualisation-good-cartographic-design.html#cb276-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> hu_dd) <span class="sc">+</span> </span>
+<span id="cb276-2"><a href="chapter-5-visualisation-good-cartographic-design.html#cb276-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill =</span> total_quantiles), <span class="at">lwd =</span> <span class="fl">0.5</span>, <span class="at">col =</span> <span class="st">&quot;white&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb276-3"><a href="chapter-5-visualisation-good-cartographic-design.html#cb276-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">type =</span> <span class="st">&quot;seq&quot;</span>, <span class="at">palette =</span> <span class="st">&quot;Greens&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb276-4"><a href="chapter-5-visualisation-good-cartographic-design.html#cb276-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
+<span id="cb276-5"><a href="chapter-5-visualisation-good-cartographic-design.html#cb276-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">&quot;Number of breathalyser tests per county&quot;</span>, <span class="at">subtitle =</span> <span class="st">&quot;January 2020&quot;</span>)</span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/titlesubtitle-1.png" width="672" /></p>
+</div>
+<div id="legend" class="section level3" number="6.4.2">
+<h3><span class="header-section-number">6.4.2</span> Legend</h3>
+<div class="sourceCode" id="cb277"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb277-1"><a href="chapter-5-visualisation-good-cartographic-design.html#cb277-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> hu_dd) <span class="sc">+</span> </span>
+<span id="cb277-2"><a href="chapter-5-visualisation-good-cartographic-design.html#cb277-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill =</span> total_quantiles), <span class="at">lwd =</span> <span class="fl">0.5</span>, <span class="at">col =</span> <span class="st">&quot;white&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb277-3"><a href="chapter-5-visualisation-good-cartographic-design.html#cb277-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">type =</span> <span class="st">&quot;seq&quot;</span>, <span class="at">palette =</span> <span class="st">&quot;Greens&quot;</span>, <span class="at">name =</span> <span class="st">&quot;Total tests&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb277-4"><a href="chapter-5-visualisation-good-cartographic-design.html#cb277-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
+<span id="cb277-5"><a href="chapter-5-visualisation-good-cartographic-design.html#cb277-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">&quot;Number of breathalyser tests per county&quot;</span>, <span class="at">subtitle =</span> <span class="st">&quot;January 2020&quot;</span>)</span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/legend-1.png" width="672" /></p>
+<p>We can also change the levels. For example, we can replace the “,” with a " - " if we’d like using the <code>gsub()</code> function, and assign the new levels object in the <code>labels =</code> parameter of the <code>scale_fill_brewer()</code> function:</p>
+<div class="sourceCode" id="cb278"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb278-1"><a href="chapter-5-visualisation-good-cartographic-design.html#cb278-1" aria-hidden="true" tabindex="-1"></a>new_levels <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">&quot;,&quot;</span>,<span class="st">&quot; - &quot;</span>,<span class="fu">levels</span>(hu_dd<span class="sc">$</span>total_quantiles))</span>
+<span id="cb278-2"><a href="chapter-5-visualisation-good-cartographic-design.html#cb278-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb278-3"><a href="chapter-5-visualisation-good-cartographic-design.html#cb278-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> hu_dd) <span class="sc">+</span> </span>
+<span id="cb278-4"><a href="chapter-5-visualisation-good-cartographic-design.html#cb278-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill =</span> total_quantiles), <span class="at">lwd =</span> <span class="fl">0.5</span>, <span class="at">col =</span> <span class="st">&quot;white&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb278-5"><a href="chapter-5-visualisation-good-cartographic-design.html#cb278-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">type =</span> <span class="st">&quot;seq&quot;</span>, <span class="at">palette =</span> <span class="st">&quot;Greens&quot;</span>, <span class="at">name =</span> <span class="st">&quot;Total tests&quot;</span>, <span class="at">labels =</span> new_levels) <span class="sc">+</span> </span>
+<span id="cb278-6"><a href="chapter-5-visualisation-good-cartographic-design.html#cb278-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
+<span id="cb278-7"><a href="chapter-5-visualisation-good-cartographic-design.html#cb278-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">&quot;Number of breathalyser tests per county&quot;</span>, <span class="at">subtitle =</span> <span class="st">&quot;January 2020&quot;</span>)</span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/legendlabels-1.png" width="672" /></p>
+<p>Or we could completely rename them if we liked:</p>
+<div class="sourceCode" id="cb279"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb279-1"><a href="chapter-5-visualisation-good-cartographic-design.html#cb279-1" aria-hidden="true" tabindex="-1"></a>new_levels <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;&lt; 4796&quot;</span>, <span class="st">&quot;4796 to &lt; 10785&quot;</span>, <span class="st">&quot;10785  to &lt; 15070&quot;</span>, <span class="st">&quot;&gt; 15070&quot;</span>)</span>
+<span id="cb279-2"><a href="chapter-5-visualisation-good-cartographic-design.html#cb279-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb279-3"><a href="chapter-5-visualisation-good-cartographic-design.html#cb279-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> hu_dd) <span class="sc">+</span> </span>
+<span id="cb279-4"><a href="chapter-5-visualisation-good-cartographic-design.html#cb279-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill =</span> total_quantiles), <span class="at">lwd =</span> <span class="fl">0.5</span>, <span class="at">col =</span> <span class="st">&quot;white&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb279-5"><a href="chapter-5-visualisation-good-cartographic-design.html#cb279-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">type =</span> <span class="st">&quot;seq&quot;</span>, <span class="at">palette =</span> <span class="st">&quot;Greens&quot;</span>, <span class="at">name =</span> <span class="st">&quot;Total tests&quot;</span>, <span class="at">labels =</span> new_levels) <span class="sc">+</span> </span>
+<span id="cb279-6"><a href="chapter-5-visualisation-good-cartographic-design.html#cb279-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
+<span id="cb279-7"><a href="chapter-5-visualisation-good-cartographic-design.html#cb279-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">&quot;Number of breathalyser tests per county&quot;</span>, <span class="at">subtitle =</span> <span class="st">&quot;January 2020&quot;</span>)</span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/legendlabels2-1.png" width="672" /></p>
+<p>You can change the labels however you would like, but do keep in mind any loss of information you may introduce. For example with this second version, we no longer know what are the minimum and maximum balues on our map, as we’ve removed that information with our new levels. Again, no wrong answers here, but whatever best fits the data and the purpose of the map.</p>
+</div>
+<div id="annotation" class="section level3" number="6.4.3">
+<h3><span class="header-section-number">6.4.3</span> Annotation</h3>
+<p>Sometimes you might want to include some textual information on your map as well. From <code>ggplot2</code> versions v.3.1.0 the functions <code>geom_sf_text()</code> and <code>geom_sf_label()</code> make it very smooth for us to do this.</p>
+<div class="sourceCode" id="cb280"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb280-1"><a href="chapter-5-visualisation-good-cartographic-design.html#cb280-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> hu_dd) <span class="sc">+</span> </span>
+<span id="cb280-2"><a href="chapter-5-visualisation-good-cartographic-design.html#cb280-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill =</span> total_quantiles), <span class="at">lwd =</span> <span class="fl">0.5</span>, <span class="at">col =</span> <span class="st">&quot;white&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb280-3"><a href="chapter-5-visualisation-good-cartographic-design.html#cb280-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">type =</span> <span class="st">&quot;seq&quot;</span>, <span class="at">palette =</span> <span class="st">&quot;Greens&quot;</span>, <span class="at">name =</span> <span class="st">&quot;Total tests&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb280-4"><a href="chapter-5-visualisation-good-cartographic-design.html#cb280-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf_label</span>(<span class="fu">aes</span>(<span class="at">label =</span> name)) <span class="sc">+</span> </span>
+<span id="cb280-5"><a href="chapter-5-visualisation-good-cartographic-design.html#cb280-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
+<span id="cb280-6"><a href="chapter-5-visualisation-good-cartographic-design.html#cb280-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">&quot;Number of breathalyser tests per county&quot;</span>, <span class="at">subtitle =</span> <span class="st">&quot;January 2020&quot;</span>)</span></code></pre></div>
+<pre><code>## Warning in st_point_on_surface.sfc(sf::st_zm(x)): st_point_on_surface may not
+## give correct results for longitude/latitude data</code></pre>
+<p><img src="crime_mapping_files/figure-html/addcountynames-1.png" width="672" /></p>
+<p>You may notice there is some overlapping here which renders some names unreadable. Well while <a href="https://github.com/slowkow/ggrepel/issues/111">there is work in this space to develop the function geom_sf_label_repel()</a> at the time of writing this is not yet available. However this application of the <code>geom_label_repel()</code> function from the <code>ggrepel</code> package advised by <span class="citation">(<a href="#ref-Yutani_2018" role="doc-biblioref"><strong>Yutani_2018?</strong></a>)</span> achieves the same outcome:</p>
+<div class="sourceCode" id="cb282"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb282-1"><a href="chapter-5-visualisation-good-cartographic-design.html#cb282-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggrepel)</span>
+<span id="cb282-2"><a href="chapter-5-visualisation-good-cartographic-design.html#cb282-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb282-3"><a href="chapter-5-visualisation-good-cartographic-design.html#cb282-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> hu_dd) <span class="sc">+</span> </span>
+<span id="cb282-4"><a href="chapter-5-visualisation-good-cartographic-design.html#cb282-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill =</span> total_quantiles), <span class="at">lwd =</span> <span class="fl">0.5</span>, <span class="at">col =</span> <span class="st">&quot;white&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb282-5"><a href="chapter-5-visualisation-good-cartographic-design.html#cb282-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">type =</span> <span class="st">&quot;seq&quot;</span>, <span class="at">palette =</span> <span class="st">&quot;Greens&quot;</span>, <span class="at">name =</span> <span class="st">&quot;Total tests&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb282-6"><a href="chapter-5-visualisation-good-cartographic-design.html#cb282-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_label_repel</span>(<span class="at">data =</span> hu_dd, <span class="fu">aes</span>(<span class="at">label =</span> name, <span class="at">geometry =</span> geometry), <span class="at">stat =</span> <span class="st">&quot;sf_coordinates&quot;</span>, <span class="at">min.segment.length =</span> <span class="dv">0</span>) <span class="sc">+</span> </span>
+<span id="cb282-7"><a href="chapter-5-visualisation-good-cartographic-design.html#cb282-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
+<span id="cb282-8"><a href="chapter-5-visualisation-good-cartographic-design.html#cb282-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">&quot;Number of breathalyser tests per county&quot;</span>, <span class="at">subtitle =</span> <span class="st">&quot;January 2020&quot;</span>) </span></code></pre></div>
+<pre><code>## Warning in st_point_on_surface.sfc(sf::st_zm(x)): st_point_on_surface may not
+## give correct results for longitude/latitude data</code></pre>
+<p><img src="crime_mapping_files/figure-html/unnamed-chunk-151-1.png" width="672" /></p>
+<p>This map looks really busy, you might want to include only a few labels, which are of interest. For example, you might want to label only those which are in the top quartile:</p>
+<div class="sourceCode" id="cb284"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb284-1"><a href="chapter-5-visualisation-good-cartographic-design.html#cb284-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> hu_dd) <span class="sc">+</span> </span>
+<span id="cb284-2"><a href="chapter-5-visualisation-good-cartographic-design.html#cb284-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill =</span> total_quantiles), <span class="at">lwd =</span> <span class="fl">0.5</span>, <span class="at">col =</span> <span class="st">&quot;white&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb284-3"><a href="chapter-5-visualisation-good-cartographic-design.html#cb284-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">type =</span> <span class="st">&quot;seq&quot;</span>, <span class="at">palette =</span> <span class="st">&quot;Greens&quot;</span>, <span class="at">name =</span> <span class="st">&quot;Total tests&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb284-4"><a href="chapter-5-visualisation-good-cartographic-design.html#cb284-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf_label</span>(<span class="at">data =</span> hu_dd <span class="sc">%&gt;%</span> <span class="fu">filter</span>(total_breath_tests <span class="sc">&gt;=</span> <span class="dv">15070</span>), <span class="fu">aes</span>(<span class="at">label =</span> name)) <span class="sc">+</span> </span>
+<span id="cb284-5"><a href="chapter-5-visualisation-good-cartographic-design.html#cb284-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
+<span id="cb284-6"><a href="chapter-5-visualisation-good-cartographic-design.html#cb284-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">&quot;Number of breathalyser tests per county&quot;</span>, <span class="at">subtitle =</span> <span class="st">&quot;January 2020&quot;</span>)</span></code></pre></div>
+<pre><code>## Warning in st_point_on_surface.sfc(sf::st_zm(x)): st_point_on_surface may not
+## give correct results for longitude/latitude data</code></pre>
+<p><img src="crime_mapping_files/figure-html/addcountynamestoponly-1.png" width="672" /></p>
+<p>Or you want to specifically highlight a county of interest, let’s say Budapest. In this case, we might actually want to keep our annotation off the map. We can do this by using the <code>nudge_x</code> and <code>nudge_y</code> parameters of the <code>geom_sf_label()</code> function.</p>
+<div class="sourceCode" id="cb286"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb286-1"><a href="chapter-5-visualisation-good-cartographic-design.html#cb286-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> hu_dd) <span class="sc">+</span> </span>
+<span id="cb286-2"><a href="chapter-5-visualisation-good-cartographic-design.html#cb286-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill =</span> total_quantiles), <span class="at">lwd =</span> <span class="fl">0.5</span>, <span class="at">col =</span> <span class="st">&quot;white&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb286-3"><a href="chapter-5-visualisation-good-cartographic-design.html#cb286-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">type =</span> <span class="st">&quot;seq&quot;</span>, <span class="at">palette =</span> <span class="st">&quot;Greens&quot;</span>, <span class="at">name =</span> <span class="st">&quot;Total tests&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb286-4"><a href="chapter-5-visualisation-good-cartographic-design.html#cb286-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf_label</span>(<span class="at">data =</span> hu_dd <span class="sc">%&gt;%</span> <span class="fu">filter</span>(name <span class="sc">==</span> <span class="st">&quot;Budapest&quot;</span>), <span class="fu">aes</span>(<span class="at">label =</span> name), <span class="at">nudge_y =</span> <span class="fl">0.9</span>, <span class="at">nudge_x =</span> <span class="sc">-</span><span class="fl">0.1</span>) <span class="sc">+</span> </span>
+<span id="cb286-5"><a href="chapter-5-visualisation-good-cartographic-design.html#cb286-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
+<span id="cb286-6"><a href="chapter-5-visualisation-good-cartographic-design.html#cb286-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">&quot;Number of breathalyser tests per county&quot;</span>, <span class="at">subtitle =</span> <span class="st">&quot;January 2020&quot;</span>)</span></code></pre></div>
+<pre><code>## Warning in st_point_on_surface.sfc(sf::st_zm(x)): st_point_on_surface may not
+## give correct results for longitude/latitude data</code></pre>
+<p><img src="crime_mapping_files/figure-html/addcountynamesBPonly-1.png" width="672" /></p>
+<p>But this floating label is a little ambiguous. We might want to use an arrow to point out Budapest on the map. To do this, we can use <code>geom_curve()</code> within <code>ggplot2</code>. We will need two sets of x and y values for this segment, the start point (<code>x</code> and <code>y</code>) and the end point (<code>xend</code> and <code>yend</code>). The end point will be the coordinates where we want the arrow pointing to. This would be some x,y pair within Budapest. We can use the <code>st_coordinates()</code> function once again the extract the centroid, this time of the Budapest polygon. Let’s extract the longitude of the centroid into an object called <code>bp_x</code> for our x value, and the latitude of the centroid into an object called <code>bp_y</code> for our y value.</p>
+<div class="sourceCode" id="cb288"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb288-1"><a href="chapter-5-visualisation-good-cartographic-design.html#cb288-1" aria-hidden="true" tabindex="-1"></a>bp_x <span class="ot">&lt;-</span> hu_dd <span class="sc">%&gt;%</span> <span class="fu">filter</span>(name <span class="sc">==</span> <span class="st">&quot;Budapest&quot;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb288-2"><a href="chapter-5-visualisation-good-cartographic-design.html#cb288-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">cent_lng =</span> <span class="fu">st_coordinates</span>(<span class="fu">st_centroid</span>(.))[,<span class="dv">1</span>]) <span class="sc">%&gt;%</span> </span>
+<span id="cb288-3"><a href="chapter-5-visualisation-good-cartographic-design.html#cb288-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(cent_lng)</span></code></pre></div>
+<pre><code>## Warning in st_centroid.sf(.): st_centroid assumes attributes are constant over
+## geometries of x</code></pre>
+<pre><code>## Warning in st_centroid.sfc(st_geometry(x), of_largest_polygon =
+## of_largest_polygon): st_centroid does not give correct centroids for longitude/
+## latitude data</code></pre>
+<div class="sourceCode" id="cb291"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb291-1"><a href="chapter-5-visualisation-good-cartographic-design.html#cb291-1" aria-hidden="true" tabindex="-1"></a>bp_y <span class="ot">&lt;-</span> hu_dd <span class="sc">%&gt;%</span> <span class="fu">filter</span>(name <span class="sc">==</span> <span class="st">&quot;Budapest&quot;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb291-2"><a href="chapter-5-visualisation-good-cartographic-design.html#cb291-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">cent_lat =</span> <span class="fu">st_coordinates</span>(<span class="fu">st_centroid</span>(.))[,<span class="dv">2</span>]) <span class="sc">%&gt;%</span> </span>
+<span id="cb291-3"><a href="chapter-5-visualisation-good-cartographic-design.html#cb291-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(cent_lat)</span></code></pre></div>
+<pre><code>## Warning in st_centroid.sf(.): st_centroid assumes attributes are constant over
+## geometries of x
+
+## Warning in st_centroid.sf(.): st_centroid does not give correct centroids for
+## longitude/latitude data</code></pre>
+<p>Great, so we have the end point for our segment, but where should it start. Well we want it pointing from our label, so we can think back to how we adjusted this label with the <code>nudge_x</code> and <code>nudge_y</code> parameters inside the <code>geom_sf_label()</code> function earlier. We can add (or subtract) these values to our bp_x and bp_y objects to determine the start points for our curve. Finally, we can also specify some characteristics of the arrow head on our curve with the <code>arrow =</code> parameter. Here we specify we want 2 milimeter size.</p>
+<div class="sourceCode" id="cb293"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb293-1"><a href="chapter-5-visualisation-good-cartographic-design.html#cb293-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> hu_dd) <span class="sc">+</span> </span>
+<span id="cb293-2"><a href="chapter-5-visualisation-good-cartographic-design.html#cb293-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill =</span> total_quantiles), <span class="at">lwd =</span> <span class="fl">0.5</span>, <span class="at">col =</span> <span class="st">&quot;white&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb293-3"><a href="chapter-5-visualisation-good-cartographic-design.html#cb293-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">type =</span> <span class="st">&quot;seq&quot;</span>, <span class="at">palette =</span> <span class="st">&quot;Greens&quot;</span>, <span class="at">name =</span> <span class="st">&quot;Total tests&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb293-4"><a href="chapter-5-visualisation-good-cartographic-design.html#cb293-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_curve</span>(<span class="at">x =</span> bp_x <span class="sc">-</span> <span class="fl">0.1</span>, </span>
+<span id="cb293-5"><a href="chapter-5-visualisation-good-cartographic-design.html#cb293-5" aria-hidden="true" tabindex="-1"></a>             <span class="at">y =</span> bp_y <span class="sc">+</span> <span class="fl">0.9</span>, </span>
+<span id="cb293-6"><a href="chapter-5-visualisation-good-cartographic-design.html#cb293-6" aria-hidden="true" tabindex="-1"></a>             <span class="at">xend =</span> bp_x , </span>
+<span id="cb293-7"><a href="chapter-5-visualisation-good-cartographic-design.html#cb293-7" aria-hidden="true" tabindex="-1"></a>             <span class="at">yend =</span> bp_y, </span>
+<span id="cb293-8"><a href="chapter-5-visualisation-good-cartographic-design.html#cb293-8" aria-hidden="true" tabindex="-1"></a>             <span class="at">arrow =</span> <span class="fu">arrow</span>(<span class="at">length =</span> <span class="fu">unit</span>(<span class="dv">2</span>, <span class="st">&quot;mm&quot;</span>))) <span class="sc">+</span></span>
+<span id="cb293-9"><a href="chapter-5-visualisation-good-cartographic-design.html#cb293-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf_label</span>(<span class="at">data =</span> hu_dd <span class="sc">%&gt;%</span> <span class="fu">filter</span>(name <span class="sc">==</span> <span class="st">&quot;Budapest&quot;</span>), </span>
+<span id="cb293-10"><a href="chapter-5-visualisation-good-cartographic-design.html#cb293-10" aria-hidden="true" tabindex="-1"></a>                <span class="fu">aes</span>(<span class="at">label =</span> name), </span>
+<span id="cb293-11"><a href="chapter-5-visualisation-good-cartographic-design.html#cb293-11" aria-hidden="true" tabindex="-1"></a>                <span class="at">nudge_y =</span> <span class="fl">0.9</span>, </span>
+<span id="cb293-12"><a href="chapter-5-visualisation-good-cartographic-design.html#cb293-12" aria-hidden="true" tabindex="-1"></a>                <span class="at">nudge_x =</span> <span class="sc">-</span><span class="fl">0.1</span>) <span class="sc">+</span> </span>
+<span id="cb293-13"><a href="chapter-5-visualisation-good-cartographic-design.html#cb293-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
+<span id="cb293-14"><a href="chapter-5-visualisation-good-cartographic-design.html#cb293-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">&quot;Number of breathalyser tests per county&quot;</span>, <span class="at">subtitle =</span> <span class="st">&quot;January 2020&quot;</span>)</span></code></pre></div>
+<pre><code>## Warning in st_point_on_surface.sfc(sf::st_zm(x)): st_point_on_surface may not
+## give correct results for longitude/latitude data</code></pre>
+<p><img src="crime_mapping_files/figure-html/unnamed-chunk-153-1.png" width="672" /></p>
+</div>
+<div id="production-notes" class="section level3" number="6.4.4">
+<h3><span class="header-section-number">6.4.4</span> Production notes</h3>
+<p>You should always include production notes with your map. This includes some information about you who made it, as well as any attributions for data. Here we can string together a series of information we want to include, appended with a newline character, in order to keep our notes nice and legible:</p>
+<div class="sourceCode" id="cb295"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb295-1"><a href="chapter-5-visualisation-good-cartographic-design.html#cb295-1" aria-hidden="true" tabindex="-1"></a>caption_text <span class="ot">&lt;-</span> <span class="fu">paste</span>(<span class="st">&quot;Map created by Reka Solymosi (@r_solymosi)&quot;</span>, </span>
+<span id="cb295-2"><a href="chapter-5-visualisation-good-cartographic-design.html#cb295-2" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;Contains data from Police Hungary&quot;</span>,</span>
+<span id="cb295-3"><a href="chapter-5-visualisation-good-cartographic-design.html#cb295-3" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;http://www.police.hu/hu/a-rendorsegrol/statisztikak/kozrendvedelem&quot;</span>, </span>
+<span id="cb295-4"><a href="chapter-5-visualisation-good-cartographic-design.html#cb295-4" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;Map data copyrighted OpenStreetMap contributors&quot;</span>, </span>
+<span id="cb295-5"><a href="chapter-5-visualisation-good-cartographic-design.html#cb295-5" aria-hidden="true" tabindex="-1"></a>                       <span class="st">&quot;available from https://www.openstreetmap.org&quot;</span>, </span>
+<span id="cb295-6"><a href="chapter-5-visualisation-good-cartographic-design.html#cb295-6" aria-hidden="true" tabindex="-1"></a>                       <span class="at">sep =</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<p>Then we can include this <code>caption_text</code> object as a caption in the function <code>labs()</code>.</p>
+<div class="sourceCode" id="cb296"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb296-1"><a href="chapter-5-visualisation-good-cartographic-design.html#cb296-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> hu_dd) <span class="sc">+</span> </span>
+<span id="cb296-2"><a href="chapter-5-visualisation-good-cartographic-design.html#cb296-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill =</span> total_quantiles), <span class="at">lwd =</span> <span class="fl">0.5</span>, <span class="at">col =</span> <span class="st">&quot;white&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb296-3"><a href="chapter-5-visualisation-good-cartographic-design.html#cb296-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">type =</span> <span class="st">&quot;seq&quot;</span>, <span class="at">palette =</span> <span class="st">&quot;Greens&quot;</span>, <span class="at">name =</span> <span class="st">&quot;Total tests&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb296-4"><a href="chapter-5-visualisation-good-cartographic-design.html#cb296-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_curve</span>(<span class="at">x =</span> bp_x <span class="sc">-</span> <span class="fl">0.1</span>, </span>
+<span id="cb296-5"><a href="chapter-5-visualisation-good-cartographic-design.html#cb296-5" aria-hidden="true" tabindex="-1"></a>             <span class="at">y =</span> bp_y <span class="sc">+</span> <span class="fl">0.9</span>, </span>
+<span id="cb296-6"><a href="chapter-5-visualisation-good-cartographic-design.html#cb296-6" aria-hidden="true" tabindex="-1"></a>             <span class="at">xend =</span> bp_x , </span>
+<span id="cb296-7"><a href="chapter-5-visualisation-good-cartographic-design.html#cb296-7" aria-hidden="true" tabindex="-1"></a>             <span class="at">yend =</span> bp_y, </span>
+<span id="cb296-8"><a href="chapter-5-visualisation-good-cartographic-design.html#cb296-8" aria-hidden="true" tabindex="-1"></a>             <span class="at">arrow =</span> <span class="fu">arrow</span>(<span class="at">length =</span> <span class="fu">unit</span>(<span class="dv">2</span>, <span class="st">&quot;mm&quot;</span>))) <span class="sc">+</span></span>
+<span id="cb296-9"><a href="chapter-5-visualisation-good-cartographic-design.html#cb296-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf_label</span>(<span class="at">data =</span> hu_dd <span class="sc">%&gt;%</span> <span class="fu">filter</span>(name <span class="sc">==</span> <span class="st">&quot;Budapest&quot;</span>), </span>
+<span id="cb296-10"><a href="chapter-5-visualisation-good-cartographic-design.html#cb296-10" aria-hidden="true" tabindex="-1"></a>                <span class="fu">aes</span>(<span class="at">label =</span> name), </span>
+<span id="cb296-11"><a href="chapter-5-visualisation-good-cartographic-design.html#cb296-11" aria-hidden="true" tabindex="-1"></a>                <span class="at">nudge_y =</span> <span class="fl">0.9</span>, </span>
+<span id="cb296-12"><a href="chapter-5-visualisation-good-cartographic-design.html#cb296-12" aria-hidden="true" tabindex="-1"></a>                <span class="at">nudge_x =</span> <span class="sc">-</span><span class="fl">0.1</span>) <span class="sc">+</span> </span>
+<span id="cb296-13"><a href="chapter-5-visualisation-good-cartographic-design.html#cb296-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
+<span id="cb296-14"><a href="chapter-5-visualisation-good-cartographic-design.html#cb296-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">&quot;Number of breathalyser tests per county&quot;</span>, <span class="at">subtitle =</span> <span class="st">&quot;January 2020&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb296-15"><a href="chapter-5-visualisation-good-cartographic-design.html#cb296-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">caption =</span> caption_text)</span></code></pre></div>
+<pre><code>## Warning in st_point_on_surface.sfc(sf::st_zm(x)): st_point_on_surface may not
+## give correct results for longitude/latitude data</code></pre>
+<p><img src="crime_mapping_files/figure-html/unnamed-chunk-155-1.png" width="672" /></p>
+</div>
+</div>
+<div id="composition" class="section level2" number="6.5">
+<h2><span class="header-section-number">6.5</span> Composition</h2>
+<div id="orientation-and-scale-indicators" class="section level3" number="6.5.1">
+<h3><span class="header-section-number">6.5.1</span> Orientation and scale indicators</h3>
+<div class="sourceCode" id="cb298"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb298-1"><a href="chapter-5-visualisation-good-cartographic-design.html#cb298-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggspatial)</span>
+<span id="cb298-2"><a href="chapter-5-visualisation-good-cartographic-design.html#cb298-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb298-3"><a href="chapter-5-visualisation-good-cartographic-design.html#cb298-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> hu_dd) <span class="sc">+</span> </span>
+<span id="cb298-4"><a href="chapter-5-visualisation-good-cartographic-design.html#cb298-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill =</span> total_quantiles), <span class="at">lwd =</span> <span class="fl">0.5</span>, <span class="at">col =</span> <span class="st">&quot;white&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb298-5"><a href="chapter-5-visualisation-good-cartographic-design.html#cb298-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">type =</span> <span class="st">&quot;seq&quot;</span>, <span class="at">palette =</span> <span class="st">&quot;Greens&quot;</span>, <span class="at">name =</span> <span class="st">&quot;Total tests&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb298-6"><a href="chapter-5-visualisation-good-cartographic-design.html#cb298-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_curve</span>(<span class="at">x =</span> bp_x <span class="sc">-</span> <span class="fl">0.1</span>, </span>
+<span id="cb298-7"><a href="chapter-5-visualisation-good-cartographic-design.html#cb298-7" aria-hidden="true" tabindex="-1"></a>             <span class="at">y =</span> bp_y <span class="sc">+</span> <span class="fl">0.9</span>, </span>
+<span id="cb298-8"><a href="chapter-5-visualisation-good-cartographic-design.html#cb298-8" aria-hidden="true" tabindex="-1"></a>             <span class="at">xend =</span> bp_x , </span>
+<span id="cb298-9"><a href="chapter-5-visualisation-good-cartographic-design.html#cb298-9" aria-hidden="true" tabindex="-1"></a>             <span class="at">yend =</span> bp_y, </span>
+<span id="cb298-10"><a href="chapter-5-visualisation-good-cartographic-design.html#cb298-10" aria-hidden="true" tabindex="-1"></a>             <span class="at">arrow =</span> <span class="fu">arrow</span>(<span class="at">length =</span> <span class="fu">unit</span>(<span class="dv">2</span>, <span class="st">&quot;mm&quot;</span>))) <span class="sc">+</span></span>
+<span id="cb298-11"><a href="chapter-5-visualisation-good-cartographic-design.html#cb298-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf_label</span>(<span class="at">data =</span> hu_dd <span class="sc">%&gt;%</span> <span class="fu">filter</span>(name <span class="sc">==</span> <span class="st">&quot;Budapest&quot;</span>), </span>
+<span id="cb298-12"><a href="chapter-5-visualisation-good-cartographic-design.html#cb298-12" aria-hidden="true" tabindex="-1"></a>                <span class="fu">aes</span>(<span class="at">label =</span> name), </span>
+<span id="cb298-13"><a href="chapter-5-visualisation-good-cartographic-design.html#cb298-13" aria-hidden="true" tabindex="-1"></a>                <span class="at">nudge_y =</span> <span class="fl">0.9</span>, </span>
+<span id="cb298-14"><a href="chapter-5-visualisation-good-cartographic-design.html#cb298-14" aria-hidden="true" tabindex="-1"></a>                <span class="at">nudge_x =</span> <span class="sc">-</span><span class="fl">0.1</span>) <span class="sc">+</span> </span>
+<span id="cb298-15"><a href="chapter-5-visualisation-good-cartographic-design.html#cb298-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
+<span id="cb298-16"><a href="chapter-5-visualisation-good-cartographic-design.html#cb298-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">&quot;Number of breathalyser tests per county&quot;</span>, <span class="at">subtitle =</span> <span class="st">&quot;January 2020&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb298-17"><a href="chapter-5-visualisation-good-cartographic-design.html#cb298-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">caption =</span> caption_text) <span class="sc">+</span> </span>
+<span id="cb298-18"><a href="chapter-5-visualisation-good-cartographic-design.html#cb298-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotation_north_arrow</span>(<span class="at">height =</span> <span class="fu">unit</span>(<span class="dv">7</span>, <span class="st">&quot;mm&quot;</span>), <span class="at">width =</span> <span class="fu">unit</span>(<span class="dv">5</span>, <span class="st">&quot;mm&quot;</span>)) </span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/orientation-1.png" width="672" /></p>
+<div class="sourceCode" id="cb299"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb299-1"><a href="chapter-5-visualisation-good-cartographic-design.html#cb299-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> hu_dd) <span class="sc">+</span> </span>
+<span id="cb299-2"><a href="chapter-5-visualisation-good-cartographic-design.html#cb299-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill =</span> total_quantiles), <span class="at">lwd =</span> <span class="fl">0.5</span>, <span class="at">col =</span> <span class="st">&quot;white&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb299-3"><a href="chapter-5-visualisation-good-cartographic-design.html#cb299-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">type =</span> <span class="st">&quot;seq&quot;</span>, <span class="at">palette =</span> <span class="st">&quot;Greens&quot;</span>, <span class="at">name =</span> <span class="st">&quot;Total tests&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb299-4"><a href="chapter-5-visualisation-good-cartographic-design.html#cb299-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_curve</span>(<span class="at">x =</span> bp_x <span class="sc">-</span> <span class="fl">0.1</span>, </span>
+<span id="cb299-5"><a href="chapter-5-visualisation-good-cartographic-design.html#cb299-5" aria-hidden="true" tabindex="-1"></a>             <span class="at">y =</span> bp_y <span class="sc">+</span> <span class="fl">0.9</span>, </span>
+<span id="cb299-6"><a href="chapter-5-visualisation-good-cartographic-design.html#cb299-6" aria-hidden="true" tabindex="-1"></a>             <span class="at">xend =</span> bp_x , </span>
+<span id="cb299-7"><a href="chapter-5-visualisation-good-cartographic-design.html#cb299-7" aria-hidden="true" tabindex="-1"></a>             <span class="at">yend =</span> bp_y, </span>
+<span id="cb299-8"><a href="chapter-5-visualisation-good-cartographic-design.html#cb299-8" aria-hidden="true" tabindex="-1"></a>             <span class="at">arrow =</span> <span class="fu">arrow</span>(<span class="at">length =</span> <span class="fu">unit</span>(<span class="dv">2</span>, <span class="st">&quot;mm&quot;</span>))) <span class="sc">+</span></span>
+<span id="cb299-9"><a href="chapter-5-visualisation-good-cartographic-design.html#cb299-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf_label</span>(<span class="at">data =</span> hu_dd <span class="sc">%&gt;%</span> <span class="fu">filter</span>(name <span class="sc">==</span> <span class="st">&quot;Budapest&quot;</span>), </span>
+<span id="cb299-10"><a href="chapter-5-visualisation-good-cartographic-design.html#cb299-10" aria-hidden="true" tabindex="-1"></a>                <span class="fu">aes</span>(<span class="at">label =</span> name), </span>
+<span id="cb299-11"><a href="chapter-5-visualisation-good-cartographic-design.html#cb299-11" aria-hidden="true" tabindex="-1"></a>                <span class="at">nudge_y =</span> <span class="fl">0.9</span>, </span>
+<span id="cb299-12"><a href="chapter-5-visualisation-good-cartographic-design.html#cb299-12" aria-hidden="true" tabindex="-1"></a>                <span class="at">nudge_x =</span> <span class="sc">-</span><span class="fl">0.1</span>) <span class="sc">+</span> </span>
+<span id="cb299-13"><a href="chapter-5-visualisation-good-cartographic-design.html#cb299-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
+<span id="cb299-14"><a href="chapter-5-visualisation-good-cartographic-design.html#cb299-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">&quot;Number of breathalyser tests per county&quot;</span>, <span class="at">subtitle =</span> <span class="st">&quot;January 2020&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb299-15"><a href="chapter-5-visualisation-good-cartographic-design.html#cb299-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">caption =</span> caption_text) <span class="sc">+</span> </span>
+<span id="cb299-16"><a href="chapter-5-visualisation-good-cartographic-design.html#cb299-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotation_north_arrow</span>(<span class="at">height =</span> <span class="fu">unit</span>(<span class="dv">7</span>, <span class="st">&quot;mm&quot;</span>), <span class="at">width =</span> <span class="fu">unit</span>(<span class="dv">5</span>, <span class="st">&quot;mm&quot;</span>), <span class="at">pad_x =</span> <span class="fu">unit</span>(<span class="dv">5</span>, <span class="st">&quot;mm&quot;</span>), <span class="at">pad_y =</span> <span class="fu">unit</span>(<span class="dv">1</span>, <span class="st">&quot;mm&quot;</span>)) <span class="sc">+</span> </span>
+<span id="cb299-17"><a href="chapter-5-visualisation-good-cartographic-design.html#cb299-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotation_scale</span>(<span class="at">line_width =</span> <span class="fl">0.5</span>, <span class="at">height =</span> <span class="fu">unit</span>(<span class="dv">1</span>, <span class="st">&quot;mm&quot;</span>), <span class="at">pad_x =</span> <span class="fu">unit</span>(<span class="dv">6</span>, <span class="st">&quot;cm&quot;</span>))</span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/scale-1.png" width="672" /></p>
+</div>
+<div id="strip-away-grids" class="section level3" number="6.5.2">
+<h3><span class="header-section-number">6.5.2</span> Strip away grids</h3>
+<p>Possibly the longitude and latitude and the grid are not adding much to our understanding of the map here. Instead we can strip these away. By using <code>theme_minimal()</code>, we’re already stripping away a lot of the elements, but we can further specify to eliminate all elements with the <code>theme_void()</code> argument instead.</p>
+<div class="sourceCode" id="cb300"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb300-1"><a href="chapter-5-visualisation-good-cartographic-design.html#cb300-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> hu_dd) <span class="sc">+</span> </span>
+<span id="cb300-2"><a href="chapter-5-visualisation-good-cartographic-design.html#cb300-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill =</span> total_quantiles), <span class="at">lwd =</span> <span class="fl">0.5</span>, <span class="at">col =</span> <span class="st">&quot;white&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb300-3"><a href="chapter-5-visualisation-good-cartographic-design.html#cb300-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">type =</span> <span class="st">&quot;seq&quot;</span>, <span class="at">palette =</span> <span class="st">&quot;Greens&quot;</span>, <span class="at">name =</span> <span class="st">&quot;Total tests&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb300-4"><a href="chapter-5-visualisation-good-cartographic-design.html#cb300-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_curve</span>(<span class="at">x =</span> bp_x <span class="sc">-</span> <span class="fl">0.1</span>, </span>
+<span id="cb300-5"><a href="chapter-5-visualisation-good-cartographic-design.html#cb300-5" aria-hidden="true" tabindex="-1"></a>             <span class="at">y =</span> bp_y <span class="sc">+</span> <span class="fl">0.9</span>, </span>
+<span id="cb300-6"><a href="chapter-5-visualisation-good-cartographic-design.html#cb300-6" aria-hidden="true" tabindex="-1"></a>             <span class="at">xend =</span> bp_x , </span>
+<span id="cb300-7"><a href="chapter-5-visualisation-good-cartographic-design.html#cb300-7" aria-hidden="true" tabindex="-1"></a>             <span class="at">yend =</span> bp_y, </span>
+<span id="cb300-8"><a href="chapter-5-visualisation-good-cartographic-design.html#cb300-8" aria-hidden="true" tabindex="-1"></a>             <span class="at">arrow =</span> <span class="fu">arrow</span>(<span class="at">length =</span> <span class="fu">unit</span>(<span class="dv">2</span>, <span class="st">&quot;mm&quot;</span>))) <span class="sc">+</span></span>
+<span id="cb300-9"><a href="chapter-5-visualisation-good-cartographic-design.html#cb300-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf_label</span>(<span class="at">data =</span> hu_dd <span class="sc">%&gt;%</span> <span class="fu">filter</span>(name <span class="sc">==</span> <span class="st">&quot;Budapest&quot;</span>), </span>
+<span id="cb300-10"><a href="chapter-5-visualisation-good-cartographic-design.html#cb300-10" aria-hidden="true" tabindex="-1"></a>                <span class="fu">aes</span>(<span class="at">label =</span> name), </span>
+<span id="cb300-11"><a href="chapter-5-visualisation-good-cartographic-design.html#cb300-11" aria-hidden="true" tabindex="-1"></a>                <span class="at">nudge_y =</span> <span class="fl">0.9</span>, </span>
+<span id="cb300-12"><a href="chapter-5-visualisation-good-cartographic-design.html#cb300-12" aria-hidden="true" tabindex="-1"></a>                <span class="at">nudge_x =</span> <span class="sc">-</span><span class="fl">0.1</span>) <span class="sc">+</span> </span>
+<span id="cb300-13"><a href="chapter-5-visualisation-good-cartographic-design.html#cb300-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>() <span class="sc">+</span> </span>
+<span id="cb300-14"><a href="chapter-5-visualisation-good-cartographic-design.html#cb300-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">&quot;Number of breathalyser tests per county&quot;</span>, <span class="at">subtitle =</span> <span class="st">&quot;January 2020&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb300-15"><a href="chapter-5-visualisation-good-cartographic-design.html#cb300-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">caption =</span> caption_text) <span class="sc">+</span> </span>
+<span id="cb300-16"><a href="chapter-5-visualisation-good-cartographic-design.html#cb300-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotation_north_arrow</span>(<span class="at">height =</span> <span class="fu">unit</span>(<span class="dv">7</span>, <span class="st">&quot;mm&quot;</span>), <span class="at">width =</span> <span class="fu">unit</span>(<span class="dv">5</span>, <span class="st">&quot;mm&quot;</span>), <span class="at">pad_x =</span> <span class="fu">unit</span>(<span class="dv">5</span>, <span class="st">&quot;mm&quot;</span>), <span class="at">pad_y =</span> <span class="fu">unit</span>(<span class="dv">1</span>, <span class="st">&quot;mm&quot;</span>)) <span class="sc">+</span> </span>
+<span id="cb300-17"><a href="chapter-5-visualisation-good-cartographic-design.html#cb300-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotation_scale</span>(<span class="at">line_width =</span> <span class="fl">0.5</span>, <span class="at">height =</span> <span class="fu">unit</span>(<span class="dv">1</span>, <span class="st">&quot;mm&quot;</span>), <span class="at">pad_x =</span> <span class="fu">unit</span>(<span class="dv">6</span>, <span class="st">&quot;cm&quot;</span>))</span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/nogrid-1.png" width="672" /></p>
+</div>
+</div>
+<div id="context" class="section level2" number="6.6">
+<h2><span class="header-section-number">6.6</span> Context</h2>
+<div id="basemap" class="section level3" number="6.6.1">
+<h3><span class="header-section-number">6.6.1</span> Basemap</h3>
+<p>The <code>annotation_map_tile()</code> function also from the <code>ggspatial</code> package.</p>
+<div class="sourceCode" id="cb301"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb301-1"><a href="chapter-5-visualisation-good-cartographic-design.html#cb301-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> hu_dd) <span class="sc">+</span> </span>
+<span id="cb301-2"><a href="chapter-5-visualisation-good-cartographic-design.html#cb301-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotation_map_tile</span>() <span class="sc">+</span> </span>
+<span id="cb301-3"><a href="chapter-5-visualisation-good-cartographic-design.html#cb301-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill =</span> total_quantiles), <span class="at">lwd =</span> <span class="fl">0.5</span>, <span class="at">col =</span> <span class="st">&quot;white&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb301-4"><a href="chapter-5-visualisation-good-cartographic-design.html#cb301-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">type =</span> <span class="st">&quot;seq&quot;</span>, <span class="at">palette =</span> <span class="st">&quot;Greens&quot;</span>, <span class="at">name =</span> <span class="st">&quot;Total tests&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb301-5"><a href="chapter-5-visualisation-good-cartographic-design.html#cb301-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_curve</span>(<span class="at">x =</span> bp_x <span class="sc">-</span> <span class="fl">0.1</span>, </span>
+<span id="cb301-6"><a href="chapter-5-visualisation-good-cartographic-design.html#cb301-6" aria-hidden="true" tabindex="-1"></a>             <span class="at">y =</span> bp_y <span class="sc">+</span> <span class="fl">0.9</span>, </span>
+<span id="cb301-7"><a href="chapter-5-visualisation-good-cartographic-design.html#cb301-7" aria-hidden="true" tabindex="-1"></a>             <span class="at">xend =</span> bp_x , </span>
+<span id="cb301-8"><a href="chapter-5-visualisation-good-cartographic-design.html#cb301-8" aria-hidden="true" tabindex="-1"></a>             <span class="at">yend =</span> bp_y, </span>
+<span id="cb301-9"><a href="chapter-5-visualisation-good-cartographic-design.html#cb301-9" aria-hidden="true" tabindex="-1"></a>             <span class="at">arrow =</span> <span class="fu">arrow</span>(<span class="at">length =</span> <span class="fu">unit</span>(<span class="dv">2</span>, <span class="st">&quot;mm&quot;</span>))) <span class="sc">+</span></span>
+<span id="cb301-10"><a href="chapter-5-visualisation-good-cartographic-design.html#cb301-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf_label</span>(<span class="at">data =</span> hu_dd <span class="sc">%&gt;%</span> <span class="fu">filter</span>(name <span class="sc">==</span> <span class="st">&quot;Budapest&quot;</span>), </span>
+<span id="cb301-11"><a href="chapter-5-visualisation-good-cartographic-design.html#cb301-11" aria-hidden="true" tabindex="-1"></a>                <span class="fu">aes</span>(<span class="at">label =</span> name), </span>
+<span id="cb301-12"><a href="chapter-5-visualisation-good-cartographic-design.html#cb301-12" aria-hidden="true" tabindex="-1"></a>                <span class="at">nudge_y =</span> <span class="fl">0.9</span>, </span>
+<span id="cb301-13"><a href="chapter-5-visualisation-good-cartographic-design.html#cb301-13" aria-hidden="true" tabindex="-1"></a>                <span class="at">nudge_x =</span> <span class="sc">-</span><span class="fl">0.1</span>) <span class="sc">+</span> </span>
+<span id="cb301-14"><a href="chapter-5-visualisation-good-cartographic-design.html#cb301-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>() <span class="sc">+</span> </span>
+<span id="cb301-15"><a href="chapter-5-visualisation-good-cartographic-design.html#cb301-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">&quot;Number of breathalyser tests per county&quot;</span>, <span class="at">subtitle =</span> <span class="st">&quot;January 2020&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb301-16"><a href="chapter-5-visualisation-good-cartographic-design.html#cb301-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">caption =</span> caption_text) <span class="sc">+</span> </span>
+<span id="cb301-17"><a href="chapter-5-visualisation-good-cartographic-design.html#cb301-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotation_north_arrow</span>(<span class="at">height =</span> <span class="fu">unit</span>(<span class="dv">7</span>, <span class="st">&quot;mm&quot;</span>), <span class="at">width =</span> <span class="fu">unit</span>(<span class="dv">5</span>, <span class="st">&quot;mm&quot;</span>), <span class="at">pad_x =</span> <span class="fu">unit</span>(<span class="dv">5</span>, <span class="st">&quot;mm&quot;</span>), <span class="at">pad_y =</span> <span class="fu">unit</span>(<span class="dv">2</span>, <span class="st">&quot;mm&quot;</span>)) <span class="sc">+</span> </span>
+<span id="cb301-18"><a href="chapter-5-visualisation-good-cartographic-design.html#cb301-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotation_scale</span>(<span class="at">line_width =</span> <span class="fl">0.5</span>, <span class="at">height =</span> <span class="fu">unit</span>(<span class="dv">1</span>, <span class="st">&quot;mm&quot;</span>), <span class="at">pad_x =</span> <span class="fu">unit</span>(<span class="dv">6</span>, <span class="st">&quot;cm&quot;</span>)) </span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/basemap-1.png" width="672" /></p>
+<!-- ### Geographical features -->
+<!-- ```{r} -->
+<!-- rivers <- st_read("/Users/reka/Downloads/wise_large_rivers/Large_rivers.shp") -->
+<!-- rivers <- st_transform(rivers, st_crs(hungary)) -->
+<!-- lakes <- st_read("/Users/reka/Downloads/wise_large_lakes/Large_lakes.shp") -->
+<!-- lakes <- st_transform(lakes, st_crs(hungary)) -->
+<!-- hu_rivers <- st_intersects(rivers, hungary) -->
+<!-- hu_rivers <- rivers[unlist(hu_rivers),] -->
+<!-- hu_lakes <- st_intersects(lakes, hungary) -->
+<!-- hu_lakes <- lakes[unlist(hu_lakes),] -->
+<!-- plot(st_geometry(hungary)) -->
+<!-- plot(st_geometry(hu_lakes), add = T) -->
+<!-- ``` -->
+</div>
+<div id="inset-maps" class="section level3" number="6.6.2">
+<h3><span class="header-section-number">6.6.2</span> Inset maps</h3>
+<p>Inset maps provide context. You might use this to show where your main map fits into the context of a larger area, for example, here we might illustrate how Hungary is situated within Europe. You might also use an inset map in another situation, where you have additional areas which you want to show which may be geographically far but politically related to your region. For example, we might want to portray a map of the United States of America, and make sure to include Hawaii and Alaska on the map. The basic principles behind these maps is the same. Essentially we must create two map objects, and then bring these together. Let’s illustrate how.</p>
+<p>First, we need to create the map we will be displaying in the inset map. In this case, let’s highlight the location of Hungary on the map. We can do this by creating a map of Europe (let’s use the <code>rnaturalearth</code> package for this). We create a list of the countries from the world map `countries1101, and filter only Europe (we also exclude Russia because it is so big it makes the rest of Europe hard do see on a smaller map, and Iceland as it’s far, also making the map bigger than we need).</p>
+<div class="sourceCode" id="cb302"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb302-1"><a href="chapter-5-visualisation-good-cartographic-design.html#cb302-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rnaturalearth)</span>
+<span id="cb302-2"><a href="chapter-5-visualisation-good-cartographic-design.html#cb302-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb302-3"><a href="chapter-5-visualisation-good-cartographic-design.html#cb302-3" aria-hidden="true" tabindex="-1"></a>europe_countries <span class="ot">&lt;-</span> <span class="fu">st_as_sf</span>(countries110) <span class="sc">%&gt;%</span> </span>
+<span id="cb302-4"><a href="chapter-5-visualisation-good-cartographic-design.html#cb302-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(region_un<span class="sc">==</span><span class="st">&quot;Europe&quot;</span> <span class="sc">&amp;</span> name <span class="sc">!=</span> <span class="st">&quot;Russia&quot;</span> <span class="sc">&amp;</span> name <span class="sc">!=</span> <span class="st">&quot;Iceland&quot;</span>) <span class="sc">%&gt;%</span> <span class="fu">pull</span>(name)</span>
+<span id="cb302-5"><a href="chapter-5-visualisation-good-cartographic-design.html#cb302-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb302-6"><a href="chapter-5-visualisation-good-cartographic-design.html#cb302-6" aria-hidden="true" tabindex="-1"></a>europe <span class="ot">&lt;-</span> <span class="fu">ne_countries</span>(<span class="at">geounit =</span> europe_countries, <span class="at">type =</span> <span class="st">&#39;map_units&#39;</span>, <span class="at">returnclass =</span> <span class="st">&quot;sf&quot;</span>)</span></code></pre></div>
+<p>Now we can create a map where we highlight Hungary by making its border red and a thicker line width. Remember to add <code>theme_void()</code> in order to remove any background elements.</p>
+<div class="sourceCode" id="cb303"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb303-1"><a href="chapter-5-visualisation-good-cartographic-design.html#cb303-1" aria-hidden="true" tabindex="-1"></a>inset_map <span class="ot">&lt;-</span> <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
+<span id="cb303-2"><a href="chapter-5-visualisation-good-cartographic-design.html#cb303-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> europe, <span class="at">fill =</span> <span class="st">&quot;white&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb303-3"><a href="chapter-5-visualisation-good-cartographic-design.html#cb303-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> europe <span class="sc">%&gt;%</span> <span class="fu">filter</span>(name <span class="sc">==</span> <span class="st">&quot;Hungary&quot;</span>), <span class="at">fill =</span> <span class="st">&quot;white&quot;</span> , <span class="at">col =</span> <span class="st">&quot;red&quot;</span>, <span class="at">lwd =</span> <span class="dv">2</span>) <span class="sc">+</span> </span>
+<span id="cb303-4"><a href="chapter-5-visualisation-good-cartographic-design.html#cb303-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>() <span class="sc">+</span> </span>
+<span id="cb303-5"><a href="chapter-5-visualisation-good-cartographic-design.html#cb303-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.border =</span> <span class="fu">element_rect</span>(<span class="at">colour =</span> <span class="st">&quot;black&quot;</span>, <span class="at">fill=</span><span class="cn">NA</span>))</span></code></pre></div>
+<p>We now have this separate map, which highlights where Hungary can be found, right there in Central Europe. To display this jointly with our map of breathalyser test, we must join the two maps. We will need both as objects. We’ve already assigned out inset map to the object <code>inset_map</code> but we must take our main map, and also assign it to an object. Let’s call this main map.</p>
+<div class="sourceCode" id="cb304"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb304-1"><a href="chapter-5-visualisation-good-cartographic-design.html#cb304-1" aria-hidden="true" tabindex="-1"></a>main_map <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="at">data =</span> hu_dd) <span class="sc">+</span> </span>
+<span id="cb304-2"><a href="chapter-5-visualisation-good-cartographic-design.html#cb304-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill =</span> total_quantiles), <span class="at">lwd =</span> <span class="fl">0.5</span>, <span class="at">col =</span> <span class="st">&quot;white&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb304-3"><a href="chapter-5-visualisation-good-cartographic-design.html#cb304-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">type =</span> <span class="st">&quot;seq&quot;</span>, <span class="at">palette =</span> <span class="st">&quot;Greens&quot;</span>, <span class="at">name =</span> <span class="st">&quot;Total tests&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb304-4"><a href="chapter-5-visualisation-good-cartographic-design.html#cb304-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_curve</span>(<span class="at">x =</span> bp_x <span class="sc">-</span> <span class="fl">0.1</span>, </span>
+<span id="cb304-5"><a href="chapter-5-visualisation-good-cartographic-design.html#cb304-5" aria-hidden="true" tabindex="-1"></a>             <span class="at">y =</span> bp_y <span class="sc">+</span> <span class="fl">0.9</span>, </span>
+<span id="cb304-6"><a href="chapter-5-visualisation-good-cartographic-design.html#cb304-6" aria-hidden="true" tabindex="-1"></a>             <span class="at">xend =</span> bp_x , </span>
+<span id="cb304-7"><a href="chapter-5-visualisation-good-cartographic-design.html#cb304-7" aria-hidden="true" tabindex="-1"></a>             <span class="at">yend =</span> bp_y, </span>
+<span id="cb304-8"><a href="chapter-5-visualisation-good-cartographic-design.html#cb304-8" aria-hidden="true" tabindex="-1"></a>             <span class="at">arrow =</span> <span class="fu">arrow</span>(<span class="at">length =</span> <span class="fu">unit</span>(<span class="dv">2</span>, <span class="st">&quot;mm&quot;</span>))) <span class="sc">+</span></span>
+<span id="cb304-9"><a href="chapter-5-visualisation-good-cartographic-design.html#cb304-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf_label</span>(<span class="at">data =</span> hu_dd <span class="sc">%&gt;%</span> <span class="fu">filter</span>(name <span class="sc">==</span> <span class="st">&quot;Budapest&quot;</span>), </span>
+<span id="cb304-10"><a href="chapter-5-visualisation-good-cartographic-design.html#cb304-10" aria-hidden="true" tabindex="-1"></a>                <span class="fu">aes</span>(<span class="at">label =</span> name), </span>
+<span id="cb304-11"><a href="chapter-5-visualisation-good-cartographic-design.html#cb304-11" aria-hidden="true" tabindex="-1"></a>                <span class="at">nudge_y =</span> <span class="fl">0.9</span>, </span>
+<span id="cb304-12"><a href="chapter-5-visualisation-good-cartographic-design.html#cb304-12" aria-hidden="true" tabindex="-1"></a>                <span class="at">nudge_x =</span> <span class="sc">-</span><span class="fl">0.1</span>) <span class="sc">+</span> </span>
+<span id="cb304-13"><a href="chapter-5-visualisation-good-cartographic-design.html#cb304-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
+<span id="cb304-14"><a href="chapter-5-visualisation-good-cartographic-design.html#cb304-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">&quot;Number of breathalyser tests per county&quot;</span>, <span class="at">subtitle =</span> <span class="st">&quot;January 2020&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb304-15"><a href="chapter-5-visualisation-good-cartographic-design.html#cb304-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">caption =</span> caption_text) <span class="sc">+</span> </span>
+<span id="cb304-16"><a href="chapter-5-visualisation-good-cartographic-design.html#cb304-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotation_north_arrow</span>(<span class="at">height =</span> <span class="fu">unit</span>(<span class="dv">7</span>, <span class="st">&quot;mm&quot;</span>), <span class="at">width =</span> <span class="fu">unit</span>(<span class="dv">5</span>, <span class="st">&quot;mm&quot;</span>), <span class="at">pad_x =</span> <span class="fu">unit</span>(<span class="dv">5</span>, <span class="st">&quot;mm&quot;</span>), <span class="at">pad_y =</span> <span class="fu">unit</span>(<span class="dv">1</span>, <span class="st">&quot;mm&quot;</span>)) <span class="sc">+</span> </span>
+<span id="cb304-17"><a href="chapter-5-visualisation-good-cartographic-design.html#cb304-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotation_scale</span>(<span class="at">line_width =</span> <span class="fl">0.5</span>, <span class="at">height =</span> <span class="fu">unit</span>(<span class="dv">1</span>, <span class="st">&quot;mm&quot;</span>), <span class="at">pad_x =</span> <span class="fu">unit</span>(<span class="dv">6</span>, <span class="st">&quot;cm&quot;</span>)) <span class="sc">+</span> </span>
+<span id="cb304-18"><a href="chapter-5-visualisation-good-cartographic-design.html#cb304-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.grid =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb304-19"><a href="chapter-5-visualisation-good-cartographic-design.html#cb304-19" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.title =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb304-20"><a href="chapter-5-visualisation-good-cartographic-design.html#cb304-20" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.text =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb304-21"><a href="chapter-5-visualisation-good-cartographic-design.html#cb304-21" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.ticks =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb304-22"><a href="chapter-5-visualisation-good-cartographic-design.html#cb304-22" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.background =</span> <span class="fu">element_blank</span>())</span></code></pre></div>
+<p>Great, now to join them. For this, we will turn to functions from the <code>cowplot</code> package.</p>
+<div class="sourceCode" id="cb305"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb305-1"><a href="chapter-5-visualisation-good-cartographic-design.html#cb305-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(cowplot)</span></code></pre></div>
+<p>First, we set up an empty drawing layer for our ggplot using the <code>ggdraw()</code> function. Then we layer on the two maps both using the <code>draw_plot()</code> function. This allows us to draw plots and sub plots. This function places a plot (which we specify as the first parameter of this function) somewhere onto the drawing canvas. By default, coordinates run from 0 to 1, and the point (0, 0) is in the lower left corner of the canvas. We want to therefore specify where the plots go on our canvas explicitly. Alongside position, we can also specify size. This is important, we usually make the inset map smaller.</p>
+<div class="sourceCode" id="cb306"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb306-1"><a href="chapter-5-visualisation-good-cartographic-design.html#cb306-1" aria-hidden="true" tabindex="-1"></a>hu_dd_with_inset <span class="ot">&lt;-</span> <span class="fu">ggdraw</span>() <span class="sc">+</span></span>
+<span id="cb306-2"><a href="chapter-5-visualisation-good-cartographic-design.html#cb306-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">draw_plot</span>(main_map) <span class="sc">+</span></span>
+<span id="cb306-3"><a href="chapter-5-visualisation-good-cartographic-design.html#cb306-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">draw_plot</span>(inset_map, <span class="at">x =</span> <span class="fl">0.67</span>, <span class="at">y =</span> <span class="dv">0</span>, <span class="at">width =</span> <span class="fl">0.35</span>, <span class="at">height =</span> <span class="fl">0.35</span>)</span>
+<span id="cb306-4"><a href="chapter-5-visualisation-good-cartographic-design.html#cb306-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb306-5"><a href="chapter-5-visualisation-good-cartographic-design.html#cb306-5" aria-hidden="true" tabindex="-1"></a>hu_dd_with_inset</span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/insetmaptogether-1.png" width="672" /></p>
+<p>You can play around with where you position your inset map by adjusting the x and y coordinates. You can also play around with the size of it by adjusting the parameters for height and width.</p>
+<!-- ## Interactivity -->
+
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-Andresen_2011" class="csl-entry">
+Andresen, Martin. 2011. <span>“The Ambient Population and Crime Analysis.”</span> <em>The Professional Geographer</em> 63 (2): 193–212.
+</div>
+<div id="ref-Andresen_2020" class="csl-entry">
+Andresen, Martin, Nick Malleson, Wouter Steenbek, Michael Townsley, and Christophe Vandeviver. 2020. <span>“Minimum Geocoding Match Rates: An International Study of the Impact of Data and Areal Unit Sizes.”</span> <em>International Journal of Geographical Information Science</em> 34 (7): 1306–22.
+</div>
+<div id="ref-Blumstein_1986" class="csl-entry">
+Blumstein, Al, J Cohen, J Roth, and C Visher. 1986. <span>“Criminal Careers and Career Criminals.”</span> Research Report. National Science Foundation.
+</div>
+<div id="ref-Bolstad_2019" class="csl-entry">
+Bolstad, Paul. 2019. <em>GIS Fundamentals: A First Text on Geographic Information Systems</em>. 6th ed. White Bear Lake, MN: Eider Press.
+</div>
+<div id="ref-Bowers_2021" class="csl-entry">
+Bowers, Kate. n.d. <span>“Risky Places: Crime Absorbers, Crime Radiators as Risky Places.”</span> <a href="https://play.kth.se/media/Risky+PlacesA+Crime+absorbers,+crime+radiators+as+risky+places,+Prof+Kate+Bowers,+UCL/0_zya4j354">https://play.kth.se/media/Risky+PlacesA+Crime+absorbers,+crime+radiators+as+risky+places,+Prof+Kate+Bowers,+UCL/0_zya4j354</a>.
+</div>
+<div id="ref-Brantingham_1995" class="csl-entry">
+Brantingham, Patricia, and Paul Brantingham. 1995. <span>“Criminality of Place: Crime Generators and Crime Attractors.”</span> <em>European Journal on Criminal Policy and Research</em> 3: 5–26.
+</div>
+<div id="ref-Brewer_2006" class="csl-entry">
+Brewer, Cynthia. 2006. <span>“Basic Mapping Principles for Visualizing Cancer Data Using Geographic Information Systems (GIS).”</span> <em>American Journal of Preventive Medicine</em> 30 (2S): S25–36.
+</div>
+<div id="ref-Briggs_2017" class="csl-entry">
+Briggs, Daniel, and Rubén Monge Gamero. 2017. <em>Dead-End Lives: Drugs and Violence in the City Shadows</em>. Bristol, UK: Policy Press.
+</div>
+<div id="ref-Bruinsma_2018" class="csl-entry">
+Bruinsma, Gerben J. N., and Shane Johnson, eds. 2018. <em>The Oxford Handbook of Environmental Criminology</em>. Oxford, England: Oxford Univerisity Press.
+</div>
+<div id="ref-Buil-Gil_2021" class="csl-entry">
+Buil-Gil, David, Juanjo Medina, and Natalie Shlomo. 2021. <span>“Measuring the Dark Figure of Crime in Geographic Areas: Small Area Estimation from the Crime Survey for England and Wales.”</span> <em>British Journal of Criminology</em> 61 (2): 364–88.
+</div>
+<div id="ref-Cairo_2016" class="csl-entry">
+Cairo, Alberto. 2016. <em>The Truthful Art: Data, Charts, and Maps for Communication</em>. New Riders.
+</div>
+<div id="ref-Camoes_2016" class="csl-entry">
+Camoes, Jorge. 2016. <em>Data at Work: Best Practices for Creating Effective Charts and Information Graphics in Microsoft Excel</em>. New Riders.
+</div>
+<div id="ref-Carr_2010" class="csl-entry">
+Carr, Daniel, and Linda Pickle. 2010. <em>Visualizing Data Patterns with Micromaps</em>. Boca Raton, CA: CRC Press.
+</div>
+<div id="ref-Chainey_2005" class="csl-entry">
+Chainey, Spencer, and Jerry Rattcliffe. 2005. <em>GIS and Crime Mapping</em>. Chichester, England: John Wiley; Sons.
+</div>
+<div id="ref-HMIC_2014" class="csl-entry">
+Constabulary, Her Majesty Inspectorate of. 2014. <span>“Crime Recording: Making the Victim Count.”</span> Final Report. HMIC.
+</div>
+<div id="ref-Dorling_1996" class="csl-entry">
+Dorling, D. 1996. <span>“Area Cartograms: Their Use and Creation, Concepts and Techniques in Modern Geography.”</span>
+</div>
+<div id="ref-Dougenik_1985" class="csl-entry">
+Dougenik, James A, Nicholas R Chrisman, and Duane R Niemeyer. 1985. <span>“An Algorithm to Construct Continuous Area Cartograms.”</span> <em>The Professional Geographer</em> 37 (1): 75–81.
+</div>
+<div id="ref-Field_2018" class="csl-entry">
+Field, Kenneth. 2018. <em>Cartography</em>. Redlands, CA: ESRI Press.
+</div>
+<div id="ref-Field_2012" class="csl-entry">
+Field, Kenneth, and Damien Demaj. 2012. <span>“Reasserting Design Relevance in Cartography: Some Concepts.”</span> <em>The Cartographic Journal</em> 49 (1): 70–76.
+</div>
+<div id="ref-Field_2016" class="csl-entry">
+Field, Kenneth, and Danny Dorling. 2016. <span>“UK Election Cartography.”</span> <em>International Journal of Cartography</em> 2: 202–32.
+</div>
+<div id="ref-Gelman_1999" class="csl-entry">
+Gelman, Andrew, and Phillip Price. 1999. <span>“All Maps of Parameters Estimates Are Misleading.”</span> <em>Statistics in Medicine</em> 18: 3221–34.
+</div>
+<div id="ref-Goudriaan_2006" class="csl-entry">
+Goudriaan, Heike, Karin Witterbrood, and Paul Nieuwbeerta. 2006. <span>“Neigbourhood Characteristics and Reporting Crime.”</span> <em>British Journal of Criminology</em> 46: 719–42.
+</div>
+<div id="ref-Grossenbacher_2019" class="csl-entry">
+Grossenbacher, Timo. 2019. <span>“Bivariate Maps with Ggplot2 and Sf.”</span> Blog. Tamedia. <a href="https://timogrossenbacher.ch/2019/04/bivariate-maps-with-ggplot2-and-sf/">https://timogrossenbacher.ch/2019/04/bivariate-maps-with-ggplot2-and-sf/</a>.
+</div>
+<div id="ref-Harries_1999" class="csl-entry">
+Harries, Keith. 1999. <span>“Mapping Crime: Principle and Practice.”</span> Research Report. National Institute of Justice.
+</div>
+<div id="ref-Hart_2012" class="csl-entry">
+Hart, Timothy, and Paul Zandbergen. 2012. <span>“Effects of Data Quality on Predictive Hotspot Mapping.”</span> Final Report. National Institute of Justice.
+</div>
+<div id="ref-Healy_2019" class="csl-entry">
+Healy, Kieran. 2019. <em>Data Visualization. A Practical Introduction</em>. Princeto, NJ: Princeton University Press.
+</div>
+<div id="ref-Jiang_2013" class="csl-entry">
+Jiang, Bin. 2013. <span>“Head/Tail Breaks: A New Classification Scheme for Data with a Heavy-Tailed Distribution.”</span> <em>The Professional Geographer</em> 65 (3): 482–94.
+</div>
+<div id="ref-Kirk_2016" class="csl-entry">
+Kirk, Andy. 2016. <em>Data Visualisation: A Handbook for Data Driven Design</em>. London, UK: Sage.
+</div>
+<div id="ref-Lawson_2021a" class="csl-entry">
+Lawson, Andrew. 2021a. <em>Bayesian Disease Mapping</em>. 3rd ed. Boca Raton, CA: CRC Press.
+</div>
+<div id="ref-Lawson_2006" class="csl-entry">
+———. 2021b. <em>Statistical Methods in Spatial Epidemiology</em>. 2nd ed. Chichester, UK: John Wiley; Sons.
+</div>
+<div id="ref-Lawson_2021b" class="csl-entry">
+———. 2021c. <em>Using r for Bayesian Spatial and Spatio-Temporal Health Modeling</em>. Boca Raton, CA: CRC Press.
+</div>
+<div id="ref-Lovelace_2019" class="csl-entry">
+Lovelace, Robin, Jakub Nowosad, and Jannes Muenchow. 2019. <em>Geocomputation with r</em>. Boca Raton, Florida: Chapman; Hall/CRC Press.
+</div>
+<div id="ref-Marshall_1991" class="csl-entry">
+Marshall, Roger. 1991. <span>“Mapping Disease and Mortality Rates Using Empirical Bayes Estimators.”</span> <em>Applied Statistics</em> 40 (2): 283–94.
+</div>
+<div id="ref-Monmonier_1993" class="csl-entry">
+Monmonier, Mark. 1993. <em>Mapping It Out: Expository Cartography for the Humanities and Social Sciences</em>. Chicago: The University of Chicago Press.
+</div>
+<div id="ref-Monmonier_1996" class="csl-entry">
+———. 1996. <em>How to Lie with Maps</em>. 2nd ed. Chicago: The University of Chicago Press.
+</div>
+<div id="ref-Newton_2018" class="csl-entry">
+Newton, Andrew David. 2018. <span>“Macro-Level Generators of Crime, Including Parks, Stadiums, and Transit Stations.”</span> In <em>The Oxford Handbook of Environmental Criminology</em>, edited by Gerben J N Bruinsma and Shane D Johnson, 497–517. Oxford: Oxford University Press.
+</div>
+<div id="ref-OSullivan_2010" class="csl-entry">
+O´Sullivan, David, and David J. Unwin. 2010. <em>Geographic Information Analysis</em>. 2nd ed. Hoboken, NJ: John Wiley; Sons.
+</div>
+<div id="ref-Pebesma_2018" class="csl-entry">
+Pebesma, Edzer. 2018. <span>“Simple Features for r: Standardized Support for Spatial Vector Data.”</span> <em>The R Journal</em> 10 (1): 439–46.
+</div>
+<div id="ref-Ratcliffe_2004" class="csl-entry">
+Ratcliffe, Jerry. 2004. <span>“Geocoding Crime and a First Estimate of a Minimum Acceptable Hit Rate.”</span> <em>International Journal of Geographical Information Science</em> 18 (1): 61–72.
+</div>
+<div id="ref-Ratcliffe_2010" class="csl-entry">
+———. 2010. <span>“Crime Mapping: Spatial and Temporal Challenges.”</span> In <em>Handbook of Quantitative Criminology</em>, edited by Alex Piquero and David Weisburd, 5–24. New York, NY: Springer.
+</div>
+<div id="ref-Rengert_2009" class="csl-entry">
+Rengert, George F, and Brian Lockwood. 2009. <span>“Geographical Units of Analysis and the Analysis of Crime.”</span> In <em>Putting Crime in Its Place</em>, edited by David Weisburd, Wim Bernasco, and Gerben J. N. Bruinsma, 109–22. New York, NY: Springer.
+</div>
+<div id="ref-Boba_2013" class="csl-entry">
+Santos, Rachel Boba. 2013. <em>Crime Analysis with Crime Mapping</em>. 3rd ed. Thousand Oaks, CA: Sage.
+</div>
+<div id="ref-Schwabish_2021" class="csl-entry">
+Schwabish, Jonathan. 2021. <em>Better Data Visualizations. A Guide for Scholars, Researchers, and Wonks</em>. New York: Columbia University Press.
+</div>
+<div id="ref-Haining_2020" class="csl-entry">
+Spatial, Modelling, and Spatial-Temporal Data. A Bayesian Approach. 2020. <em>Robert Haining and Guangquan Li</em>. Boca Raton, FL: CRC Press.
+</div>
+<div id="ref-Stevens_2015" class="csl-entry">
+Stevens, Joshua. 2015. <span>“Bivariate Choropleth Maps: A How-to Guide.”</span> Blog. NASA’s Earth Observatory. <a href="https://www.joshuastevens.net/cartography/make-a-bivariate-choropleth-map/">https://www.joshuastevens.net/cartography/make-a-bivariate-choropleth-map/</a>.
+</div>
+<div id="ref-Tanimura_2006" class="csl-entry">
+Tanimura, Susumu, Chusi Kuroiwa, and Tsutomu Mizota. 2006. <span>“Propotional Symbol Mapping in r.”</span> <em>Journal of Statistical Software</em> 15 (5): 1–7.
+</div>
+<div id="ref-Tukey_1979" class="csl-entry">
+Tukey, John. 1979. <span>“Statistical Mapping: What Should Not Be Plotted.”</span> In <em>Proceedings of the 1976 Workshop on Automated Cartography and Epidemiology</em>, edited by DHEW, 18–21. Washington, DC: US Department of Health, Education,; Welfare.
+</div>
+<div id="ref-Waller_2004" class="csl-entry">
+Waller, HLance, and Carol Gotway. 2004. <em>Applied Spatial Statistics for Public Health Data</em>. Chichester, UK: John Wiley; Sons.
+</div>
+<div id="ref-Wickham_2010" class="csl-entry">
+Wickham, Hadley. 2010. <span>“A Layered Grammar of Graphics.”</span> <em>Journal of Computational and Graphical Statistics</em> 19 (1): 3–28.
+</div>
+<div id="ref-Wickham_2017" class="csl-entry">
+Wickham, Hadley, and Garrett Grolemund. 2017. <em>R for Data Science: Import, Tidy, Transform, Visualize, and Model Data</em>. Boston, MA: O´Reilly.
+</div>
+</div>
+</div>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="chapter-4-variations-of-thematic-mapping.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/rstudio/bookdown-demo/edit/master/05-cartography.Rmd",
+"text": "Edit"
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": ["crime_mapping.pdf", "crime_mapping.epub"],
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
