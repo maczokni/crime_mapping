@@ -1,3 +1,84 @@
 # Chapter 14: Spatial heterogeneity and regression: Geographically weighted regression
 
 [[Already have an introduction to spatial hetereogeneity in the intro to the next chapter, where we say we will talk about solutions here. It possibly makes sense to move here the business about spatial regimes and data partition as a first way to deal with spatial heterogeneity and then introduce GWR as a more localised solution]]
+
+
+The basic idea behind GWR is to explore how the relationship between a dependent variable ($Y$) and one or more independent variables (the $X$s) might vary geographically. Instead of assuming that a single model can be fitted to the entire study region, it looks for geographical differences. GWR evaluates a local model of the variable or process you are trying to understand or predict by fitting a regression equation to every feature in the dataset. GWR constructs these separate equations by incorporating the dependent and explanatory variables of the features falling within the neighborhood of each target feature. 
+
+Geographically Weighted Regression can be used for a variety of applications, including the following:
+
+- Is the relationship between educational attainment and income consistent across the study area?
+- Do certain illness or disease occurrences increase with proximity to water features?
+- What are the key variables that explain high forest fire frequency?
+- Which habitats should be protected to encourage the reintroduction of an endangered species?
+- Where are the districts in which children are achieving high test scores? What characteristics seem to be associated? Where is each characteristic most important?
+- Are the factors influencing higher cancer rates consistent across the study area?
+
+GWR provides three types of regression models: Continuous, Binary, and Count. These types of regression are known in statistical literature as Gaussian, Logistic, and Poisson, respectively. The Model Type for your analysis should be chosen based on how your Dependent Variable was measured or summarized as well as the range of values it contains. 
+
+GWR works by moving a search window from one point in a data set to the next, working through them all in sequence. As the search window rests on asamplepoint, all other points that are around it and within the search window are identified. A regression model is then fitted to that subset of the data, giving most weight to the points that are closest to the one at the centre. For a data set of 2536 observations GWRwill, then, fit 2536 weighted regression models, the results of which are compared to look for geographical variation.This immediately raises a question –whatarea should the search window cover each time? The answer is provided by a process of calibration, to select an “optimal” bandwidth (an optimal search window size).Note that the distance from one point to another can be defined in two ways: either by actual geographic distance or by whether it’s the first nearest neighbour, the second, the third and so forth. If the number of neighbours within the search window is fixed then it willvaryin areafrom point to point: where the sample points are close together thewindow will have less area;where the points are sparse it will fill a greater area. This is called an adaptive window and is usually better for analysing census data (because census zones are of a variable size: smaller where population density ishigher and vice versa). 
+
+
+```{r getdataforgwr}
+
+library(sf)
+
+toronto <- st_read("data/toronto_c.geojson")
+crimes <- st_read("data/neighbourhood-crime-rates.geojson")
+ksi_collisions <- st_read("data/Motor Vehicle Collisions with KSI Data.geojson")
+wellbeing <- readxl::read_xlsx("data/wellbeing-toronto-environment.xlsx")
+
+library(ggplot2)
+library(dplyr)
+
+num_ksi <- ksi_collisions %>% 
+  filter(YEAR == 2019) %>% 
+  st_drop_geometry() %>% 
+  mutate(ksi = ifelse(INJURY %in% c("Fatal","Major"), 1, 0), 
+         speed = ifelse(SPEEDING == "Yes", 1, 0), 
+         agg_driv = ifelse(AG_DRIV == "Yes", 1, 0), 
+         red_light = ifelse(REDLIGHT == "Yes", 1, 0), 
+         alcohol = ifelse(ALCOHOL == "Yes", 1, 0)) %>% 
+  group_by(ACCNUM, LIGHT, VISIBILITY, RDSFCOND) %>% 
+  # summarise(prop_ksi = mean(ksi))
+  summarise(prop_ksi = sum(ksi),
+            speed = ifelse(sum(speed, na.rm = T)> 0, 1, 0),
+            agg_driv = ifelse(sum(agg_driv, na.rm = T)> 0, 1, 0),
+            red_light = ifelse(sum(red_light, na.rm = T)> 0, 1, 0),
+            alcohol = ifelse(sum(alcohol, na.rm = T)> 0, 1, 0), 
+         visibility = ifelse(VISIBILITY == "Clear", 0, 1), 
+         daylight = ifelse(LIGHT == "Daylight", 0, 1), 
+         rd_dry = ifelse(RDSFCOND == "Dry", 0, 1)
+         ) 
+
+num_ksi <- num_ksi %>% unique()
+  
+ggplot(num_ksi, aes(x = prop_ksi)) + 
+  geom_histogram()
+
+
+
+fit.ols<-glm(prop_ksi ~ speed + agg_driv + red_light + alcohol, data = num_ksi) 
+summary(fit.ols)
+
+num_ksi$resids<-residuals(fit.ols)
+num_ksi$res_quantiles = cut(num_ksi$resids, breaks = c(quantile(num_ksi$resids)[1:3],quantile(num_ksi$resids)[4]+0.00000001,quantile(num_ksi$resids)[5]) , include.lowest = TRUE, dig.lab=10)
+colours <- c("dark blue", "blue", "red", "dark red")
+
+ggplot(num_ksi, aes(x = resids)) + 
+  geom_histogram()
+
+
+num_ksi <- left_join(ksi_collisions %>% filter(YEAR == "2019") %>% select(ACCNUM) %>% unique(), num_ksi, by = c("ACCNUM" = "ACCNUM"))
+
+ggplot() + 
+  ggspatial::annotation_map_tile() + 
+  geom_sf(data = num_ksi, aes(col = resids), alpha = .9) + 
+  scale_color_gradient2()
+
+```
+
+
+## Recommended reading
+
+Fotheringham et al.(2002) Geographically Weighted Regression: The Analysis of Spatially Varying Relationship, published by Wiley

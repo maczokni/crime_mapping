@@ -51,21 +51,24 @@ For this chapter we travel to Toronto. We will be looking at crime data provided
 
 The cartographic boundary for the city comes from the census office of Canada. We will also need the neighbourhood boundaries for Toronto, which we obtain from the Toronto open data portal (https://open.toronto.ca/). These data is free to redistribute, so for convenience we have assembled it and can be read from our GitHub repository with the following code:
 
-```{r, message = FALSE, warning = FALSE, eval=FALSE}
-toronto <- st_read("https://raw.githubusercontent.com/maczokni/crime_mapping/master/data/toronto_c.geojson")
-break_enter <- st_read("https://raw.githubusercontent.com/maczokni/crime_mapping/master/data/break_enter.geojson") %>%
-  filter((premises_t == "Apartment" | premises_t == "Commercial") & (reportedye == "2019" | reportedye == "2018"))
-neighbourhoods <- st_read("https://raw.githubusercontent.com/maczokni/crime_mapping/master/data/nh_profiles_short.geojson")
+
+```{r, message = FALSE, warning = FALSE}
+toronto <- st_read("data/toronto_c.geojson")
+break_enter <- st_read("data/break_enter.geojson") %>%
+  filter((premises_t == "Apartment" | premises_t == "Commercial") & reportedye == "2019")
+neighbourhoods <- st_read("data/nh_profiles_short.geojson")
   
 ```
 
-```{r, message = FALSE, warning = FALSE, echo=FALSE}
-toronto <- st_read("https://raw.githubusercontent.com/maczokni/crime_mapping/master/data/toronto_c.geojson")
-break_enter <- st_read("https://raw.githubusercontent.com/maczokni/crime_mapping/master/data/break_enter.geojson") %>%
-  filter((premises_t == "Apartment" | premises_t == "Commercial") & (reportedye == "2019" | reportedye == "2018"))
-neighbourhoods <- st_read("https://raw.githubusercontent.com/maczokni/crime_mapping/master/data/nh_profiles_short.geojson")
-  
-```
+
+<!-- ```{r, message = FALSE, warning = FALSE, echo=FALSE} -->
+<!-- toronto <- st_read("https://raw.githubusercontent.com/maczokni/crime_mapping/master/data/toronto_c.geojson") -->
+<!-- break_enter <- st_read("https://raw.githubusercontent.com/maczokni/crime_mapping/master/data/break_enter.geojson") %>% -->
+<!--   filter((premises_t == "Apartment" | premises_t == "Commercial") & reportedye == "2019") -->
+<!-- neighbourhoods <- st_read("https://raw.githubusercontent.com/maczokni/crime_mapping/master/data/nh_profiles_short.geojson") -->
+
+<!-- ``` -->
+
 
 We can now plot it:
 
