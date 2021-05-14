@@ -21,8 +21,6 @@ library(raster) # We use this library for first time in this chapter (used for d
 
 # Specific packages for spatial point pattern analysis
 library(spatstat)
-library(sparr)
-library(SpatialKDE)
 
 # Libraries for spatial visualisation
 library(tmap)
@@ -38,7 +36,7 @@ library(crimedata)
 
 Dr. Ashby is the lead contributor to the **Crime Open Database (CODE)**, a service that makes it convenient to use crime data from multiple US cities in research on crime. All the data in CODE are available to use for free as long as you acknowledge the source of the data. The package `crimedata` was developed by Dr. Ashby to make it easier to read into R the data from this service.
 
-The key function in `crimedata`  is `get_crime_data()`. We will be using the crime data from New York City police and for 2010, and we want the data to be in `sf` format. We will also filter the data to only include residential burglaries in Brooklyn. Equally we will download the geojson with the borough boundaries from the NYC open data portal. Running this may take a couple of minutes or so depending on your machine and configuration. See the code below for details:
+The key function in `crimedata`  is `get_crime_data()`. We will be using the crime data from New York City police and for 2010, and we want the data to be in `sf` format. We will also filter the data to only include residential burglaries in Brooklyn. Equally we will download the GeoJSON with the borough boundaries from the NYC open data portal. Running this may take a couple of minutes or so depending on your machine and configuration. See the code below for details:
 
 ```{r load_data_6, message=FALSE}
 # Large dataset, so it will take a while
@@ -55,7 +53,7 @@ manhattan <- st_read("https://services5.arcgis.com/GfwWNkhOj9bNBqoJ/arcgis/rest/
 
 ```
 
-Now we have all our data cleaned and all our files prepared. Let's see the results!
+Now we have all our data cleaned and all our files prepared. Let's see the results.
 
 ```{r plot_data_6}
 
@@ -66,7 +64,7 @@ tm_shape(manhattan) +
 
 ```
 
-In the point pattern analysis literature each point is often referred to as an **event** and these events can have **marks**, attributes or characteristics that are also encoded in the data. In our spatial object one of these *marks* is the type of crime (although in this case it's of little interest since we have filtered on it). Others in this object include the date and time, the location category, victim sex and race, etc.
+In the point pattern analysis literature each point is often referred to as an **event** and these events can have **marks**, attributes or characteristics that are also encoded in the data. In our spatial object one of these *marks* is the type of crime (although in this case it is of little interest since we have filtered on it). Others in this object include the date and time, the location category, victim sex and race, etc.
 
 ## Getting the data into spatstat: creating `ppp` objects
 
@@ -108,6 +106,7 @@ You can see it prints the units of measurement. But it does not identify them:
 unitname(window)
 
 ```
+
 As noted above, EPGS:32118 uses meters. So we can pass this information to our `owin` object:
 
 ```{r unitname_feet_6}
@@ -133,7 +132,7 @@ bur_ppp <- ppp(x = sf_nyc_burg_coords[,1], y = sf_nyc_burg_coords[,2],
                    window = window, check = T)
 ```
 
-Notice the warning message about duplicated points. In spatial point pattern analysis an issue of significance is the presence of duplicates. The statistical methodology used for spatial point pattern processes is based largely on the assumption that processes are *simple*, that is, that the points cannot be coincident. That assumption may be unreasonable in many contexts (for example, the literature on repeat victimisation indeed suggests that we should expect the same households to be at a higher risk of being hit again). Even so, the point (no pun intended) is that *"when the data has coincidence points, some statistical procedures will be severely affected. So it is always strongly advisable to check for duplicate points and to decide on a strategy for dealing with them if they are present"* (Baddeley et al., 2015: 60).
+Notice the warning message about duplicated points? In spatial point pattern analysis an issue of significance is the presence of duplicates. The statistical methodology used for spatial point pattern processes is based largely on the assumption that processes are *simple*, that is, that the points cannot be coincident. That assumption may be unreasonable in many contexts (for example, the literature on repeat victimisation indeed suggests that we should expect the same households to be at a higher risk of being hit again). Even so, the point (no pun intended) is that *"when the data has coincidence points, some statistical procedures will be severely affected. So it is always strongly advisable to check for duplicate points and to decide on a strategy for dealing with them if they are present"* (Baddeley et al., 2015: 60).
 
 When creating the object we have already been warned this is an issue. But more generally we can check the duplication in a `ppp` object with the following syntax: it will return a logical indicating whether we have any duplication:
 
@@ -237,9 +236,10 @@ q <- quadratcount(jitter_bur, nx = 1, ny = 6)
 plot(q)
 
 ```
-As you can see with its irregular shape it is difficult to divide Manhattan in equally shaped and sized quadrants and thus it is hard to assess if regions of equal area contain a similar number of points. Notice, however,how the third quadrant from the bottom seems to have less incidents thant the ones that surround it. A good portion of this quadrant is taken by Central Park, where you would not expect a burglary.
 
-Instead, we can use other forms of tessellation, like hexagons by using the `spatstas.eom::hextess` function. This is similar to the binning we introduced in Chapter 4, only using different functions. The numeric argument sets the size of the hexagons, you will need to play along to find an adequate value for your own applications. Rather than printing the numbers inside these hexagons (if you many this will make it difficult to read in a plot) we can map a color to the intensity (the number of points per hexagon):
+As you can see with its irregular shape it is difficult to divide Manhattan in equally shaped and sized quadrants and thus it is hard to assess if regions of equal area contain a similar number of points. Notice, however,how the third quadrant from the bottom seems to have less incidents than the ones that surround it. A good portion of this quadrant is taken by Central Park, where you would not expect a burglary.
+
+Instead, we can use other forms of tessellation, like hexagons by using the `spatstas.geom::hextess` function. This is similar to the binning we introduced in Chapter 4, only using different functions. The numeric argument sets the size of the hexagons, you will need to play along to find an adequate value for your own applications. Rather than printing the numbers inside these hexagons (if you many this will make it difficult to read in a plot) we can map a color to the intensity (the number of points per hexagon):
 
 ```{r hextess_6}
 
@@ -248,6 +248,7 @@ q_hex <- quadratcount(jitter_bur, tess = hex)
 plot(intensity(q_hex, image = TRUE))
 
 ```
+
 We can see more clearly now that areas of Manhattan, like Central Park, have understandably a very low intensity of burglaries, whereas others, like the Lower East Side and north of Washington Heights, have a higher intensity. So this map suggest to us that the process may not be homogeneous - hardly surprising when it comes to crime.
 
 A key concept in spatial point pattern analysis is the idea of  **complete spatial randomness** (or CSR for short). When we look at a point pattern process the first step in the process is to ask whether it has been generated in a random manner. Under CSR, points are (1) independent of each other (*independence*) and (2) have the same propensity to be found at any location (*homogeneity*). 
@@ -270,15 +271,15 @@ quadrat.test(jitter_bur, nx = 1, ny = 6)
 
 ```
 
-Observing the results we see that the p value is well below conventional standards for rejection of the null hypothesis. Observing our data of burglary in Manhattan would be extremely rare if the null hypothesis of a homogeneous distribution was true. We can then conclude that the burglary data is not randomly distributed in the observed space. But no cop nor criminologist would really question this. They would rarely be surprised by your findings! We do know, through research, that crime is not randomly distributed in space. Beware as well that this test would come out as significant if the point pattern violates the property of independence between the points.
+Observing the results we see that the p value is well below conventional standards for rejection of the null hypothesis. Observing our data of burglary in Manhattan would be extremely rare if the null hypothesis of a homogeneous distribution was true. We can then conclude that the burglary data is not randomly distributed in the observed space. But no cop nor criminologist would really question this. They would rarely be surprised by your findings! We do know, through research, that crime is not randomly distributed in space. 
 
-It is important to keep in mind that the null may be rejected either because the process is not homogeneous *or* because the points are not independent, but the test doesn´t tell us the reason for the rejection. Equally, the power depend on the size of the quadrants (and they are not too large or too small). And the areas are not of equal size here in any case. So the test in many applications will be of limited use.
+Beware as well that this test would come out as significant if the point pattern violates the property of independence between the points. It is important to keep in mind that the null may be rejected either because the process is not homogeneous *or* because the points are not independent, but the test doesn´t tell us the reason for the rejection. Equally, the power depend on the size of the quadrants (and they are not too large or too small). And the areas are not of equal size here in any case. So the test in many applications will be of limited use.
 
 ## Visualising hot spots of crime: intensity estimates with spatstat
 
 ### Basics of kernel density estimation (KDE)
 
-One of the most common methods to visualise hot spots of crime, when we are working with point pattern data, is to use kernel density estimates.  **Kernel density estimation** involves applying a function (known as a “kernel”) to each data point, which averages the location of that point with respect to the location of other data points.  The surface that results from this model allows us to produce **isarithmic maps**. It is essentially a more sophisticated way of visualising intensity (points per area).
+One of the most common methods to visualise hot spots of crime, when we are working with point pattern data, is to use kernel density estimates.  **Kernel density estimation** involves applying a function (known as a “kernel”) to each data point, which averages the location of that point with respect to the location of other data points.  The surface that results from this model allows us to produce **isarithmic maps**. It is essentially a more sophisticated way of visualising intensity (points per area) than the tessellations we have covered so far.
 
 Kernel density estimation maps are very popular among crime analysts. According to @Chainey_2013a, 9 out of 10 intelligence professionals prefer it to other techniques for hot spot analysis. As compared to visualisations of crime that relies on point maps or thematic maps of geographic administrative units (such as LSOAs), kernel density estimation maps are considered best for location, size, shape and orientation of the hotspot. @Chainey_2008 have also suggested that this method produces some of the best prediction accuracy. The areas identified as hotspots by KDE (using historical data) tend to be the ones that better identify the areas that will have high levels of crime in the future. Yet, producing these maps (as with any map, really) requires you to take a number of decisions that will significantly affect the resulting product and the conveyed message. Like any other data visualisation technique they can be powerful, but they have to be handled with great care.
 
@@ -300,6 +301,7 @@ ds <- density.ppp(jitter_bur)
 class(ds)
 
 ```
+
 The resulting object is of class `im`, a pixel image, a grid of spatial locations with values attached to them. You can visualise this image as a map (using `plot()`), contour plots (using `contour()`), or as a perspective plot (using `persp()`).
 
 
@@ -310,7 +312,7 @@ contour(ds)
 persp(ds)
 ```
 
-The density function is estimating a kernel density estimate. The result of `density.ppp()` *is not a probability density*. It is an estimate of the intensity function of the point process that generated the point pattern. The units of intensity are “points per unit area”. Density, in this context, is nothing but the number of points per unit area. This method computes the intensity continuously across the study area and the object returns a raster image. Depending what package you use to generate the estimation you can set a different metric as we will see later. 
+The density function is estimating a kernel density estimate. The result of `density.ppp()` *is not a probability density*. It is an estimate of the intensity function of the point process that generated the point pattern. The units of intensity are “points per unit area”. Density, in this context, is nothing but the number of points per unit area. This method computes the intensity continuously across the study area and the object returns a raster image. Depending what package you use to generate the estimation (eg., `spatstat`, `SpatialKDE`, etc) you can set a different metric. 
 
 ### Selecting the appropriate bandwith for KDE
 
@@ -320,7 +322,7 @@ To perform this analysis in R we need to define the **bandwidth** of the density
 
 The key argument to pass to the `density.ppp()` is `sigma=`, which determines the bandwidth of the kernel. Sigma is the *standard deviation of the kernel* and you can enter a numeric value or a function that computes an appropriate value for it.
 
-A great of research has been developed to produce algorithms that help in selecting the bandwidth (see @Baddeley_2015 and @Davies_2017 for details). In  the`spatstat.core` package the functions `bw.diggle()`, `bw.ppl()`, and `bw.scott()` can be used to estimate the bandwidth according to difference methods (mean square error cross validation, likelihood cross validation, and Scott´s rule of thumb for bandwidth section in multidimensional smoothing respectively). The help files recommend the use of the first two. These functions run algorithms that aim to select an appropriate bandwidth.
+A great deal of research has been developed to produce algorithms that help in selecting the bandwidth (see @Baddeley_2015 and @Davies_2017 for details). In  the`spatstat.core` package the functions `bw.diggle()`, `bw.ppl()`, and `bw.scott()` can be used to estimate the bandwidth according to difference methods (mean square error cross validation, likelihood cross validation, and Scott´s rule of thumb for bandwidth section in multidimensional smoothing respectively). The help files recommend the use of the first two. These functions run algorithms that aim to select an appropriate bandwidth.
 
 ```{r bandwith_6}
 
@@ -351,7 +353,7 @@ plot(density.ppp(jitter_bur, sigma = bw.scott(jitter_bur) ,edge=T),
 
 When looking for clusters, @Baddeley_2015 suggest the use of the `bw.ppl()` algorithm because in their experience it tends to produce the more appropriate values when the pattern consists predominantly of tight clusters. But they also insist that if your purpose it to detect a single tight cluster in the midst of random noise then the `bw.diggle()` method seems to work best.
 
-All these methods use a fixed bandwidth, the use the same bandwith for all locations. As noted by @Baddeley_2015 a "fixed smoothing bandwifth is unsatisfactory if the true intensity varies greatly across the spatial domain, because it is likely to cause oversmoothing in the high-intensity areas and undersmoothing in the low intensity areas" (p. 174).  When using these methods in areas of high point density, the resulting bandwidth will be small, while in areas of low point density the resulting bandwidth will be large. This allow us to reduce smoothing in parts of the window where there are many points so that we capture more detail in the density estimates there, whilst at the same time increasing the smoothing in areas where there are less points.
+All these methods use a fixed bandwidth: they use the same bandwidth for all locations. As noted by @Baddeley_2015 a "fixed smoothing bandwidth is unsatisfactory if the true intensity varies greatly across the spatial domain, because it is likely to cause oversmoothing in the high-intensity areas and undersmoothing in the low intensity areas" (p. 174).  When using these methods in areas of high point density, the resulting bandwidth will be small, while in areas of low point density the resulting bandwidth will be large. This allow us to reduce smoothing in parts of the window where there are many points so that we capture more detail in the density estimates there, whilst at the same time increasing the smoothing in areas where there are less points.
 
 With `spatstat` we can use an adaptive bandwidth method, were (1) a fraction of the points are selected at random and used to construct a tessellation; (2) a quadrat counting estimate of the intensity is produced; and (3) the process is repeated a set number of times and an average is computed. The `spatstat.core::adaptive.density` function takes as arguments the fraction of points to be sampled (`f`) and the number of samples to be taken (`nrep`). The logical argument `verbose` when set to `FALSE` (not the default) means we won´t see a message in the console informing of the steps in the simulation.
 
