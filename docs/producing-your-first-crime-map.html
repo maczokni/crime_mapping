@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 1 Producing your first crime map | Crime Mapping and Spatial Data Analysis using R</title>
+  <meta name="description" content="Chapter 1 Producing your first crime map | Crime Mapping and Spatial Data Analysis using R" />
+  <meta name="generator" content="bookdown 0.21 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 1 Producing your first crime map | Crime Mapping and Spatial Data Analysis using R" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="Chapter 1 Producing your first crime map | Crime Mapping and Spatial Data Analysis using R" />
+  <meta name="github-repo" content="maczokni/crime_mapping" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 1 Producing your first crime map | Crime Mapping and Spatial Data Analysis using R" />
+  
+  <meta name="twitter:description" content="Chapter 1 Producing your first crime map | Crime Mapping and Spatial Data Analysis using R" />
+  
+
+<meta name="author" content="Juanjo Medina and Reka Solymosi" />
+
+
+<meta name="date" content="2021-05-14" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="index.html"/>
+<link rel="next" href="chapter-2-basic-geospatial-operations-in-r.html"/>
+<script src="libs/header-attrs-2.7.2/header-attrs.js"></script>
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<script src="libs/htmlwidgets-1.5.3/htmlwidgets.js"></script>
+<link href="libs/leaflet-1.3.1/leaflet.css" rel="stylesheet" />
+<script src="libs/leaflet-1.3.1/leaflet.js"></script>
+<link href="libs/leafletfix-1.0.0/leafletfix.css" rel="stylesheet" />
+<script src="libs/proj4-2.6.2/proj4.min.js"></script>
+<script src="libs/Proj4Leaflet-1.0.1/proj4leaflet.js"></script>
+<link href="libs/rstudio_leaflet-1.3.1/rstudio_leaflet.css" rel="stylesheet" />
+<script src="libs/leaflet-binding-2.0.4.1/leaflet.js"></script>
+<script src="libs/leaflet-providers-1.9.0/leaflet-providers_1.9.0.js"></script>
+<script src="libs/leaflet-providers-plugin-2.0.4.1/leaflet-providers-plugin.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Crime Mapping and Spatial Data Analysis using R</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Preamble: how to use this book</a></li>
+<li class="chapter" data-level="1" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html"><i class="fa fa-check"></i><b>1</b> Producing your first crime map</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#introduction"><i class="fa fa-check"></i><b>1.1</b> Introduction</a></li>
+<li class="chapter" data-level="1.2" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#geospatial-perspective-key-terms-and-ideas"><i class="fa fa-check"></i><b>1.2</b> Geospatial Perspective: key terms and ideas</a>
+<ul>
+<li class="chapter" data-level="1.2.1" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#place"><i class="fa fa-check"></i><b>1.2.1</b> Place</a></li>
+<li class="chapter" data-level="1.2.2" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#attributes"><i class="fa fa-check"></i><b>1.2.2</b> Attributes</a></li>
+<li class="chapter" data-level="1.2.3" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#spatial-objects"><i class="fa fa-check"></i><b>1.2.3</b> Spatial objects</a></li>
+<li class="chapter" data-level="1.2.4" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#networks"><i class="fa fa-check"></i><b>1.2.4</b> Networks</a></li>
+<li class="chapter" data-level="1.2.5" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#maps-and-their-types"><i class="fa fa-check"></i><b>1.2.5</b> Maps and their types</a></li>
+<li class="chapter" data-level="1.2.6" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#map-projections-and-geographic-coordinate-systems"><i class="fa fa-check"></i><b>1.2.6</b> Map projections and geographic coordinate systems</a></li>
+<li class="chapter" data-level="1.2.7" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#summary"><i class="fa fa-check"></i><b>1.2.7</b> Summary</a></li>
+</ul></li>
+<li class="chapter" data-level="1.3" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#getting-started-with-crime-data"><i class="fa fa-check"></i><b>1.3</b> Getting started with crime data</a></li>
+<li class="chapter" data-level="1.4" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#from-dataframes-to-spatial-objects"><i class="fa fa-check"></i><b>1.4</b> From dataframes to spatial objects</a>
+<ul>
+<li class="chapter" data-level="1.4.1" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#the-point"><i class="fa fa-check"></i><b>1.4.1</b> The point</a></li>
+<li class="chapter" data-level="1.4.2" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#the-line"><i class="fa fa-check"></i><b>1.4.2</b> The line</a></li>
+<li class="chapter" data-level="1.4.3" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#the-polygon"><i class="fa fa-check"></i><b>1.4.3</b> The polygon</a></li>
+</ul></li>
+<li class="chapter" data-level="1.5" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#the-simple-features-framework"><i class="fa fa-check"></i><b>1.5</b> The simple features framework</a></li>
+<li class="chapter" data-level="1.6" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#plotting-data-with-ggplot2"><i class="fa fa-check"></i><b>1.6</b> Plotting data with ggplot2</a></li>
+<li class="chapter" data-level="1.7" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#mapping-crime-data-as-points"><i class="fa fa-check"></i><b>1.7</b> Mapping crime data as points</a></li>
+<li class="chapter" data-level="1.8" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#mapping-crime-data-as-polygons"><i class="fa fa-check"></i><b>1.8</b> Mapping crime data as polygons</a>
+<ul>
+<li class="chapter" data-level="1.8.1" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#finding-boundary-data"><i class="fa fa-check"></i><b>1.8.1</b> Finding boundary data</a></li>
+<li class="chapter" data-level="1.8.2" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#reading-shapefiles-into-r"><i class="fa fa-check"></i><b>1.8.2</b> Reading shapefiles into R</a></li>
+<li class="chapter" data-level="1.8.3" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#data-wrangling-with-dplyr"><i class="fa fa-check"></i><b>1.8.3</b> Data wrangling with dplyr</a></li>
+<li class="chapter" data-level="1.8.4" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#join-data-to-sf-object"><i class="fa fa-check"></i><b>1.8.4</b> Join data to sf object</a></li>
+<li class="chapter" data-level="1.8.5" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#putting-polygon-data-on-the-map"><i class="fa fa-check"></i><b>1.8.5</b> Putting polygon data on the map</a></li>
+</ul></li>
+<li class="chapter" data-level="1.9" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#summary-and-further-reading"><i class="fa fa-check"></i><b>1.9</b> Summary and Further reading</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="chapter-2-basic-geospatial-operations-in-r.html"><a href="chapter-2-basic-geospatial-operations-in-r.html"><i class="fa fa-check"></i><b>2</b> Chapter 2: Basic geospatial operations in R</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="chapter-2-basic-geospatial-operations-in-r.html"><a href="chapter-2-basic-geospatial-operations-in-r.html#introduction-1"><i class="fa fa-check"></i><b>2.1</b> Introduction</a></li>
+<li class="chapter" data-level="2.2" data-path="chapter-2-basic-geospatial-operations-in-r.html"><a href="chapter-2-basic-geospatial-operations-in-r.html#exploring-the-relationship-between-alcohol-outlets-and-crime"><i class="fa fa-check"></i><b>2.2</b> Exploring the relationship between alcohol outlets and crime</a></li>
+<li class="chapter" data-level="2.3" data-path="chapter-2-basic-geospatial-operations-in-r.html"><a href="chapter-2-basic-geospatial-operations-in-r.html#get-the-data"><i class="fa fa-check"></i><b>2.3</b> Get the data</a>
+<ul>
+<li class="chapter" data-level="2.3.1" data-path="chapter-2-basic-geospatial-operations-in-r.html"><a href="chapter-2-basic-geospatial-operations-in-r.html#reading-in-crime-data"><i class="fa fa-check"></i><b>2.3.1</b> Reading in crime data</a></li>
+<li class="chapter" data-level="2.3.2" data-path="chapter-2-basic-geospatial-operations-in-r.html"><a href="chapter-2-basic-geospatial-operations-in-r.html#meet-a-new-format-geojson"><i class="fa fa-check"></i><b>2.3.2</b> Meet a new format: geojson</a></li>
+<li class="chapter" data-level="2.3.3" data-path="chapter-2-basic-geospatial-operations-in-r.html"><a href="chapter-2-basic-geospatial-operations-in-r.html#open-street-map-and-points-of-interest"><i class="fa fa-check"></i><b>2.3.3</b> Open Street Map and points of interest</a></li>
+</ul></li>
+<li class="chapter" data-level="2.4" data-path="chapter-2-basic-geospatial-operations-in-r.html"><a href="chapter-2-basic-geospatial-operations-in-r.html#attribute-operations"><i class="fa fa-check"></i><b>2.4</b> Attribute operations</a></li>
+<li class="chapter" data-level="2.5" data-path="chapter-2-basic-geospatial-operations-in-r.html"><a href="chapter-2-basic-geospatial-operations-in-r.html#spatial-operations"><i class="fa fa-check"></i><b>2.5</b> Spatial operations</a>
+<ul>
+<li class="chapter" data-level="2.5.1" data-path="chapter-2-basic-geospatial-operations-in-r.html"><a href="chapter-2-basic-geospatial-operations-in-r.html#reprojecting-coordinates"><i class="fa fa-check"></i><b>2.5.1</b> Reprojecting coordinates</a></li>
+<li class="chapter" data-level="2.5.2" data-path="chapter-2-basic-geospatial-operations-in-r.html"><a href="chapter-2-basic-geospatial-operations-in-r.html#subsetting-points"><i class="fa fa-check"></i><b>2.5.2</b> Subsetting points</a></li>
+<li class="chapter" data-level="2.5.3" data-path="chapter-2-basic-geospatial-operations-in-r.html"><a href="chapter-2-basic-geospatial-operations-in-r.html#building-buffers"><i class="fa fa-check"></i><b>2.5.3</b> Building buffers</a></li>
+<li class="chapter" data-level="2.5.4" data-path="chapter-2-basic-geospatial-operations-in-r.html"><a href="chapter-2-basic-geospatial-operations-in-r.html#counting-points-within-a-polygon"><i class="fa fa-check"></i><b>2.5.4</b> Counting Points within a Polygon</a></li>
+<li class="chapter" data-level="2.5.5" data-path="chapter-2-basic-geospatial-operations-in-r.html"><a href="chapter-2-basic-geospatial-operations-in-r.html#distances-finding-the-nearest-point"><i class="fa fa-check"></i><b>2.5.5</b> Distances: Finding the nearest point</a></li>
+<li class="chapter" data-level="2.5.6" data-path="chapter-2-basic-geospatial-operations-in-r.html"><a href="chapter-2-basic-geospatial-operations-in-r.html#measuring-distances"><i class="fa fa-check"></i><b>2.5.6</b> Measuring distances</a></li>
+</ul></li>
+<li class="chapter" data-level="2.6" data-path="chapter-2-basic-geospatial-operations-in-r.html"><a href="chapter-2-basic-geospatial-operations-in-r.html#plotting-interactive-maps-with-leaflet"><i class="fa fa-check"></i><b>2.6</b> Plotting interactive maps with leaflet</a></li>
+<li class="chapter" data-level="2.7" data-path="chapter-2-basic-geospatial-operations-in-r.html"><a href="chapter-2-basic-geospatial-operations-in-r.html#geocoding"><i class="fa fa-check"></i><b>2.7</b> Geocoding</a></li>
+<li class="chapter" data-level="2.8" data-path="chapter-2-basic-geospatial-operations-in-r.html"><a href="chapter-2-basic-geospatial-operations-in-r.html#measuring-distance-more-thoroughly"><i class="fa fa-check"></i><b>2.8</b> Measuring distance more thoroughly</a>
+<ul>
+<li class="chapter" data-level="2.8.1" data-path="chapter-2-basic-geospatial-operations-in-r.html"><a href="chapter-2-basic-geospatial-operations-in-r.html#how-far-are-police-stations-in-madrid"><i class="fa fa-check"></i><b>2.8.1</b> How far are police stations in Madrid?</a></li>
+<li class="chapter" data-level="2.8.2" data-path="chapter-2-basic-geospatial-operations-in-r.html"><a href="chapter-2-basic-geospatial-operations-in-r.html#distance-in-geographical-space"><i class="fa fa-check"></i><b>2.8.2</b> Distance in geographical space</a></li>
+<li class="chapter" data-level="2.8.3" data-path="chapter-2-basic-geospatial-operations-in-r.html"><a href="chapter-2-basic-geospatial-operations-in-r.html#a-practical-example-to-evaluate-distance"><i class="fa fa-check"></i><b>2.8.3</b> A practical example to evaluate distance</a></li>
+</ul></li>
+<li class="chapter" data-level="2.9" data-path="chapter-2-basic-geospatial-operations-in-r.html"><a href="chapter-2-basic-geospatial-operations-in-r.html#further-reading"><i class="fa fa-check"></i><b>2.9</b> Further reading</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html"><a href="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html"><i class="fa fa-check"></i><b>3</b> Chapter 3: Mapping rates and counts: choropleth and proportional symbol maps</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html"><a href="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html#introduction-2"><i class="fa fa-check"></i><b>3.1</b> Introduction</a></li>
+<li class="chapter" data-level="3.2" data-path="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html"><a href="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html#thematic-maps-key-terms-and-ideas"><i class="fa fa-check"></i><b>3.2</b> Thematic maps: key terms and ideas</a>
+<ul>
+<li class="chapter" data-level="3.2.1" data-path="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html"><a href="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html#choropleth-maps"><i class="fa fa-check"></i><b>3.2.1</b> Choropleth maps</a></li>
+<li class="chapter" data-level="3.2.2" data-path="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html"><a href="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html#what-do-we-use-choropleth-maps-for"><i class="fa fa-check"></i><b>3.2.2</b> What do we use choropleth maps for?</a></li>
+<li class="chapter" data-level="3.2.3" data-path="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html"><a href="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html#proportional-and-graduate-symbol-maps-mapping-crime-counts"><i class="fa fa-check"></i><b>3.2.3</b> Proportional and graduate symbol maps: mapping crime counts</a></li>
+</ul></li>
+<li class="chapter" data-level="3.3" data-path="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html"><a href="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html#creating-proportional-symbol-maps-mapping-count-data-with-tmap"><i class="fa fa-check"></i><b>3.3</b> Creating proportional symbol maps: mapping count data with tmap</a></li>
+<li class="chapter" data-level="3.4" data-path="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html"><a href="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html#mapping-rates-rather-than-counts"><i class="fa fa-check"></i><b>3.4</b> Mapping rates rather than counts</a>
+<ul>
+<li class="chapter" data-level="3.4.1" data-path="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html"><a href="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html#generating-the-rates"><i class="fa fa-check"></i><b>3.4.1</b> Generating the rates</a></li>
+<li class="chapter" data-level="3.4.2" data-path="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html"><a href="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html#creating-a-choropleth-map-with-tmap"><i class="fa fa-check"></i><b>3.4.2</b> Creating a choropleth map with tmap</a></li>
+</ul></li>
+<li class="chapter" data-level="3.5" data-path="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html"><a href="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html#classification-systems-for-thematic-maps"><i class="fa fa-check"></i><b>3.5</b> Classification systems for thematic maps</a></li>
+<li class="chapter" data-level="3.6" data-path="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html"><a href="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html#interactive-mapping-with-tmap"><i class="fa fa-check"></i><b>3.6</b> Interactive mapping with tmap</a></li>
+<li class="chapter" data-level="3.7" data-path="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html"><a href="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html#smoothing-rates-adjusting-for-small-sample-noise"><i class="fa fa-check"></i><b>3.7</b> Smoothing rates: adjusting for small sample noise</a></li>
+<li class="chapter" data-level="3.8" data-path="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html"><a href="chapter-3-mapping-rates-and-counts-choropleth-and-proportional-symbol-maps.html#further-reading-1"><i class="fa fa-check"></i><b>3.8</b> Further reading</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="chapter-4-variations-of-thematic-mapping.html"><a href="chapter-4-variations-of-thematic-mapping.html"><i class="fa fa-check"></i><b>4</b> Chapter 4: Variations of thematic mapping</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="chapter-4-variations-of-thematic-mapping.html"><a href="chapter-4-variations-of-thematic-mapping.html#introduction-3"><i class="fa fa-check"></i><b>4.1</b> Introduction</a></li>
+<li class="chapter" data-level="4.2" data-path="chapter-4-variations-of-thematic-mapping.html"><a href="chapter-4-variations-of-thematic-mapping.html#binning-points"><i class="fa fa-check"></i><b>4.2</b> Binning points</a>
+<ul>
+<li class="chapter" data-level="4.2.1" data-path="chapter-4-variations-of-thematic-mapping.html"><a href="chapter-4-variations-of-thematic-mapping.html#the-binning-process"><i class="fa fa-check"></i><b>4.2.1</b> The Binning Process</a></li>
+<li class="chapter" data-level="4.2.2" data-path="chapter-4-variations-of-thematic-mapping.html"><a href="chapter-4-variations-of-thematic-mapping.html#different-binning-techniques"><i class="fa fa-check"></i><b>4.2.2</b> Different Binning Techniques</a></li>
+<li class="chapter" data-level="4.2.3" data-path="chapter-4-variations-of-thematic-mapping.html"><a href="chapter-4-variations-of-thematic-mapping.html#benefits-of-binning"><i class="fa fa-check"></i><b>4.2.3</b> Benefits of Binning</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="chapter-4-variations-of-thematic-mapping.html"><a href="chapter-4-variations-of-thematic-mapping.html#transforming-polygons"><i class="fa fa-check"></i><b>4.3</b> Transforming polygons</a>
+<ul>
+<li class="chapter" data-level="4.3.1" data-path="chapter-4-variations-of-thematic-mapping.html"><a href="chapter-4-variations-of-thematic-mapping.html#dorling-cartogram"><i class="fa fa-check"></i><b>4.3.1</b> Dorling Cartogram</a></li>
+</ul></li>
+<li class="chapter" data-level="4.4" data-path="chapter-4-variations-of-thematic-mapping.html"><a href="chapter-4-variations-of-thematic-mapping.html#bivariate-maps"><i class="fa fa-check"></i><b>4.4</b> Bivariate Maps</a>
+<ul>
+<li class="chapter" data-level="4.4.1" data-path="chapter-4-variations-of-thematic-mapping.html"><a href="chapter-4-variations-of-thematic-mapping.html#step-1-bin-our-variables-of-interest"><i class="fa fa-check"></i><b>4.4.1</b> Step 1: Bin our variables of interest</a></li>
+<li class="chapter" data-level="4.4.2" data-path="chapter-4-variations-of-thematic-mapping.html"><a href="chapter-4-variations-of-thematic-mapping.html#step-2-new-variable"><i class="fa fa-check"></i><b>4.4.2</b> Step 2: New variable</a></li>
+<li class="chapter" data-level="4.4.3" data-path="chapter-4-variations-of-thematic-mapping.html"><a href="chapter-4-variations-of-thematic-mapping.html#step-3-create-colour-scheme"><i class="fa fa-check"></i><b>4.4.3</b> Step 3: Create colour scheme</a></li>
+<li class="chapter" data-level="4.4.4" data-path="chapter-4-variations-of-thematic-mapping.html"><a href="chapter-4-variations-of-thematic-mapping.html#step-4-join-colour-scheme"><i class="fa fa-check"></i><b>4.4.4</b> Step 4: Join colour scheme</a></li>
+<li class="chapter" data-level="4.4.5" data-path="chapter-4-variations-of-thematic-mapping.html"><a href="chapter-4-variations-of-thematic-mapping.html#step-5-create-legend"><i class="fa fa-check"></i><b>4.4.5</b> Step 5: Create legend</a></li>
+<li class="chapter" data-level="4.4.6" data-path="chapter-4-variations-of-thematic-mapping.html"><a href="chapter-4-variations-of-thematic-mapping.html#step-6-map"><i class="fa fa-check"></i><b>4.4.6</b> Step 6: Map</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="chapter-4-variations-of-thematic-mapping.html"><a href="chapter-4-variations-of-thematic-mapping.html#a-note-of-caution-maup"><i class="fa fa-check"></i><b>4.5</b> A note of caution: MAUP</a>
+<ul>
+<li class="chapter" data-level="4.5.1" data-path="chapter-4-variations-of-thematic-mapping.html"><a href="chapter-4-variations-of-thematic-mapping.html#why-does-maup-matter"><i class="fa fa-check"></i><b>4.5.1</b> Why does MAUP matter?</a></li>
+<li class="chapter" data-level="4.5.2" data-path="chapter-4-variations-of-thematic-mapping.html"><a href="chapter-4-variations-of-thematic-mapping.html#what-can-we-do"><i class="fa fa-check"></i><b>4.5.2</b> What can we do?</a></li>
+</ul></li>
+<li class="chapter" data-level="4.6" data-path="chapter-4-variations-of-thematic-mapping.html"><a href="chapter-4-variations-of-thematic-mapping.html#references-and-further-reading"><i class="fa fa-check"></i><b>4.6</b> References and further reading</a>
+<ul>
+<li class="chapter" data-level="4.6.1" data-path="chapter-4-variations-of-thematic-mapping.html"><a href="chapter-4-variations-of-thematic-mapping.html#binning"><i class="fa fa-check"></i><b>4.6.1</b> Binning</a></li>
+<li class="chapter" data-level="4.6.2" data-path="chapter-4-variations-of-thematic-mapping.html"><a href="chapter-4-variations-of-thematic-mapping.html#maup"><i class="fa fa-check"></i><b>4.6.2</b> MAUP</a></li>
+<li class="chapter" data-level="4.6.3" data-path="chapter-4-variations-of-thematic-mapping.html"><a href="chapter-4-variations-of-thematic-mapping.html#transforming-polygons-1"><i class="fa fa-check"></i><b>4.6.3</b> Transforming polygons</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="chapter-5-visualisation-good-cartographic-design.html"><a href="chapter-5-visualisation-good-cartographic-design.html"><i class="fa fa-check"></i><b>5</b> Chapter 5: Visualisation: good cartographic design</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="chapter-5-visualisation-good-cartographic-design.html"><a href="chapter-5-visualisation-good-cartographic-design.html#introduction-4"><i class="fa fa-check"></i><b>5.1</b> Introduction</a></li>
+<li class="chapter" data-level="5.2" data-path="chapter-5-visualisation-good-cartographic-design.html"><a href="chapter-5-visualisation-good-cartographic-design.html#data-representation"><i class="fa fa-check"></i><b>5.2</b> Data representation</a>
+<ul>
+<li class="chapter" data-level="5.2.1" data-path="chapter-5-visualisation-good-cartographic-design.html"><a href="chapter-5-visualisation-good-cartographic-design.html#thematic-maps"><i class="fa fa-check"></i><b>5.2.1</b> Thematic maps</a></li>
+<li class="chapter" data-level="5.2.2" data-path="chapter-5-visualisation-good-cartographic-design.html"><a href="chapter-5-visualisation-good-cartographic-design.html#symbols"><i class="fa fa-check"></i><b>5.2.2</b> Symbols</a></li>
+<li class="chapter" data-level="5.2.3" data-path="chapter-5-visualisation-good-cartographic-design.html"><a href="chapter-5-visualisation-good-cartographic-design.html#rate-v-count"><i class="fa fa-check"></i><b>5.2.3</b> Rate v count</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="chapter-5-visualisation-good-cartographic-design.html"><a href="chapter-5-visualisation-good-cartographic-design.html#colour"><i class="fa fa-check"></i><b>5.3</b> Colour</a></li>
+<li class="chapter" data-level="5.4" data-path="chapter-5-visualisation-good-cartographic-design.html"><a href="chapter-5-visualisation-good-cartographic-design.html#text"><i class="fa fa-check"></i><b>5.4</b> Text</a>
+<ul>
+<li class="chapter" data-level="5.4.1" data-path="chapter-5-visualisation-good-cartographic-design.html"><a href="chapter-5-visualisation-good-cartographic-design.html#titles-and-subtitles"><i class="fa fa-check"></i><b>5.4.1</b> Titles and subtitles</a></li>
+<li class="chapter" data-level="5.4.2" data-path="chapter-5-visualisation-good-cartographic-design.html"><a href="chapter-5-visualisation-good-cartographic-design.html#legend"><i class="fa fa-check"></i><b>5.4.2</b> Legend</a></li>
+<li class="chapter" data-level="5.4.3" data-path="chapter-5-visualisation-good-cartographic-design.html"><a href="chapter-5-visualisation-good-cartographic-design.html#annotation"><i class="fa fa-check"></i><b>5.4.3</b> Annotation</a></li>
+<li class="chapter" data-level="5.4.4" data-path="chapter-5-visualisation-good-cartographic-design.html"><a href="chapter-5-visualisation-good-cartographic-design.html#production-notes"><i class="fa fa-check"></i><b>5.4.4</b> Production notes</a></li>
+</ul></li>
+<li class="chapter" data-level="5.5" data-path="chapter-5-visualisation-good-cartographic-design.html"><a href="chapter-5-visualisation-good-cartographic-design.html#composition"><i class="fa fa-check"></i><b>5.5</b> Composition</a>
+<ul>
+<li class="chapter" data-level="5.5.1" data-path="chapter-5-visualisation-good-cartographic-design.html"><a href="chapter-5-visualisation-good-cartographic-design.html#orientation-and-scale-indicators"><i class="fa fa-check"></i><b>5.5.1</b> Orientation and scale indicators</a></li>
+<li class="chapter" data-level="5.5.2" data-path="chapter-5-visualisation-good-cartographic-design.html"><a href="chapter-5-visualisation-good-cartographic-design.html#strip-away-grids"><i class="fa fa-check"></i><b>5.5.2</b> Strip away grids</a></li>
+</ul></li>
+<li class="chapter" data-level="5.6" data-path="chapter-5-visualisation-good-cartographic-design.html"><a href="chapter-5-visualisation-good-cartographic-design.html#context"><i class="fa fa-check"></i><b>5.6</b> Context</a>
+<ul>
+<li class="chapter" data-level="5.6.1" data-path="chapter-5-visualisation-good-cartographic-design.html"><a href="chapter-5-visualisation-good-cartographic-design.html#basemap"><i class="fa fa-check"></i><b>5.6.1</b> Basemap</a></li>
+<li class="chapter" data-level="5.6.2" data-path="chapter-5-visualisation-good-cartographic-design.html"><a href="chapter-5-visualisation-good-cartographic-design.html#inset-maps"><i class="fa fa-check"></i><b>5.6.2</b> Inset maps</a></li>
+</ul></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Crime Mapping and Spatial Data Analysis using R</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="producing-your-first-crime-map" class="section level1" number="1">
+<h1><span class="header-section-number">Chapter 1</span> Producing your first crime map</h1>
+<div id="introduction" class="section level2" number="1.1">
+<h2><span class="header-section-number">1.1</span> Introduction</h2>
+<p>This chapter introduces some basic concepts and will get you started to make some maps using R. We will learn how we can take regular crime data, and assign the appropriate geometry for our chosen unit of analysis. Spatial or environmental criminology works with data that often is <strong>discrete</strong>. In other scientific disciplines the mapped data is continuous (e.g., temperature) across the study surface. In environmental criminology, on the other hand, we mostly work with data represented by points (e.g., locations of a crime) or counts and rates of crimes within a particular geographical unit (e.g., a neigbourhoud, a census tract, a municipality, etc). Therefore in these first few chapters we will focus on ways to work with these kind of discrete data. Firstly, we will introduce the spatial and non-spatial R packages we will use frequently throughout the book, and learn some key terms around projection and coordinate reference systems which will be essential for subsequent chapters.</p>
+<p>As we will discover throughout the book there are multiple R packages that have been developed to visualise spatial data. We will introduce the ones we feel are more important in different parts of the book. They all have advantages and disadvantages, but many offer similar functionality. Sometimes choosing one or the other is a matter of personal preference. In this chapter we will focus on map-making with <code>ggplot2</code>, a general package for all kinds of data visualisations (not just maps) based on the theory of the grammar of graphics. If you are not new to R, you may already be familiar with this package. Our intention in this chapter is to let you to quickly produce your first map. In subsequent chapters we will further refine their look and aesthetic appeal.</p>
+<p>In this chapter we will use the following packages:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="producing-your-first-crime-map.html#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Packages for reading data and data carpentry</span></span>
+<span id="cb2-2"><a href="producing-your-first-crime-map.html#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
+<span id="cb2-3"><a href="producing-your-first-crime-map.html#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tibble)</span>
+<span id="cb2-4"><a href="producing-your-first-crime-map.html#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(janitor)</span>
+<span id="cb2-5"><a href="producing-your-first-crime-map.html#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb2-6"><a href="producing-your-first-crime-map.html#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="producing-your-first-crime-map.html#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Packages for handling spatial data</span></span>
+<span id="cb2-8"><a href="producing-your-first-crime-map.html#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
+<span id="cb2-9"><a href="producing-your-first-crime-map.html#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="producing-your-first-crime-map.html#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Packages for visualisation and mapping</span></span>
+<span id="cb2-11"><a href="producing-your-first-crime-map.html#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb2-12"><a href="producing-your-first-crime-map.html#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggspatial)</span></code></pre></div>
+<p>If you are a little rusty on R packages, what they do, how to install them, how to load them, and so on, please refer to <em>Appendix A: LearnR</em> for a quick introduction and overview of R.</p>
+</div>
+<div id="geospatial-perspective-key-terms-and-ideas" class="section level2" number="1.2">
+<h2><span class="header-section-number">1.2</span> Geospatial Perspective: key terms and ideas</h2>
+<p>Geospatial analysis provides a distinct perspective on the world, a unique lens through which to examine events, patterns, and processes that operate on or near the surface of our planet. Ultimately geospatial analysis concerns what happens where, and makes use of geographic information that links features and phenomena on the Earth’s surface to their locations.</p>
+<p>We can talk about a few different concepts when it comes to spatial information. These are:</p>
+<ul>
+<li>Place</li>
+<li>Attributes</li>
+<li>Objects</li>
+</ul>
+<div id="place" class="section level3" number="1.2.1">
+<h3><span class="header-section-number">1.2.1</span> Place</h3>
+<p>At the center of all spatial analysis is the concept of <em>place</em>. People identify with places of various sizes and shapes, from the parcel of land, to the neighbourhood, to the city, the country, the state or the nation state. Places often have names, and people use these to talk about and distinguish names. Names can be official or unofficial. Places also change continually as people move. In geospatial analysis, the basis of rigorous and precise definition of place is a coordinate system. A <strong>coordinate system</strong> is a set of measurements that allows place to be specified unambiguously and in a way that is meaningful across different users, analysts, mappers, researchers, and more.</p>
+<p>In Environmental Criminology, place has acquired different meanings through history. The first geographical studies of crime during the XIX century looked at variation across provinces in France <span class="citation"><a href="chapter-5-visualisation-good-cartographic-design.html#ref-Guerry_1833" role="doc-biblioref">Guerry</a> (<a href="chapter-5-visualisation-good-cartographic-design.html#ref-Guerry_1833" role="doc-biblioref">1833</a>)</span>, Belgium <span class="citation"><a href="chapter-5-visualisation-good-cartographic-design.html#ref-Quetelet_1842" role="doc-biblioref">Quetelet</a> (<a href="chapter-5-visualisation-good-cartographic-design.html#ref-Quetelet_1842" role="doc-biblioref">1842</a>)</span>, and England <span class="citation"><a href="chapter-5-visualisation-good-cartographic-design.html#ref-Mayhew_1861" role="doc-biblioref">Mayhew</a> (<a href="chapter-5-visualisation-good-cartographic-design.html#ref-Mayhew_1861" role="doc-biblioref">1861</a>)</span>. Later on, in the first decades of the XX century, the Chicago School of Sociology focused on the study of neighbourhoods (<span class="citation"><a href="chapter-5-visualisation-good-cartographic-design.html#ref-Park_1925" role="doc-biblioref">Park and Burgess</a> (<a href="chapter-5-visualisation-good-cartographic-design.html#ref-Park_1925" role="doc-biblioref">1925</a>)</span> <span class="citation"><a href="chapter-5-visualisation-good-cartographic-design.html#ref-Shaw_1942" role="doc-biblioref">Shaw and McKay</a> (<a href="chapter-5-visualisation-good-cartographic-design.html#ref-Shaw_1942" role="doc-biblioref">1942</a>)</span>). With the emergence of Environmental Criminology (<span class="citation"><a href="chapter-5-visualisation-good-cartographic-design.html#ref-Brantingham_1982" role="doc-biblioref">P. L. Brantingham and Brantingham</a> (<a href="chapter-5-visualisation-good-cartographic-design.html#ref-Brantingham_1982" role="doc-biblioref">1982</a>)</span> <span class="citation"><a href="chapter-5-visualisation-good-cartographic-design.html#ref-Cohen_1979" role="doc-biblioref">Cohen and Felson</a> (<a href="chapter-5-visualisation-good-cartographic-design.html#ref-Cohen_1979" role="doc-biblioref">1979</a>)</span> <span class="citation"><a href="chapter-5-visualisation-good-cartographic-design.html#ref-Cornish_1986" role="doc-biblioref">Cornish and Clarke</a> (<a href="chapter-5-visualisation-good-cartographic-design.html#ref-Cornish_1986" role="doc-biblioref">1986</a>)</span>) a shift towards a greater interest in microplaces, such as street segments or particular addresses, can be seen <span class="citation"><a href="chapter-5-visualisation-good-cartographic-design.html#ref-Eck_2015" role="doc-biblioref">Eck and Weisburd</a> (<a href="chapter-5-visualisation-good-cartographic-design.html#ref-Eck_2015" role="doc-biblioref">2015</a>)</span>. Although an interest in variation across large administrative units (as “place”) remains within criminology, there has been a trend towards understanding place as particular locations, and focusing on risky places for crime .</p>
+<p>However we define “place,” it is the central concept to crime mapping, and spatial data analysis. Most human activity takes place in a specific location, and accounting for this spatial information is a key task for criminologists, crime analysts, and social and data scientists more broadly.</p>
+</div>
+<div id="attributes" class="section level3" number="1.2.2">
+<h3><span class="header-section-number">1.2.2</span> Attributes</h3>
+<p>Attribute has become the preferred term for any recorded characteristic or property of a place. It is what more generally in statistics we may call a variable and in data science a feature. A place’s name is an obvious example of an attribute. But there can be other pieces of information, such as number of crimes in a neighbourhood, or the GDP of a country. Within geographic information science (GIS) the term ‘attributes’ usually refers to records in a data table associated with individual elements in a vector map, or cells in a grid in a raster or image file. These data behave exactly as data you have encountered in your past experience with non-spatial statistics. The rows represent observations, and the columns represent variables. The variables can be have different levels of measurement (like numeric (interval or ratio, discrete or continuous) or categorical(binary, nominal, ordinal)), and depending on what they are, you can apply different methods to making sense of them. The difference with other kind of data table is that the observations, your rows, correspond to places or locations and that the data necessarily will include elements that allow us to place it in a map.</p>
+</div>
+<div id="spatial-objects" class="section level3" number="1.2.3">
+<h3><span class="header-section-number">1.2.3</span> Spatial objects</h3>
+<p>In spatial analysis it is customary to refer to places as objects. These objects can be a whole country, or a road. In forestry, the objects of interest might be trees, and their location will be represented as points. On the other hand, studies of social or economic patterns may need to consider the two-dimensional extent of places, which will therefore be represented as areas. These representations of the world are part of what is called the <strong>vector data model</strong>: A representation of the world using points, lines, and polygons. Vector models are useful for storing data that have discrete boundaries, such as country borders, land parcels, and streets. This is made up of points, lines, and areas (polygons):</p>
+<ul>
+<li><em>Points</em>
+<ul>
+<li>*Points are pairs of coordinates, in latitude/longitude or some other standard system. In the context of crime analysis, the typical point we work with, though not the only one, represents the specific location of a criminal event. These points form patterns we explore and analyse.</li>
+</ul></li>
+<li><em>Lines</em>
+<ul>
+<li>Lines are ordered sequences of points connected by straight lines.</li>
+</ul></li>
+<li><em>Areas</em> (polygons)
+<ul>
+<li>Areas are ordered rings of points, also connected by straight lines to form polygons. It can contain holes, or be linked with separate islands. Areas can represent neighbourhouds, police districts, municipal terms, etc. You may come across the term <strong>lattice data</strong> to denote the type of data we work with when we observed attributes of areas and want to explore and analyse this data.</li>
+</ul></li>
+</ul>
+<p>Spatial objects may also be stored as <strong>raster data</strong>. Raster data are made up of pixels (or cells), and each cell has an associated value. Simplifying slightly, a digital photograph is an example of a raster dataset where each pixel value corresponds to a particular colour. In GIS, the pixel values usually represent continuous data such as elevation above sea level, or chemical concentrations, or rainfall, etc. The key point is that all of this data is represented as a grid of (usually square or hexagonal) cells.</p>
+</div>
+<div id="networks" class="section level3" number="1.2.4">
+<h3><span class="header-section-number">1.2.4</span> Networks</h3>
+<p>We already mentioned lines that constitute objects of spatial data, such as streets, roads, railroads, etc. Networks constitute one-dimensional structures embedded in two or three dimensions. Discrete point objects may be distributed on the network, representing phenomena such as landmarks, or observation points. Mathematically, a network forms a graph, and many techniques developed for graphs have application to networks. These include various ways of measuring a network’s connectivity, or of finding the shortest path between pairs of points on a network.</p>
+</div>
+<div id="maps-and-their-types" class="section level3" number="1.2.5">
+<h3><span class="header-section-number">1.2.5</span> Maps and their types</h3>
+<p>Historically maps have been the primary means to store and communicate spatial data. Objects and their attributes can be readily depicted, and the human eye can quickly discern patterns and anomalies in a well-designed map.</p>
+<p>In GIS we distinguish between reference and thematic maps. A <strong>reference map</strong> places the emphasis on the location of spatial objects such as cities, mountains, rivers, parks, etc. You use these maps to orient yourself in space and find out the location of particular places.</p>
+<p><strong>Thematic maps</strong> or statistical maps, on the other hand, are used to represent the spatial distribution of attributes or statistics. For example, the number of crimes across different neighbourhouds. Our focus in this book is on thematic maps, but often when producing thematic maps you may use a reference map as a backdrop, as a <em>basemap</em>, to help interpretation and to provide context. In this and subsequent chapters we will introduce different types of thematic maps.</p>
+<p>Another useful distinction is between <strong>static</strong> and <strong>interactive</strong> maps. Your traditional printed road map is an example of a static map, whereas the web application Google maps is an example of an interactive map. In an interactive map you can zoom in and out, you can select and query information about objects in an interactive fashion, etc. In this chapter we introduce the R package <code>ggplot2</code>, which excels at static maps. In other chapters we will introduce another package called <code>leaflet</code>, which is particularly useful for interactive purposes, and the package <code>tmap</code>, in which we can shift our maps between static and interactive mode.</p>
+</div>
+<div id="map-projections-and-geographic-coordinate-systems" class="section level3" number="1.2.6">
+<h3><span class="header-section-number">1.2.6</span> Map projections and geographic coordinate systems</h3>
+<p>Whenever we put something into a map we need some sort of system to pinpoint the location. A coordinate system allows you to integrate any dataset with other geographical datasets within a common framework. With the help of <strong>coordinate reference systems</strong> (CRS) every place on the earth can be specified by a set of three numbers, called coordinates. In general CRS can be divided into <strong>projected coordinate reference systems</strong> (also called Cartesian or rectangular coordinate reference systems) and <strong>geographic coordinate reference systems</strong>.</p>
+<p>A <strong>geographic coordinate system</strong> is a <em>three dimensional</em> reference system that enables you to locate any location on earth. Often this is done with longitude, latitude and elevation. The use of geographic coordinate reference systems is very common. They use degrees of latitude and longitude and sometimes also a height value to describe a location on the earth’s surface. The most popular is called <strong>WGS 84</strong>. This is the one you will most likely be using, and if you get your data in latitude and longitude, then this is the CRS you are working in. It is also possible that you will be using a projected CRS. This two-dimensional coordinate reference system is commonly defined by two axes. At right angles to each other, they form a so called XY-plane. The horizontal axis is normally labeled X, and the vertical axis is normally labeled Y.</p>
+<p><strong>Projected coordinate systems</strong> or map projections, on the other hand, try to portray the surface of the earth or a portion of the earth on a <em>two dimensional</em> flat piece of paper or computer screen.</p>
+<p>All projections of a sphere like the Earth in a two-dimensional map involve some sort of distortion. You can’t fit a three dimensional object into two dimensions without doing so. Projections differ to a large extent on the kind of distortion that they introduce. The decision as to which map projection and coordinate reference system to use, depends on the regional extent of the area you want to work in, on the analysis you want to do and often on the availability of data. Knowing the system you use would allow you to translate your data into other systems whenever this may be necessary. Often you may have to integrate data that is provided to you in different coordinate or projected systems. As long as you know the systems, you can do this, and we will be demonstrating this throughout the book.</p>
+<p>Working, for example, with data in the UK, you are most likely to be using <strong>British National Grid (BNG)</strong>. The Ordnance Survey National Grid reference system is a system of geographic grid references used in Great Britain, different from using Latitude and Longitude. In this case, points will be defined by “Easting” and “Northing” rather than “Longitude” and “Latitude.” It basically divides the UK into a series of squares, and uses references to these to locate something. The most common usage is the six figure grid reference, employing three digits in each coordinate to determine a 100 m square. For example, the grid reference of the 100 m square containing the summit of Ben Nevis is NN 166 712.</p>
+<p>This will be important later on when we are linking data from different projections, or when you look at your map and you try to figure out why it might look “squished.”</p>
+<p>You will often see the notation <em>epsg</em> when referring to different coordinate systems. This refers to the EPSG registry or <strong>EPSG Geodetic Parameter Dataset</strong>. It is a collection of geodetic datums, spatial reference systems, earth ellipsoids, coordinate transformations, and related units of measurement. All standard coordinate systems will have one of these codes assigned to it. So, for example, the WGS84 coordinate system corresponds the epsg key 4326, whereas the British National Grid has the key 27700. Having this common framework to identify projections make things much easier when we want to change our data from one system to another. You can query the website <a href="https://epsg.io/" class="uri">https://epsg.io/</a> for the different keys and information associated to each of them. This EPSG dataset was originally developed by the European Petroleum Survey Group (EPSG), thus the name.</p>
+</div>
+<div id="summary" class="section level3" number="1.2.7">
+<h3><span class="header-section-number">1.2.7</span> Summary</h3>
+<p>While the above was a whistlestop tour of some key terms, this should start you thinking about these concepts. For a deeper understanding, consult the further reading at the end of this chapter. For now, to progress, be sure that you are confident to know about:</p>
+<ul>
+<li>Spatial objects - what they are and how they are represented,</li>
+<li>Attributes - the bits of information that belong to your spatial objects,</li>
+<li>Maps and projections - especially what geographic versus projected coordinates mean, and why it’s important that you know what CRS your data have.</li>
+</ul>
+</div>
+</div>
+<div id="getting-started-with-crime-data" class="section level2" number="1.3">
+<h2><span class="header-section-number">1.3</span> Getting started with crime data</h2>
+<p>We live in a world awash with data and through this book we will use the different examples to show you some useful places and sources you can use to obtain your spatial data. Most geographically referenced crime data is based on crime reported to the police, although there are some notable exceptions (e.g., public health data on violence, geocoded victim survey data, etc.). Many police departments across the world make this data readily available to the public or researchers. This is more common in places like the United States, where crime mapping applications first got established, but increasingly we see publicly available crime data from other countries as well.</p>
+<p>For our first map we will use data from the UK, which can be downloaded from the <a href="https://data.police.uk/data/">police.uk</a> website. We have downloaded some data for crime in Manchester, which is included in the data file you have downloaded to follow along (see the Preamble chapter for details). If you wanted to acquire the data yourself directly from the source, you could open the <a href="https://data.police.uk/data/">data.police.uk/data</a> website and then choose the data tab, in order to manually download some data. After selecting a data range, a police force, and the type of data, one could generate a file. This would take you to a download page, where you have to click the <code>Download now</code> button. This will open a dialogue to save a .zip file. After all this pointing and clicking, one would have to unzip the file and read it into R.</p>
+<p>So whether from the website, or the provided data file, you should have some police data ready. The next step is to read this into R. How can we do this? We say, “hello R, i would like to create a new object please and I will call this new object <code>my_data</code>.” We do this by typing the name we are giving the object and the assignment function <code>&lt;-</code>. Then on the right hand side of the assignment function, there is the value that we are assigning the variable. So it could be a bit of text, or it could be some function, for example when you read a csv file with the <code>read_csv()</code> function from the <code>readr</code> package.</p>
+<p>When we read in this file, inside the function, we also need to specify <em>where</em> to read the csv from. Where should R look to find this data? This is where normally you are putting in the path to your file. Something like:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="producing-your-first-crime-map.html#cb3-1" aria-hidden="true" tabindex="-1"></a>my_data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;path to my file here&quot;</span>)</span></code></pre></div>
+<p>If you downloaded the data following the steps in the preamble chapter for this book, your data will be in your working directory, in a sub-folder called “data.” It is within this subfolder that you’ll find all you need. In this case, let’s look for the file <code>2019-06-greater-manchester-street.csv</code>. To read this into R we run:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="producing-your-first-crime-map.html#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
+<span id="cb4-2"><a href="producing-your-first-crime-map.html#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="producing-your-first-crime-map.html#cb4-3" aria-hidden="true" tabindex="-1"></a>crimes <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;data/2019-06-greater-manchester-street.csv&quot;</span>)</span></code></pre></div>
+<p>If you look at the <em>Environment</em> window in the top right corner of RStudio you should see now a new object that contains a <em>tibble</em>, a particular format for dataframes, and that is called <code>crimes</code>. It will tell you how many observations (rows - and incidentally the number of recorded crimes in June 2019 within the GMP jurisdiction) and how many variables (columns) your data has.</p>
+<p>Let’s have a look at the crimes dataframe with the <code>View()</code> function. This will open the data browser in RStudio</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="producing-your-first-crime-map.html#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">View</span>(crimes)</span></code></pre></div>
+<p>If you rather just want your results in the console, you can use the <code>glimpse()</code> function from the <code>tibble</code> package. This function does just that, it gives you a quick glimpse of the first few cases in the dataframe. Notice that there are two columns (Longitude and Latitude) that provide the require geographical coordinates that we need to plot this data.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="producing-your-first-crime-map.html#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tibble)</span>
+<span id="cb6-2"><a href="producing-your-first-crime-map.html#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="producing-your-first-crime-map.html#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(crimes)</span></code></pre></div>
+<pre><code>## Rows: 32,058
+## Columns: 12
+## $ `Crime ID`              &lt;chr&gt; NA, &quot;aa1cc4cb0c436f463635890bcb4ff2cba08f59925…
+## $ Month                   &lt;chr&gt; &quot;2019-06&quot;, &quot;2019-06&quot;, &quot;2019-06&quot;, &quot;2019-06&quot;, &quot;2…
+## $ `Reported by`           &lt;chr&gt; &quot;Greater Manchester Police&quot;, &quot;Greater Manchest…
+## $ `Falls within`          &lt;chr&gt; &quot;Greater Manchester Police&quot;, &quot;Greater Manchest…
+## $ Longitude               &lt;dbl&gt; -2.464422, -2.441166, -2.444807, -2.444807, -2…
+## $ Latitude                &lt;dbl&gt; 53.61250, 53.61604, 53.61151, 53.61151, 53.606…
+## $ Location                &lt;chr&gt; &quot;On or near Parking Area&quot;, &quot;On or near Pitcomb…
+## $ `LSOA code`             &lt;chr&gt; &quot;E01004768&quot;, &quot;E01004768&quot;, &quot;E01004768&quot;, &quot;E01004…
+## $ `LSOA name`             &lt;chr&gt; &quot;Bolton 001A&quot;, &quot;Bolton 001A&quot;, &quot;Bolton 001A&quot;, &quot;…
+## $ `Crime type`            &lt;chr&gt; &quot;Anti-social behaviour&quot;, &quot;Violence and sexual …
+## $ `Last outcome category` &lt;chr&gt; NA, &quot;Unable to prosecute suspect&quot;, &quot;Unable to …
+## $ Context                 &lt;lgl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…</code></pre>
+<p>You may notice that a lot of the variable names are messy in that they have a space in them - this can cause issues, so before playing around too much with the data we want to clean this up. Luckily there is a very handy package you can use for this called <code>janitor</code> which contains the function <code>clean_names()</code>.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="producing-your-first-crime-map.html#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(janitor)</span>
+<span id="cb8-2"><a href="producing-your-first-crime-map.html#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="producing-your-first-crime-map.html#cb8-3" aria-hidden="true" tabindex="-1"></a>crimes <span class="ot">&lt;-</span> <span class="fu">clean_names</span>(crimes)</span></code></pre></div>
+<p>Now the names are much neater. You can print them all for a view using the <code>names()</code> function:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="producing-your-first-crime-map.html#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(crimes)</span></code></pre></div>
+<pre><code>##  [1] &quot;crime_id&quot;              &quot;month&quot;                 &quot;reported_by&quot;          
+##  [4] &quot;falls_within&quot;          &quot;longitude&quot;             &quot;latitude&quot;             
+##  [7] &quot;location&quot;              &quot;lsoa_code&quot;             &quot;lsoa_name&quot;            
+## [10] &quot;crime_type&quot;            &quot;last_outcome_category&quot; &quot;context&quot;</code></pre>
+</div>
+<div id="from-dataframes-to-spatial-objects" class="section level2" number="1.4">
+<h2><span class="header-section-number">1.4</span> From dataframes to spatial objects</h2>
+<p>Having had a chance to inspect the data set you’ve downloaded, let’s consider what sort of spatial information we might be able to use. If you have a look at the column names, what are some of the variables which you think might have some spatial component? Have a think about each column, and how you think it may help to put these crimes on the map.</p>
+<p>There are a few answers here. In fact there are one each to map onto point, line, and polygon, which we read about earlier.</p>
+<div id="the-point" class="section level3" number="1.4.1">
+<h3><span class="header-section-number">1.4.1</span> The point</h3>
+<p>First, and possibly most obvious, are the coordinates provided with each crime incident recorded. You can find this in the two columns - Longitude and Latitude. These two column help put each crime incident on a specific point on a map. For example, let’s take the very first crime incident. Here we use the <code>head()</code> function and specify that we want the first 1 rows only with <code>n=1</code> parameter.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="producing-your-first-crime-map.html#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(crimes, <span class="at">n =</span> <span class="dv">1</span>)</span></code></pre></div>
+<p>You can see that the values are for Longitude and for Latitude. These two numbers allow us to put this point on a map.</p>
+</div>
+<div id="the-line" class="section level3" number="1.4.2">
+<h3><span class="header-section-number">1.4.2</span> The line</h3>
+<p>Another column which contains information about <em>where</em> the crime happened is the aptly named <em>location</em> variable. This shows you a list of locations related to where the crimes happened. You may see a few values such as on or near XYZ street. Let’s look again at the first entry.</p>
+<p>You can see that the value is this isn’t great, as we might struggle to identify <em>which</em> parking area… Some other ones are more useful, let’s look at the last entry for example with the <code>tail()</code> function.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="producing-your-first-crime-map.html#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tail</span>(crimes, <span class="at">n =</span> <span class="dv">1</span>)</span></code></pre></div>
+<p>You can see that the value is . This makes our crime much easier to find, we just need to locate where is . We might have a file of lines of all the roads of Manchester, and if we did, we can link the crime to that particular road, in order to map it.</p>
+</div>
+<div id="the-polygon" class="section level3" number="1.4.3">
+<h3><span class="header-section-number">1.4.3</span> The polygon</h3>
+<p>What more? You may also have seen the column “lsoa_name” seems to have some spatial component, Let’s have a look at the first crime again. You see the value for LSOA name is - Bolton we know is a Borough of Greater Manchester, but what is the 001 for ?</p>
+<p>Well, it denotes a particular geographical sub-unit within the municipality of Bolton called a <strong>Lower Layer Super Output Area</strong>. This is a unit of <a href="https://www.ons.gov.uk/methodology/geography/ukgeographies/censusgeography">UK Census Geography</a>. The basic unit for Census Geography in the UK is an ‘Output area’ - this is the resolution at which we can access data from the UK Census. The Output Area (OA) is therefore the smallest unit we could use. The census in other countries use different names for the units for which they publish information, but the logic is similar.</p>
+<p>There are 181,408 OAs, 34,753 lower layer super output areas (LSOA) and 7,201 middle layer super output areas (MSOA) in England and Wales. The neat thing about these Census geographies is the idea is that they don’t change much from census to census (unlike other administrative boundaries) and in the UK case were created with statistical analysis in mind (they were designed to be as homogeneous as possible). The less neat thing is that although we use them to operationalise the concept of neighbourhood a lot, they may not bear much resemblance to what residents might think of as their neighbourhood. This is a common problem in the UK and elsewhere (that has been widely discussed in the literature) when relying on census units as our proxy for community or neighbourhood, but one that is hard to escape from, for these units are those at which key demographic variable is typically sourced and published.</p>
+<p>Anyway back to our crime data. You see we have two columns that reference LSOAs, <code>lsoa_name</code> and <code>lsoa_code</code>. We can use these to <em>link</em> our crime data to a file containing the geometries needed to put the crime data on the map.</p>
+</div>
+</div>
+<div id="the-simple-features-framework" class="section level2" number="1.5">
+<h2><span class="header-section-number">1.5</span> The simple features framework</h2>
+<p>So how can we use these spatial details in our dataset to put our crimes on the map? We need to somehow specify a geometry for our data, which links each unit of analysis (whether that is the point, line, or polygon) to a relevant geographical representation, which allows us to put this thing on the map.</p>
+<p>How you add geographical information will vary with the type of information we have, but in all of these, we will use the <strong>simple features</strong> framework. What are simple features? <code>sf</code> package author Edzer Pebesma describes simple features as a standardized way of encoding spatial <em>vector data</em> (points, lines, polygons) in computers (we will return to this concept next chapter). The <code>sf</code> package is an R package for reading, writing, handling, and manipulating simple features in R, implementing the vector (points, lines, polygons) data handling functionality.</p>
+<p>Traditionally spatial analysis in R were done using the <code>sp</code> package which creates a particular way of storing spatial objects in R. When most packages for spatial data analysis in R and for thematic cartography were first developed <code>sp</code> was the only way to work with spatial data in R. There are more than 450 packages that rely on <code>sp</code>, making it an important part of the R ecosystem. More recently <code>sf</code> is changing the way that R does spatial analysis. This package provides a new way of storing spatial objects in R and most recent R packages for spatial analysis and cartography are using it as the new default. It is easy to transform <code>sf</code> objects into <code>sp</code> objects and viceversa, so that those packages that still don’t use this new format can be used. But in this book we will emphasise the use of <code>sf</code> whenever possible. You can read more about the history of spatial packages and the <code>sf</code> package in the first two chapters of <span class="citation"><a href="chapter-5-visualisation-good-cartographic-design.html#ref-Lovelace_2019" role="doc-biblioref">Lovelace, Nowosad, and Muenchow</a> (<a href="chapter-5-visualisation-good-cartographic-design.html#ref-Lovelace_2019" role="doc-biblioref">2019</a>)</span>.</p>
+<p>Features can be thought of as “things” or objects that have a spatial location or extent; they may be physical objects like a building, or social conventions like a political state. Feature geometry refers to the spatial properties (location or extent) of a feature, and can be described by a point, a point set, a linestring, a set of linestrings, a polygon, a set of polygons, or a combination of these. The simple adjective of simple features refers to the property that linestrings and polygons are built from points connected by straight line segments. Features typically also have other properties (temporal properties, color, name, measured quantity), which are called feature attributes. For more detailed insight we recommend reading <span class="citation"><a href="chapter-5-visualisation-good-cartographic-design.html#ref-Pebesma_2018" role="doc-biblioref">Pebesma</a> (<a href="chapter-5-visualisation-good-cartographic-design.html#ref-Pebesma_2018" role="doc-biblioref">2018</a>)</span>.</p>
+<p>Let’s get started with making some maps using <code>sf</code>. First, make sure you install the package, and then load with <code>library()</code> function. We know that we have two columns one for Longitude and one for Latitude, which pinpoint each crime event to a specific point, close to where it happened. Not <em>quite</em> where it happened, as the data are anonymised (more on this later), but for our purposes here, we can assume this is the location of the crime. To map these points, we can transform our ordinary dataframe into a simple features object.</p>
+<p>To do so, we can use the <code>st_as_sf()</code> function from <code>sf</code>, into which we need to specify what we are to transform (our dataframe), where the spatial data can be found (our columns which hold the latitude and longitude information), and also what coordinate reference system the object has (see above our discussion about projections and coordinate reference systems).</p>
+<p>Latitude longitude coordinates specify location on the <strong>WGS 84</strong> CRS. We can tell R that this is our CRS of choice by including its EPSG identifier
+(see <a href="https://en.wikipedia.org/wiki/EPSG_Geodetic_Parameter_Dataset" class="uri">https://en.wikipedia.org/wiki/EPSG_Geodetic_Parameter_Dataset</a>) as a parameter in our function. It is handy to know the more common EPSG identifiers. For example, for WGS84 the EPSG identifier is <em>4326</em>. For British National Grid, the identifier is <em>27700</em>.</p>
+<p>Putting it all together in practice, we can create a simple features object from our dataframe using the latitude and longitude columns:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="producing-your-first-crime-map.html#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
+<span id="cb13-2"><a href="producing-your-first-crime-map.html#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="producing-your-first-crime-map.html#cb13-3" aria-hidden="true" tabindex="-1"></a>crimes_sf <span class="ot">&lt;-</span> <span class="fu">st_as_sf</span>(crimes,   <span class="co">#dataframe</span></span>
+<span id="cb13-4"><a href="producing-your-first-crime-map.html#cb13-4" aria-hidden="true" tabindex="-1"></a>                      <span class="at">coords =</span> <span class="fu">c</span>(<span class="st">&quot;longitude&quot;</span>, <span class="st">&quot;latitude&quot;</span>), <span class="co">#columns with coordinates</span></span>
+<span id="cb13-5"><a href="producing-your-first-crime-map.html#cb13-5" aria-hidden="true" tabindex="-1"></a>                      <span class="at">crs =</span> <span class="dv">4326</span>)   <span class="co">#crs is WGS84</span></span></code></pre></div>
+<p>We can see that this is now a simple features object using the generic<code>class()</code> function the we see the result “sf”:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="producing-your-first-crime-map.html#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(crimes_sf)</span></code></pre></div>
+<pre><code>## [1] &quot;sf&quot;         &quot;tbl_df&quot;     &quot;tbl&quot;        &quot;data.frame&quot;</code></pre>
+<p>You might also notice something else that is different between “crimes” and “crimes_sf.” Have a look at the dimension (hint: look in your ‘Environment’ tab). In the <code>sf</code> object you will see that the information provided by the longitude and latitude variables have been “merged” into a new variable called <em>geometry</em>, that <code>sf</code> uses to store the kind of object we have (a point in this case) and where to locate it.</p>
+</div>
+<div id="plotting-data-with-ggplot2" class="section level2" number="1.6">
+<h2><span class="header-section-number">1.6</span> Plotting data with ggplot2</h2>
+<p>Now that we have this <code>sf</code> object, how can we map it? We mentioned before about the graphical package <code>ggplot2</code>. We can use this, and its syntax, in order to map spatial data using the <code>geom_sf()</code> geometry.</p>
+<p>First, a quick refresher on <code>ggplot2</code> and the grammar of graphics. The grammar of graphics upon which this package is based on defines various components of a graphic. Some of the most important are:</p>
+<p>-<strong>The data</strong>: For using <code>ggplot2</code> the data has to be stored as a data frame or tibble (<code>sf</code> objects are of class tibble).</p>
+<p>-<strong>The geoms</strong>: They describe the objects that represent the data (e.g., points, lines, polygons, etc..). This is what gets drawn. And you can have various different types layered over each other in the same visualisation.</p>
+<p>-<strong>The aesthetics</strong>: They describe the visual characteristics that represent data (e.g., position, size, colour, shape, transparency).</p>
+<p>-<strong>Facets</strong>: They describe how data is split into subsets and displayed as multiple small graphs.</p>
+<p>-<strong>Stats</strong>: They describe statistical transformations that typically summarise data.</p>
+<p>Let’s take it one step at the time.</p>
+<p>Essentially the philosophy behind this is that all graphics are made up of layers. You can build every graph from the same few components: a data set, a set of geoms—visual marks that represent data points, and a coordinate system.</p>
+<p>Take this example from our crimes dataframe.</p>
+<p>You have a table such as:</p>
+<pre><code>## # A tibble: 3 x 2
+## # Groups:   crime_type [3]
+##   crime_type                n
+##   &lt;chr&gt;                 &lt;int&gt;
+## 1 Robbery                 463
+## 2 Shoplifting            1479
+## 3 Theft from the person   718</code></pre>
+<p>You then want to plot this. To do so, you want to create a plot that combines the following layers:</p>
+<p><img src="crime_mapping_files/figure-html/unnamed-chunk-5-1.png" width="576" /></p>
+<p>This will result in a final plot:</p>
+<p><img src="crime_mapping_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p>Taking our crime data as an example, we would build up our plot as follows.</p>
+<p>First let’s create a small illustrative data set of only the crimes of “Robbery,” “Shoplifting,” and “Theft from the person.”</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="producing-your-first-crime-map.html#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb17-2"><a href="producing-your-first-crime-map.html#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="producing-your-first-crime-map.html#cb17-3" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> crimes <span class="sc">%&gt;%</span> </span>
+<span id="cb17-4"><a href="producing-your-first-crime-map.html#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(crime_type <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;Robbery&quot;</span>, <span class="st">&quot;Shoplifting&quot;</span>, <span class="st">&quot;Theft from the person&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-5"><a href="producing-your-first-crime-map.html#cb17-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(crime_type) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-6"><a href="producing-your-first-crime-map.html#cb17-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>() </span>
+<span id="cb17-7"><a href="producing-your-first-crime-map.html#cb17-7" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb17-8"><a href="producing-your-first-crime-map.html#cb17-8" aria-hidden="true" tabindex="-1"></a>df</span></code></pre></div>
+<pre><code>## # A tibble: 3 x 2
+## # Groups:   crime_type [3]
+##   crime_type                n
+##   &lt;chr&gt;                 &lt;int&gt;
+## 1 Robbery                 463
+## 2 Shoplifting            1479
+## 3 Theft from the person   718</code></pre>
+<p>Now let us add the layers to our ggplot object.</p>
+<p>First, the data layer:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="producing-your-first-crime-map.html#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb19-2"><a href="producing-your-first-crime-map.html#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-3"><a href="producing-your-first-crime-map.html#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x =</span> crime_type, <span class="at">y =</span> n))</span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p>Then add the geometry (in this case, <code>geom_col()</code>):</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="producing-your-first-crime-map.html#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x =</span> crime_type, <span class="at">y =</span> n)) <span class="sc">+</span> </span>
+<span id="cb20-2"><a href="producing-your-first-crime-map.html#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>()</span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<p>Then our annotations:</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="producing-your-first-crime-map.html#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x =</span> crime_type, <span class="at">y =</span> n)) <span class="sc">+</span> </span>
+<span id="cb21-2"><a href="producing-your-first-crime-map.html#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>() <span class="sc">+</span> </span>
+<span id="cb21-3"><a href="producing-your-first-crime-map.html#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Frequency of crime types&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb21-4"><a href="producing-your-first-crime-map.html#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">&quot;Crime type&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb21-5"><a href="producing-your-first-crime-map.html#cb21-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">&quot;Number of crimes&quot;</span>)</span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p>We can also specify our themes, by using a custom theme such as <code>theme_minimal()</code>, and by adding our own specifications within an additional <code>theme()</code> function:</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="producing-your-first-crime-map.html#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x =</span> crime_type, <span class="at">y =</span> n)) <span class="sc">+</span> </span>
+<span id="cb22-2"><a href="producing-your-first-crime-map.html#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>() <span class="sc">+</span> </span>
+<span id="cb22-3"><a href="producing-your-first-crime-map.html#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Frequency of crime types&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb22-4"><a href="producing-your-first-crime-map.html#cb22-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">&quot;Crime type&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb22-5"><a href="producing-your-first-crime-map.html#cb22-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">&quot;Number of crimes&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb22-6"><a href="producing-your-first-crime-map.html#cb22-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
+<span id="cb22-7"><a href="producing-your-first-crime-map.html#cb22-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">15</span>, <span class="at">hjust =</span> <span class="dv">1</span>), </span>
+<span id="cb22-8"><a href="producing-your-first-crime-map.html#cb22-8" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.border =</span> <span class="fu">element_rect</span>(<span class="at">colour =</span> <span class="st">&quot;black&quot;</span>, <span class="at">fill=</span><span class="cn">NA</span>, <span class="at">size=</span><span class="dv">1</span>))</span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<p>We can add further specifications within the <code>aes()</code> (aesthetics) function, where we add additional layers from our data, to represent even more information in our charts, for example the outcomes for each crime.</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="producing-your-first-crime-map.html#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create new dataframe (df) including last_outcome_category variable</span></span>
+<span id="cb23-2"><a href="producing-your-first-crime-map.html#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-3"><a href="producing-your-first-crime-map.html#cb23-3" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> crimes <span class="sc">%&gt;%</span> </span>
+<span id="cb23-4"><a href="producing-your-first-crime-map.html#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(crime_type <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;Robbery&quot;</span>, <span class="st">&quot;Shoplifting&quot;</span>, <span class="st">&quot;Theft from the person&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb23-5"><a href="producing-your-first-crime-map.html#cb23-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(crime_type, last_outcome_category) <span class="sc">%&gt;%</span> </span>
+<span id="cb23-6"><a href="producing-your-first-crime-map.html#cb23-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>() </span>
+<span id="cb23-7"><a href="producing-your-first-crime-map.html#cb23-7" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb23-8"><a href="producing-your-first-crime-map.html#cb23-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-9"><a href="producing-your-first-crime-map.html#cb23-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-10"><a href="producing-your-first-crime-map.html#cb23-10" aria-hidden="true" tabindex="-1"></a><span class="co"># plot including new variable with fill= parameter in aes() function</span></span>
+<span id="cb23-11"><a href="producing-your-first-crime-map.html#cb23-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-12"><a href="producing-your-first-crime-map.html#cb23-12" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x =</span> crime_type, <span class="at">y =</span> n, <span class="at">fill =</span> last_outcome_category)) <span class="sc">+</span> </span>
+<span id="cb23-13"><a href="producing-your-first-crime-map.html#cb23-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>() <span class="sc">+</span> </span>
+<span id="cb23-14"><a href="producing-your-first-crime-map.html#cb23-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Frequency of crime types&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb23-15"><a href="producing-your-first-crime-map.html#cb23-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">&quot;Crime type&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb23-16"><a href="producing-your-first-crime-map.html#cb23-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">&quot;Number of crimes&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb23-17"><a href="producing-your-first-crime-map.html#cb23-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
+<span id="cb23-18"><a href="producing-your-first-crime-map.html#cb23-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">15</span>, <span class="at">hjust =</span> <span class="dv">1</span>), </span>
+<span id="cb23-19"><a href="producing-your-first-crime-map.html#cb23-19" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.border =</span> <span class="fu">element_rect</span>(<span class="at">colour =</span> <span class="st">&quot;black&quot;</span>, <span class="at">fill=</span><span class="cn">NA</span>, <span class="at">size=</span><span class="dv">1</span>))</span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+<p>We can be explicit about the colours we want to use with the function <code>scale_fill_brewer()</code>, which we can also use to rename our legend. Don’t worry too much at this point about where the palette comes from, in the chapter on cargography we will discuss colour in more detail.</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="producing-your-first-crime-map.html#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x =</span> crime_type, <span class="at">y =</span> n, <span class="at">fill =</span> last_outcome_category)) <span class="sc">+</span> </span>
+<span id="cb24-2"><a href="producing-your-first-crime-map.html#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>() <span class="sc">+</span> </span>
+<span id="cb24-3"><a href="producing-your-first-crime-map.html#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Frequency of crime types&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb24-4"><a href="producing-your-first-crime-map.html#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">&quot;Crime type&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb24-5"><a href="producing-your-first-crime-map.html#cb24-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">&quot;Number of crimes&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb24-6"><a href="producing-your-first-crime-map.html#cb24-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
+<span id="cb24-7"><a href="producing-your-first-crime-map.html#cb24-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">15</span>, <span class="at">hjust =</span> <span class="dv">1</span>), </span>
+<span id="cb24-8"><a href="producing-your-first-crime-map.html#cb24-8" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.border =</span> <span class="fu">element_rect</span>(<span class="at">colour =</span> <span class="st">&quot;black&quot;</span>, <span class="at">fill=</span><span class="cn">NA</span>, <span class="at">size=</span><span class="dv">1</span>)) <span class="sc">+</span> </span>
+<span id="cb24-9"><a href="producing-your-first-crime-map.html#cb24-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">type =</span> <span class="st">&quot;qual&quot;</span>, <span class="at">palette =</span> <span class="dv">3</span>, <span class="at">name =</span> <span class="st">&quot;Outcome&quot;</span>)</span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<p>There are many many more options. While this here is not the greatest graph you’ll ever see, it illustrates the process of building up your graphics the ggplot way. Do read up on <code>ggplot2</code> for example in <span class="citation"><a href="chapter-5-visualisation-good-cartographic-design.html#ref-Wickham_2017" role="doc-biblioref">Wickham and Grolemund</a> (<a href="chapter-5-visualisation-good-cartographic-design.html#ref-Wickham_2017" role="doc-biblioref">2017</a>)</span>. In later chapters, we will talk more about visualisation, colour choice, and more!</p>
+</div>
+<div id="mapping-crime-data-as-points" class="section level2" number="1.7">
+<h2><span class="header-section-number">1.7</span> Mapping crime data as points</h2>
+<p>So how can we use this for spatial data? We can use the <code>geom_sf()</code> function to do so. Using <code>geom_sf</code> is slightly different to other geometries, for example how we used <code>geom_col()</code> above. First we initiate the plot with the <code>ggplot()</code> function but don’t include the data in there. Instead, it is in the geometry where we add the data. And second we don’t need to specify the mapping of x and y. Since this is in the geometry column of our spatial object. Like so:</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="producing-your-first-crime-map.html#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> </span>
+<span id="cb25-2"><a href="producing-your-first-crime-map.html#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> crimes_sf)</span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+<p>And here we have a map of each point in our data set, each recorded crime in June 2019 in Greater Manchester.</p>
+<p>Would you call this a map though? While it is presenting spatial data, there is not a lot of meaning being communicated. Point maps generally can be messy and their uses are specific to certain situations and cases, usually when you have fewer points, but here, these points are especially devoid of any meaning, as they are floating in a graph grid. So let’s give it a <strong>basemap</strong>.</p>
+<p>We can do this by adding a layer to our graph object. Specifically we will use the <code>annotation_map_tile()</code> from the <code>ggspatial</code> package. This provides us with a static Open Street Map layer behind our data, giving it (some) more context. Remember to load the package (and install if you haven’t already). And then use the <code>annotation_map_tile()</code> function, making sure to place it before the <code>geom_sf</code> points layer, so the background map is placed first, and the points on top of that:</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="producing-your-first-crime-map.html#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggspatial)</span>
+<span id="cb26-2"><a href="producing-your-first-crime-map.html#cb26-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-3"><a href="producing-your-first-crime-map.html#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> </span>
+<span id="cb26-4"><a href="producing-your-first-crime-map.html#cb26-4" aria-hidden="true" tabindex="-1"></a> <span class="fu">annotation_map_tile</span>() <span class="sc">+</span></span>
+<span id="cb26-5"><a href="producing-your-first-crime-map.html#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> crimes_sf)</span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
+<pre><code>## 
+  |                                                                            
+  |                                                                      |   0%
+  |                                                                            
+  |==================                                                    |  25%
+  |                                                                            
+  |===================================                                   |  50%
+  |                                                                            
+  |====================================================                  |  75%
+  |                                                                            
+  |======================================================================| 100%</code></pre>
+<p>So what you see above behind the points is what we can call a <strong>basemap</strong>. The term basemap is seen often in GIS and refers to a collection of GIS data and/or orthorectified imagery that form the background setting for a map. The function of the basemap is to provide background detail necessary to orient the location of the map. Basemaps also add to the aesthetic appeal of a map. <strong>Basemaps</strong> are essentially reference maps that may give us context and help with the interpretation. You can see above that you are seeing the <em>Open Street Map</em> Basemap. This is one option but there are others.</p>
+<p>Let’s leave out points for now, and move on to how we might map our lines and polygons.</p>
+</div>
+<div id="mapping-crime-data-as-polygons" class="section level2" number="1.8">
+<h2><span class="header-section-number">1.8</span> Mapping crime data as polygons</h2>
+<p>What about our other two columns, location, and LSOAs? Well to put these on the map, we need a geometry representation of them. We need boundary data representing the areas we want to map put. We will learn in this section where you may find these, how to download them, turn them into sf objects, and how to link your data to them to be able to map them.</p>
+<div id="finding-boundary-data" class="section level3" number="1.8.1">
+<h3><span class="header-section-number">1.8.1</span> Finding boundary data</h3>
+<p>In this section you are going to learn how you take one of the most popular data formats for spatial objects, the <strong>shapefile</strong>, and read it into R. The shapefile was introduced by ESRI, the developers and vendors or ArcGIS. And although many other formats have developed since and ESRI no longer holds the same market position it once occupied (though they’re still the player to beat), shapefiles continue to be one of the most popular formats you will encounter in your work. You can read more about shapefiles in Wikipedia (<a href="https://en.wikipedia.org/wiki/Shapefile" class="uri">https://en.wikipedia.org/wiki/Shapefile</a>).</p>
+<p>We are going to learn here how to obtain shapefiles for British census geographies. For this activity we will focus on the polygon (the LSOA) rather than the lines of the streets, but the logic is more or less the same.</p>
+<p>Census boundary data are a digitised representation of the underlying geography of the census. Census Geography is often used in research and spatial analysis because it is divided into units based on population counts, created to form comparable units, rather than other administrative boundaries such as wards or police force areas. However depending on your research question and the context for your analysis, you might be using different units.</p>
+<p>The hierarchy of the census geographies in the UK goes from Country to Local Authority to Middle Layer Super Output Area (MSOA) to Lower Layer Super Output Area (LSOA) to Output Area (in other countries you have similar levels in the census hierarchies):</p>
+<pre><code>## Reading layer `england_lsoa_2011&#39; from data source `/Users/reka/Desktop/crime_mapping/crime_mapping/data/BoundaryData/england_lsoa_2011.shp&#39; using driver `ESRI Shapefile&#39;
+## Simple feature collection with 282 features and 3 fields
+## Geometry type: POLYGON
+## Dimension:     XY
+## Bounding box:  xmin: 378833.2 ymin: 382620.6 xmax: 390350.2 ymax: 405357.1
+## Projected CRS: OSGB 1936 / British National Grid</code></pre>
+<p><img src="crime_mapping_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
+<p>Here we will get some boundaries for Manchester. Let’s use the LSOA level, so that we can link back to our crime data easily. These are geographical regions designed to be more stable over time and consistent in size than existing administrative and political boundaries. LSOAs comprise, on average, 600 households that are combined on the basis of spatial proximity and homogeneity of dwelling type and tenure.</p>
+<p>To get some boundary data, you can use the UK Data Service website. There is a simple <a href="https://borders.ukdataservice.ac.uk/bds.html">Boundary Data Selector</a> tool which you could use. Other countries also have such repositories, and in some cases where they do not, other resources, such as Open Street Map, or natural earth (and associated R package <code>rnaturalearth</code>) can be handy resources. In Appendix C “Sourcing geographical data for crime analysis” we elaborate more on these, with some examples.</p>
+<p>For now, you can turn to the data folder which you have downloaded from this book’s repository. (If unsure, refer to the “Preamble” section!).</p>
+<p>Specifically, we’re looking for a folder called <code>BoundaryData</code>. When we download a shapefile, we usually get many files, and a folder which contains them all. It is important for these files to be kept together, in the same folder. If you have a look inside thie BoundaryData folder, you will notice that there are 4 files with the same name “england_lsoa_2011.” <strong>NOTE AGAIN: It is important that you keep all these files in the same location as each other!</strong> They all contain different bits of information about your shapefile (and they are all needed):</p>
+<ul>
+<li>.shp — shape format; the feature geometry itself - this is what you see on the map</li>
+<li>.shx — shape index format; a positional index of the feature geometry to allow seeking forwards and backwards quickly</li>
+<li>.dbf — attribute format; columnar attributes for each shape, in dBase IV format.</li>
+<li>.prj — projection format; the coordinate system and projection information, a plain text file describing the projection using well-known text format</li>
+</ul>
+<p>Sometimes there might be more files associated with your shapefile as well, but we will not cover them here. So unlike when you work with spreadsheets and data in tabular form, which typically is just all included in one file; when you work with shapefiles, you have to live with the required information living in separate files that need to be stored together. So, being tidy and organised is even more important when you carry out projects that involve spatial data.</p>
+</div>
+<div id="reading-shapefiles-into-r" class="section level3" number="1.8.2">
+<h3><span class="header-section-number">1.8.2</span> Reading shapefiles into R</h3>
+<p>To read in your data into R, you will need to know the path to where you have saved it. Ideally this will be in your data folder in your project directory.</p>
+<p>Let’s create an object and assign it our shapefile’s name:</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="producing-your-first-crime-map.html#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Remember to use the appropriate pathfile in your case</span></span>
+<span id="cb29-2"><a href="producing-your-first-crime-map.html#cb29-2" aria-hidden="true" tabindex="-1"></a>shp_name <span class="ot">&lt;-</span> <span class="st">&quot;data/BoundaryData/england_lsoa_2011.shp&quot;</span></span></code></pre></div>
+<p>Make sure that this is saved in your working directory, and you have set your working directory.</p>
+<p>Now use the <code>st_read()</code> function from the <code>sf</code> package to read in the shapefile:</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="producing-your-first-crime-map.html#cb30-1" aria-hidden="true" tabindex="-1"></a>manchester_lsoa <span class="ot">&lt;-</span> <span class="fu">st_read</span>(shp_name)</span></code></pre></div>
+<pre><code>## Reading layer `england_lsoa_2011&#39; from data source `/Users/reka/Desktop/crime_mapping/crime_mapping/data/BoundaryData/england_lsoa_2011.shp&#39; using driver `ESRI Shapefile&#39;
+## Simple feature collection with 282 features and 3 fields
+## Geometry type: POLYGON
+## Dimension:     XY
+## Bounding box:  xmin: 378833.2 ymin: 382620.6 xmax: 390350.2 ymax: 405357.1
+## Projected CRS: OSGB 1936 / British National Grid</code></pre>
+<p>Now you have your spatial data file. Notice how running the function sends to the console some metadata about your data. You have a polygon, with 282 rows, and the CRS is the projected British National Grid. You can have a look at what sort of data it contains, the same way you would view a dataframe, with the <code>View()</code> function:</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="producing-your-first-crime-map.html#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">View</span>(manchester_lsoa)</span></code></pre></div>
+<pre><code>## Rows: 282
+## Columns: 4
+## $ label    &lt;chr&gt; &quot;E08000003E02001062E01005066&quot;, &quot;E08000003E02001092E01005073&quot;,…
+## $ name     &lt;chr&gt; &quot;Manchester 018E&quot;, &quot;Manchester 048C&quot;, &quot;Manchester 018A&quot;, &quot;Man…
+## $ code     &lt;chr&gt; &quot;E01005066&quot;, &quot;E01005073&quot;, &quot;E01005061&quot;, &quot;E01005062&quot;, &quot;E0100506…
+## $ geometry &lt;POLYGON [m]&gt; POLYGON ((384850 397432, 38..., POLYGON ((382221.1 38…</code></pre>
+<p>And of course, since it’s spatial data, you can map it using the <code>geom_sf()</code> function, as we did with our points:</p>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="producing-your-first-crime-map.html#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> </span>
+<span id="cb34-2"><a href="producing-your-first-crime-map.html#cb34-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> manchester_lsoa)</span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/unnamed-chunk-21-1.png" width="672" /></p>
+<p>Great, we now have an outline of the LSOAs in Manchester. Notice how the shape is different to that of the points in our crime data since here we only obtained the data for the city of Manchester (Manchester Local Authority) rather than for the whole metropolitan area - and which includes all the other local authorities aside from Manchester city as well.</p>
+</div>
+<div id="data-wrangling-with-dplyr" class="section level3" number="1.8.3">
+<h3><span class="header-section-number">1.8.3</span> Data wrangling with dplyr</h3>
+<p>In order to map crimes to LSOAs we might want to take a step back and think about unit of analysis at which our data are collected. In our original dataframe of crimes, we saw that each crime incident is one row. So the unit of analysis is each crime. Since we were looking to map each crime at the location it happened, we used the latitude and longitude supplied with each one, and this supplied a geometry each for each crime type. However, when we are looking to map our data to LSOA level, we need to match the crime data to the geometry we wish to display.</p>
+<p>Have a look at the “manchester_lsoa” object we mapped above. How many rows (observations) does it have? You can check this by looking in the Environment pane, or by using the <code>nrow()</code> function.</p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="producing-your-first-crime-map.html#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(manchester_lsoa)</span></code></pre></div>
+<p>You can see this has 282 rows. This means we have geometries for 282 LSOAs. On the other hand, our crimes dataframe has 32058 rows, one for each crime (observation). So how can we match these up? The answer lies in thinking about what it is that our map using LSOAs as our unit of analysis will be able to tell us. Think of other maps of areas - what are they usually telling you? Usually we expect to see crimes per neighbourhood - something like this. So our unit of analysis needs to be LSOA, and for each one we need to know how many crimes occurred in that area.</p>
+<p>To achieve this, we will wrangle our data using functions from the <code>dplyr</code> package. This is a package for conducting all sorts of operations with data frames. We are not going to cover the full functionality of <code>dplyr</code> (which you can consult in the <code>dplyr</code> vignette (<a href="https://cran.r-project.org/web/packages/dplyr/vignettes/dplyr.html" class="uri">https://cran.r-project.org/web/packages/dplyr/vignettes/dplyr.html</a>)), but we are going to cover three different very useful elements of dplyr: the <code>select</code> function, the <code>group_by</code> function, and the piping operator.</p>
+<p>The <code>select()</code> function provides you with a simple way of subsetting columns from a data frame. So, say we just want to use one variable, “lsoa_code,” from the “crimes” dataframe and store it in a new object we could write the following code. This variable tell us the LSOA in which the crime took place and it is essential if we want to group our crimes by LSOA (by using this standard method of merging information from datasets):</p>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="producing-your-first-crime-map.html#cb36-1" aria-hidden="true" tabindex="-1"></a>new_object <span class="ot">&lt;-</span> <span class="fu">select</span>(crimes, lsoa_code)</span></code></pre></div>
+<p>We can also use the <code>group_by()</code> function for performing group operations. Essentially this function ask R to group cases within categories and then do something with those grouped cases. So, say, we want to count the number of cases within each LSOA, we could use the following code:</p>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="producing-your-first-crime-map.html#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co">#First we group the cases by LSOA code and </span></span>
+<span id="cb37-2"><a href="producing-your-first-crime-map.html#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="co"># store this organised data into a new object</span></span>
+<span id="cb37-3"><a href="producing-your-first-crime-map.html#cb37-3" aria-hidden="true" tabindex="-1"></a>grouped_crimes <span class="ot">&lt;-</span> <span class="fu">group_by</span>(new_object, lsoa_code)</span>
+<span id="cb37-4"><a href="producing-your-first-crime-map.html#cb37-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-5"><a href="producing-your-first-crime-map.html#cb37-5" aria-hidden="true" tabindex="-1"></a><span class="co">#Then we count the number of cases within each category </span></span>
+<span id="cb37-6"><a href="producing-your-first-crime-map.html#cb37-6" aria-hidden="true" tabindex="-1"></a><span class="co"># using the summarise function to print the results</span></span>
+<span id="cb37-7"><a href="producing-your-first-crime-map.html#cb37-7" aria-hidden="true" tabindex="-1"></a><span class="fu">summarise</span>(grouped_crimes, <span class="at">count =</span> <span class="fu">n</span>())</span>
+<span id="cb37-8"><a href="producing-your-first-crime-map.html#cb37-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-9"><a href="producing-your-first-crime-map.html#cb37-9" aria-hidden="true" tabindex="-1"></a><span class="co">#We create a new dataframe with these results</span></span>
+<span id="cb37-10"><a href="producing-your-first-crime-map.html#cb37-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-11"><a href="producing-your-first-crime-map.html#cb37-11" aria-hidden="true" tabindex="-1"></a>crime_per_LSOA <span class="ot">&lt;-</span> <span class="fu">summarise</span>(grouped_crimes, <span class="at">count =</span> <span class="fu">n</span>())</span></code></pre></div>
+<p>As you can see we can do what we wanted, create a new dataframe with the required info, but if we do this we are creating many objects that we don’t need, one at each step. Instead there is a more efficient way of doing this, without so many intermediate steps clogging up our environment with unnecessary objects. That’s where the piping operator comes handy. The piping operator is written like <code>%&gt;%</code> and it can be read as “and then.” Look at the code below:</p>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="producing-your-first-crime-map.html#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co">#First we say create a new object called crime_per_lsoa, </span></span>
+<span id="cb38-2"><a href="producing-your-first-crime-map.html#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="co"># and then select only the LSOA.code column to exist in this object, </span></span>
+<span id="cb38-3"><a href="producing-your-first-crime-map.html#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="co"># and then group this object by the LSOA.code, </span></span>
+<span id="cb38-4"><a href="producing-your-first-crime-map.html#cb38-4" aria-hidden="true" tabindex="-1"></a><span class="co"># and then count the number of cases within each category. </span></span>
+<span id="cb38-5"><a href="producing-your-first-crime-map.html#cb38-5" aria-hidden="true" tabindex="-1"></a><span class="co"># This is what I want in the new object.</span></span>
+<span id="cb38-6"><a href="producing-your-first-crime-map.html#cb38-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-7"><a href="producing-your-first-crime-map.html#cb38-7" aria-hidden="true" tabindex="-1"></a>crimes_per_lsoa <span class="ot">&lt;-</span> crimes <span class="sc">%&gt;%</span></span>
+<span id="cb38-8"><a href="producing-your-first-crime-map.html#cb38-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(lsoa_code) <span class="sc">%&gt;%</span></span>
+<span id="cb38-9"><a href="producing-your-first-crime-map.html#cb38-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">count=</span><span class="fu">n</span>())</span></code></pre></div>
+<p>Essentially we obtain the same results but with more streamlined and elegant code, and not needing additional objects in our environment.</p>
+<p>And now we have a new object, “crimes_per_lsoa” if we have a look at this one, we can now see what each row represents one LSOA, and next to it we have a variable for the number of crimes from each area. We created a new dataframe from a frequency table, and as each row of the crimes data was one crime, the frequency table tells us the number of crimes which occurred in each LSOA.</p>
+<p>Those of you playing close attention might note that there are still more observations in this dataframe (1671) than in the “manchester_lsoas” one (282). Again, this is because “crimes_per_lsoa” also includes data from census areas in municipalities of the metropolitan area of Greater of Manchester other than Manchester city.</p>
+</div>
+<div id="join-data-to-sf-object" class="section level3" number="1.8.4">
+<h3><span class="header-section-number">1.8.4</span> Join data to sf object</h3>
+<p>Our next task is to link our crimes data to our <code>sf</code> spatial object to help us map this. Notice anything similar between the data from the shapefile and the frequency table data we just created? Do they share a column?</p>
+<p>Yes! You might notice that the “lsoa_code” field in the crimes data matches the values in the “code” field in the spatial data. In theory we could join these two data tables.</p>
+<p>So how do we do this? Well what you can do is to link one data set with another. Data linking is used to bring together information from different sources in order to create a new, richer dataset. This involves identifying and combining information from corresponding records on each of the different source datasets. The records in the resulting linked dataset contain some data from each of the source datasets. Most linking techniques combine records from different datasets if they refer to the same entity (an entity may be a person, organisation, household or even a geographic region.)</p>
+<p>You can merge (combine) rows from one table into another just by pasting them in the first empty cells below the target table—the table grows in size to include the new rows. And if the rows in both tables match up, you can merge columns from one table with another by pasting them in the first empty cells to the right of the table—again, the table grows, this time to include the new columns.</p>
+<p>Merging rows is pretty straightforward, but merging columns can be tricky if the rows of one table don’t always line up with the rows in the other table. By using <code>left_join()</code> from the <code>dplyr</code> package, you can avoid some of the alignment problems.</p>
+<p><code>left_join()</code> will return all rows from <span class="math inline">\(x\)</span>, and all columns from <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span>. Rows in <span class="math inline">\(x\)</span> with no match in <span class="math inline">\(y\)</span> will have NA values in the new columns. If there are multiple matches between <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span>, all combinations of the matches are returned.</p>
+<p>So we’ve already identified that both our crimes data, and the spatial data contain a column with matching values, the codes for the LSOA that each row represents.</p>
+<p><strong>You need a unique identifier to be present</strong> for each row in all the data sets that you wish to join. This is how R knows what values belong to what row. What you are doing is matching each value from one table to the next, using this unique identified column, that exists in both tables. For example, let’s say we have two data sets from some people in Hawkins, Indiana. In one data set we collected information about their age. In another one, we collected information about their hair colour. If we collected some information that is unique to each observation, and this is the <em>same</em> in both sets of data, for example their names, then we can link them up, based on this information. Something like this:</p>
+<pre><code>## 
+## Attaching package: &#39;gridExtra&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:dplyr&#39;:
+## 
+##     combine</code></pre>
+<p><img src="crime_mapping_files/figure-html/unnamed-chunk-26-1.png" width="672" /></p>
+<p>And by doing so, we produce a final table that contains all values, lined up <em>correctly</em> for each individual observation, like this:</p>
+<pre><code>## Joining, by = &quot;name&quot;</code></pre>
+<p><img src="crime_mapping_files/figure-html/unnamed-chunk-27-1.png" width="672" /></p>
+<p>This is all we are doing, when merging tables, is we are making use that we line up the correct value for all the variables, for all our observations.</p>
+<p>Why are we using <em>left</em> join though? There is a whole family of join functions as part of dplyr (<a href="http://stat545.com/bit001_dplyr-cheatsheet.html" class="uri">http://stat545.com/bit001_dplyr-cheatsheet.html</a>) which join data sets. There is also a <code>right_join()</code>, and an <code>inner_join()</code> and an <code>outer_join()</code> and a <code>full_join()</code>. But here we use <code>left_join()</code>, because that way we keep all the rows in <code>x</code> (the left-hand side dataframe), and join to it all the matched columns in <code>y</code> (the right-hand side dataframe).</p>
+<p>So let’s join the crimes data to the spatial data, using <code>left_join()</code>. We have to tell the function what are the dataframes we want to join, as well as the names of the columns that contain the matching values in each one. This is “code” in the “manchester_lsoa” dataframe and “lsoa_code” in the “crimes_per_lsoa” dataframe. Like so:</p>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="producing-your-first-crime-map.html#cb42-1" aria-hidden="true" tabindex="-1"></a>manchester_lsoa <span class="ot">&lt;-</span> <span class="fu">left_join</span>(manchester_lsoa, crimes_per_lsoa, </span>
+<span id="cb42-2"><a href="producing-your-first-crime-map.html#cb42-2" aria-hidden="true" tabindex="-1"></a>                             <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;code&quot;</span><span class="ot">=</span><span class="st">&quot;lsoa_code&quot;</span>))</span></code></pre></div>
+<p>Now if you have a look at the data again, you will see that the column of number of crimes (<code>count</code>) has been added on.</p>
+<p>You may not want to have to go through this process all the time you want to work with this data. One thing you could do is to save the “manchester_lsoa” object as a physical file in your machine. You can use the <code>st_write()</code> function from the <code>sf</code> package to do this. If we want to write into a shapefile format we would do as shown below. Make sure you save this file, for we will come back to it in subsequent chapters.</p>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="producing-your-first-crime-map.html#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">st_write</span>(manchester_lsoa, </span>
+<span id="cb43-2"><a href="producing-your-first-crime-map.html#cb43-2" aria-hidden="true" tabindex="-1"></a>         <span class="st">&quot;data/BoundaryData/manchester_crime_lsoa.shp&quot;</span>)</span></code></pre></div>
+</div>
+<div id="putting-polygon-data-on-the-map" class="section level3" number="1.8.5">
+<h3><span class="header-section-number">1.8.5</span> Putting polygon data on the map</h3>
+<p>Now that we have joined the crimes data to the geometry, you can use this to make our map!</p>
+<p>Remember our original empty map? Well now, since we have the column (variable) for number of crimes here, we can use that to share the polygons based on how many crimes there are in each LSOA. We can do this by specifying the <code>fill=</code> parameter of the <code>geom_sf</code> function.</p>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="producing-your-first-crime-map.html#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> </span>
+<span id="cb44-2"><a href="producing-your-first-crime-map.html#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_sf</span>(<span class="at">data =</span> manchester_lsoa, <span class="fu">aes</span>(<span class="at">fill =</span> count))</span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/unnamed-chunk-30-1.png" width="672" /></p>
+<p>We can adjust the opacity of our thematic map, with the <code>alpha =</code> parameter, add a basemap, with the function <code>annotation_map_tile()</code> and adjust the colour scheme, with the <code>scale_fill_gradient2()</code> function.</p>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="producing-your-first-crime-map.html#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> </span>
+<span id="cb45-2"><a href="producing-your-first-crime-map.html#cb45-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotation_map_tile</span>() <span class="sc">+</span>  <span class="co"># add basemap</span></span>
+<span id="cb45-3"><a href="producing-your-first-crime-map.html#cb45-3" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_sf</span>(<span class="at">data =</span> manchester_lsoa, </span>
+<span id="cb45-4"><a href="producing-your-first-crime-map.html#cb45-4" aria-hidden="true" tabindex="-1"></a>        <span class="fu">aes</span>(<span class="at">fill =</span> count), </span>
+<span id="cb45-5"><a href="producing-your-first-crime-map.html#cb45-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span> <span class="co"># alpha sets the opacity</span></span>
+<span id="cb45-6"><a href="producing-your-first-crime-map.html#cb45-6" aria-hidden="true" tabindex="-1"></a>  <span class="co">#use scale_fill_gradient2() for a different palette </span></span>
+<span id="cb45-7"><a href="producing-your-first-crime-map.html#cb45-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># and name the variable on the legend</span></span>
+<span id="cb45-8"><a href="producing-your-first-crime-map.html#cb45-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradient2</span>(<span class="at">name =</span><span class="st">&quot;Number of crimes&quot;</span>) </span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/unnamed-chunk-31-1.png" width="672" /></p>
+<pre><code>## 
+  |                                                                            
+  |                                                                      |   0%
+  |                                                                            
+  |=======================                                               |  33%
+  |                                                                            
+  |===============================================                       |  67%
+  |                                                                            
+  |======================================================================| 100%</code></pre>
+<p>In subsequent chapters we will play around with other packages in R that you can use to produce this kind of maps and gradually we will discuss the kind of choices you can make in order to select the adequate type of representation for the type of spatial data and question you have, and the aesthethic choices that are adequate depending on the purposes and medium in which you will publish your map. But for now, we can rejoice, here is our very first crime map of the book!</p>
+</div>
+</div>
+<div id="summary-and-further-reading" class="section level2" number="1.9">
+<h2><span class="header-section-number">1.9</span> Summary and Further reading</h2>
+<p>In this chapter we had a play around with some regular old crime data and discovered how we can use the <code>sf</code> package in R to assign it a geometry (both at point and polygon level), and how that can help us visualise our results. We covered some very important concepts such as projections and coordinate reference systems, and we had a play at acquiring shapefiles which can help us visualise our data. We had a think about units of analysis, and how that will affect how we visualise our data. In the next chapter we will spend a bit of more time discussing how to make good choices when producing maps.</p>
+<p>There are a number of introductory texts to geographic information systems and analysis that provide adequate background to some of the key concepts we introduce in this chapter (<span class="citation"><a href="chapter-5-visualisation-good-cartographic-design.html#ref-OSullivan_2010" role="doc-biblioref">O´Sullivan and Unwin</a> (<a href="chapter-5-visualisation-good-cartographic-design.html#ref-OSullivan_2010" role="doc-biblioref">2010</a>)</span>, <span class="citation"><a href="chapter-5-visualisation-good-cartographic-design.html#ref-Bolstad_2019" role="doc-biblioref">Bolstad</a> (<a href="chapter-5-visualisation-good-cartographic-design.html#ref-Bolstad_2019" role="doc-biblioref">2019</a>)</span>). The report by <span class="citation"><a href="chapter-5-visualisation-good-cartographic-design.html#ref-Harries_1999" role="doc-biblioref">Harries</a> (<a href="chapter-5-visualisation-good-cartographic-design.html#ref-Harries_1999" role="doc-biblioref">1999</a>)</span> produced for the National Institute of Justice still provides a good general introduction for basic ideas around crime mapping and CAN be accessed for free online. Chapter 3 of <span class="citation"><a href="chapter-5-visualisation-good-cartographic-design.html#ref-Haining_2020" role="doc-biblioref">Spatial and Approach</a> (<a href="chapter-5-visualisation-good-cartographic-design.html#ref-Haining_2020" role="doc-biblioref">2020</a>)</span> offers invaluable observations on the nature of spatial and spatial-temporal attribute data, often using examples from crime research. From a more domain-knowledge point of view, the early chapters of <span class="citation"><a href="chapter-5-visualisation-good-cartographic-design.html#ref-Boba_2013" role="doc-biblioref">Santos</a> (<a href="chapter-5-visualisation-good-cartographic-design.html#ref-Boba_2013" role="doc-biblioref">2013</a>)</span> and <span class="citation"><a href="chapter-5-visualisation-good-cartographic-design.html#ref-Chainey_2005" role="doc-biblioref">Chainey and Rattcliffe</a> (<a href="chapter-5-visualisation-good-cartographic-design.html#ref-Chainey_2005" role="doc-biblioref">2005</a>)</span> set the stage for the use of GIS as part of the crime analysis process, whereas <span class="citation"><a href="chapter-5-visualisation-good-cartographic-design.html#ref-Bruinsma_2018" role="doc-biblioref">Bruinsma and Johnson</a> (<a href="chapter-5-visualisation-good-cartographic-design.html#ref-Bruinsma_2018" role="doc-biblioref">2018</a>)</span> edited handbook provides an excellent introduction to environmental criminology (that provides the theoretical and empirical backbone to spatial analysis of crime). Finally, <span class="citation"><a href="chapter-5-visualisation-good-cartographic-design.html#ref-Healy_2019" role="doc-biblioref">Healy</a> (<a href="chapter-5-visualisation-good-cartographic-design.html#ref-Healy_2019" role="doc-biblioref">2019</a>)</span> provides a general introduction to data visualisation with R using the <code>ggplot2</code> package. Although Healy´s text is not just about mapping, it offers a very practical and helpful introduction to using <code>ggplot2</code> where you can learn how to further customise your maps and other charts.</p>
+<p>This is a book about maps and spatial analysis, but clearly one of the first questions you need to ask yourself is whether producing a map is the right answer to your question. Just because your data is spatial doesn’t mean you need a map for every question you pose to this data. There may be other forms of data visualisation that are more appropriate for exploring and summarising the story you want to tell with your data. If you are uncertain about whether you need a map or other kind of plot books such as <span class="citation"><a href="chapter-5-visualisation-good-cartographic-design.html#ref-Cairo_2016" role="doc-biblioref">Cairo</a> (<a href="chapter-5-visualisation-good-cartographic-design.html#ref-Cairo_2016" role="doc-biblioref">2016</a>)</span>, <span class="citation"><a href="chapter-5-visualisation-good-cartographic-design.html#ref-Camoes_2016" role="doc-biblioref">Camoes</a> (<a href="chapter-5-visualisation-good-cartographic-design.html#ref-Camoes_2016" role="doc-biblioref">2016</a>)</span>, or <span class="citation"><a href="chapter-5-visualisation-good-cartographic-design.html#ref-Schwabish_2021" role="doc-biblioref">Schwabish</a> (<a href="chapter-5-visualisation-good-cartographic-design.html#ref-Schwabish_2021" role="doc-biblioref">2021</a>)</span> provide useful guidance. For specifics of ggplot2 refer to <span class="citation"><a href="chapter-5-visualisation-good-cartographic-design.html#ref-Wickham_2010" role="doc-biblioref">Wickham</a> (<a href="chapter-5-visualisation-good-cartographic-design.html#ref-Wickham_2010" role="doc-biblioref">2010</a>)</span></p>
+
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="index.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="chapter-2-basic-geospatial-operations-in-r.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/rstudio/bookdown-demo/edit/master/01-first_map.Rmd",
+"text": "Edit"
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": ["crime_mapping.pdf", "crime_mapping.epub"],
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
