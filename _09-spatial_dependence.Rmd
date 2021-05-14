@@ -5,9 +5,9 @@
 
 This session we begin to explore the analysis of spatial autocorrelation statistics. Spatial autocorrelation is the correlation among data values, strictly due to the relative location proximity of the objects that the data refer to. It has been long known that values attribute values that are close together in space are unlikely to be independent. This is often referred to as Tobler's first law of geography : "everything is related to everything else, but near things are more related than distant things". For example, if area $n_i$ has a high level of violence, we often observe that the areas geographically close to $n_i$ tend to also exhibit high levels of violence. Spatial autocorrelation is the measure of this *correlation* between near things.
 
-In this chapter we are going to discuss ways in which you can quantify the answer to this question. We will start introducing methods to assess spatial clustering with point pattern data. Then, we will discuss measures of **global spatial autocorrelation** for lattice data, which essentially aim to answer the degree to which areas that are near each other tend to be more alike. We say global because we are interested in the degree of clustering not on the location of the clusters. In the final part of the chapter we will also cover techniques to identify local clusters of autocorrelation.
+In this chapter we are going to discuss ways in which you can quantify the answer to this question. We will start introducing methods to assess spatial clustering with point pattern data. Then, we will discuss measures of **global spatial autocorrelation** for lattice data, which essentially aim to answer the degree to which areas that are near each other tend to be more alike. We say global because we are interested in the degree of clustering not on the location of the clusters, this we will cover in the next chapter. 
 
-We'll be making use of the following packages:
+We will be making use of the following packages:
 
 ```{r, message=FALSE, warning=FALSE}
 
@@ -20,11 +20,12 @@ library(lubridate)
 library(sf)
 library(sp)
 
-library(spdep)
-library(rgeoda)
-
 # Specific packages for spatial point pattern analysis
 library(spatstat)
+
+# Packages to generate spatial weight matrix and compute measures of dependence
+library(spdep)
+library(rgeoda)
 
 # Packages for mapping and visualisation
 library(tmap)
@@ -37,10 +38,10 @@ library(ggspatial)
 
 ### The empirical K function
 
-In Chapter 6 we assessed homogeneity, or lack of, in point pattern data. Another important aspect of point location is whether they show some kind of interpoint dependence. In observing a point pattern one is interested in what are referred to as first order properties (varying intensity across the study surface vs homogeneity) and second order properties (independence vs correlation among the points). As @Bivand_2013 explain:
+In Chapter 7 we assessed homogeneity, or lack of, in point pattern data. Another important aspect of point location is whether they show some kind of interpoint dependence. In observing a point pattern one is interested in what are referred to as first order properties (varying intensity across the study surface vs homogeneity) and second order properties (independence vs correlation among the points). As @Bivand_2013 explain:
 >" Spatial variation occurs when the risk is not homogeneous in the study region (i.e. all individuals do not have the same risk) but cases appear independently of each other according to this risk surface, whilst clustering occurs when the occurrence of cases is not at random and the presence of a case increases the probability of other cases appearing nearby." (p. 204)
 
-In chapter 6 we cover the Chi Square test and we very briefly discussed how it can only help us to reject the notion of spatial randomness in our point pattern, but it cannot help us to determine whether this is due to varying intensity or to interpoint dependence.
+In chapter 7 we covered the Chi Square test and we very briefly discussed how it can only help us to reject the notion of spatial randomness in our point pattern, but it cannot help us to determine whether this is due to varying intensity or to interpoint dependence.
 
 Both processes may lead to observed clustering:
 -First order clustering near particular locations in the region of study takes place when we observe more points in certain neighborhoods or street segments or whatever our unit of interest is.
@@ -49,13 +50,15 @@ Both processes may lead to observed clustering:
 This may sound subtle and in practice it may be difficult, nearly impossible, to distinguish "first order inhomogeneity" and "second order clustering due to interactions between points" based on a single point pattern. [^1]
 [^1]: These observations are citing the answer provided by "whuber" and "Ege Rubak" in Stack Exchange about this issue (https://stats.stackexchange.com/questions/411402/spatial-point-process-does-an-inhomogeneous-first-order-intensity-function-affe).
 
-A technique commonly used to assess whether points are independent is Ripley´s K-function. @Baddeley_2016 defines the K function as the "cumulative average number of data points lying within a distance *r* of a typical data point, corrected for edge effects, and standardised by dividing by the intensity." (p. 204). This is a test that, as we will see, assumes that the process is homogeneous.
+A technique commonly used to assess whether points are independent is Ripley´s K-function. @Baddeley_2016 defines the K function as the "cumulative average number of data points lying within a distance $r$ of a typical data point, corrected for edge effects, and standardised by dividing by the intensity." (p. 204). This is a test that, as we will see, assumes that the process is spatially homogeneous.
 
-Imagine we want to know if the location of crime events are independent. Ripley´s K function evaluates distances across crime events to assess this. In this case, it would count the number of neighboring crime events represented by the points found within a given distance of each individual crime location. The number of observed neighboring crime events is then traditionally compared to the number of crime events one would expect to find based on a completely spatially random point pattern. If the number of crimes found within a given distance of each individual crime is greater than that for a random distribution, the distribution is then considered to be clustered. If the number is smaller, the distribution is considered to be dispersed. Typically, what we do to study correlation in a point pattern data is to plot the empirical K function estimated from the data and compare this with the theoretical K-function of the homogeneous Poisson process. For this to work, we need to assume that the process is spatially homogeneous. If we suspect this is not the case, then we cannot use the standard Ripley´s K methods. Let´s illustrate how this works.
+Imagine we want to know if the location of crime events are independent. Ripley´s K function evaluates distances across crime events to assess this. In this case, it would count the number of neighboring crime events represented by the points found within a given distance of each individual crime location. The number of observed neighboring crime events is then traditionally compared to the number of crime events one would expect to find based on a completely spatially random point pattern. If the number of crimes found within a given distance of each individual crime is greater than that for a random distribution, the distribution is then considered to be clustered. If the number is smaller, the distribution is considered to be dispersed. 
 
-### Get data
+Typically, what we do to study correlation in a point pattern data is to plot the empirical K function estimated from the data and compare this with the theoretical K-function of the homogeneous Poisson process. For this to work, we need to assume that the process is spatially homogeneous. If we suspect this is not the case, then we cannot use the standard Ripley´s K methods. Let´s illustrate how this works.
 
-For this exercise we travel to Buenos Aires, the capital and largest city in Argentina.  The government of Buenos Aires provides open data in geocoded crime from 2016 onwards. The data is freely available from the official source (http://mapa.seguridadciudad.gob.ar/). But we have added it already as supplementary material available from our GitHub repository. We will filter on "homicidios dolosos", intentional homicides and we are using all homicides from 2016 and 2017. After reading the .csv file we turn it into a `sf` object and plot it. We are also reading a geojson file with the administrative boundary of Buenos Aires. The code below uses functions in ways we have demonstrated in earlier chapters.
+### Homicide in Buenos Aires
+
+For this exercise we travel to Buenos Aires, the capital and largest city in Argentina.  The government of Buenos Aires provides open data in geocoded crime from 2016 onwards. The data is freely available from the official source (http://mapa.seguridadciudad.gob.ar/). But we have added it already as supplementary material available from our OSF account. We will filter on "homicidios dolosos", intentional homicides and we are using all homicides from 2016 and 2017. After reading the .csv file we turn it into a `sf` object and plot it. We are also reading a GeoJSON file with the administrative boundary of Buenos Aires. The code below uses functions in ways we have demonstrated in earlier chapters.
 
 ```{r, message=FALSE, warning=FALSE}
 
@@ -83,7 +86,7 @@ tm_shape(buenos_aires) +
 
 ```
 
-We will be using the `spatstat` functionality, thus, need to turn this spatial point pattern data into a `ppp` object, using the boundaries of Buenos Aires as an `owin` object. We are using code already explained in Chapter 6. As we will see there are duplicate points. Since the available documentation does not mention any masking of the locations for privacy purposes, we cant assume that´s the reason for it. For simplicity purpose we will do as in Chapter 6 and introduce a small degree of jittering with a rather narrow radius.
+We will be using the `spatstat` functionality, thus, need to turn this spatial point pattern data into a `ppp` object, using the boundaries of Buenos Aires as an `owin` object. We are using code already explained in Chapter 7. As we will see there are duplicate points. Since the available documentation does not mention any masking of the locations for privacy purposes, we cant assume that´s the reason for it. For simplicity purpose we will do as in Chapter 7 and introduce a small degree of jittering with a rather narrow radius.
 
 ```{r, warning=FALSE}
 
@@ -108,6 +111,7 @@ As noted by @Baddeley_2016, "most users... will not need to know the theory behi
 k1 <- Kest(delitos_jit, correction = c("isotropic", "translate"))
 plot(k1)
 ```
+
 The graphic shows the K function using each of the corrections and the theoretical expected curve under a Poisson process of independence. When there is clustering we expect the empirical K-function estimated from the observed data to lie above the empirical K-function for a completely random pattern. This indicates that a point has more "neighboring" points than it would be expected under a random process.
 
 It is possible to use Nonte Carlo simulations to draw the confidence interval around the theoretical expectations. This allow us to draw *envelope* plots, that can be interpreted as a statistical significance test. If the homicide data were generated at random we would expect the observed K function to overlap with the envelope of the theoretical expectation. @Baddeley_2016, in particular, suggest the use of global envelopes as a way to avoid data snooping.
@@ -120,7 +124,7 @@ E <- envelope(delitos_jit, Kest, nsim=39, rank = 1, global = TRUE,
 plot(E)
 ```
 
-The problem, though, is that this test only work if we have a homogeneous process. The envelope will also fail to overlap with the observed K function if there are variations in intensity. We also saw the reverse, that it is hard to assess homogeneity without assuming independence. In Chapter 6 we saw how if we suspect the process is not homogeneous, we can estimate it with nonparametric techniques such as kernel density estimation.
+The problem, though, is that this test only work if we have a homogeneous process. The envelope will also fail to overlap with the observed K function if there are variations in intensity. We also saw the reverse, that it is hard to assess homogeneity without assuming independence. In Chapter 7 we saw how if we suspect the process is not homogeneous, we can estimate it with nonparametric techniques such as kernel density estimation.
 
 ```{r}
 
@@ -137,6 +141,7 @@ inhk_hom <- Kinhom(delitos_jit,
                    sigma = bw.scott)
 plot(inhk_hom)
 ```
+And then build the envelope:
 
 ```{r}
 E_i <- envelope(delitos_jit, Kinhom, nsim=39, rank = 1, global = TRUE,
@@ -144,13 +149,11 @@ E_i <- envelope(delitos_jit, Kinhom, nsim=39, rank = 1, global = TRUE,
 plot(E_i)
 ```
 
-
-[[[]]]
-
+In this example once we allow for varying intensity, the spatial dependence no longer holds for a range of distances.
 
 ## Exploring spatial autocorrelation in lattice data
 
-### Get data
+### Break and Enter in Toronto
 
 We are going to take some of the data from past weeks. In getting the data ready you will have one more opportunity to practice how to read data into R but also how to perform some basic spatial checks, transformations and operations. First let's get the LSOA boundary data, which is the projected British National Grid reference system.
 

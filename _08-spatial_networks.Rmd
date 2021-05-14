@@ -1,23 +1,21 @@
 # Chapter 8: Crime along spatial networks
 
+https://r-spatial.org/r/2019/09/26/spatial-networks.html
+https://luukvdmeer.github.io/sfnetworks/index.html
+
 
 ## Introduction
 
-[[[Need to tidy up intro to just focus on networks]]]
-In the previous chapter 
+In the previous chapter we explored how the techniques for spatial pattern analysis can be used to study the varying intensity of crime across space. We introduce the key idea of spatial randomness. These methods were developed to study locations in a continuous plane and are also referred to as **planar spatial analysis**. We have also seen how whenever calculating distances we often used the Euclidean distance. For convenience, we have seen how these techniques have been extended to study network events, that is, events that only appear along a spatial network. Point crime data almost always appears alongside a spatial network. Typically we have these events positioned along the street network of cities. They won´t appear randomly in our 2 dimensional representation of the city, they will only appear along the street network covering this city. And if we want to measure distance between any two points it makes more sense to measure the shortest distance along this street network than to compute an Euclidean distance. This, of course, it is a bit more tricky, which is way practice has often simply relied on planar spatial analysis when exploring the location of crime events.
 
-However at the end of the chapter we raised some issues...    
+Spatial analysis along networks is a growing field of research of clear significance to the crime analyst. If our crime occurrences are represented along a spatial network we need to ensure we use techniques of analysis and visualisation that respect this existing underlying structure in our data. The infrastructure for spatial analysis along networks in R is still not as developed as other form of analysis, although the recent development of `sfnetworks` suggests the topic is starting to receive the attention it deserves.   
 
-One way to address this issue is to consider examining our data using **micro-places** as our unit of analysis. This is suggested by @Chainey_2021 as an optimal way forward. They recommend considering street segments, street junctions, or micro grid cells as appropriate units of analyses, which may address some of the problems of heterogeneity and arbitrary borders, discussed in Chapter 4 under the topic of MAUP, as well as some of the problems with isarithmic maps outlined above. 
-
-
-In this chapter we will cover some other ways to think about crime concentration in micro places by putting "hot spots" in context. Specifically we will explore the following: 
+In this chapter we will provide an introduction to the study of crime along networks by exploring the following:
 
 - linking data to meaningful micro-places such as **street segment** (or in this case, underground line segment) or **street junction** (or in this case underground station)
-- introducing **hot routes**
+- introducing the idea of **hot routes**
 - evaluating crime concentration in these types of micro places using **Gini coefficient** and **Lorenz curve**
 - **street profile analysis** - an alternative (non-spatial) way to visualise crime along a network 
-
 
 ```{r, message=FALSE, warning=FALSE}
 # Packages for reading data and data carpentry
@@ -33,11 +31,14 @@ library(lwgeom)
 
 # Packages for visualisation and mapping
 library(ggplot2)
+library(leaflet)
 
 # Packages providing accesss to spatial data
 library(rnaturalearth)
 
 ```
+
+For this chapter we use data from British Transport Police for crimes along the underground network in London. 
 
 ```{r, message=FALSE, warning=FALSE}
 
@@ -54,40 +55,13 @@ plot(st_geometry(ldn),  add = TRUE)
 
 ```
 
-
-
-
-
-
-We can make this more accessible for the analyst to explore, for example by overlaying on a leaflet map, like we did with KDE map in the previous chapter. 
-
-```{r, warning=FALSE, message=FALSE}
-library(leaflet)
-
-pal <- colorNumeric(c("#0C2C84", "#41B6C4", "#FFFFCC"), values(btp_crimes_raster),
-  na.color = "transparent")
-
-leaflet() %>% 
-  addTiles() %>%
-  addRasterImage(btp_crimes_raster, colors = pal, opacity = 0.8) %>%
-  addLegend(pal = pal, values = values(btp_crimes_raster),
-    title = "BTP Crimes")
-
-
-```
-
-
-
-
-
 ## Spatial point patterns along networks
 
-Another approach is to assign the crimes to some meaningful micro-place, such as a street segment, or street junction. This is recommended by @Chainey_2021. It is not only in the case of street networks that understanding spatial point patterns along a network might be more meaningful, there are other networks we might want to consider. 
-For example, with the British Transport Police data we are working, we can actually understand our crimes to have happened on or around the London Underground network. That is what we will illustrate these processes with here, using specifically the Bakerloo line as an illustrative example.
+Another approach is to assign the crimes to some meaningful micro-place, such as a street segment, or street junction. This is recommended by @Chainey_2021. It is not only in the case of street networks that understanding spatial point patterns along a network might be more meaningful, there are other networks we might want to consider. For example, with the British Transport Police data we are working, we can actually understand our crimes to have happened on or around the London Underground network. That is what we will illustrate these processes with here, using specifically the Bakerloo line as an illustrative example.
 
-London Underground is made up of 11 lines and 380 stops along its network. We can acquire data from the TfL Open API, whereby you can query for each individual line. If you are interested, see the [TfL API](). For simplicity sake we provide these data here, the stops in a .csv file, and the line in .geojson format. 
+London Underground is made up of 11 lines and 380 stops along its network. We can acquire data from the TfL Open API, whereby you can query for each individual line. If you are interested, see the [TfL API](). For simplicity sake we provide these data here, the stops in a .csv file, and the line in .GeoJSON format. 
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 
 bakerloo_stops <- read_csv("data/bakerloo_stops.csv")
 bakerloo_stops <- st_as_sf(bakerloo_stops, coords = c("stn_lon", "stn_lat"), crs = 4326)
@@ -96,13 +70,12 @@ bakerloo_line <- st_read("data/bakerloo_line.geojson")
 
 ```
 
-
-You can visualise the bakerloo line here using `ggplot2`.
+You can visualise the Bakerloo line here using `ggplot2`.
 
 
 ```{r plotlinestops}
 
-library(ggplot2)
+
 
 ggplot()+ 
   geom_sf(data = bakerloo_stops) + 
@@ -117,8 +90,7 @@ ggplot()+
 
 We will also need to select only those crimes which we can consider to have happened on or near the Bakerloo Line. When carrying out your analysis you might have some flag or other variable in the data which indicates whether or not a crime occurred on or near a specific location. 
 
-
-In the case of the poile.uk data we have a column that we consider them to have happened on or near a specific location. This is the `location` column. If we have a glance we can see the sort of information it contains: 
+In the case of the police.uk data we have a column that we consider them to have happened on or near a specific location. This is the `location` column. If we have a glance we can see the sort of information it contains: 
 
 ```{r}
 
