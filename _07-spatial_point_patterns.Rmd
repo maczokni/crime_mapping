@@ -1,6 +1,6 @@
-# Mapping "hot spots" of crime: spatial point patterns and isarithmic maps
+# Chapter 7: Spatial point patterns of crime events
 
-## Introduction
+## Mapping hot spots with isarithmic maps
 
 A key piece of information we explore in environmental criminology is the "exact" location of crimes, typically in the form of street address in which a crime is recorded as having occurred. A key goal of the analysis of this type of mapped point data is to detect patterns, in particular to detect areas where crime locations appear as clustered and reflecting an increased likelihood of occurrence. 
 
@@ -32,7 +32,7 @@ library(crimedata)
 
 ```
 
-## Getting the data: introducing "crimedata"
+## Getting the data: introducing `crimedata`
 
 Dr. Ashby is the lead contributor to the **Crime Open Database (CODE)**, a service that makes it convenient to use crime data from multiple US cities in research on crime. All the data in CODE are available to use for free as long as you acknowledge the source of the data. The package `crimedata` was developed by Dr. Ashby to make it easier to read into R the data from this service.
 
@@ -66,7 +66,7 @@ tm_shape(manhattan) +
 
 In the point pattern analysis literature each point is often referred to as an **event** and these events can have **marks**, attributes or characteristics that are also encoded in the data. In our spatial object one of these *marks* is the type of crime (although in this case it is of little interest since we have filtered on it). Others in this object include the date and time, the location category, victim sex and race, etc.
 
-## Getting the data into spatstat: creating `ppp` objects
+## Getting the data into `spatstat`: creating `ppp` objects
 
 So let's start using `spatstat`. The first thing we need to do is to transform our `sf` object into a `ppp` (planar point pattern) object which is how `spatstat` likes to store its point patterns. The components of a `ppp` object include the coordinates of the points and the observation window (defining the study area). 
 
@@ -132,7 +132,7 @@ bur_ppp <- ppp(x = sf_nyc_burg_coords[,1], y = sf_nyc_burg_coords[,2],
                    window = window, check = T)
 ```
 
-Notice the warning message about duplicated points? In spatial point pattern analysis an issue of significance is the presence of duplicates. The statistical methodology used for spatial point pattern processes is based largely on the assumption that processes are *simple*, that is, that the points cannot be coincident. That assumption may be unreasonable in many contexts (for example, the literature on repeat victimisation indeed suggests that we should expect the same households to be at a higher risk of being hit again). Even so, the point (no pun intended) is that *"when the data has coincidence points, some statistical procedures will be severely affected. So it is always strongly advisable to check for duplicate points and to decide on a strategy for dealing with them if they are present"* (Baddeley et al., 2015: 60).
+Notice the warning message about duplicated points? In spatial point pattern analysis an issue of significance is the presence of duplicates. The statistical methodology used for spatial point pattern processes is based largely on the assumption that processes are *simple*, that is, that the points cannot be coincident. That assumption may be unreasonable in many contexts (for example, the literature on repeat victimisation indeed suggests that we should expect the same households to be at a higher risk of being hit again). Even so, the point (no pun intended) is that *"when the data has coincidence points, some statistical procedures will be severely affected. So it is always strongly advisable to check for duplicate points and to decide on a strategy for dealing with them if they are present"* (@Baddeley_2015: p. 60).
 
 When creating the object we have already been warned this is an issue. But more generally we can check the duplication in a `ppp` object with the following syntax: it will return a logical indicating whether we have any duplication:
 
@@ -207,7 +207,7 @@ marks(bur_ppp_m) <- multiplicity(bur_ppp)
 
 If you examine your environment you will be able to see the new object and that it has a 6th element, which is the mark we just assigned.
 
-## Exploring our point pattern with spatstats: homogeneous or spatially varying intensity?
+## Homogeneous or spatially varying intensity?
 
 This package supports all kind of exploratory point pattern analysis. A key idea here is the notion of **intensity**, that is the average number of points per area. A key question that concern us is whether this intensity is homogeneous or uniform, or rather is spatially varying due, for example, to spatially varying risk factors. With `spatstats` you can produce a quick estimate of intensity for the whole study area if you assume a homogeneous distribution with `spatstat.geom::intensity.ppp()`.
 
@@ -275,7 +275,7 @@ Observing the results we see that the p value is well below conventional standar
 
 Beware as well that this test would come out as significant if the point pattern violates the property of independence between the points. It is important to keep in mind that the null may be rejected either because the process is not homogeneous *or* because the points are not independent, but the test doesn´t tell us the reason for the rejection. Equally, the power depend on the size of the quadrants (and they are not too large or too small). And the areas are not of equal size here in any case. So the test in many applications will be of limited use.
 
-## Visualising hot spots of crime: intensity estimates with spatstat
+## Mapping intensity estimates with spatstat
 
 ### Basics of kernel density estimation (KDE)
 
@@ -456,7 +456,7 @@ You may be wondering what is all that gibberish that we are assigning to the "ep
 
 Now we are ready to plot, although first we will create a more suitable colour palette and, since the values in the scale are quite close to 0 will multiple by a constant, to make the labels more readable. For this we use the `setValues function()` from `raster` package that allows us to manipulate the values in a `raster` object
 
-```{r leaflet_6}
+```{r leaflet_6, message=FALSE, warning=FALSE}
 
 pal <- colorNumeric("Reds", values(r1),
   na.color = "transparent") #Create color palette
@@ -514,8 +514,6 @@ Hot spots of crime are a simply a convenient perceptual construct. As Ned @Levin
 
 So, as with most data analysis exercises one has to try different approaches and use professional judgment to select a particular representation that may work best for a particular use. Equally, we should not reify what we produce and, instead, take the maps as a starting point for trying to understand the underlying patterns that are being revealed. Critically you want to try several different methods. You will be more persuaded a location is a hot spot if several methods for hot spot analysis point to the same location. We will discuss other approaches in subsequent chapters.
 
-For a deeper understanding of the issues discussed here we recommend the following reading. The documentation manual for CrimeStat (Chapter 10) has a detailed technical discussion of density estimation that is suited for crime analysts (@Levine_2013). Other manuals written for crime analysts also provide suitable introductions (). 
-
-The [thickest book](https://www.crcpress.com/Spatial-Point-Patterns-Methodology-and-Applications-with-R/Baddeley-Rubak-Turner/p/book/9781482210200) in our library, at 810 pages, is dedicated to `spacestat` and it provides a comprehensive discussion of spatial pattern analysis well beyond what we cover in this chapter. ... discusses at length the analysis of points along spatial networks.
+For a deeper understanding of the issues discussed here we recommend the following reading. The documentation manual for CrimeStat (Chapter 10) has a detailed technical discussion of density estimation that is suited for crime analysts (@Levine_2013). Other manuals written for crime analysts also provide appropriate introductions (@Chainey_2005, @Gorr_2012). Chapter 7 of @Bivand_2013 also provides a good introduction to spatial pattern analysis with R. For a fuller coverage of this kind of analysis with R, nothing can replace @Baddeley_2015. This book, at 810 pages, is dedicated to `spacestat` and it provides a comprehensive discussion of spatial pattern analysis well beyond what we cover in this chapter.
 
 
