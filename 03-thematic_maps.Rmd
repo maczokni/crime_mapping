@@ -1,5 +1,5 @@
 
-# Chapter 3: Mapping rates and counts: choropleth and proportional symbol maps
+# Mapping rates and counts
 
 ```{r include = FALSE}
 knitr::opts_chunk$set(cache = F)
@@ -106,7 +106,8 @@ In `tmap` each map can be plotted as a static map (*plot mode*) and shown intera
 For the purpose of demonstrating some of the functionality of this package we will use the Manchester crime data generated in the first chapter. We have now added a few variables obtained from the Census that will be handy later on. You can obtain the data in a GeoJSON format from our GitHub repo using the following code:
 
 ```{r}
-manchester <- st_read("https://raw.githubusercontent.com/maczokni/crime_mapping/master/data/manchester")
+
+manchester <- st_read("data/manchester")
 
 ```
 
@@ -126,25 +127,37 @@ tm_shape(manchester) +
   tm_bubbles("count")
   
 ```
+
 Each bubble represents the number of crimes in each LSOA within the city of Manchester. We can add the borders of the census areas for better representation. The `border.lwd` argument set to NA in the `tm_bubbles()` is asking R not to draw a border to the circles. Whereas `tm_borders()` brings back a layer with the borders of the polygons representing the different LSOAs in Manchester city. Notice how we are modifying the transparency of the borders with the alpha parameter. In addition, we are adding a `tm_layout()` function that makes explicit where and how we want the legend.
 
 ```{r}
-tm_shape(manchester) +                         #use tm_shape function to specify spatial object
-  tm_bubbles("count", border.lwd=NA) +              #use tm_bubbles to add the bubble visualisation, but set the 'border.lwd' parameter to NA, meaning no symbol borders are drawn
-  tm_borders(alpha=0.1) +                           #add the LSOA border outlines using tm_borders, but set their transparency using the alpha parameter (0 is totally transparent, 1 is not at all)
-  tm_layout(legend.position = c("right", "bottom"), #use tm_layout to make the legend look nice
+ #use tm_shape function to specify spatial object
+tm_shape(manchester) +   
+  #use tm_bubbles to add the bubble visualisation, 
+  # but set the 'border.lwd' parameter to NA, 
+  # meaning no symbol borders are drawn
+  tm_bubbles("count", border.lwd=NA) +  
+  #add the LSOA border outlines using tm_borders, 
+  # but set their transparency using the alpha parameter 
+  # (0 is totally transparent, 1 is not at all)
+  tm_borders(alpha=0.1) +      
+  #use tm_layout to make the legend look nice
+  tm_layout(legend.position = c("right", "bottom"), 
             legend.title.size = 0.8,
             legend.text.size = 0.5)
 ```
-There are several arguments that you can pass within the `tm_bubble` function that control the appearance of the symbols. The `scale` argument controls the symbol size multiplier number. Larger values will represent the largest bubble as larger. You can experiment with the value you find more appropriate. Another helpful parameter in `tm_bubble` is `alpha`, which you can use to make the symbols more or less transparent as a possible way to deal with situations where you may have a significant degree of overlapping between the symbols. You can play around with this and modify the code we provide above with different values for these two arguments.
+
+
+There are several arguments that you can pass within the `tm_bubble()` function that control the appearance of the symbols. The `scale` argument controls the symbol size multiplier number. Larger values will represent the largest bubble as larger. You can experiment with the value you find more appropriate. Another helpful parameter in `tm_bubble()` is `alpha`, which you can use to make the symbols more or less transparent as a possible way to deal with situations where you may have a significant degree of overlapping between the symbols. You can play around with this and modify the code we provide above with different values for these two arguments.
 
 By default, the symbol area sizes are scaled proportionally to the data variable you are using. As noted above this is done by taking the square root of the normalized data variable. This is called mathematical scaling. However, "it is well known that the perceived area of proportional symbols dose not match their mathematical area; rather, we are inclined to underestimate the area of larger symbols. As a solution to this problem, it is reasonable to modify the area of larger circles in order to match it with the perceived area." (@Tanimura_2006) The `perceptual = TRUE` option allows you to use a method that aims to compensate for how the default approach may underestimate the area of the larger symbols. Notice the difference between the map we produced and this new one.
 
 ```{r}
-tm_shape(manchester) +                         #use tm_shape function to specify spatial object
-  tm_bubbles("count", border.lwd=NA, perceptual = TRUE) +              #use tm_bubbles to add the bubble visualisation, but set the 'border.lwd' parameter to NA, meaning no symbol borders are drawn
-  tm_borders(alpha=0.1) +                           #add the LSOA border outlines using tm_borders, but set their transparency using the alpha parameter (0 is totally transparent, 1 is not at all)
-  tm_layout(legend.position = c("right", "bottom"), #use tm_layout to make the legend look nice
+tm_shape(manchester) +  
+  # add perceptual = TRUE
+  tm_bubbles("count", border.lwd=NA, perceptual = TRUE) + 
+  tm_borders(alpha=0.1) +                           
+  tm_layout(legend.position = c("right", "bottom"), 
             legend.title.size = 0.8,
             legend.text.size = 0.5)
 ```
@@ -176,7 +189,9 @@ First we need to create new variables. For this we can use the `mutate()` functi
 First we want to create a rate using the usual residents, since crime rates are often expressed by 100,000 inhabitants we will multiply the division of the number of crimes by the number of usual residents by 100,000. We will then create another variable, "crimr2", using the workday population as the denominator. We will store this new variables in our existing "manchester" dataset. You can see that below then I specify the name of a new variable "crimr1" and then I tell the function I want that variable to equal (for each case) the division of the values in the variable "count" (number of crimes) by the variable "respop" (number of people residing in the area) and then we multiply the result of this division by 100,000 to obtain a rate expressed in those terms. Then we do likewise for the alternative measure of crime.
 
 ```{r}
-manchester <- mutate(manchester, crimr1 = (count/respop)*100000, crimr2 = (count/wkdpop)*100000)
+manchester <- mutate(manchester, 
+                     crimr1 = (count/respop)*100000, 
+                     crimr2 = (count/wkdpop)*100000)
 ```
 
 And now we have two new variables, one for crime rate with residential population as a denominator, and another with workplace population as a denominator.
@@ -259,7 +274,10 @@ The quantitative information is usually classified before its symbolization in a
 library(classInt) # Package that introduces the classification methods, placed
                   # here since we do not introduce it to the readers
 pal1 <- c("wheat1", "red3")
-plot(classIntervals(manchester$crimr1, n=5, style="equal"), pal = pal1,
+plot(classIntervals(manchester$crimr1, 
+                    n=5, 
+                    style="equal"), 
+     pal = pal1,
      main="Equal Intervals")
 ```
 
@@ -286,6 +304,7 @@ pal1 <- c("wheat1", "red3")
 plot(classIntervals(manchester$crimr1, style="sd"), pal = pal1,
      main="Standard Deviation")
 ```
+
 **The headtails method** This uses a method proposed by @Jiang_2013 as a solution for variables with a heavy tail distribution, like we often have with crime. "This new classification scheme partitions all of the data values around the mean into two parts and continues the process iteratively for the values (above the mean) in the head until the head part values are no longer heavy-tailed distributed. Thus, the number of classes and the class intervals are both naturally determined." (@Jiang_2013, p. 482)
 
 ```{r}
@@ -309,9 +328,11 @@ For each map, instead of visualising them one by one, just assign them to a new 
 So let's make *map1*. This will create a thematic map using equal intervals:
 
 ```{r}
-map1 <- tm_shape(manchester) +                   #use tm_shape function to specify spatial object
-  tm_fill("crimr1", style="equal", title = "Equal") +  #use tm_fill to specify variable, classification method, and give the map a title
-  tm_layout(legend.position = c("left", "top"),   #use tm_layout to make the legend look nice
+map1 <- tm_shape(manchester) +    
+  #Use tm_fill to specify variable, classification method, 
+  # and give the map a title
+  tm_fill("crimr1", style="equal", title = "Equal") + 
+  tm_layout(legend.position = c("left", "top"),   
             legend.title.size = 0.7,
             legend.text.size = 0.5)
 
@@ -376,7 +397,7 @@ map3
 But now we will plot all 5 maps together, arranged using the `tmap_arrange()` function. Like so: 
 
 ```{r, message=FALSE}
-#And now we deploy tmap_arrange to plot these maps together
+# deploy tmap_arrange to plot these maps together
 tmap_arrange(map1, map2, map3, map4, map5) 
 
 ```
@@ -534,19 +555,25 @@ tmap_mode("plot")
 current_style <- tmap_style("col_blind")
 
 map1<- tm_shape(ncovr) + 
-  tm_fill("HR60", style="quantile", title = "Raw rate", palette = "Reds") +
+  tm_fill("HR60", style="quantile", 
+          title = "Raw rate", 
+          palette = "Reds") +
   tm_layout(legend.position = c("left", "bottom"), 
             legend.title.size = 0.8,
             legend.text.size = 0.5)
 
 map2<- tm_shape(ncovr) + 
-  tm_fill("HR60EBS", style="quantile", title = "EB Smooth", palette = "Reds") +
+  tm_fill("HR60EBS", style="quantile", 
+          title = "EB Smooth", 
+          palette = "Reds") +
   tm_layout(legend.position = c("left", "bottom"), 
             legend.title.size = 0.8,
             legend.text.size = 0.5)
 
 map3<- tm_shape(ncovr) + 
-  tm_fill("HR60EBSL", style="quantile", title = "Local Smooth", palette = "Reds") +
+  tm_fill("HR60EBSL", style="quantile", 
+          title = "Local Smooth", 
+          palette = "Reds") +
   tm_layout(legend.position = c("left", "bottom"), 
             legend.title.size = 0.8,
             legend.text.size = 0.5)
@@ -560,7 +587,9 @@ Notice that the quantiles are not the same, so that will make your comparison di
 #Boxplots with base R graphics
 boxplot(ncovr$HR60, ncovr$HR60EBS, ncovr$HR60EBSL,
         main = "Different rates of homicide per 100,000 people",
-        names = c("Raw rate", "Bayes smoother", "Locat base smoother"),
+        names = c("Raw rate", 
+                  "Bayes smoother", 
+                  "Locat base smoother"),
         ylab = "Rates")
 ```
 

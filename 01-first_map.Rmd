@@ -240,7 +240,8 @@ Putting it all together in practice, we can create a simple features object from
 library(sf)
 
 crimes_sf <- st_as_sf(crimes,   #dataframe
-                      coords = c("longitude", "latitude"), #columns with coordinates
+                      #columns with coordinates:
+                      coords = c("longitude", "latitude"), 
                       crs = 4326)   #crs is WGS84
 
 
@@ -287,7 +288,7 @@ df <- crimes %>%
   group_by(crime_type) %>% 
   count()
   
-df
+knitr::kable(df)
 ```
 
 
@@ -344,7 +345,10 @@ First let's create a small illustrative data set of only the crimes of "Robbery"
 library(dplyr)
 
 df <- crimes %>% 
-  filter(crime_type %in% c("Robbery", "Shoplifting", "Theft from the person")) %>% 
+  filter(crime_type %in% c("Robbery", 
+                           "Shoplifting", 
+                           "Theft from the person")
+         ) %>% 
   group_by(crime_type) %>% 
   count() 
   
@@ -406,7 +410,10 @@ We can add further specifications within the `aes()` (aesthetics) function, wher
 # create new dataframe (df) including last_outcome_category variable
 
 df <- crimes %>% 
-  filter(crime_type %in% c("Robbery", "Shoplifting", "Theft from the person")) %>% 
+  filter(crime_type %in% c("Robbery", 
+                           "Shoplifting", 
+                           "Theft from the person")
+         ) %>% 
   group_by(crime_type, last_outcome_category) %>% 
   count() 
   
@@ -420,8 +427,12 @@ ggplot(df, aes(x = crime_type, y = n, fill = last_outcome_category)) +
   xlab("Crime type") + 
   ylab("Number of crimes") + 
   theme_minimal() + 
-  theme(axis.text.x = element_text(angle = 15, hjust = 1), 
-        panel.border = element_rect(colour = "black", fill=NA, size=1))
+  theme(axis.text.x = element_text(angle = 15, 
+                                   hjust = 1), 
+        panel.border = element_rect(colour = "black", 
+                                    fill=NA, 
+                                    size=1)
+        )
 
 
 ```
@@ -436,8 +447,12 @@ ggplot(df, aes(x = crime_type, y = n, fill = last_outcome_category)) +
   xlab("Crime type") + 
   ylab("Number of crimes") + 
   theme_minimal() + 
-  theme(axis.text.x = element_text(angle = 15, hjust = 1), 
-        panel.border = element_rect(colour = "black", fill=NA, size=1)) + 
+  theme(axis.text.x = element_text(angle = 15, 
+                                   hjust = 1), 
+        panel.border = element_rect(colour = "black", 
+                                    fill=NA, 
+                                    size=1)
+        ) + 
   scale_fill_brewer(type = "qual", palette = 3, name = "Outcome")
 
 
@@ -491,7 +506,7 @@ Census boundary data are a digitised representation of the underlying geography 
 
 The hierarchy of the census geographies in the UK goes from Country to Local Authority to Middle Layer Super Output Area (MSOA) to Lower Layer Super Output Area (LSOA) to Output Area (in other countries you have similar levels in the census hierarchies):
 
-```{r, echo = FALSE, message=FALSE, warning=FALSE}
+```{r, echo = FALSE, message=FALSE, warning=FALSE, results='hide'}
 
 country <- rnaturalearth::ne_countries(scale = 110, geounit = "united kingdom", returnclass = "sf")
 la <- rnaturalearth::ne_states(geounit = "england", returnclass = "sf") %>% filter(region == "North West")
@@ -553,7 +568,7 @@ Make sure that this is saved in your working directory, and you have set your wo
 
 Now use the `st_read()` function from the `sf` package to read in the shapefile: 
 
-```{r, message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE, results='hide'}
 
 manchester_lsoa <- st_read(shp_name)
 
@@ -669,7 +684,7 @@ So we've already identified that both our crimes data, and the spatial data cont
 
 
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 library(grid)
 library(gridExtra)
 
@@ -689,7 +704,7 @@ grid.arrange(tableGrob(t1), tableGrob(t2), nrow = 1)
 
 And by doing so, we produce a final table that contains all values, lined up *correctly* for each individual observation, like this: 
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 
 t3 <- left_join(t1, t2)
 

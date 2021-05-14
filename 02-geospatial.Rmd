@@ -1,4 +1,4 @@
-# Chapter 2: Basic geospatial operations in R
+# Basic geospatial operations in R
 
 ```{r include = FALSE}
 knitr::opts_chunk$set(cache = F)
@@ -6,7 +6,7 @@ knitr::opts_chunk$set(cache = F)
 
 ## Introduction
 
-In this chapter we get your hands dirty with **spatial manipulation of data**. Thus far, our data manipulation exercises (using `dplyr`) were such that you might be familiar with, from your earlier exposures to data analysis. For example, linking datasets using a common column is a task which you can perform on spatial or non-spatial data. These are referred to as attribute operations. However today we will explore some exercises in data manipulation which are specific to *spatial* data analysis. We will be learning some key spatial operations, a set of functions that allow you to create new and manipulate spatial data.
+In this chapter we get our hands dirty with **spatial manipulation of data**. Thus far, our data manipulation exercises (using `dplyr`) were such that you might be familiar with, from any earlier exposures to data analysis. For example, linking datasets using a common column is a task which you can perform on spatial or non-spatial data. These are referred to as **attribute operations**. However today we will explore some exercises in data manipulation which are specific to *spatial* data analysis. We will be learning some key spatial operations, a set of functions that allow you to create new and manipulate spatial data.
 
 The main objectives for this chapter are that by the end you will have:
 
@@ -60,7 +60,7 @@ On the other hand, it is possible that these areas are *crime generators*.
 
 To read  further in crime attractors vs crime generators turn to the recommended readings by @Brantingham_1995 and @Newton_2018. There have since been more developments, for example about crime radiators and absorbers as well (watch this risky places lecture from Kate @Bowers_2021 to learn more!)
 
-It's possible that some licensed premises attract crimes, due to their reputation. However it is also possible that some of them are simply located in areas that are busy, attracts lots of people for lots of reasons, and crimes occur as a result of an abundance of opportunities instead. 
+It is possible that some licensed premises attract crimes, due to their reputation. However it is also possible that some of them are simply located in areas that are busy, attracts lots of people for lots of reasons, and crimes occur as a result of an abundance of opportunities instead. 
 
 In any case, what we want to do is to examine whether certain outlets have more crimes near them than others. We can do this using open data, some R code, and the spatial operations discussed above. We will return to data from Manchester, UK for this example, however as we will be using Open Street Map, you can easily replicate this for any other location where you have point-level crime data. 
 
@@ -77,7 +77,7 @@ crimes <- read_csv("data/2019-06-greater-manchester-street.csv")
 
 ```
 
-Notice that in this case the columns are spelled with upper case "L". You should always familiarise yourself with your data set to make sure you are using the relevant column names. You can see just the column names using the `names()` function like so :
+If you replicate the exercises for getting to know the data set from the previous chapter, you might notice that in this case the column names are slightly different. For example, Latitude and Longitude are spelled with upper case "L". You should always familiarise yourself with your data set to make sure you are using the relevant column names. You can see just the column names using the `names()` function like so :
 
 ```{r names_2a}
 
@@ -85,11 +85,12 @@ names(crimes)
 
 ```
 
-So messy! Let's use our handy helpful `clean_names()` function from the `janitor` package:
+This is because last time, we cleaned these names using the `clean_names()` function from the `janitor` package. Let's do this again, as these variable names are not ideal, with their capital letters and spacing...so messy! 
 
 ```{r clean_names_2a}
 
-crimes <- crimes %>% clean_names()
+crimes <- crimes %>% 
+  clean_names()
 names(crimes)
 
 ```
@@ -112,7 +113,7 @@ manchester_ward <- st_read("data/wards.geojson")
 
 ```
 
-Let's select only the city centre ward, using the `filter()` function from dplyr
+Let's select only the city centre ward, using the `filter()` function from the `dplyr` package. 
 
 ```{r select_centre_2b}
 
@@ -121,11 +122,17 @@ city_centre <- manchester_ward %>%
 
 ```
 
-Let's see how this looks, using the `plot()` function: 
+Let's see how this looks. In Chapter 1 we learned about plotting maps using the `ggplot()` function from the `ggplot2` package. Here, let's look at a different way, which can be useful for quick mapping - usually used when just checking in with our data to make sure it looks like what we were expecting. 
+
+With the `st_geometry()` function in the `sf` package, we can extract only the geometry of our object, stripping away the attributes. If we include this inside the `plot()` function, we get a quick, minimalist plot of the geometry of our object.
 
 ```{r plot_2b}
 
-plot(st_geometry(city_centre))
+#extract geometry only
+city_centre_geometry <- st_geometry(city_centre)
+
+#plot geometry object
+plot(city_centre_geometry)
 
 ```
 
@@ -133,7 +140,7 @@ Now we could use this to make sure that our points are in fact only licensed pre
 
 ### Open Street Map and points of interest
 
-To map our licenced premises we will be accessing data from Open Street Map, a database of geospatial information built by a community of mappers, enthusiasts and members of the public, who contribute and maintain data about all sorts of environmental features, such as roads, green spaces, restaurants and railway stations. You can see all about open street map on their online mapping platform ([https://www.openstreetmap.org/](https://www.openstreetmap.org/)). One feature of Open Street Map, unlike Google Map, is that the underlying data is openly available for download *for free*. In R, we can take advantage of a package written specifically for querying Open Street Map's API [[[REF SAM CHAPTER HERE]]], called `osmdata`. 
+To map licenced premises we will be accessing data from Open Street Map, a database of geospatial information built by a community of mappers, enthusiasts and members of the public, who contribute and maintain data about all sorts of environmental features, such as roads, green spaces, restaurants and railway stations. You can see all about open street map on their online mapping platform ([https://www.openstreetmap.org/](https://www.openstreetmap.org/)). One feature of Open Street Map, unlike Google Map, is that the underlying data is openly available for download *for free*. In R, we can take advantage of a package written specifically for querying Open Street Map's API, called `osmdata`. For more detail on how to use this, see @Langton_2019. 
 
 If we load the package `osmdata` we can use its functions to query the Open Street Map API. To find out more about the capabilities of this package, see the package documentation and the associated vignette online: [https://cran.r-project.org/web/packages/osmdata/vignettes/osmdata.html](https://cran.r-project.org/web/packages/osmdata/vignettes/osmdata.html). While this is outside the scope of our chapter here, you may want to explore `osmdata` more, as it is an international database, and has lots of data may come in handy for research and analysis. 
 
@@ -143,15 +150,16 @@ So, how can we name a bounding box specification to define the study region? One
 
 ```{r bb, message=F, warning=F}
 
-bb_sf <- getbb(place_name = "greater manchester united kingdom", format_out = "sf_polygon")
+bb_sf <- getbb(place_name = "greater manchester united kingdom", 
+               format_out = "sf_polygon")
 
 ```
 
 
-We can see what this bounding box looks like by plotting it:
+We can see what this bounding box looks like by plotting it (notice this time we combine the plot() and st_geometry() functions to save needing to create a new object):
 
 
-```{r plot_bb}
+```{r plot_bb, message=FALSE, warning=FALSE}
 
 plot(st_geometry(bb_sf))
 
@@ -165,9 +173,9 @@ Besides specifying what area we want to query with our bounding box object(s) in
 We can select what features we want using the `add_osm_feature()` function, specifying our key as 'amenity' and our value as 'bar'. We also want to specify what sort of object (what class) to get our data into, and as we are still working with spatial data, we stick to the `sf` format, for which the function is `osmdata_sf()`. Here, we specify our bounding box as the `bb_sf` object we created above [^1]. [^1]: If you use the bounding box obtained through `getbb()` one can subsequently trim down the outputs from `add_osm_feature()` using `trim_osmdata()`. For instance, we could add `trim_osmdata(bb_poly = bb_sf)` to our initial query.
 
 ```{r opq}
-osm_bar_sf <- opq(bbox = bb_sf) %>%                               # select bounding box
+osm_bar_sf <- opq(bbox = bb_sf) %>%    # select bounding box
   add_osm_feature(key = 'amenity', value = 'bar') %>% # select features
-  osmdata_sf()                                                     # specify class
+  osmdata_sf()          # specify class
 ```
 
 The resulting object `osm_bar_sf` contains lots of information. We can view the contents of the object by simply executing the object name into the **Console**.
@@ -196,14 +204,15 @@ We are still left with `r nrow(osm_bar_sf)` bars in our data set.
 
 ## Attribute operations
 
-We've mentioned above that we are using **attribute operations**. These are changes to the data which we make based on manipulation of elements in the attribute table. For example, the use of `filter()` is an attribute operation, because we rely on the data in the attribute table in order to accomplish this task. 
+We mentioned above that we are using **attribute operations**. These are changes to the data which we make based on manipulation of elements in the attribute table. For example, the use of `filter()` is an attribute operation, because we rely on the data in the attribute table in order to accomplish this task. 
 
 For example, let's say we want to focus only on violent crime. To do this, we use the information in the attribute table, namely the values for the `crime_type` variable for each observation (crime) in our data set. 
 
 
 ```{r}
 
-crimes <- crimes %>% filter(crime_type == "Violence and sexual offences")
+crimes <- crimes %>% 
+  filter(crime_type == "Violence and sexual offences")
 
 ```
  
@@ -213,9 +222,7 @@ With the above, we select only those crimes (rows of the attribute table) where 
 
 Spatial operations are a vital part of geocomputation. Spatial objects can be modified in a multitude of ways based on their location and shape. For a comprehensive overview of spatial operations in R I would recommend chapter 4 of @Lovelace_2019. 
 
-> "Spatial operations differ from non-spatial operations in some ways. To illustrate the point, imagine you are researching road safety. Spatial joins can be used to find road speed limits related with administrative zones, even when no zone ID is provided. But this raises the question: should the road completely fall inside a zone for its values to be joined? Or is simply crossing or being within a certain distance sufficent? When posing such questions it becomes apparent that spatial operations differ substantially from attribute operations on data frames: the type of spatial relationship between objects must be considered." 
-
-- [(Lovelace & Nowosad, 2018)](https://geocompr.robinlovelace.net/spatial-operations.html)
+> "Spatial operations differ from non-spatial operations in some ways. To illustrate the point, imagine you are researching road safety. Spatial joins can be used to find road speed limits related with administrative zones, even when no zone ID is provided. But this raises the question: should the road completely fall inside a zone for its values to be joined? Or is simply crossing or being within a certain distance sufficent? When posing such questions it becomes apparent that spatial operations differ substantially from attribute operations on data frames: the type of spatial relationship between objects must be considered." [(Lovelace & Nowosad, 2018)](https://geocompr.robinlovelace.net/spatial-operations.html)
 
 So you can see we can do exciting spatial operations with our spatial data, which we cannot with the non-spatial stuff. 
 
@@ -403,7 +410,8 @@ If we want to calculate the size of the size of our buffer in a meaningful dista
 
 ```{r reproject}
 
-bars_bng <- st_transform(cc_bars, 27700) #The code for BNG is 27700
+#The code for BNG is 27700
+bars_bng <- st_transform(cc_bars, 27700) 
 
 ```
 
@@ -475,7 +483,9 @@ Let's see the bar with the most crimes:
 
 ```{r select_worst_bar}
 
-crimes_per_prem %>% filter(n == max(n)) %>% select(name, n)
+crimes_per_prem %>% 
+  filter(n == max(n)) %>% 
+  select(name, n)
 
 ```
 
@@ -491,11 +501,12 @@ We can achieve this using the `st_nearest_feature()` function. This function tak
 
 ```{r distances_1, warning=FALSE, message=FALSE}
 
-crime_w_bars <- cc_crimes %>% mutate(nearest_bar = st_nearest_feature(cc_crimes, cc_bars))
+crime_w_bars <- cc_crimes %>% 
+  mutate(nearest_bar = st_nearest_feature(cc_crimes, cc_bars))
 
 ```
 
-If we now have a look at this new object "crime_w_bars", we can see it is our crimes data, but we have a new column, which contains the index of the closest bar in the cc_bars dataframe, right at the end. So for example, for me the first point there, the nearest bar is that in location 84 (vectors in R are 1-indexed, not 0-indexed like many other languages). If we look at what is on the 84th row we see: 
+If we now have a look at this new object "crime_w_bars", we can see it is our crimes data, but we have a new column, which contains the index of the closest bar in the cc_bars dataframe, right at the end. So for example, for me the first point there, the nearest bar is that in location 84 (vectors in R are 1-indexed, not 0-indexed like many other languages). If we wanted to look at what is on the 84th row we may call:
 
 ```{r, eval=FALSE}
 
@@ -503,7 +514,7 @@ cc_bars[84]
 
 ```
 
-This returns all the 90+ variables for this row. If we want only the name, we can query for the 84th row and the 2nd column (which is `name`): 
+However, this returns all the 90+ variables for this row. If we want only the name, we can query for the 84th row and the 2nd column (which is `name`): 
 
 ```{r}
 
@@ -516,7 +527,8 @@ You can see the name is "Dive". For that first crime, in our data set, the neare
 
 ```{r, warning=FALSE, message=FALSE}
 
-crime_w_bars  <- cc_crimes %>% mutate(nearest_bar = cc_bars[st_nearest_feature(cc_crimes, cc_bars),2])
+crime_w_bars  <- cc_crimes %>% 
+  mutate(nearest_bar = cc_bars[st_nearest_feature(cc_crimes, cc_bars),2])
 
 ```
 
@@ -524,11 +536,11 @@ Now we have new information in this `nearest_bar` column, the name of the neares
 
 
 ```{r}
-crimes_per_prem_2 <- crime_w_bars %>%        # create new crimes_per_prem_2 object
-  st_drop_geometry() %>%                     # drop (remove) the geometry
-  group_by(nearest_bar$name) %>%             # group by to find frequecy of each bar (n crimes closest)
-  summarise(num_crimes = n()) %>%            # count number of crimes which had each bar closest
-  rename(name = `nearest_bar$name`)          # rename variable to 'name' 
+crimes_per_prem_2 <- crime_w_bars %>%  # create new crimes_per_prem_2 object
+  st_drop_geometry() %>%              # drop (remove) the geometry
+  group_by(nearest_bar$name) %>%      # group by to find frequency of each bar 
+  summarise(num_crimes = n()) %>%     # count number of crimes 
+  rename(name = `nearest_bar$name`)   # rename variable to 'name' 
   
   
 ```
@@ -538,7 +550,8 @@ To tie this back to our spatial object "cc_bars" we can use the `left_join()` fu
 
 ```{r}
 
-crimes_per_prem_2 <- left_join(cc_bars, crimes_per_prem_2, by = c("name" = "name"))
+crimes_per_prem_2 <- left_join(cc_bars, crimes_per_prem_2, 
+                               by = c("name" = "name"))
 
 ```
 
@@ -546,7 +559,9 @@ Let's see the bar with the most crimes with this approach:
 
 ```{r}
 
-crimes_per_prem_2 %>% filter(num_crimes == max(num_crimes, na.rm = TRUE)) %>% select(name, num_crimes)
+crimes_per_prem_2 %>% 
+  filter(num_crimes == max(num_crimes, na.rm = TRUE)) %>% 
+  select(name, num_crimes)
 
 ```
 
@@ -569,7 +584,8 @@ nd_buffer <- bar_buffer_100 %>%
   filter(name == "Night & Day") %>% 
   st_transform(4326)
 
-nd_crimes <- crime_w_bars %>% filter(nearest_bar$name  == "Night & Day")  
+nd_crimes <- crime_w_bars %>% 
+  filter(nearest_bar$name  == "Night & Day")  
 
 ```
 
@@ -651,15 +667,20 @@ If you click over the highlighted point you will read our input text "University
 You can add many points manually, with some popup text as well:
 
 ```{r, cache=FALSE}
+# create dataframe of latitude, longitude, and popups
+latitudes <- c(53.464987, 53.472726, 53.466649) 
+longitudes <- c(-2.230899, -2.245481, -2.243421) 
+popups <- c("You are here", 
+           "Here is another point", 
+           "Here is another point") 
+df <- data.frame(latitudes, longitudes, popups)      
 
-latitudes = c(53.464987, 53.472726, 53.466649) 
-longitudes = c(-2.230899, -2.245481, -2.243421) 
-popups = c("You are here", "Here is another point", "Here is another point") 
-df = data.frame(latitudes, longitudes, popups)      
-
+# create leaflet map
 m <- leaflet(data = df) %>%
   addTiles()  %>%  
   addMarkers(lng=~longitudes, lat=~latitudes, popup=~popups)
+
+#print leaflet map
 m  
 ```
 
@@ -667,10 +688,13 @@ We can also map polygons, not just points. Let's plot our crimes on/near bars to
 
 First, let's pick a colour palette. We do this with the `colorBin()` function. We will discuss colour choices in maps in Chapter 5, for now, let's just pick the *"RdPu"* palette. We should also specify the `domain =` parameter (what value to use for shading, in this case `n`, `bins =` - the number of crimes), the number of bins (in this case 5 - we will discuss this in detail in the coming chapters as well), and `pretty = ` to use pretty breaks (this may actually mess with the number of bins specified in the bins parameter, but again, for now this is OK). 
 
-Let's create this palette and save in an object called `pal`: 
+Let's create this palette and save in an object called `pal` for palette: 
 
 ```{r, cache=FALSE}
-pal <- colorBin("RdPu", domain = crimes_per_prem$n, bins = 5, pretty = TRUE)
+pal <- colorBin("RdPu", 
+                domain = crimes_per_prem$n, 
+                bins = 5, 
+                pretty = TRUE)
 ```
 
 Now we can make a leaflet map, where we add these polygons (the buffers) with the `addPolygons()` function, and call our palette, specifying again the variable to use for shading, as well as some other parameters. One to highlight specifically is the `label` parameter. This allows us to use a variable as a label for when a user clicks on our polygon (buffer). Here we specify the name of the bar with `label = ~as.character(name)`.This way we not only shade each buffer with the number of crimes which fall inside it, but also include a little popup label with the name of the establishment: 
@@ -696,7 +720,7 @@ Then you can open this file with any type of web browser (safari, firefox, chrom
 
 ## Geocoding 
 
-We were making use of point of interest data from Open Street Map above, but it's possible that we have a data set of bars that are not geocoded. In this case, we may have a list of bars with an associated address, which is clearly *some* sort of spatial information, but how would you put this on a map?   
+We were making use of point of interest data from Open Street Map above, but it is possible that we have a data set of bars that are not geocoded. In this case, we may have a list of bars with an associated address, which is clearly *some* sort of spatial information, but how would you put this on a map?   
 
 One solution to this problem is to geocode these addresses. We can use the package `tidygeocoder` to achieve this. This package takes an address given as character values, for example "221B Baker Street, Marylebone, London NW1 6XE" and returns coordinates, geocoding this address. So let's say we have a dataframe of addresses (in this case only one observation): 
 
@@ -722,11 +746,14 @@ One interesting data set, especially for our questions about the different alcoh
 
 As always, there are a few ways you can download this data set. On the manual side of things, you can simply right click on the download link from the website, save it to your computer, and read it in from there, by specifying the file path. Remember, if you save it in your R *working directory*, then you just need to specify the file name, as the working directory folder is where R will first look for this file. 
 
-So without dragging this on any further, let's read in the licensed premises data directly from the web: 
+So without dragging this on any further, let's read in the licensed premises data directly from the web using the URL `"http://www.manchester.gov.uk/open/download/downloads/id/169/licensed_premises.csv"`: 
 
 ```{r, message=FALSE, warning=FALSE}
 
-lic_prem <- read_csv("http://www.manchester.gov.uk/open/download/downloads/id/169/licensed_premises.csv") %>% clean_names()
+data_url <- "http://www.manchester.gov.uk/open/download/downloads/id/169/licensed_premises.csv"
+
+lic_prem <- read_csv(data_url) %>% 
+  clean_names()
 ```
 
 You will likely get some warnings when reading this data, but you can safely ignore those. You can always check if this worked by looking to your global environment on the righ hand side and seeing if this *lic_prem* object has appeared. If it has, you should see it has `r I(nrow(lic_prem))` observations (rows), and `r I(ncol(lic_prem))` variables (columns).
@@ -744,22 +771,29 @@ We see that there is a field for "premisesname" which is the name of the premise
 ```{r}
 
 lic_prem <- lic_prem %>% 
-  slice(1:30) %>%                                                            # Select first 30 venues
-  mutate(complete_address = paste(locationtext, postcode, sep=", ")) %>%     # Create new complete_address column from locationtext and postcode using paste()
-  geocode(complete_address, method = 'osm')                                  # geocode with osm method
+  slice(1:30) %>%    # Select first 30 venues
+  # Create new complete_address column from locationtext and postcode using paste()
+  mutate(complete_address = paste(locationtext, 
+                                  postcode, 
+                                  sep=", ")) %>%     
+  geocode(complete_address, method = 'osm')  # geocode with osm method
 
 ```
 
 Now we have these licenced premises geocoded, with brand new latitude and longitude information! We can use this to make a leaflet map of our venues!
 
 ```{r, cache=FALSE}
-
+# make sure coordinates are numeric values
 lic_prem$latitude <- as.numeric(lic_prem$lat)
 lic_prem$longitude <- as.numeric(lic_prem$long)
 
+# create map
 leaflet(data = lic_prem) %>%
   addTiles() %>% 
-  addMarkers(lng=~longitude, lat=~latitude, popup=~as.character(premisesname), label = ~as.character(premisesname))
+  addMarkers(lng=~longitude, 
+             lat=~latitude, 
+             popup=~as.character(premisesname), 
+             label = ~as.character(premisesname))
 
 ```
 
@@ -773,13 +807,13 @@ Before we end the chapter, we want to return to the spatial operation of measuri
 
 To illustrate how to measure distance we will download data from the city of Madrid in Spain. Specifically we will obtain a csv file with the latitude and longitude of the police stations and a geojson file with the administrative boundary for the city of Madrid. Both are stored in our GitHub repository and can be accessed with the code below. We will also turn the .csv into a `sf` object with the appropriate coordinate reference system for this data.
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 #read csv data
 comisarias <- read_csv("data/nationalpolice.csv")
-#set crs, read into sf object, and double check crs
+#set crs, read into sf object, and assign crs
 polCRS <- st_crs(4326)
 comisarias_sf <- st_as_sf(comisarias, coords = c("X", "Y"), crs = polCRS)
-st_crs(comisarias_sf)
+
 #create unique id for each row
 comisarias_sf$id <- as.numeric(rownames(comisarias_sf))
 
@@ -787,8 +821,10 @@ comisarias_sf$id <- as.numeric(rownames(comisarias_sf))
 madrid <- st_read("data/madrid.geojson") 
 ```
 
+We went through a lot of steps there, so it's worth to check in and plot our data, make sure that everything looks the way we expect. To practice with leaflet map some more, let's plot using `leaflet()` function: 
+
 ```{r, cache=FALSE}
-#plot with leaflet to check all is fine
+
 leaflet(comisarias_sf) %>% 
   addTiles() %>%
   addMarkers(data = comisarias_sf) %>%
@@ -846,7 +882,7 @@ head(m_distance)
 For this practical example we will look at the Madrid data.
 
 ```{r}
-plot(madrid, max.plot = 1)
+plot(st_geometry(madrid))
 ```
 
 We know this map is in EPSG 4326.
@@ -855,7 +891,7 @@ We know this map is in EPSG 4326.
 st_crs(madrid)
 ```
 
-The distance here is expressed in degrees and we may prefer to evaluate distance in metrical system. Another way of saying this is that the current CRS uses geographic coordinates that account for earth’s curvature, when we may prefer a flat surface to measure distances. For this we will transform and reproject to EPGS 2062, which is appropriate for Madrid (see here for details https://epsg.io/?q=Spain%20kind%3APROJCRS).
+The distance here is expressed in degrees and we may prefer to evaluate distance in metrical system. Another way of saying this is that the current CRS uses geographic coordinates that account for earth’s curvature, when we may prefer a flat surface to measure distances. For this we will transform and reproject to EPGS 2062, which is the appropriate projected coordinate system for Madrid (see here for details https://epsg.io/?q=Spain%20kind%3APROJCRS).
 
 ```{r}
 madrid_meters <- st_transform(madrid, crs = 2062)
@@ -869,13 +905,15 @@ Before we saw that some areas of Madrid are nowhere near a police station. Let´
 madrid_grid <- st_make_grid(madrid_meters,  cellsize = 250)
 plot(madrid_grid)
 ```
+
+
 We are now going to just extract the cells within the perimeter of Madrid:
 
 ```{r}
-#only extract the points in the limits of Iceland
+#only extract the points in the limits of Madrid
 madrid_grid <- st_intersection(madrid_grid, madrid_meters)   
 
-#our fishnet now
+# plot this grid
 plot(madrid_grid)
 
 #Reproject to 4326 for later use
@@ -888,8 +926,9 @@ So how do we look at distance from police stations here? We will measure the dis
 ```{r}
 comisarias_sf_meters <- st_transform(comisarias_sf, crs = 2062)
 
-distances <- st_distance(comisarias_sf_meters, st_centroid(madrid_grid)) %>% 
-as_tibble()
+distances <- st_distance(comisarias_sf_meters, 
+                         st_centroid(madrid_grid)) %>% 
+  as_tibble()
 
 ```
 
@@ -902,7 +941,7 @@ police_distances <- data.frame(
   us = st_transform(madrid_grid, crs = 4326),
   # Extract minimum distance for each grid
   distance_km = map_dbl(distances, min)/1000,
-  # Extract the value's index for joining with the ice-cream location info
+  # Extract the value's index for joining with the location info
   location_id = map_dbl(distances, function(x) match(min(x), x))) %>% 
   # Join with the police station table
   left_join(comisarias_sf, by = c("location_id" = "id"))
@@ -914,11 +953,16 @@ quantile(police_distances$distance_km)
 
 ```
 
-Now we are ready to use this data to plot a map. First we will adjust some aesthetics.
+Now we are ready to use this data to plot a map. We can get creative, and use the `makeIcon()` function from leaflet to assign an image as our icon, rather than thes regular pointer icon we've been seeing. First we will adjust some aesthetics.
 
 ```{r}
-# Create more appropriate icon, taking it from Wikepedia commons and adjusting size
-police_icon <- makeIcon("https://upload.wikimedia.org/wikipedia/commons/a/ad/189-woman-police-officer-1.svg", iconWidth = 12, iconHeight = 20)
+# Create more appropriate icon, taking it from Wikepedia commons 
+icon_url <- "https://upload.wikimedia.org/wikipedia/commons/a/ad/189-woman-police-officer-1.svg"
+
+# create icon, adjusting size 
+police_icon <- makeIcon(icon_url,
+                        iconWidth = 12, 
+                        iconHeight = 20)
 ```
 
 
@@ -926,10 +970,14 @@ police_icon <- makeIcon("https://upload.wikimedia.org/wikipedia/commons/a/ad/189
 # Bin ranges for a nicer color scale
 bins <- c(0,0.02,1.74,3.82,7.95,18.18)
 # Create a binned color palette
-pal <- colorBin(c("#0868AC", "#43A2CA", "#7BCCC4", "#BAE4BC", "#F0F9E8"), 
-                domain = police_distances$distance_km, bins = bins, 
+pal <- colorBin(c("#0868AC", "#43A2CA", "#7BCCC4", 
+                  "#BAE4BC", "#F0F9E8"), 
+                domain = police_distances$distance_km, 
+                bins = bins, 
                 reverse = TRUE)
 ```
+
+Now let's create the map. 
 
 ```{r, cache=FALSE}
 
@@ -940,13 +988,25 @@ full_map <- leaflet() %>%
   addPolygons(data = police_distances[[1]], 
               fillColor = pal(police_distances$distance_km), 
               fillOpacity = 0.8, weight =0,
-              opacity =1, color = "transparent", group = "Distances",
-              highlight = highlightOptions(weight = 2.5, color = "#666", bringToFront = TRUE, opacity= 1), popupOptions = popupOptions(autoPan = FALSE,
-                                          closeOnClick = TRUE, textOnly = T)) %>% 
-   addLegend(pal = pal, values = (police_distances$distance_km), opacity = 0.8, 
-                         title = "Distance (Km)", position= "bottomright") %>% 
+              opacity = 1, 
+              color = "transparent", 
+              group = "Distances",
+              highlight = highlightOptions(weight = 2.5, 
+                                           color = "#666", 
+                                           bringToFront = TRUE, 
+                                           opacity= 1), 
+              popupOptions = popupOptions(autoPan = FALSE,
+                                          closeOnClick = TRUE, 
+                                          textOnly = T)) %>% 
+   addLegend(pal = pal, 
+             values = (police_distances$distance_km), 
+             opacity = 0.8,
+             title = "Distance (Km)", 
+             position= "bottomright") %>% 
   addLayersControl(overlayGroups = c("Police Stations", "Distances"),
                    options = layersControlOptions(collapsed = FALSE))
+
+# print the map
 full_map
 
 ```

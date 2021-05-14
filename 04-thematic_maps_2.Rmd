@@ -4,11 +4,6 @@
 knitr::opts_chunk$set(cache = F)
 ```
 
- (WE NEED TO INTRODUCE BIVARIATE THEMATIC MAPS: https://timogrossenbacher.ch/2019/04/bivariate-maps-with-ggplot2-and-sf/)
-
-(AND DASYMETRIC MAPS)
-https://www.r-bloggers.com/2021/02/bivariate-dasymetric-map/
-
 
 ## Introduction
 
@@ -92,23 +87,21 @@ First make sure you have the appropriate packages loaded. Also let's get some da
 
 The data are included in the supplementary material, and also available on our GitHub page. 
 
-```{r, eval=FALSE}
-
-manchester_asb <- read_csv("https://raw.githubusercontent.com/maczokni/crime_mapping/master/data/manchester_asb.csv")
-```
-
-
-```{r, echo=FALSE}
+```{r, warning=FALSE, message=FALSE}
 
 manchester_asb <- read_csv("data/manchester_asb.csv")
+
 ```
+
 
 This is currently just a text dataframe, so we need to let R know that actually this is a spatial object, who's geometry can be find in its longitude and latitude coordinates. As we have long/lat we can assure it's in WGS 84 projection. 
 
 
 ```{r}
-ma_spatial <- st_as_sf(manchester_asb, coords = c("Longitude", "Latitude"), 
-                 crs = 4326, agr = "constant")
+ma_spatial <- st_as_sf(manchester_asb, 
+                       coords = c("Longitude", "Latitude"),
+                       crs = 4326, 
+                       agr = "constant")
 ```
 
 
@@ -153,23 +146,28 @@ So let's have a go:
 
 ```{r}
 
-ggplot(ma_spatial, aes(longitude, latitude)) +                        #define data and variables for x and y axes
+#define data and variables for x and y axes
+ggplot(ma_spatial, aes(longitude, latitude)) + 
+  # plot geometry with geom_sf()
   geom_sf() + 
-  stat_binhex() +                                                         #add binhex layer (hexbin)
-  scale_fill_gradientn(colours = c("white","red"), name = "Frequency")    #add shading based on number of ASB incidents
+  #add binhex layer (hexbin) set bin size (in degrees)
+  stat_binhex(binwidth = c(.015, .01)) +
+  #add shading based on number of ASB incidents
+  scale_fill_gradientn(colours = c("white","red"), 
+                       name = "Frequency")  + 
+  theme_void()
 
 ```
 
-Neat, but doesn't quite tell us *where* that really dark hexbon actually is. So it would be much better if we could do this with a basemap as the background, rather than our grey `ggplot` theme.
-
-Now, we can apply the same code as we used above, for the `ggplot`, to this ggmap, to add our hexbins on top of this basemap. For this we use the function `annotation_map_tile()` from `ggspatial`: 
+Neat, but doesn't quite tell us *where* that really dark hexbon actually is. So it would be much better if we could do this with a basemap as the background. For this we use the function `annotation_map_tile()` from the `ggspatial` package. We can also set the opacity of the binhex layer, so we can see our basemap, with the `alpha` parameter. 
 
 ```{r}
 
 ggplot(ma_spatial, aes(x = longitude, y = latitude)) +
   annotation_map_tile() + 
-  stat_binhex(alpha=0.7) +                                                         #add binhex layer (hexbin)
-  scale_fill_gradientn(colours = c("white","red"), name = "Frequency")    #add shading based on number of ASB incidents 
+  stat_binhex(binwidth = c(.015, .01), alpha=0.7) +   # set opacity                                              
+  scale_fill_gradientn(colours = c("white","red"), 
+                       name = "Frequency")    
   
 
 ```
@@ -186,8 +184,40 @@ Above we used a hexagon shape for our binning, however you might choose other sh
 - Finding neighbors is more straightforward with a hexagon grid. Since the edge or length of contact is the same on each side, the centroid of each neighbor is equidistant. However, with a fishnet grid, the Queen's Case (above/below/right/left) neighbor's centroids are N units away, while the centroids of the diagonal (Rook) neighbors are farther away (exactly the square root of 2 times N units away).
 - Since the distance between centroids is the same in all six directions with hexagons, if you are using a distance band to find neighbors or are using the Optimized Hot Spot Analysis, Optimized Outlier Analysis or Create Space Time Cube By Aggregating Points tools, you will have more neighbors included in the calculations for each feature if you are using hexagonal grid as opposed to a fishnet grid.
 
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 
-![](img/EE17F7E03F82-web.png)
+
+df <- data.frame(x_coords = c(rep(0.5:4.5, 5), rep(2.5,10), rep(1.5,4), rep(3.5,4), rep(2.5,8)), 
+                 y_coords = c(rep(0.5, 5), rep(1.5, 5), rep(2.5, 5), rep(3.5, 5), rep(4.5, 5), rep(2.5,10), rep(2.5,8), rep(1.5,4), rep(3.5,4))) 
+
+p1 <- ggplot() +
+stat_bin2d(data = df, aes(x_coords, y_coords), binwidth = c(1, 1), colour = "black", lwd = 0.8) +
+  scale_fill_gradientn(colours = c("white","red"), 
+                       name = "Frequency", guide = FALSE)  + 
+  ggforce::geom_circle(aes(x0 = 2.5, y0 = 2.5, r = 1), lwd = 1)  +
+  xlim(c(0,5)) + 
+  ylim(c(0,5)) + 
+  theme_void() +
+  coord_fixed()
+
+df <- data.frame(x_coords = c(rep(0.5:4.5, 5), rep(2.5,10), rep(1.5,4), rep(3.5,4), rep(2.5,8), rep(2,6)), 
+                 y_coords = c(rep(0.5, 5), rep(1.5, 5), rep(2.5, 5), rep(3.5, 5), rep(4.5, 5), rep(2.5,10), rep(2.5,8), rep(1.5,4), rep(3.5,4), rep(1.5,3), rep(3.5,3))) 
+
+p2 <- ggplot() +
+stat_binhex(data = df, aes(x_coords, y_coords), binwidth = c(1, 1), colour = "black") +
+  scale_fill_gradientn(colours = c("white","red"), 
+                       name = "Frequency", guide = FALSE)  + 
+  ggforce::geom_circle(aes(x0 = 2.5, y0 = 2.5, r = 1), lwd = 1)  +
+  xlim(c(0,5)) + 
+  ylim(c(0,5)) + 
+  theme_void() +
+  coord_fixed()
+
+gridExtra::grid.arrange(p1, p2, nrow = 1)
+
+```
+
+ 
 
 To illustrate the differences of different approaches, let's see what this map would look like with: 
 
