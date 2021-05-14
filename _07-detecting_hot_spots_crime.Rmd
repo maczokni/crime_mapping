@@ -55,19 +55,10 @@ The cartographic boundary for the city comes from the census office of Canada. W
 ```{r, message = FALSE, warning = FALSE}
 toronto <- st_read("data/toronto_c.geojson")
 break_enter <- st_read("data/break_enter.geojson") %>%
-  filter((premises_t == "Apartment" | premises_t == "Commercial") & reportedye == "2019")
+  filter((premises_t == "Apartment" | premises_t == "Commercial") & reportedye == "2019" | reportedye == "2018")
 neighbourhoods <- st_read("data/nh_profiles_short.geojson")
   
 ```
-
-
-<!-- ```{r, message = FALSE, warning = FALSE, echo=FALSE} -->
-<!-- toronto <- st_read("https://raw.githubusercontent.com/maczokni/crime_mapping/master/data/toronto_c.geojson") -->
-<!-- break_enter <- st_read("https://raw.githubusercontent.com/maczokni/crime_mapping/master/data/break_enter.geojson") %>% -->
-<!--   filter((premises_t == "Apartment" | premises_t == "Commercial") & reportedye == "2019") -->
-<!-- neighbourhoods <- st_read("https://raw.githubusercontent.com/maczokni/crime_mapping/master/data/nh_profiles_short.geojson") -->
-
-<!-- ``` -->
 
 
 We can now plot it:
@@ -232,6 +223,7 @@ colnames(p_values_mc) <- c("None", "Bonferroni",
                            "False Discovery Rate", "BY (2001)")
 apply(p_values_mc, 2, function(x) sum(x < 0.05))
 ```
+
 We can now plot this significant clusters in the map. First we will do some recoding to identify these cells in the spatial polygon object.
 
 ```{r}
@@ -244,6 +236,7 @@ getisgrid$HOTSPOT[getisgrid$HOTSPOT_bonf < 0.05 & getisgrid$HOTSPOT_z < 0] <- "C
 table(getisgrid$HOTSPOT)
 
 ```
+
 We can now map these values.
 
 ```{r}
@@ -284,7 +277,7 @@ neighbourhoods$dwellings <- as.numeric(gsub(",", "", neighbourhoods$dwellings))
 
 Now we can compute the rate and do a quick map.
 
-```{r}
+```{r, message=FALSE}
 neighbourhoods <- neighbourhoods %>%
   mutate(b_e_rate = (b_e_count / as.numeric(dwellings)) * 1000)
 current_style <- tmap_style("col_blind")
@@ -302,15 +295,69 @@ neighbourhoods$b_e_expected <- neighbourhoods$dwellings * sum(neighbourhoods$b_e
 
 ```
 
-This package requires as well the centroids for the polygons we are using. To extract this we can use `sf::st_centroid()`. All the GEOS functions underlying `sf` need projected coordinates to work properly, so we need to reproject first to an adequate projection:
+This package requires as well the centroids for the polygons we are using. To extract this we can use `sf::st_centroid()` with `sf::st_coordinates()`. All the GEOS functions underlying `sf` need projected coordinates to work properly, so we need to reproject first to an adequate projection:
 
 ```{r}
 # Reproject
 neighbourhoods <- st_transform(neighbourhoods, crs = 26717)
-# Get centroids
-nh_centroid <- st_centroid(neighbourhoods)
-nh_centroid <- nh_centroid %>%
-  dplyr::mutate(x = st_coordinates(.)[,1],
-                y = st_coordinates(.)[,2])
+# Get coordinates for centroids
+nh_centroid <- st_centroid(neighbourhoods) %>%
+  st_coordinates(nh_centroid)
+# Place the coordinates as vectors in our sf dataframe
+neighbourhoods$x <- nh_centroid[,1]
+neighbourhoods$y <- nh_centroid[,2]
+
+```
+
+
+bla bla bla
+
+```{r}
+chtest <- achisq.test(b_e_count~offset(log(b_e_expected)), 
+                      as(as.data.frame(neighbourhoods), "data.frame"), 
+                      "multinom", 
+                      999)
+chtest
+```
+```{r}
+pwtest <- pottwhitt.test(b_e_count~offset(log(b_e_expected)),
+                         as(as.data.frame(neighbourhoods), "data.frame"),
+                         "multinom", 999)
+oplus <- sum(neighbourhoods$b_e_count)
+1 - pnorm(pwtest$t0, oplus * (oplus - 1), sqrt(2 * 100 * oplus * (oplus - 1)))
+```
+
+```{r}
+nh_scans <- data.frame(Observed = neighbourhoods$b_e_count)
+nh_scans <- cbind(nh_scans, Expected = neighbourhoods$b_e_expected)
+nh_scans <- cbind(nh_scans, x = neighbourhoods$x,
+                  y = neighbourhoods$y)
+```
+
+
+
+```{r}
+sidsgam <- opgam(data = as(nh_scans, "data.frame"), 
+                   radius = 30, step = 10, alpha = 0.002)
+gampoints <- SpatialPoints(sidsgam[, c("x", "y")] * 1000, CRS("+proj=utm +zone=18 +datum=NAD27"))
+library(rgdal)
+ll <- CRS("+proj=longlat +datum=NAD27")
+gampoints <- spTransform(gampoints, ll)
+gam.layout <- list("sp.points", gampoints)
+```
+
+
+
+
+```{r}
+
+
+mle <- calculate.mle(as(nh_scans, "data.frame"), model = "negbin")
+thegrid <- as(as.data.frame(neighbourhoods), "data.frame")[, c("x", "y")]
+knresults <- opgam(data = as(nh_scans, "data.frame"),
+                   thegrid = thegrid, alpha = 0.05, iscluster = kn.iscluster,
+                   fractpop = 0.15, R = 99, model = "negbin",
+                   mle = mle)
+class(knresults)
 ```
 
