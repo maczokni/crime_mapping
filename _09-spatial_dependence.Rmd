@@ -167,36 +167,16 @@ Let's add the burglary data from Greater Manchester. We have practiced this code
 
 ```{r, message=FALSE, warning=FALSE}
 # Read into R
-burglary <- read_csv("https://raw.githubusercontent.com/jjmedinaariza/CrimeMapping/master/gmpcrime.csv") %>%
-  filter(crime_type == "Burglary")
-# Transform into spatial object
-burglary_sf <- st_as_sf(burglary, coords = c("long", "lat"), 
-                 crs = 4326, agr = "constant")
-burglary_sf <- st_transform(burglary_sf, 27700)
-# Remove redundant non spatial burglary object
-rm(burglary)
+burglary <- st_read("data/burglary_manchester_lsoa.geojson")
 
-# Select burglaries that intersect with the Manchester city LSOA map.
-bur_mc <- st_intersects(manchester, burglary_sf)
-burglary <- burglary_sf[unlist(bur_mc),]
-# Remove redundant objects
-rm(bur_mc)
-rm(burglary_sf)
 ```
 
-We now have the burglary data, let's now count how many burglaries there are within each LSOA polygon. This is a *point in polygon* operation that we covered in chapter 2. 
+We now have the burglary data as shown below:
 
-```{r, message=FALSE, warning=FALSE}
-# Point in polygon spatial operation (this can take time)
-burglary_lsoa <- burglary %>% 
-  st_join(manchester, ., left = FALSE) %>% 
-  count(code)
-# Remove redundant objects
-rm(burglary)
-# Rename column with the count of burglaries (n)
-burglary_lsoa <- rename(burglary_lsoa, burglary = n)
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+
 # Plot with tmap
-tm_shape(burglary_lsoa) +
+tm_shape(burglary) +
   tm_bubbles("burglary", border.lwd=NA, perceptual = TRUE) +            
   tm_borders(alpha=0.1) +
   tm_layout(legend.position = c("right", "bottom"),
@@ -235,9 +215,11 @@ We will use code we covered in Chapter 2 to clip the spatial object with the cou
 # Read a geojson file with Manchester wards and select only the city centre ward
 ward <- st_read("https://raw.githubusercontent.com/RUMgroup/Spatial-data-in-R/master/rumgroup/data/wards.geojson", quiet = TRUE) %>%
   filter(wd16nm == "City Centre")
+# Reproject the burglary data
+burglary <- st_transform(burglary, 27700)
 # Intersect
-cc_intersects <- st_intersects(ward, burglary_lsoa)
-cc_burglary <- burglary_lsoa[unlist(cc_intersects),]
+cc_intersects <- st_intersects(ward, burglary)
+cc_burglary <- burglary[unlist(cc_intersects),]
 # Remove redundant objects
 rm(ward)
 rm(cc_intersects)
@@ -251,7 +233,7 @@ tm_shape(cc_burglary) +
 
 ```
 
-So now we have a new spatial object "cc_burglary" with the 23 LSOA units that compose the City Centre of Manchester. By focusing in a smaller subset of areas we can understand perhaps a bit better what comes next. 
+So now we have a new spatial object "cc_burglary" with the 23 LSOA units that compose the City Centre of Manchester. By focusing in a smaller subset of areas we can visualise perhaps a bit better what comes next. 
 
 ### Creating a list of neighbours based on contiguity
 
@@ -261,7 +243,7 @@ We have already discussed how the `sf` package is the new kid in town and althou
 
 ```{r, warning=FALSE}
 #We coerce the sf object into a new sp object
-bur_ccsp <- as(cc_burglary, "Spatial")
+cc_burglary_sp <- as(cc_burglary, "Spatial")
 
 ```
 
@@ -270,7 +252,7 @@ In order to identify neighbours we will use the `poly2nb()` function from the `s
 The `poly2nb()` function builds a neighbours list based on regions with contiguous boundaries. If you look at the documentation you will see that you can pass a `queen` argument that takes `TRUE` or `FALSE` as options. If you do not specify this argument the default is set to true, that is, if you don't specify `queen = FALSE` this function will return a list of first order neighbours using the Queen criteria. 
 
 ```{r}
-nb_queen <- poly2nb(bur_ccsp, row.names=bur_ccsp$lsoa_code)
+nb_queen <- poly2nb(cc_burglary_sp, row.names=cc_burglary_sp$code)
 class(nb_queen)
 ```
 
@@ -282,7 +264,7 @@ summary(nb_queen)
 
 This is basically telling us that using this criteria each LSOA polygon has an average of 4.3 neighbours (when we just focus on the city centre) and that all areas have some neighbours (there is no islands). The link number distribution gives you the number of links (neighbours) per area. So here we have 3 polygons with 2 neighbours, 3 with 3, 6 with 4, and so on. The summary function here also identifies the areas sitting at both extreme of the distribution.
 
-For more details we can look at the structure of "nb_bur".
+For more details we could look at the structure of "nb_bur".
 
 ```{r, eval = FALSE}
 str(nb_queen)
@@ -292,10 +274,10 @@ We can graphically represent the links using the following code:
 
 ```{r}
 # We first plot the boundaries
-plot(bur_ccsp, col='white', border='blue', lwd=2)
+plot(cc_burglary_sp, col='white', border='blue', lwd=2)
 # Then we use the coordinates function to obtain 
 # the coordinates of the polygon centroids
-xy <- coordinates(bur_ccsp)
+xy <- coordinates(cc_burglary_sp)
 #Then we draw lines between the polygons centroids 
 # for neighbours that are listed as linked in nb_bur
 plot(nb_queen, xy, col='red', lwd=2, add=TRUE)
@@ -303,7 +285,7 @@ plot(nb_queen, xy, col='red', lwd=2, add=TRUE)
 
 ### Generating the weight matrix
 
-We can transform "nb_queen", the list of neighbours, into a spatial weights matrix. A spatial weights matrix reflects the intensity of the geographic relationship between observations. For this we use the `spdep` function `nb2mat()`. The argument `style` sets what kind of matrix we want. `B` stands for the basic binary coding, you get a 1 for neighbours, and a 0 if the areas are not neighbours.
+We can transform "nb_queen", the list of neighbours, into a spatial weights matrix. A spatial weights matrix reflects the intensity of the geographic relationship between observations. For this we use the `spdep` function `nb2mat()` (make a matrix out of a list of neighbours). The argument `style` sets what kind of matrix we want. `B` stands for the basic binary coding, you get a 1 for neighbours, and a 0 if the areas are not neighbours.
 
 ```{r}
 wm_queen <- nb2mat(nb_queen, style='B')
@@ -347,40 +329,40 @@ Then we use the `spdep::knearneigh()` function to find the nearest neighbour to 
 
 ```{r}
 
-kn1 <- knearneigh(xy)
-nb_kn1 <- knn2nb(kn1)
+nearest_n <- knearneigh(xy)
+nb_nearest_n <- knn2nb(nearest_n)
 
 ```
 
 Now we have a `nb` list that for each area define its nearest neighbour. What we need to do is to compute the distance from each centroid to its nearest neighbour (`spdep::nbdists()` will do this for us) and then find out what is the maximum distance (we can use `base::max()`), so that we use this as the critical threshold to define the radius we will use (to avoid the appearance of isolates in our matrix).
 
 ```{r}
-radius <- max(unlist(nbdists(nb_kn1, xy)))
+radius <- max(unlist(nbdists(nb_nearest_n, xy)))
 radius
 ```
 
-Now that we now the maximum radius we can use to avoid isolates we can use `spdep::dnearneigh()` to generate a list of neigbhours within the radius we will specify. Notice the difference between `knearneigh()`, that we used earlier, and `dnearneigh()`. The first function generates a `knn` class object with the single nearest neighbour to each area $i$, whereas `dnearneigh()` generates a `nb` object with *all* the areas $j$ within a given radius of area $i$ being defined as neighbours.
+Now that we now the maximum radius we can use to avoid isolates, we can use `spdep::dnearneigh()` to generate a list of neigbhours within the radius we will specify. Notice the difference between `knearneigh()`, that we used earlier, and `dnearneigh()`. The first function generates a `knn` class object with the single nearest neighbour to each area $i$, whereas `dnearneigh()` generates a `nb` object with *all* the areas $j$ within a given radius of area $i$ being defined as neighbours.
 
 For `dnearneigh()` we need to define as parameters the object with the coordinates, the lower distance bound andthe upper distance bound (the "radius" we just calculated). If you were to be working with non projected data you would need to specify `longlat` as `TRUE`. The function assumes we have projected data and, thus, we don´t need to specify this argument in our case, since our data are indeed using the British Grid projection. As we did with the `nb` objects generated through contiguity we can use `summary()` to get a sense of the resulting list of neighbours.
 
 ```{r}
-nb_dist_1 <- dnearneigh(xy, 0, radius)
-summary(nb_dist_1)
+nb_distance <- dnearneigh(xy, 0, radius)
+summary(nb_distance)
 
 ```
 And as earlier we can also plot the results:
 
 ```{r}
 # We first plot the boundaries
-plot(bur_ccsp, col='white', border='blue', lwd=2)
+plot(cc_burglary_sp, col='white', border='blue', lwd=2)
 # Then we plot the distance-based neighbours
-plot(nb_dist_1, xy, lwd=2, col="red", add=TRUE)
+plot(nb_distance, xy, lwd=2, col="red", add=TRUE)
 
 ```
 We could now use this `nb` object to generate a spatial weight matrix in the same way as earlier:
 
 ```{r}
-wm_dist_1 <- nb2mat(nb_dist_1, style='B')
+wm_distance <- nb2mat(nb_distance, style='B')
 
 ```
 
@@ -399,11 +381,11 @@ The first steps in the procedure simply reproduce what we did earlier up to the 
 Let´s go one step at the time. First we use `spdep::nbdists()` to generate all the distances:
 
 ```{r}
-distances <- nbdists(nb_dist_1, xy)
+distances <- nbdists(nb_distance, xy)
 
 ```
 
-Now that we have an object with all the distances we need to compute the inverse distances. Taking the inverse simply involves dividing 1 by each of the disances. We can easily do that with the following code:
+Now that we have an object with all the distances we need to compute the inverse distances. Taking the inverse simply involves dividing 1 by each of the distances. We can easily do that with the following code:
 
 ```{r}
 
@@ -431,7 +413,7 @@ Once we have generated the inverse distance we can move to generate the weights 
 
 ```{r}
 
-wm_id <- nb2mat(nb_dist_1,
+wm_inverse_dist <- nb2mat(nb_distance,
                 glist = inv_distances_r,
                 style='B')
 ```
