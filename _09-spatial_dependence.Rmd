@@ -155,15 +155,9 @@ In this example once we allow for varying intensity, the spatial dependence no l
 
 ### Burglary in Manchester
 
-We are going to take some of the data from past weeks. In getting the data ready you will have one more opportunity to practice how to read data into R but also how to perform some basic spatial checks, transformations and operations. First let's get the LSOA boundary data, which is the projected British National Grid reference system.
+We are going to take some of the data from past weeks. In getting the data ready you will have one more opportunity to practice how to read data into R but also how to perform some basic spatial checks, transformations and operations. 
 
-```{r}
-shp_name <- "data/BoundaryData/england_lsoa_2011.shp"
-manchester <- st_read(shp_name, quiet=TRUE)
-
-```
-
-Let's add the burglary data from Greater Manchester. We have practiced this code in previous chapters so we won't go over it on detail again.
+We will use a GeoJSON file that has the LSOAs for Manchester and a column identifying the count of burglary occurrences within them.
 
 ```{r, message=FALSE, warning=FALSE}
 # Read into R
@@ -213,15 +207,16 @@ We will use code we covered in Chapter 2 to clip the spatial object with the cou
 
 ```{r, warning = FALSE, message = FALSE}
 # Read a geojson file with Manchester wards and select only the city centre ward
-ward <- st_read("https://raw.githubusercontent.com/RUMgroup/Spatial-data-in-R/master/rumgroup/data/wards.geojson", quiet = TRUE) %>%
+city_centre <- st_read("data/manchester_wards.geojson", quiet = TRUE) %>%
   filter(wd16nm == "City Centre")
+
 # Reproject the burglary data
 burglary <- st_transform(burglary, 27700)
 # Intersect
-cc_intersects <- st_intersects(ward, burglary)
+cc_intersects <- st_intersects(city_centre, burglary)
 cc_burglary <- burglary[unlist(cc_intersects),]
 # Remove redundant objects
-rm(ward)
+rm(city_centre)
 rm(cc_intersects)
 # Plot with tmap
 tmap_mode("view")
