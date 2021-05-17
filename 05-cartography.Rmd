@@ -8,17 +8,20 @@ This chapter aims to focus on introducing good practice in map design and presen
 In this chapter we will be working with some data published by Hungarian police available online [http://www.police.hu/hu/a-rendorsegrol/statisztikak/kozrendvedelem](http://www.police.hu/hu/a-rendorsegrol/statisztikak/kozrendvedelem). Specifically we will be looking at some statistics related to drink driving. Drunk driving is one of a number of problems police confront that relate to impaired and dangerous driving. Hungary has a strict drink driving policy, with the maximum drink diving limit being 0.0 BAC. Most European countries are at 0.5 BAC, while the UK is 0.8 (except 0.5 for Scotland). We have record for each county the number of brethalyser checks carried out, and the number of these which returned a positive result. Let's read in this data from January 2020 (taken from [here](http://www.police.hu/sites/default/files/Kozrendvedelem%20SK%202021_01.pdf)), 
 
 
-```{r}
+```{r, results='hide'}
 
 library(sf)
 library(readr)
 library(dplyr)
 
 
-
+# read in geojson polygon for Hungary
 hungary <- st_read("data/hungary.geojson")
+
+#read in drink driving data 
 drink_driving <- read_csv("data/drink_driving.csv")
 
+#join the csv (attribute) data to the polygons
 hu_dd <- left_join(hungary, drink_driving, by = c("name" = "name"))
 
 ```
@@ -28,18 +31,24 @@ We can now use this example to talk through the important principles of good vis
 
 Cartographers have always been concerned about the appearance of maps and how the display marries form with function @Field_2012. As there is no definitive definition for what is meant by *cartographic design* it can be challenging to evaluate what makes *good* design. However there are themes and elements which can be used to guide the map maker, and offer points of reflection to encourage thoughtful designs. 
 
-Te primary aim of maps is the communication of information in an honest and ethical way. This means each map should have a clear goal and know its audience, show all relevant data and not use the data to lie or mislead @Dent_2009. It should also be reproducible, transparent, cite all data sources, and consider diversity in its audience @Dent_2009. So what does that mean for specifically implementing these into practice. While a good amount of critical thought from the map maker will be required, there are aids we can rely upon. For example, @Field_2007 developed a map evaluation checklist which you can access here: [http://downloads.esri.com/MappingCenter2007/arcGISResources/more/MapEvaluationGuidelines.pdf](http://downloads.esri.com/MappingCenter2007/arcGISResources/more/MapEvaluationGuidelines.pdf). The questions fall into three broad categories: *Cartographic Requirements* such as what is the rationale for the map, who are the audience?. *Cartographic Complication and Design* such as are all the relevant features included and do the colours, symbold, and other features legible and appropriate to achieve the map's objectives? And finally, *Map Elements and Page Layout* which tackle some specific features such as orientation indicator, scale indicator, legend, titles and subtitles, and production notes. We will discuss these elements in this chapter to some degree, and the recommended reading will guide the reader to further advice on these topics.    
+Te primary aim of maps is the communication of information in an honest and ethical way. This means each map should have a clear goal and know its audience, show all relevant data and not use the data to lie or mislead @Dent_2008. It should also be reproducible, transparent, cite all data sources, and consider diversity in its audience @Dent_2008. So what does that mean for specifically implementing these into practice. While a good amount of critical thought from the map maker will be required, there are aids we can rely upon. For example, @Field_2007 developed a map evaluation checklist which you can access here: [http://downloads.esri.com/MappingCenter2007/arcGISResources/more/MapEvaluationGuidelines.pdf](http://downloads.esri.com/MappingCenter2007/arcGISResources/more/MapEvaluationGuidelines.pdf). The questions fall into three broad categories: 
 
-Data visualisation is a somewhat newer field, however, it seems to encompass the same guiding principles when consdiering what makes good design.  According to @Kirk_2016 three principles offer a guide when deciding what makes a *good* data visualisation. It must be: 
+- *Cartographic Requirements*:  such as what is the rationale for the map, who are the audience? 
+- *Cartographic Complication and Design* such as are all the relevant features included and do the colours, symbold, and other features legible and appropriate to achieve the map's objectives? And finally, 
+- *Map Elements and Page Layout* which tackle some specific features such as orientation indicator, scale indicator, legend, titles and subtitles, and production notes. 
+
+We will discuss these elements in this chapter to some degree, and the recommended reading will guide the reader to further advice on these topics.    
+
+Data visualisation is a somewhat newer field, however, it seems to encompass the same guiding principles when consdiering what makes good design. According to @Kirk_2016 three principles offer a guide when deciding what makes a *good* data visualisation. It must be: 
 
 - Trustworthy
 - Accessible, and 
 - Elegant
 
-The first principle, of trust speaks to the integrity, accuracy, and legitimacy of any data visualisation we produce. @Kirk_2016 suggests this principle to be held above all else, as our primary goal is to communicate truth (as far as we know it) and avoid at all cost to present what we know to be misleading content.  Accessibility refers to our visualisation being useful, understandable, and unobtrusive, as well as accessible for all users. There are many things to consider in your audience such as *dynamic of need* (do they have to engage with your visualisation, or is it voluntary?), *subject-matter knowledge* are they experts in the area, are they lay people to whom you must communicate a complex message?, and many other factors (see @Kirk_2016). Finally, elegance refers to aesthetics, attention to detail, and an element of *doing as little design as possible* - meaning a certain invisibility whereby the viewer of your visualisation focussed on the content, rather than the design - that is the main point is the message that you are trying to communicate with your data!
+The first principle, of trust speaks to the integrity, accuracy, and legitimacy of any data visualisation we produce. @Kirk_2016 suggests this principle to be held above all else, as our primary goal is to communicate truth (as far as we know it) and avoid at all cost to present what we know to be misleading content.  Accessibility refers to our visualisation being useful, understandable, and unobtrusive, as well as accessible for all users. There are many things to consider in your audience such as *dynamic of need* (do they have to engage with your visualisation, or is it voluntary?), *subject-matter knowledge* are they experts in the area, are they lay people to whom you must communicate a complex message?, and many other factors (see @Kirk_2016). Finally, elegance refers to aesthetics, attention to detail, and an element of *doing as little design as possible* - meaning a certain invisibility whereby the viewer of your visualisation focussed on the content, rather than the design - that is the main point is the message that you are trying to communicate with your data! There are various schools of though within data visualisation research. For example, the work of @Tufte_2001 emphasises clean, minimalist approaches to data visualisation, emphasising a low *data-to-ink-ratio*, which means all the ink needed to print the visualisation should contribute data to the graph. However, other research has explored the usefulness of additional embellishments on charts (which Tufte calls "chart junk") - finding there may be value to these sorts of approaches as well (e.g. see @Li_2014).  
 
 
-In this chapter, we will aim to bring together the above principles, and work through a practical example of how to apply this to achieve good visualisations. Specifically we will cover: 
+In this chapter, we will aim to bring together the above principles, and work through a practical example of how to apply these to the maps we make. Specifically we will cover: 
 
 - data representation
 - colour
@@ -69,9 +78,19 @@ We can use the `ggplot2` package to plot our thematic map, using the `geom_sf()`
 
 library(ggplot2)
 
+ggplot(data = hu_dd) + # specify data to use
+  geom_sf(aes(fill = total_breath_tests)) # specify aestetics 
+
+```
+
+
+Ggplot plots automatically add a grid reference to our data (see Chapter 1). To remove this, we can use the `theme_void()` theme, which will strip this away. 
+
+```{r themmapthemevoid}
+
 ggplot(data = hu_dd) + 
   geom_sf(aes(fill = total_breath_tests)) + 
-  theme_minimal()
+  theme_void()  # remove grid 
 
 ```
 
@@ -81,8 +100,9 @@ We can change the colour and size of the borders of our polygons with arguments 
 ```{r themmapnobord}
 
 ggplot(data = hu_dd) + 
-  geom_sf(aes(fill = total_breath_tests), lwd = 0) + 
-  theme_minimal()
+  geom_sf(aes(fill = total_breath_tests), 
+          lwd = 0) +  # specify line width
+  theme_void()
 
 ```
 
@@ -94,22 +114,28 @@ Or we can change the colour of the borders with the `col =` argument:
 ```{r themmapwhitebord}
 
 ggplot(data = hu_dd) + 
-  geom_sf(aes(fill = total_breath_tests), lwd = 0.5, col = "white") + 
-  theme_minimal()
+  geom_sf(aes(fill = total_breath_tests), 
+          lwd = 0.5, 
+          col = "white") + # specify border colour
+  theme_void()
 
 ```
 
 Here we have a continuous fill for our values, however we can employ our learning from Chapter 3 and apply a classification system, such as quantiles. To do this we might create a new variable which contains the quantiles of our numeric variable, and then use that as our `fill = `. 
 
+
 ```{r}
 
+# create new variable for quantiles
 hu_dd <- hu_dd %>% 
   mutate(total_quantiles = cut(total_breath_tests, breaks = round(quantile(total_breath_tests),0), include.lowest = TRUE, dig.lab=10))
 
-
+# plot this new variable
 ggplot(data = hu_dd) + 
-  geom_sf(aes(fill = total_quantiles), lwd = 0.5, col = "white") + 
-  theme_minimal()
+  geom_sf(aes(fill = total_quantiles), 
+          lwd = 0.5, 
+          col = "white") + 
+  theme_void()
 
 ```
 
@@ -117,48 +143,68 @@ The colour scheme is terrible, but we will talk about colour in the next section
 
 ### Symbols
 
-You might not want to display your map as thematic map, you may want to use symbols. Again we explored this in Chapter 3, here is one way you can use graduated symbol map with `ggplot()`. You can take the centroid of each county polygon using the `st_centroid()` function from the `sf` package, and then when  mapping with `geom_sf()`, within the `aes()` function specity the `size = ` argument to the variable you wish to visualise: 
+You might not want to display your map as thematic map, you may want to use symbols. Again we explored this in Chapter 3 where you used the `tmap` package for this. Here is another way you can use graduated symbol map with `ggplot()`. You can take the centroid of each county polygon using the `st_centroid()` function from the `sf` package, and then when mapping with `geom_sf()`, within the `aes()` function specity the `size = ` argument to the variable you wish to visualise: 
 
-```{r gradsymbmap}
+```{r gradsymbmap, message=FALSE, warning=FALSE}
 
 ggplot(data = hu_dd) + 
   geom_sf() + 
-  geom_sf(data = st_centroid(hu_dd), aes(size = total_breath_tests)) + 
-  theme_minimal()
+  geom_sf(data = st_centroid(hu_dd),  #get centroids
+          aes(size = total_breath_tests)) +  # variable for size
+  theme_void()
 
 ```
+
 Like with the thematic map you can play around with colour and shape: 
 
-```{r gradsymbmapcol}
+```{r gradsymbmapcol, message=FALSE, warning=FALSE}
 
 ggplot(data = hu_dd) + 
-  geom_sf(fill = "light yellow", col = "white") + 
-  geom_sf(data = st_centroid(hu_dd), aes(size = total_breath_tests), col = "orange") + 
-  theme_minimal()
+  geom_sf(fill = "light yellow",   # specify polygon fill colour
+          col = "white") +    # specify border colour
+  geom_sf(data = st_centroid(hu_dd), 
+          aes(size = total_breath_tests), 
+          col = "orange") +  # specify symbol colour
+  theme_void()
 
 ```
 
-```{r gradsymbmapcoltriangle}
+
+You can also change the symbol itself with the `shape = ` parameter. For example you could use a triangle: 
+
+
+```{r gradsymbmapcoltriangle, message=FALSE, warning=FALSE}
 
 ggplot(data = hu_dd) + 
-  geom_sf(fill = "light yellow", col = "white") + 
-  geom_sf(data = st_centroid(hu_dd), aes(size = total_breath_tests), col = "orange", shape = 17) + 
-  theme_minimal()
+  geom_sf(fill = "light yellow", 
+          col = "white") + 
+  geom_sf(data = st_centroid(hu_dd), 
+          aes(size = total_breath_tests), 
+          col = "orange", 
+          shape = 17) + # set shape to be a triangle
+  theme_void()
 
 ```
 
-```{r gradsymbmapcoldiamond}
+
+Or to any other symbol. The possible values that you can use for the shape argument  are the numbers 0 to 25, and the numbers 32 to 127. Only shapes 21 to 25 are filled (and thus are affected by the fill color), the rest are just drawn in the outline color. Shapes 32 to 127 correspond to the corresponding ASCII characters. For example, if we wanted to use the exclamation mark, the corresponding value is 33:  
+
+```{r gradsymbmapcoldiamond, message=FALSE, warning=FALSE}
 
 ggplot(data = hu_dd) + 
-  geom_sf(fill = "light yellow", col = "white") + 
-  geom_sf(data = st_centroid(hu_dd), aes(size = total_breath_tests), col = "orange", shape = 13) + 
-  theme_minimal()
+  geom_sf(fill = "light yellow", 
+          col = "white") + 
+  geom_sf(data = st_centroid(hu_dd), 
+          aes(size = total_breath_tests), 
+          col = "orange", 
+          shape = 33) + # specify shape as "!"
+  theme_void()
 
 ```
 
 How you choose to represent your data will depend on your decisions to the questions asked above about audience, message, integrity, and so on. 
 
-### Rate v count
+### Rate vs count
 
 In chapter 3 we have discussed this already in great detail, so again I will not dwell on this, but it is important that your data are meaningful and easy to interpret. We might, in this case for example, want to consider the rate of positive breath tests per test carried out in each county. To compute this, we might want to consider the proportion of positive results on the breatalyser tests (where the person had been drinking and their result is over the limit). To compute this, we can simply divide the positive results by the total test, and multiply by 100. We also include the `round()` function in there 
 
@@ -177,11 +223,11 @@ We can see the county with the highers proportion of test yielding drink drivers
 
 We can visualise this rate on our thematic map in exactly the same way as the count data, but using our new variable in the `fill =` argument:  
 
-```{r themmapwhitebord2}
+```{r themmapratefill}
 
 ggplot(data = hu_dd) + 
   geom_sf(aes(fill = pos_rate), lwd = 0.5, col = "white") + 
-  theme_minimal()
+  theme_void()
 
 ```
 
@@ -196,15 +242,18 @@ To create this, we first need to get the centroid of each polygon to get our lon
 
 
 
-```{r, warning=FALSE}
-
+```{r, warning=FALSE, message=FALSE}
 
 scatter_map_df <- hu_dd %>% 
-  mutate(cent_lng = st_coordinates(st_centroid(.))[,1],    # extract centroid longitude
-         cent_lat = st_coordinates(st_centroid(.))[,2],    # extract centroid latitude
-         neg_tests = total_breath_tests - positive_breath_tests) %>%     # calculate negative tests
-  st_drop_geometry() %>%       # remove the geometry column
-  dplyr::select(cent_lng, cent_lat, osm_id, positive_breath_tests, neg_tests)   # keep only necessary columns
+  mutate(# extract centroid longitude
+         cent_lng = st_coordinates(st_centroid(.))[,1],    
+         # extract centroid latitude
+         cent_lat = st_coordinates(st_centroid(.))[,2],   
+         # calculate negative tests
+         neg_tests = total_breath_tests - positive_breath_tests) %>%     
+  st_drop_geometry() %>%     # remove the geometry column
+  dplyr::select(cent_lng, cent_lat, osm_id,   # select only necessary columns
+                positive_breath_tests, neg_tests)   
 
 ```
 
@@ -213,10 +262,20 @@ We now have this new dataframe which has coordinates for the centroid of each po
 
 
 ```{r}
+
+library(scatterpie)
+
 ggplot(data = hu_dd) + 
-  geom_sf(data = hu_dd, fill = "light yellow", col = "white") + 
-  scatterpie::geom_scatterpie(data=scatter_map_df, aes(x=cent_lng, y=cent_lat, group=osm_id), cols=c("positive_breath_tests", "neg_tests")) + 
-  theme_minimal()
+  geom_sf(data = hu_dd, 
+          fill = "light yellow", 
+          col = "white") + 
+  geom_scatterpie(data=scatter_map_df,   # specify new df
+                  aes(x=cent_lng,        # longitude
+                      y=cent_lat,        # latitude
+                      group=osm_id),     # ID for polygons
+                  # specify the columns of pos and neg tests
+                  cols=c("positive_breath_tests", "neg_tests")) + 
+  theme_void()
 
 ```
 
@@ -259,7 +318,7 @@ library(RColorBrewer)
 
 Once you have the package loaded, we can look at all the associated palettes with the function `display.brewer.all()`.
 
-```{r, dsplayallcolourbrewerpallettes}
+```{r, dsplayallcolourbrewerpallettes, fig.height=6.5}
 
 display.brewer.all()
 
@@ -284,15 +343,18 @@ Let's demonstrate here with the "YlOrRd" sequential palette:
 ```{r, colourbbrewerratefill}
 
 ggplot(data = hu_dd) + 
-  geom_sf(aes(fill = total_quantiles), lwd = 0.5, col = "white") + 
-  scale_fill_brewer(type = "seq", palette = "YlOrRd") + 
-  theme_minimal()
+  geom_sf(aes(fill = total_quantiles), 
+          lwd = 0.5, 
+          col = "white") + 
+  scale_fill_brewer(type = "seq",   # pick pallette type
+                    palette = "YlOrRd") +  # specify pallette by name
+  theme_void()
 
 ```
 
 This looks much better, and communicates our message much more clearly. Is this accessible to our colourblind colleagues? Earlier, when we asked to view all the palettes with the `display.brewer.all()` function, we did not specify any arguments. However, we can do so in order to filter only those palettes which are accessible for all audiences. We can include the parameter `colorblindFriendly = ` to do so: 
 
-```{r}
+```{r, fig.height=5}
 
 display.brewer.all(colorblindFriendly = TRUE)
 
@@ -309,7 +371,7 @@ Another way to ensure that we are making accessible maps is to use greyscale (if
 ggplot(data = hu_dd) + 
   geom_sf(aes(fill = total_quantiles), lwd = 0.5, col = "white") + 
   scale_fill_grey() + 
-  theme_minimal()
+  theme_void()
 
 ```
 
@@ -321,7 +383,7 @@ Sometimes you might prefer such a map. However, do keep in mind, a number of stu
 ggplot(data = hu_dd) + 
   geom_sf(aes(fill = total_quantiles), lwd = 0.5, col = "white") + 
   scale_fill_brewer(type = "seq", palette = "Greens") + 
-  theme_minimal()
+  theme_void()
 
 ```
 
@@ -330,181 +392,251 @@ Overall, the key thing is to be conscious with the colours you choose to represe
 
 ## Text
 
-There are important pieces of information with every map which are represented by text. 
+There are important pieces of information with every map which are represented by text. Titles, subtitles, legend labels, and annotations all help to make the message communicated by your map more clear and obvious to your readers. Further, important information about the underlying data can be communicated through product notes. You want to acknowledge the sources of your data (both attribute data and geometry data), as well as leave some information about yourself as the map maker, so consumers of your map can understand who is behind this map, and leave some contact information get in touch with any questions. In this section we go through how to add such text information to your maps. 
 
 ### Titles and subtitles
 
-To give your map a title and subtitle, you can use the appropriate functions from the `ggplot2()` package.
+To give your map a title and subtitle, you can use the appropriate functions from the `ggplot2()` package. In this case we can add both within the `ggtitle` function. Make sure that your title is short and specific, so it is clear what your map is about. You can include a subtitle to elaborate on this, or you can add additional information such as the period for which your map represents data (in this case January 2020). 
 
 
 ```{r titlesubtitle}
 
 
 ggplot(data = hu_dd) + 
-  geom_sf(aes(fill = total_quantiles), lwd = 0.5, col = "white") + 
+  geom_sf(aes(fill = total_quantiles), 
+          lwd = 0.5, col = "white") + 
   scale_fill_brewer(type = "seq", palette = "Greens") + 
-  theme_minimal() + 
-  ggtitle("Number of breathalyser tests per county", subtitle = "January 2020")
+  theme_void() + 
+  # specify both title and subtitle: 
+  ggtitle(title = "Number of breathalyser tests per county", 
+          subtitle = "January 2020")
 
 ```
 
 ### Legend
 
+Besides an informative title/subtitle you need your legend to be clear to your reades as well. To modify the title to your legend, you can use the `name =` parameter in your `scale_fill_brewer()` function, where we specified the colour palette. 
+
 ```{r legend}
 
 
 ggplot(data = hu_dd) + 
-  geom_sf(aes(fill = total_quantiles), lwd = 0.5, col = "white") + 
-  scale_fill_brewer(type = "seq", palette = "Greens", name = "Total tests") + 
-  theme_minimal() + 
-  ggtitle("Number of breathalyser tests per county", subtitle = "January 2020")
+  geom_sf(aes(fill = total_quantiles), 
+          lwd = 0.5, col = "white") + 
+  scale_fill_brewer(type = "seq", palette = "Greens", 
+                    name = "Total tests") + # desired legend title
+  theme_void() + 
+  ggtitle(title = "Number of breathalyser tests per county", 
+          subtitle = "January 2020")
 
 ```
 
-We can also change the levels. For example, we can replace the "," with a " - " if we'd like using the `gsub()` function, and assign the new levels object in the `labels = ` parameter of the `scale_fill_brewer()` function: 
+Besides the legend title, we can also change how the levels are labeled. For this, we can use text manipulation functions, such as `gsub()` which substitutes one string for another. For example, we can replace the "," with a " - " if we'd like using the `gsub()` function. We can create a new object, here `new_levels`, which has the desired labels: 
 
 
 
-```{r legendlabels}
+```{r legendlabelsobj}
 
+# create object new_levels with desired labels
 new_levels <- gsub(","," - ",levels(hu_dd$total_quantiles))
+```
+
+
+We can then assign this new levels object in the `labels = ` parameter of the `scale_fill_brewer()` function: 
+
+
+```{r legendlabelsplot}
 
 ggplot(data = hu_dd) + 
-  geom_sf(aes(fill = total_quantiles), lwd = 0.5, col = "white") + 
-  scale_fill_brewer(type = "seq", palette = "Greens", name = "Total tests", labels = new_levels) + 
-  theme_minimal() + 
-  ggtitle("Number of breathalyser tests per county", subtitle = "January 2020")
+  geom_sf(aes(fill = total_quantiles), 
+          lwd = 0.5, col = "white") + 
+  scale_fill_brewer(type = "seq", palette = "Greens", 
+                    name = "Total tests", 
+                    labels = new_levels) +  # specify our new labels
+  theme_void() + 
+  ggtitle(title = "Number of breathalyser tests per county", 
+          subtitle = "January 2020")
 
 ```
 
-Or we could completely rename them if we liked:
 
-```{r legendlabels2}
+Of course it is possible that we want to completely re-write the levels, rather than just swap out one character for another. In this case, we can completely rename the levels if we liked, by passing the new, desired labels into this `new_levels` object
+
+```{r legendlabels2createlabs}
 
 new_levels <- c("< 4796", "4796 to < 10785", "10785  to < 15070", "> 15070")
+```
+
+
+And once again, we specify to use these labels in the `labels = ` parameter of the `scale_fill_brewer()` function: 
+
+
+```{r newnewlabelsplot}
 
 ggplot(data = hu_dd) + 
-  geom_sf(aes(fill = total_quantiles), lwd = 0.5, col = "white") + 
-  scale_fill_brewer(type = "seq", palette = "Greens", name = "Total tests", labels = new_levels) + 
-  theme_minimal() + 
-  ggtitle("Number of breathalyser tests per county", subtitle = "January 2020")
+  geom_sf(aes(fill = total_quantiles), 
+          lwd = 0.5, col = "white") + 
+  scale_fill_brewer(type = "seq", palette = "Greens", 
+                    name = "Total tests", 
+                    labels = new_levels) + # again specify labels object
+  theme_void() + 
+  ggtitle(title = "Number of breathalyser tests per county", 
+          subtitle = "January 2020")
 
 ```
 
-You can change the labels however you would like, but do keep in mind any loss of information you may introduce. For example with this second version, we no longer know what are the minimum and maximum balues on our map, as we've removed that information with our new levels. Again, no wrong answers here, but whatever best fits the data and the purpose of the map. 
+
+You can change the labels however you would like, but do keep in mind any loss of information you may introduce. For example with this second version, we no longer know what are the minimum and maximum values on our map, as we've removed that information with our new levels. Again, no wrong answers here, but whatever best fits the data and the purpose of the map. 
 
 
 ### Annotation
 
-Sometimes you might want to include some textual information on your map as well. From `ggplot2` versions v.3.1.0 the functions `geom_sf_text()` and `geom_sf_label()` make it very smooth for us to do this. 
+In certain cases, it might be that we want to point out something specific on our map. This would be the case if we imagine showing someone the map in person, and pointing to a specific region, or area, to highlight it. Or we might just want to label all polygons, for clarity. If we are not present to discuss our map, we might want to include some text annotation instead, which will do this for us. From `ggplot2` versions v.3.1.0 the functions `geom_sf_text()` and `geom_sf_label()` make it very smooth for us to do this. 
 
-```{r addcountynames}
+
+In the below example, let's say we want to label each polygon with the name of the county which it represents. In this case, we use the `geom_sf_label()` geometry, and inside it we use `aes()` to point to which column in our dataframe we want to use (in this case the column is called *name*). 
+
+```{r addcountynames, warning=FALSE, message=FALSE}
 
 ggplot(data = hu_dd) + 
-  geom_sf(aes(fill = total_quantiles), lwd = 0.5, col = "white") + 
-  scale_fill_brewer(type = "seq", palette = "Greens", name = "Total tests") + 
-  geom_sf_label(aes(label = name)) + 
-  theme_minimal() + 
-  ggtitle("Number of breathalyser tests per county", subtitle = "January 2020")
+  geom_sf(aes(fill = total_quantiles), 
+          lwd = 0.5, col = "white") + 
+  scale_fill_brewer(type = "seq", 
+                    palette = "Greens", 
+                    name = "Total tests") + 
+  geom_sf_label(aes(label = name)) +  # add layer of labels from the name column
+  theme_void() + 
+  ggtitle(title = "Number of breathalyser tests per county", 
+          subtitle = "January 2020")
 
 ```
 
 You may notice there is some overlapping here which renders some names unreadable. Well while [there is work in this space to develop the function geom_sf_label_repel()](https://github.com/slowkow/ggrepel/issues/111) at the time of writing this is not yet available. However this application of the `geom_label_repel()` function from the `ggrepel` package advised by @Yutani_2018 achieves the same outcome: 
 
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 
 library(ggrepel)
 
 ggplot(data = hu_dd) + 
-  geom_sf(aes(fill = total_quantiles), lwd = 0.5, col = "white") + 
-  scale_fill_brewer(type = "seq", palette = "Greens", name = "Total tests") + 
-  geom_label_repel(data = hu_dd, aes(label = name, geometry = geometry), stat = "sf_coordinates", min.segment.length = 0) + 
-  theme_minimal() + 
-  ggtitle("Number of breathalyser tests per county", subtitle = "January 2020") 
+  geom_sf(aes(fill = total_quantiles), 
+          lwd = 0.5, col = "white") + 
+  scale_fill_brewer(type = "seq", 
+                    palette = "Greens", 
+                    name = "Total tests") + 
+  geom_label_repel(data = hu_dd,       # add repel layer, specify dataframe
+                   aes(label = name,   # specify where to find label (name column)
+                       geometry = geometry),  # specify geometry
+                   stat = "sf_coordinates",  # transformation to use on the data
+                   min.segment.length = 0) + # don't draw segments shorter than this
+  theme_void() + 
+  ggtitle(title = "Number of breathalyser tests per county", 
+          subtitle = "January 2020") 
     
+```
 
 
+This way we can display the names of all the counties without overlap, so they all become legible. While this is achievable, think back to the principles of good design. This seems busy, and like it may overwhelm the reader. Not to mention - is it important that all polygons are labelled here? It might be - remember this depends on the message the map is intended to communicate! But here let's consider a different scenario, where we want to use annotation to label only those counties which meet some specific criteria.  For example, you might want to label only those which are in the top quartile. One way to achieve this is to create a separate dataframe, which only includes the desired polygons, and pass this into the `geom_sf_label()` function.  
+
+```{r addcountynamestoponly, warning=FALSE, message=FALSE}
+
+#create new dataframe with only top counties
+labs_df <- hu_dd %>% filter(total_breath_tests >= 15070)
+
+#add to map
+ggplot(data = hu_dd) + 
+  geom_sf(aes(fill = total_quantiles), 
+          lwd = 0.5, col = "white") + 
+  scale_fill_brewer(type = "seq", 
+                    palette = "Greens", 
+                    name = "Total tests") + 
+  geom_sf_label(data = labs_df, # specify to use the labels df
+                aes(label = name)) + 
+  theme_void() + 
+  ggtitle(title = "Number of breathalyser tests per county", 
+          subtitle = "January 2020")
 
 ```
 
-This map looks really busy, you might want to include only a few labels, which are of interest. For example, you might want to label only those which are in the top quartile: 
 
-```{r addcountynamestoponly}
+In another scenario, you might want to label only one region of interest. In this case, we might actually want to keep our annotation off the map, and draw an arrow onto the map pointing to where this annotation refers to. We can do this by using the `nudge_x` and `nudge_y` parameters of the `geom_sf_label()` function. In this case, let's label only Budapest. 
+
+```{r addcountynamesBPonly, warning=FALSE, message=FALSE}
+
+#create new labels dataframe
+labs_df <- hu_dd %>% filter(name == "Budapest")
 
 ggplot(data = hu_dd) + 
-  geom_sf(aes(fill = total_quantiles), lwd = 0.5, col = "white") + 
-  scale_fill_brewer(type = "seq", palette = "Greens", name = "Total tests") + 
-  geom_sf_label(data = hu_dd %>% filter(total_breath_tests >= 15070), aes(label = name)) + 
-  theme_minimal() + 
-  ggtitle("Number of breathalyser tests per county", subtitle = "January 2020")
-
-```
-
-Or you want to specifically highlight a county of interest, let's say Budapest. In this case, we might actually want to keep our annotation off the map. We can do this by using the `nudge_x` and `nudge_y` parameters of the `geom_sf_label()` function. 
-
-```{r addcountynamesBPonly}
-
-ggplot(data = hu_dd) + 
-  geom_sf(aes(fill = total_quantiles), lwd = 0.5, col = "white") + 
-  scale_fill_brewer(type = "seq", palette = "Greens", name = "Total tests") + 
-  geom_sf_label(data = hu_dd %>% filter(name == "Budapest"), aes(label = name), nudge_y = 0.9, nudge_x = -0.1) + 
-  theme_minimal() + 
-  ggtitle("Number of breathalyser tests per county", subtitle = "January 2020")
+  geom_sf(aes(fill = total_quantiles), 
+          lwd = 0.5, col = "white") + 
+  scale_fill_brewer(type = "seq", 
+                    palette = "Greens",
+                    name = "Total tests") + 
+  geom_sf_label(data = , aes(label = name), # label from name column
+                nudge_y = 0.9,  # move label on y axis
+                nudge_x = -0.1) + # move label on x axis
+  theme_void() + 
+  ggtitle(title = "Number of breathalyser tests per county", 
+          subtitle = "January 2020")
 
 ```
 
 
-But this floating label is a little ambiguous. We might want to use an arrow to point out Budapest on the map. To do this, we can use `geom_curve()` within `ggplot2`. We will need two sets of x and y values for this segment, the start point (`x` and `y`) and the end point (`xend` and `yend`). The end point will be the coordinates where we want the arrow pointing to. This would be some x,y pair within Budapest. We can use the `st_coordinates()  ` function once again the extract the centroid, this time of the Budapest polygon. Let's extract the longitude of the centroid into an object called `bp_x` for our x value, and the latitude of the centroid into an object called `bp_y` for our y value. 
+But this floating label is a little ambiguous, and needs to be more explicitly connected to the map. To achieve this, we might want to use an arrow to point out Budapest on the map. To do this, we can use `geom_curve()` within `ggplot2`. We will need two sets of x and y values for this segment, the start point (`x` and `y`) and the end point (`xend` and `yend`). The end point will be the coordinates where we want the arrow pointing to. This would be some x,y pair within Budapest. We can use the `st_coordinates()  ` function once again the extract the centroid, this time of the Budapest polygon. Let's extract the longitude of the centroid into an object called `bp_x` for our x value, and the latitude of the centroid into an object called `bp_y` for our y value. 
 
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 
-bp_x <- hu_dd %>% filter(name == "Budapest") %>% 
+# get x coordinate
+bp_x <- labs_df %>% 
   mutate(cent_lng = st_coordinates(st_centroid(.))[,1]) %>% 
   pull(cent_lng)
 
-bp_y <- hu_dd %>% filter(name == "Budapest") %>% 
+# get y coordinate
+bp_y <- labs_df %>% 
   mutate(cent_lat = st_coordinates(st_centroid(.))[,2]) %>% 
   pull(cent_lat)
 
 ```
 
-Great, so we have the end point for our segment, but where should it start. Well we want it pointing from our label, so we can think back to how we adjusted this label with the `nudge_x` and `nudge_y` parameters inside the `geom_sf_label()` function earlier. We can add (or subtract) these values to our bp_x and bp_y objects to determine the start points for our curve. Finally, we can also specify some characteristics of the arrow head on our curve with the `arrow = ` parameter. Here we specify we want 2 milimeter size. 
+Great, so we have the end point for our segment, but where should it start. Well we want it pointing from our label, so we can think back to how we adjusted this label with the `nudge_x` and `nudge_y` parameters inside the `geom_sf_label()` function earlier. We can add (or subtract) these values to our bp_x and bp_y objects to determine the start points for our curve. Finally, we can also specify some characteristics of the arrow head on our curve with the `arrow = ` parameter. Here we specify we want 2 millimeter size. 
 
 
 ```{r}
   
-
-
 ggplot(data = hu_dd) + 
-  geom_sf(aes(fill = total_quantiles), lwd = 0.5, col = "white") + 
-  scale_fill_brewer(type = "seq", palette = "Greens", name = "Total tests") + 
-  geom_curve(x = bp_x - 0.1, 
-             y = bp_y + 0.9, 
-             xend = bp_x , 
-             yend = bp_y, 
+  geom_sf(aes(fill = total_quantiles), 
+          lwd = 0.5, col = "white") + 
+  scale_fill_brewer(type = "seq", 
+                    palette = "Greens",
+                    name = "Total tests") + 
+  geom_curve(x = bp_x - 0.1,  # starting x coordinate (the label)
+             y = bp_y + 0.9, # starting y coordinate (the label)
+             xend = bp_x , # ending x coordinate (BP centroid)
+             yend = bp_y,  # ending y coordinate (BP centroid)
              arrow = arrow(length = unit(2, "mm"))) +
-  geom_sf_label(data = hu_dd %>% filter(name == "Budapest"), 
+  geom_sf_label(data = labs_df, 
                 aes(label = name), 
                 nudge_y = 0.9, 
                 nudge_x = -0.1) + 
-  theme_minimal() + 
-  ggtitle("Number of breathalyser tests per county", subtitle = "January 2020")
+  theme_void() + 
+  ggtitle(title = "Number of breathalyser tests per county", 
+          subtitle = "January 2020")
 
 ```
 
-
+This is one way to include annotation while keeping the map clear, but still using the geographic information to reference. Annotations can be useful, but think carefully about whether you need them for your map, as they can also be distracting if not used appropriately. 
 
 ### Production notes
 
-You should always include production notes with your map. This includes some information about you who made it, as well as any attributions for data. Here we can string together a series of information we want to include, appended with a newline character, in order to keep our notes nice and legible: 
+Something that should be a key feature of all maps is the inclusion of  production notes. This includes some information about you who made it, as well as any attributions for data. Here we can string together a series of information we want to include, appended with a newline character (`\n`), in order to keep our notes nice and legible. We save this into a new object called `caption_text`. 
 
 ```{r}
 
 caption_text <- paste("Map created by Reka Solymosi (@r_solymosi)", 
                        "Contains data from Police Hungary",
-                       "http://www.police.hu/hu/a-rendorsegrol/statisztikak/kozrendvedelem", 
+                       "http://www.police.hu/hu/a-rendorsegrol/",
+                       "statisztikak/kozrendvedelem", 
                        "Map data copyrighted OpenStreetMap contributors", 
                        "available from https://www.openstreetmap.org", 
                        sep = "\n")
@@ -515,142 +647,184 @@ caption_text <- paste("Map created by Reka Solymosi (@r_solymosi)",
 
 Then we can include this `caption_text` object as a caption in the function `labs()`. 
 
-```{r}
-  
-
+```{r, warning=FALSE, message=FALSE}
 
 ggplot(data = hu_dd) + 
-  geom_sf(aes(fill = total_quantiles), lwd = 0.5, col = "white") + 
-  scale_fill_brewer(type = "seq", palette = "Greens", name = "Total tests") + 
+  geom_sf(aes(fill = total_quantiles), 
+          lwd = 0.5, col = "white") + 
+  scale_fill_brewer(type = "seq", 
+                    palette = "Greens", 
+                    name = "Total tests") + 
   geom_curve(x = bp_x - 0.1, 
              y = bp_y + 0.9, 
              xend = bp_x , 
              yend = bp_y, 
              arrow = arrow(length = unit(2, "mm"))) +
-  geom_sf_label(data = hu_dd %>% filter(name == "Budapest"), 
+  geom_sf_label(data = labs_df, 
                 aes(label = name), 
                 nudge_y = 0.9, 
                 nudge_x = -0.1) + 
   theme_minimal() + 
-  ggtitle("Number of breathalyser tests per county", subtitle = "January 2020") + 
-  labs(caption = caption_text)
+  ggtitle(title = "Number of breathalyser tests per county", 
+          subtitle = "January 2020") + 
+  labs(caption = caption_text) # include production notes here
 
 ```
 
+In this way we give credibility to our map, and we also make the proper attributions to where our data come from. 
 
 ## Composition
 
-### Orientation and scale indicators
+Composition of the map is the process of bringing all its elements together in order that they portray a complete image of what you are representing. Composition includes considerations of size, proportions, generalisation, simplification, and similar topics. We do not address these here, as they rely so much on the specific purpose of the map being created. Is it for the web? Is it for print? Are having detailed outlines of coasts and waterways important, or is a generalised representation of the underlying geography enough? These are questions the map maker should answer early on, and pick geometry data, and specify output sizes and resolutions accordingly. In this section instead, we will docus on the element of composition which is concerned with the inclusion of basic map elements - information required by the map readers to make sense of our data, specifically orientation and scale indicators
 
+### Orientation indicators
 
+It used to be that no map was complete without the inclusion of an orientation indicator (known colloquially as the "North Arrow"). Readers who are geography fans may know that the issue of where is North is maybe not so straight forward - true north (the direction to the North Pole) differs from magnetic north, and the latter actually moves around as the Earth's geophysical conditions change. There are reference maps which include both, however for most crime mapping applications we can conclude that this is overkill. Most maps are oriented to true north, anyway, so we are not being very deviant with choosing this approach. 
+
+So how to include this in our mapping in R? Well we can turn to the `ggspatial` library, and employ the function `annotation_north_arrow()`. In this function we can specify some aesthetic properties of our arrow, such as the height and width. Here we do so using millimeters as units. 
 
 ```{r orientation, warning=FALSE}
+
 library(ggspatial)
 
 ggplot(data = hu_dd) + 
-  geom_sf(aes(fill = total_quantiles), lwd = 0.5, col = "white") + 
-  scale_fill_brewer(type = "seq", palette = "Greens", name = "Total tests") + 
+  geom_sf(aes(fill = total_quantiles), 
+          lwd = 0.5, col = "white") + 
+  scale_fill_brewer(type = "seq", 
+                    palette = "Greens", 
+                    name = "Total tests") + 
   geom_curve(x = bp_x - 0.1, 
              y = bp_y + 0.9, 
              xend = bp_x , 
              yend = bp_y, 
              arrow = arrow(length = unit(2, "mm"))) +
-  geom_sf_label(data = hu_dd %>% filter(name == "Budapest"), 
+  geom_sf_label(data = labs_df, 
                 aes(label = name), 
                 nudge_y = 0.9, 
                 nudge_x = -0.1) + 
-  theme_minimal() + 
-  ggtitle("Number of breathalyser tests per county", subtitle = "January 2020") + 
+  theme_void() + 
+  ggtitle(title = "Number of breathalyser tests per county", 
+          subtitle = "January 2020") + 
   labs(caption = caption_text) + 
-  annotation_north_arrow(height = unit(7, "mm"), width = unit(5, "mm")) 
+  annotation_north_arrow(height = unit(7, "mm"), # specify arrow height
+                         width = unit(5, "mm")) # specify arrow width
 
 
 ```
 
+You can also change the style with the `style = ` parameter, and choose from styles such as `north_arrow_fancy_orienteering()` or `north_arrow_minimal()`:
+
+```{r orientationarrowstyle, warning=FALSE}
+
+ggplot(data = hu_dd) + 
+  geom_sf(aes(fill = total_quantiles), 
+          lwd = 0.5, col = "white") + 
+  scale_fill_brewer(type = "seq", 
+                    palette = "Greens", 
+                    name = "Total tests") + 
+  geom_curve(x = bp_x - 0.1, 
+             y = bp_y + 0.9, 
+             xend = bp_x , 
+             yend = bp_y, 
+             arrow = arrow(length = unit(2, "mm"))) +
+  geom_sf_label(data = labs_df, 
+                aes(label = name), 
+                nudge_y = 0.9, 
+                nudge_x = -0.1) + 
+  theme_void() + 
+  ggtitle(title = "Number of breathalyser tests per county", 
+          subtitle = "January 2020") + 
+  labs(caption = caption_text) + 
+  annotation_north_arrow(height = unit(7, "mm"), # specify arrow height
+                         width = unit(5, "mm"), 
+                        style = north_arrow_minimal()) # specify arrow style
+
+
+```
+
+### Scale indicators
+
+Besides the North Arrow another key feature of maps is the scale indicator, which helps to understand distances we are presenting in our maps. Generally, scale should always be indicated or implied, unless the audience is so familiar with the map area or distance of such little relative importance that it can be assumed by the audience. You could use text to indicate scale. For example you could write "One centimeter is equal to one kilometer, or you could write 1:10000. But a common, graphical representation is to use a scale bar. Also in the `ggspatial` library, there is the function `annotation_scale()`, which helps us achieve this. To plot both the north arrow, and the scale indicator, you want to think about where you place these. You can move them along the x-axis using the using the `pad_x` parameter, and along the y-axis with the `pad_y` parameter. 
 
 ```{r scale, warning=FALSE}
 
 
 ggplot(data = hu_dd) + 
-  geom_sf(aes(fill = total_quantiles), lwd = 0.5, col = "white") + 
-  scale_fill_brewer(type = "seq", palette = "Greens", name = "Total tests") + 
+  geom_sf(aes(fill = total_quantiles), 
+          lwd = 0.5, col = "white") + 
+  scale_fill_brewer(type = "seq", 
+                    palette = "Greens", 
+                    name = "Total tests") + 
   geom_curve(x = bp_x - 0.1, 
              y = bp_y + 0.9, 
              xend = bp_x , 
              yend = bp_y, 
              arrow = arrow(length = unit(2, "mm"))) +
-  geom_sf_label(data = hu_dd %>% filter(name == "Budapest"), 
-                aes(label = name), 
-                nudge_y = 0.9, 
-                nudge_x = -0.1) + 
-  theme_minimal() + 
-  ggtitle("Number of breathalyser tests per county", subtitle = "January 2020") + 
-  labs(caption = caption_text) + 
-  annotation_north_arrow(height = unit(7, "mm"), width = unit(5, "mm"), pad_x = unit(5, "mm"), pad_y = unit(1, "mm")) + 
-  annotation_scale(line_width = 0.5, height = unit(1, "mm"), pad_x = unit(6, "cm"))
-
-
-```
-
-### Strip away grids
-
-Possibly the longitude and latitude and the grid are not adding much to our understanding of the map here. Instead we can strip these away. By using `theme_minimal()`, we're already stripping away a lot of the elements, but we can further specify to eliminate all elements with the `theme_void()` argument instead. 
-
-```{r nogrid, warning=FALSE}
-
-
-ggplot(data = hu_dd) + 
-  geom_sf(aes(fill = total_quantiles), lwd = 0.5, col = "white") + 
-  scale_fill_brewer(type = "seq", palette = "Greens", name = "Total tests") + 
-  geom_curve(x = bp_x - 0.1, 
-             y = bp_y + 0.9, 
-             xend = bp_x , 
-             yend = bp_y, 
-             arrow = arrow(length = unit(2, "mm"))) +
-  geom_sf_label(data = hu_dd %>% filter(name == "Budapest"), 
+  geom_sf_label(data = labs_df, 
                 aes(label = name), 
                 nudge_y = 0.9, 
                 nudge_x = -0.1) + 
   theme_void() + 
-  ggtitle("Number of breathalyser tests per county", subtitle = "January 2020") + 
+  ggtitle(title = "Number of breathalyser tests per county", 
+          subtitle = "January 2020") + 
   labs(caption = caption_text) + 
-  annotation_north_arrow(height = unit(7, "mm"), width = unit(5, "mm"), pad_x = unit(5, "mm"), pad_y = unit(1, "mm")) + 
-  annotation_scale(line_width = 0.5, height = unit(1, "mm"), pad_x = unit(6, "cm"))
+  annotation_north_arrow(height = unit(7, "mm"), 
+                         width = unit(5, "mm"), 
+                         pad_x = unit(5, "mm"),   # adjust on x axis
+                         pad_y = unit(1, "mm")) + # adjust on y axis
+  annotation_scale(line_width = 0.5,      # add scale and specify width
+                   height = unit(1, "mm"), # specify height
+                   pad_x = unit(6, "cm"))  # adjust on x axis
 
 
 ```
 
+You can move these elements about however you like to achieve your desired composition. 
+
 
 ## Context
 
+Besides the orientation and scale indicators, there are other ways to give context to your map, that is situate it within the wider environment, and put things into perspective for your map readers. In this section we will touch on basemaps, although this is something we have already encountered in great detail in earlier chapters, we illustrate how to add basemaps in ggplot. We also introduce inset maps, as a way of highlighting where your map sits in the wider context. 
+
 ### Basemap
 
-The `annotation_map_tile()` function also from the `ggspatial` package. 
+As mentioned above, we have encountered and included basemaps in previous exercises in previous chapters. For the sake of illustration, we can add a basemap now using the the `annotation_map_tile()` function also from the `ggspatial` package (like the orientation and scale indicators). Make sure that the basemap is the first layer added to the map, so that all subsequent layers are drawn on top of it. If we were to add `annotation_map_tile()` last, it would cover all the other layers. 
 
 ```{r basemap, warning=FALSE, message=FALSE}
 
 
 ggplot(data = hu_dd) + 
-  annotation_map_tile() + 
-  geom_sf(aes(fill = total_quantiles), lwd = 0.5, col = "white") + 
-  scale_fill_brewer(type = "seq", palette = "Greens", name = "Total tests") + 
+  annotation_map_tile() +  # add basemap layer first
+  geom_sf(aes(fill = total_quantiles), 
+          lwd = 0.5, col = "white") + 
+  scale_fill_brewer(type = "seq", 
+                    palette = "Greens", 
+                    name = "Total tests") + 
   geom_curve(x = bp_x - 0.1, 
              y = bp_y + 0.9, 
              xend = bp_x , 
              yend = bp_y, 
              arrow = arrow(length = unit(2, "mm"))) +
-  geom_sf_label(data = hu_dd %>% filter(name == "Budapest"), 
+  geom_sf_label(data = labs_df, 
                 aes(label = name), 
                 nudge_y = 0.9, 
                 nudge_x = -0.1) + 
   theme_void() + 
-  ggtitle("Number of breathalyser tests per county", subtitle = "January 2020") + 
+  ggtitle(title = "Number of breathalyser tests per county", 
+          subtitle = "January 2020") + 
   labs(caption = caption_text) + 
-  annotation_north_arrow(height = unit(7, "mm"), width = unit(5, "mm"), pad_x = unit(5, "mm"), pad_y = unit(2, "mm")) + 
-  annotation_scale(line_width = 0.5, height = unit(1, "mm"), pad_x = unit(6, "cm")) 
+  annotation_north_arrow(height = unit(7, "mm"), 
+                         width = unit(5, "mm"), 
+                         pad_x = unit(5, "mm"), 
+                         pad_y = unit(2, "mm")) + 
+  annotation_scale(line_width = 0.5, 
+                   height = unit(1, "mm"), 
+                   pad_x = unit(6, "cm")) 
 
 
 ```
+
+This provides one way to add context. In previous iterations, we have adjusted the opacity of our other layers, in order to aid visibility of the basemap underneath them, so this might be something to consider. 
 
 <!-- ### Geographical features -->
 
@@ -674,7 +848,7 @@ ggplot(data = hu_dd) +
 
 ### Inset maps
 
-Inset maps provide context. You might use this to show where your main map fits into the context of a larger area, for example, here we might illustrate how Hungary is situated within Europe.  You might also use an inset map in another situation, where you have additional areas which you want to show which may be geographically far but politically related to your region. For example, we might want to portray a map of the United States of America, and make sure to include Hawaii and Alaska on the map. The basic principles behind these maps is the same. Essentially we must create two map objects, and then bring these together. Let's illustrate how. 
+Inset maps provide another approach to situating your map in context. You might use this to show where your main map fits into the context of a larger area, for example, here we might illustrate how Hungary is situated within Europe.  You might also use an inset map in another situation, where you have additional areas which you want to show which may be geographically far but politically related to your region. For example, we might want to portray a map of the United States of America, and make sure to include Hawaii and Alaska on the map. The basic principles behind these maps is the same. Essentially we must create two map objects, and then bring these together. Let's illustrate how. 
 
 
 First, we need to create the map we will be displaying in the inset map. In this case, let's highlight the location of Hungary on the map. We can do this by creating a map of Europe (let's use the `rnaturalearth` package for this). We create a list of the countries from the world map `countries1101, and filter only Europe (we also exclude Russia because it is so big it makes the rest of Europe hard do see on a smaller map, and Iceland as it's far, also making the map bigger than we need). 
@@ -683,60 +857,75 @@ First, we need to create the map we will be displaying in the inset map. In this
 
 library(rnaturalearth)
 
-europe_countries <- st_as_sf(countries110) %>% 
-  filter(region_un=="Europe" & name != "Russia" & name != "Iceland") %>% pull(name)
+europe_countries <- st_as_sf(countries110) %>%  # get geom for all countries
+  filter(region_un=="Europe" & # select Europe
+           name != "Russia" &   # remove Russia
+           name != "Iceland") %>% # remove Iceland
+  pull(name) # get only the names in a list
 
-europe <- ne_countries(geounit = europe_countries, type = 'map_units', returnclass = "sf")
+europe <- ne_countries(geounit = europe_countries, # get geoms for countries in list
+                       type = 'map_units',  # country type as map_units
+                       returnclass = "sf") # return sf object (not sp)
 
 ```
 
-Now we can create a map where we highlight Hungary by making its border red and a thicker line width. Remember to add `theme_void()` in order to remove any background elements.  
+
+Now we can use the returned sf object `europe` to create a map of Europe. But this isn't necessarily enough context. We also want the inset map to highlight Hungary within this map. We can do this by creating another layer, with only Hungary, and making its border red and a use thicker line width. By layering this on top of the Europe map, we are essentially highlighting our study region.  
+
 
 ```{r}
 
-inset_map <- ggplot() + 
-  geom_sf(data = europe, fill = "white") + 
-  geom_sf(data = europe %>% filter(name == "Hungary"), fill = "white" , col = "red", lwd = 2) + 
-  theme_void() + 
-  theme(panel.border = element_rect(colour = "black", fill=NA))
+inset_map <- ggplot() +  # create new ggplot 
+  geom_sf(data = europe,  # add europe map as first layer
+          fill = "white") + # white fill 
+  geom_sf(data = europe %>% filter(name == "Hungary"), # new layer only Hungary
+          fill = "white" ,  # white fill
+          col = "red",   # make the border red
+          lwd = 2) +   # make border line thick
+  theme_void() +  # strip grid elements
+  theme(panel.border = element_rect(colour = "black", # draw border around map
+                                    fill=NA)) 
   
 
 ```
 
-We now have this separate map, which highlights where Hungary can be found, right there in Central Europe. To display this jointly with our map of breathalyser test, we must join the two maps. We will need both as objects. We've already assigned out inset map to the object `inset_map` but we must take our main map, and also assign it to an object. Let's call this main map. 
+We now have this separate map, which highlights where Hungary can be found, right there in Central Europe. To display this jointly with our map of breathalyser test, we must join the two maps. For this, we will need both as separate objects. We've already assigned out inset map to the object `inset_map` but we must take our main map, and also assign it to an object. Let's call this `main_map`. 
 
 
 ```{r makemainmap}
 
 main_map <- ggplot(data = hu_dd) + 
-  geom_sf(aes(fill = total_quantiles), lwd = 0.5, col = "white") + 
-  scale_fill_brewer(type = "seq", palette = "Greens", name = "Total tests") + 
+  geom_sf(aes(fill = total_quantiles), 
+          lwd = 0.5, 
+          col = "white") + 
+  scale_fill_brewer(type = "seq", 
+                    palette = "Greens", 
+                    name = "Total tests") + 
   geom_curve(x = bp_x - 0.1, 
              y = bp_y + 0.9, 
              xend = bp_x , 
              yend = bp_y, 
              arrow = arrow(length = unit(2, "mm"))) +
-  geom_sf_label(data = hu_dd %>% filter(name == "Budapest"), 
+  geom_sf_label(data = labs_df, 
                 aes(label = name), 
                 nudge_y = 0.9, 
                 nudge_x = -0.1) + 
-  theme_minimal() + 
-  ggtitle("Number of breathalyser tests per county", subtitle = "January 2020") + 
+  theme_void() + 
+  ggtitle(title = "Number of breathalyser tests per county", 
+          subtitle = "January 2020") + 
   labs(caption = caption_text) + 
-  annotation_north_arrow(height = unit(7, "mm"), width = unit(5, "mm"), pad_x = unit(5, "mm"), pad_y = unit(1, "mm")) + 
-  annotation_scale(line_width = 0.5, height = unit(1, "mm"), pad_x = unit(6, "cm")) + 
-  theme(panel.grid = element_blank(),
-        axis.title = element_blank(),
-        axis.text = element_blank(),
-        axis.ticks = element_blank(),
-        panel.background = element_blank())
-
+  annotation_north_arrow(height = unit(7, "mm"), 
+                         width = unit(5, "mm"), 
+                         pad_x = unit(5, "mm"), 
+                         pad_y = unit(1, "mm")) + 
+  annotation_scale(line_width = 0.5, 
+                   height = unit(1, "mm"), 
+                   pad_x = unit(6, "cm")) 
+  
 ```
 
 
-
-
-Great, now to join them.  For this, we will turn to functions from the `cowplot` package. 
+So now we have our inset map and main map stored as two map objects. To display them together we can use the `ggdraw()` and `draw_plot()` functions from the `cowplot` package. Let's load this package. 
 
 ```{r cowplot}
 
@@ -750,15 +939,31 @@ First, we set up an empty drawing layer for our ggplot using the `ggdraw()` func
 
 ```{r insetmaptogether, warning = FALSE}
 
-hu_dd_with_inset <- ggdraw() +
-  draw_plot(main_map) +
-  draw_plot(inset_map, x = 0.67, y = 0, width = 0.35, height = 0.35)
+hu_dd_with_inset <- ggdraw() +  # set layer
+  draw_plot(main_map) +  # draw the main map
+  draw_plot(inset_map,   # draw inset map
+            x = 0.67,    # specify location on x axis
+            y = 0,    # specify location on y axis
+            width = 0.35,    # specify width
+            height = 0.35)   # specify height
+```
+
+
+We now have our final map, which we can check out now: 
+
+```{r insetmapfinal}
 
 hu_dd_with_inset
 
 ```
 
-You can play around with where you position your inset map by adjusting the x and y coordinates. You can also play around with the size of it by adjusting the parameters for height and width. 
+You can play around with where you position your inset map by adjusting the x and y coordinates. You can also play around with the size of it by adjusting the parameters for height and width. And like mentioned above, you can use inset maps not only for context, but also to include geographically far away regions which belong to the same political unity, for example to include Alaska and Hawaii in maps of the United States. 
 
 
-<!-- ## Interactivity -->
+## Summary and further reading
+
+In this chapter we covered some principles of data visualisation and good map design, specifically how to implement some of these using `ggplot2` library in R. We talked about symbols, about colour, about text, and about adding context. GGplot2 is an incredibly flexible framework, and through the use of layers you can achieve a very beautiful and meaningful map output. We could for example consider adding topography, such as rivers, lakes, and mountains to our maps, and it would be only a case of adding another layer. To get more familiar with this I recommend @Wickham_2010 and @Healy_2019. 
+
+For general readings on cartography, the work of Kenneth Field privudes (eg: @Field_2012 or @Field_2018) thorough and engaging guidance. For data visualisation, while @Tufte_2001 is a classic text, those looking for practical instruction may wish to turn to @Kirk_2016 or @Cairo_2016 for more guidance. 
+
+

@@ -11,12 +11,12 @@ In this chapter are going to discuss some additional features around thematic ma
 
 The main objectives for this chapter are that by the end you will have:
 
-- explored **binning** as an alternative to point maps
-- gained an insight into the **Modifiable Areal Unit Problem**
-- been introduced to alternative visualisations such as
-    + **cartograms**, 
-    + **bi-variate** thematic maps, and
-    + **dasymmetric** maps. 
+- Explored **binning** as an alternative to point maps.
+- Been introduced to alternative visualisations of polygon-level data such as
+    + **cartograms**, and
+    + **bi-variate** thematic maps. 
+- Gained an insight into the **Modifiable Areal Unit Problem**
+
 
 
 In this chapter, we will be making use of the following libraries: 
@@ -155,7 +155,7 @@ ggplot(ma_spatial, aes(longitude, latitude)) +
   #add shading based on number of ASB incidents
   scale_fill_gradientn(colours = c("white","red"), 
                        name = "Frequency")  + 
-  theme_void()
+  theme_void() 
 
 ```
 
@@ -167,7 +167,8 @@ ggplot(ma_spatial, aes(x = longitude, y = latitude)) +
   annotation_map_tile() + 
   stat_binhex(binwidth = c(.015, .01), alpha=0.7) +   # set opacity                                              
   scale_fill_gradientn(colours = c("white","red"), 
-                       name = "Frequency")    
+                       name = "Frequency")   + 
+  theme_void() 
   
 
 ```
@@ -227,9 +228,10 @@ a) rectangular binning:
 
 ggplot(ma_spatial, aes(x = longitude, y = latitude)) + 
   annotation_map_tile() + 
-  stat_bin2d(alpha=0.7) + 
+  stat_bin2d(binwidth = c(.015, .01), alpha=0.7) + 
   scale_fill_gradientn(colours = c("white","red"), 
-                       name = "Frequency") 
+                       name = "Frequency") + 
+  theme_void()
 
 ```
 
@@ -240,9 +242,10 @@ b) hexagonal binning:
 
 ggplot(ma_spatial, aes(x = longitude, y = latitude)) + 
   annotation_map_tile() + 
-  stat_binhex(alpha=0.7) + 
+  stat_binhex(binwidth = c(.015, .01), alpha=0.7) + 
   scale_fill_gradientn(colours = c("white","red"), 
-                       name = "Frequency")
+                       name = "Frequency") + 
+  theme_void()
 
 ```
 
@@ -253,12 +256,15 @@ c) a simple "heatmap" (we will discuss these more thoroughly in Chapter 6):
 
 ggplot(ma_spatial, aes(x = longitude, y = latitude)) + 
   annotation_map_tile() + 
-  stat_density2d(aes(fill = ..level.., # value corresponding to discretized density estimates 
+  stat_density2d(aes(fill = ..level.., # value corresponding to 
+                                       # discretized density estimates 
                      alpha = ..level..), 
-                 geom = "polygon") +  # creates the bands of differenc colors
-  ## Configure the colors, transparency and panel
+                 geom = "polygon") +  # creates the bands of 
+                                      # different colours
+  ## Configure the colours, transparency and panel
   scale_fill_gradientn(colours = c("white","red"), 
-                       name = "Frequency") 
+                       name = "Frequency") + 
+  theme_void()
 
 ```
 
@@ -280,16 +286,16 @@ Fortunately, there are many methods in R to enhance the legibility of geographic
 
 Let's explore this using the example of the results of the 2016 EU referendum at Local Authority level, where remain areas clustered in London. A simple thematic map does not necessarily communicate this well because Local Authorities are both small and densely populated in London. 
 
-You can download the full set of EU referendum result data as a csv from [the Electoral Commission webside](https://www.electoralcommission.org.uk/find-information-by-subject/elections-and-referendums/past-elections-and-referendums/eu-referendum/eu-referendum-result-visualisations). Let's read it straight into R: 
+You can download the full set of EU referendum result data as a csv from [the Electoral Commission webside](https://www.electoralcommission.org.uk/find-information-by-subject/elections-and-referendums/past-elections-and-referendums/eu-referendum/eu-referendum-result-visualisations). We've already done this and included in our data folder. Let's read it straight into R: 
 
 
 ```{r, message=FALSE}
 
-eu_ref <- read_csv("https://www.electoralcommission.org.uk/sites/default/files/2019-07/EU-referendum-result-data.csv")
+eu_ref <- read_csv("data/EU-referendum-result-data.csv")
 
 ```
 
-We also need a spatial object to join this to. See the appendix on how to source boundary data for more detail on how we can find relevant boundary data for our analyses. For now, we can use the data which comes with this book from the supplementary materials. 
+We also need a spatial object to join this to. See the appendix on how to source boundary data for more detail on how we can find relevant boundary data for our analyses. For now, we can use the data which comes with this book from the supplementary materials. Specifically the shapefile for English Local Authorities. This file is called `england_lad_2011_gen.shp` and is found in the `England_lad_2011_gen` subfolder. 
 
 ```{r}
 
@@ -313,7 +319,8 @@ Now we can have a look at these data:
 
 ```{r}
 ggplot() +
-  geom_sf(data = eu_sf, aes(fill = Pct_Leave)) 
+  geom_sf(data = eu_sf, aes(fill = Pct_Leave)) + 
+  theme_void()
 ```
 
 
@@ -347,7 +354,8 @@ This will be faster (but may not result in the best possible cartogram output). 
 
 ```{r}
 ggplot() +
-  geom_sf(data = eu_cartogram, aes(fill = Pct_Leave)) 
+  geom_sf(data = eu_cartogram, aes(fill = Pct_Leave)) + 
+  theme_void()
 ```
 
 We can now see London much better, and see that darker coloured cluster where much smaller percentage of people voted leave. 
@@ -366,7 +374,9 @@ eu_dorling_cartogram <- cartogram_dorling(eu_sf, "Electorate")
 
 ```{r}
 ggplot() +
-  geom_sf(data = eu_dorling_cartogram, aes(fill = Pct_Leave)) 
+  geom_sf(data = eu_dorling_cartogram, aes(fill = Pct_Leave)) + 
+  theme_void()
+
 ```
 
 This map has transformet each Local Authority's shape into a circle, where the radius is determined as a function of the variable we supplied, which is our Electorate in each LA. The shading here is again provided by the percentage of people who voted to leave in each area, with lighter values indicating more people voting to leave, and darker values indicating fewer people voting to leave the EU. However, the relations of these Local Authorities is tough to maintain here, and I may be hard-pressed to identify London's boroughs out of this collection. However, Dorling cartograms may have their use and place. You may read up more about them in @Dorling_1996 . 
@@ -389,17 +399,34 @@ We are interested in two key variables, `Pct_Leave` - the percentage of people w
 
 We can use the `cut()` and the `quantile()` functions in base R to class our variable into three quantiles. The `quantile()` function identifies the sample quantiles in a continuous variable. We need to include the parameters `x=`: the numeric vector whose sample quantiles are wanted (in this case our variables `Pct_Leave` and `Pct_Turnout`), and `probs=`:  numeric vector of probabilities with values in [0,1]. We can use the sequence generator function `seq()` to generate these from 0 to 1, by the increment of $\frac{1}{3}$ for 3 groups. 
 
-So first, let's create the breaks
+So first, let's create the breaks first for the `Pct_Leave` variable.
 
 ```{r}
 
-leave_breaks <- quantile(eu_sf$Pct_Leave, probs = seq(0,1, by = 1/3), na.rm=TRUE, names=TRUE, include.lowest=TRUE)
+leave_breaks <- quantile(eu_sf$Pct_Leave, 
+                         probs = seq(0,1, by = 1/3), # vector of probabilities
+                         na.rm=TRUE, # remove NAs before computing quantiles
+                         names=TRUE, # result will have names attribute
+                         include.lowest=TRUE) # include value equal to 
+                                              # the lowest ‘breaks’ value 
+```
 
-tunrout_breaks <- quantile(eu_sf$Pct_Turnout, probs = seq(0,1, by = 1/3), na.rm=TRUE, names=TRUE, include.lowest=TRUE)
+
+And then the same again but for the turnout variable `Pct_Turnout`. 
+
+
+```{r}
+tunrout_breaks <- quantile(eu_sf$Pct_Turnout, 
+                           probs = seq(0,1, by = 1/3), 
+                           na.rm=TRUE, 
+                           names=TRUE, 
+                           include.lowest=TRUE)
 
 ```
 
-We can have a look at the output if we'd like: 
+
+We can have a look at the output: 
+
 
 ```{r}
 
@@ -407,7 +434,7 @@ leave_breaks
 
 ```
 
-You can see these are the cutoff values which we want to use to "cut" our numeric variable. We do this with the `cut()` function, where we specify again what to cut, and the breaks at which to cut: 
+The results are the cutoff values which we want to use to "cut" our numeric variable. We do this with the `cut()` function, where we specify again what to cut (the variables `Pct_Leave` and `Pct_Turnout`), and the breaks at which to cut (the objects we created above, `leave_breaks` and `tunrout_breaks`): 
 
 ```{r}
 
@@ -479,19 +506,23 @@ bivariate_color_scale_2 <- tibble(
 
 ```
 
+You can have a look at both these, and see which one you like. Feel free to use either in your future bivariate mapping adventures. Or construct your own, perhaps following the two additional ones provided by @Stevens_2015, or some entirely news ones you may have constructued. 
+
+
 ### Step 4: Join colour scheme
 
 
-Now that we have a colour scheme, we can join to the spatial object, using `left_join()`. The common element is the `group` variable, so with this approach, we join the relevant colour to each value of group in that column. Let's join `bivariate_color_scale_2`
+Now that we have a colour scheme, we can join to the spatial object, using `left_join()`. The common element is the `group` variable, so with this approach, we join the relevant colour to each value of group in that column. Let's join `bivariate_color_scale_2`, the second of the two we created above. 
 
 
 ```{r}
 
-eu_sf <- eu_sf %>%  left_join(., bivariate_color_scale_2, by = "group")
+eu_sf <- left_join(eu_sf, bivariate_color_scale_2, by = "group")
 
 
 ```
 
+We now have an additional column in our `eu_sf` dataframe which 
 
 ### Step 5: Create legend
 
@@ -501,7 +532,8 @@ The legend is a little tricky, as we need to separate out the values into separa
 
 # separate the groups
 bivariate_color_scale <- bivariate_color_scale_2 %>%
-  separate(group, into = c("Pct_Turnout", "Pct_Leave"), sep = " - ")
+  separate(group, 
+           into = c("Pct_Turnout", "Pct_Leave"), sep = " - ")
 
 ```
 
@@ -511,12 +543,14 @@ Then to create the legend, we actually build a `ggplot()` object. This genius bi
 ```{r}
 
 legend <- ggplot() +
-  geom_tile( data = bivariate_color_scale, aes(x = Pct_Turnout, y = Pct_Leave, fill = fill_col)) +
+  geom_tile( data = bivariate_color_scale, 
+             aes(x = Pct_Turnout, y = Pct_Leave, fill = fill_col)) +
   scale_fill_identity() +
   labs(x = "Higher % turnout ->",
        y = "Higher % voted leave ->") +
-  theme(axis.title = element_text(size = 6)) +   # makes text small for when we add legend to map
-  coord_fixed()  # forces a specified ratio between the physical representation of data units on the axes to create quadratic tiles
+  theme(axis.title = element_text(size = 6)) + # makes text small for 
+                                               # adding legend to map
+  coord_fixed()  # forces a specified ratio to create quadratic tiles
 
 ```
 
@@ -538,7 +572,8 @@ Now finally we put it all on the map. For the choropleth map, we use our variabl
 
 map <- ggplot(eu_sf) +
   geom_sf(aes( fill = fill_col)) +
-  scale_fill_identity() 
+  scale_fill_identity() + 
+  theme_void()
 
 ```
 
@@ -549,7 +584,7 @@ Finally, to display the legend and the map together, we can use the `ggdraw()` a
 library(cowplot)
 ggdraw() +
   draw_plot(map, 0, 0, 1, 1) +
-  draw_plot(legend, 0.05, 0.075, 0.2, 0.2)
+  draw_plot(legend, 0.05, 0.075, 0.2, 0.2) 
 ```
 
 
@@ -625,15 +660,13 @@ If you're interested, in particular about politics and voting, you can read this
 
 ### Why does MAUP matter?
 
-The practical implications of MAUP are immense for almost all decision-making processes involving GIS technology, since with the availability of aggregated maps, policy could easily focus on issues and problems which might look different if the aggregation scheme used were changed .
+The practical implications of MAUP are immense for almost all decision-making processes involving GIS technology, since with the availability of aggregated maps, policy could easily focus on issues and problems which might look different if the aggregation scheme used were changed.
 
-All studies based on geographical areas are susceptible to MAUP. The implications of the MAUP affect potentially any area level data, whether direct measures or complex model-based estimates. Here are a few examples of situations where the MAUP is expected to make a difference:
+All studies based on geographical areas are susceptible to MAUP. The implications of the MAUP affect potentially any area level data, whether direct measures or complex model-based estimates. Here are a few examples of situations where the MAUP is expected to make a difference, taken from @Gerell_2017. 
 
 - The special case of the ecological fallacy is always present when Census area data are used to formulate and evaluate policies that address problems at individual level, such as deprivation. Also, it is recognised that a potential source of error in the analysis of Census data is ‘the arrangement of continuous space into defined regions for purposes of data reporting’ 
 - The MAUP has an impact on indices derived from areal data, such as measures of segregation, which can change significantly as a result of using different geographical levels of analysis to derive composite measures .
-- The choice of boundaries for reporting mortality ratios is not without consequences: when the areas are too small, the values estimated are unstable, while when the areas are too large, the values reported may be over-smoothed, i.e. meaningful variation may be lost .
-- [Gerell, Manne. "Smallest is better? The spatial distribution of arson and the modifiable areal unit problem." Journal of quantitative criminology 33.2 (2017): 293-318.](https://link.springer.com/article/10.1007/s10940-016-9297-6)
-
+- The choice of boundaries for reporting mortality ratios is not without consequences: when the areas are too small, the values estimated are unstable, while when the areas are too large, the values reported may be over-smoothed, i.e. meaningful variation may be lost.
 
 
 ### What can we do?
@@ -644,26 +677,10 @@ Most often you will just have to remain aware of the MAUP and its possible effec
 For the purposes of this course, it's enough that you know of, and understand the MAUP and its implications. Always be smart when choosing your appropriate spatial unit of analysis, and when you use binning of any form, make sure you consider how and if your conclusions might change compared to another possible approach. 
 
 
-## References and further reading
+## Summary and further reading
 
-### Binning
-- [Johnson, Zachary Forest. (18 October 2011). “Hexbins!” Retrieved from: http://indiemaps.com/blog/2011/10/hexbins/ (8 August 2014).](http://indiemaps.com/blog/2011/10/hexbins/)
-- [Smith, Nate. (25 May 2012). “Binning: An Alternative to Point Maps.” Mapbox. Retrieved from: https://www.mapbox.com/blog/binning-alternative-point-maps/ (8 August 2014).](https://www.mapbox.com/blog/binning-alternative-point-maps/)
-- [Claudia A Engel's fantastic R-pub on *Making Maps in R*](http://www.rpubs.com/cengel248/97543). 
-- [Hexbin Graph Gallery](https://www.r-graph-gallery.com/329-hexbin-map-for-distribution/)
-- [US Drought Hexmap](https://www.r-bloggers.com/u-s-drought-monitoring-with-hexbin-state-maps-in-r/)
-- [Hexbin with ggplot2](http://santiago.begueria.es/2016/04/mapping-with-ggplot2-hexbin-maps/)
+In this chapter we explored the use of binning points into hexbins and rectangular grids, as well as transforming polygons in order to enhanche the legibility of your maps. For some more information on binning see @Johnson_2011. For transforming polygons, read @Tobler_2004 and @Nusrat_2016. We can also suggest a read of @Langton_2018 and check out this video from SAGE methods @Solymosi_2021. 
 
-### MAUP
-
-- [Gerell, Manne. "Smallest is better? The spatial distribution of arson and the modifiable areal unit problem." Journal of quantitative criminology 33.2 (2017): 293-318.](https://link.springer.com/article/10.1007/s10940-016-9297-6)
-- [Openshaw, Stan. "The modifiable areal unit problem. CATMOG (Concepts and techniques in modern geography) 38." Geo Abstracts, Norwich. 1984.](https://www.uio.no/studier/emner/sv/iss/SGO9010/openshaw1983.pdf).
-- [Rengert, George F., and Brian Lockwood. "Geographical units of analysis and the analysis of crime." Putting crime in its place. Springer, New York, NY, 2009. 109-122.](https://link.springer.com/chapter/10.1007/978-0-387-09688-9_5)
-
-
-### Transforming polygons
-
-- [Waldo Tobler (2004) Thirty Five Years of Computer Cartograms, Annals of the Association of American Geographers, 94:1, 58-73, DOI: 10.1111/j.1467-8306.2004.09401004.x](https://www.tandfonline.com/doi/full/10.1111/j.1467-8306.2004.09401004.x)
-- [Langton, S.H. & Solymosi, R. (2018) 'Visualising geographic information: examining methods of improving the thematic map.' RPubs. Available: https://rpubs.com/langton_/visual_geography_study](https://rpubs.com/langton_/visual_geography_study)
+To read up more on the Modifiable Areal Unit Problem (MAUP) in general, we recommend the original @Openshaw_1981. For some criminology/ crime mapping specific reading try @Rengert_2009 and @Gerell_2017
 
 
