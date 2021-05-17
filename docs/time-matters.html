@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 6 Time matters | Crime Mapping and Spatial Data Analysis using R</title>
+  <meta name="description" content="Chapter 6 Time matters | Crime Mapping and Spatial Data Analysis using R" />
+  <meta name="generator" content="bookdown 0.21 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 6 Time matters | Crime Mapping and Spatial Data Analysis using R" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="Chapter 6 Time matters | Crime Mapping and Spatial Data Analysis using R" />
+  <meta name="github-repo" content="maczokni/crime_mapping" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 6 Time matters | Crime Mapping and Spatial Data Analysis using R" />
+  
+  <meta name="twitter:description" content="Chapter 6 Time matters | Crime Mapping and Spatial Data Analysis using R" />
+  
+
+<meta name="author" content="Juanjo Medina and Reka Solymosi" />
+
+
+<meta name="date" content="2021-05-17" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="visualisation-good-cartographic-design.html"/>
+
+<script src="libs/header-attrs-2.7.2/header-attrs.js"></script>
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<script src="libs/htmlwidgets-1.5.3/htmlwidgets.js"></script>
+<link href="libs/leaflet-1.3.1/leaflet.css" rel="stylesheet" />
+<script src="libs/leaflet-1.3.1/leaflet.js"></script>
+<link href="libs/leafletfix-1.0.0/leafletfix.css" rel="stylesheet" />
+<script src="libs/proj4-2.6.2/proj4.min.js"></script>
+<script src="libs/Proj4Leaflet-1.0.1/proj4leaflet.js"></script>
+<link href="libs/rstudio_leaflet-1.3.1/rstudio_leaflet.css" rel="stylesheet" />
+<script src="libs/leaflet-binding-2.0.4.1/leaflet.js"></script>
+<script src="libs/leaflet-providers-1.9.0/leaflet-providers_1.9.0.js"></script>
+<script src="libs/leaflet-providers-plugin-2.0.4.1/leaflet-providers-plugin.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Crime Mapping and Spatial Data Analysis using R</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Preamble: how to use this book</a></li>
+<li class="chapter" data-level="1" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html"><i class="fa fa-check"></i><b>1</b> Producing your first crime map</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#introduction"><i class="fa fa-check"></i><b>1.1</b> Introduction</a></li>
+<li class="chapter" data-level="1.2" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#geospatial-perspective-key-terms-and-ideas"><i class="fa fa-check"></i><b>1.2</b> Geospatial Perspective: key terms and ideas</a>
+<ul>
+<li class="chapter" data-level="1.2.1" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#place"><i class="fa fa-check"></i><b>1.2.1</b> Place</a></li>
+<li class="chapter" data-level="1.2.2" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#attributes"><i class="fa fa-check"></i><b>1.2.2</b> Attributes</a></li>
+<li class="chapter" data-level="1.2.3" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#spatial-objects"><i class="fa fa-check"></i><b>1.2.3</b> Spatial objects</a></li>
+<li class="chapter" data-level="1.2.4" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#networks"><i class="fa fa-check"></i><b>1.2.4</b> Networks</a></li>
+<li class="chapter" data-level="1.2.5" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#maps-and-their-types"><i class="fa fa-check"></i><b>1.2.5</b> Maps and their types</a></li>
+<li class="chapter" data-level="1.2.6" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#map-projections-and-geographic-coordinate-systems"><i class="fa fa-check"></i><b>1.2.6</b> Map projections and geographic coordinate systems</a></li>
+<li class="chapter" data-level="1.2.7" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#key-terms-summary"><i class="fa fa-check"></i><b>1.2.7</b> Key terms summary</a></li>
+</ul></li>
+<li class="chapter" data-level="1.3" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#getting-started-with-crime-data"><i class="fa fa-check"></i><b>1.3</b> Getting started with crime data</a></li>
+<li class="chapter" data-level="1.4" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#from-dataframes-to-spatial-objects"><i class="fa fa-check"></i><b>1.4</b> From dataframes to spatial objects</a>
+<ul>
+<li class="chapter" data-level="1.4.1" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#the-point"><i class="fa fa-check"></i><b>1.4.1</b> The point</a></li>
+<li class="chapter" data-level="1.4.2" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#the-line"><i class="fa fa-check"></i><b>1.4.2</b> The line</a></li>
+<li class="chapter" data-level="1.4.3" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#the-polygon"><i class="fa fa-check"></i><b>1.4.3</b> The polygon</a></li>
+</ul></li>
+<li class="chapter" data-level="1.5" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#the-simple-features-framework"><i class="fa fa-check"></i><b>1.5</b> The simple features framework</a></li>
+<li class="chapter" data-level="1.6" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#plotting-data-with-ggplot2"><i class="fa fa-check"></i><b>1.6</b> Plotting data with ggplot2</a></li>
+<li class="chapter" data-level="1.7" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#mapping-crime-data-as-points"><i class="fa fa-check"></i><b>1.7</b> Mapping crime data as points</a></li>
+<li class="chapter" data-level="1.8" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#mapping-crime-data-as-polygons"><i class="fa fa-check"></i><b>1.8</b> Mapping crime data as polygons</a>
+<ul>
+<li class="chapter" data-level="1.8.1" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#finding-boundary-data"><i class="fa fa-check"></i><b>1.8.1</b> Finding boundary data</a></li>
+<li class="chapter" data-level="1.8.2" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#reading-shapefiles-into-r"><i class="fa fa-check"></i><b>1.8.2</b> Reading shapefiles into R</a></li>
+<li class="chapter" data-level="1.8.3" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#data-wrangling-with-dplyr"><i class="fa fa-check"></i><b>1.8.3</b> Data wrangling with dplyr</a></li>
+<li class="chapter" data-level="1.8.4" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#join-data-to-sf-object"><i class="fa fa-check"></i><b>1.8.4</b> Join data to sf object</a></li>
+<li class="chapter" data-level="1.8.5" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#putting-polygon-data-on-the-map"><i class="fa fa-check"></i><b>1.8.5</b> Putting polygon data on the map</a></li>
+</ul></li>
+<li class="chapter" data-level="1.9" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#summary-and-further-reading"><i class="fa fa-check"></i><b>1.9</b> Summary and further reading</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html"><i class="fa fa-check"></i><b>2</b> Basic geospatial operations in R</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#introduction-1"><i class="fa fa-check"></i><b>2.1</b> Introduction</a></li>
+<li class="chapter" data-level="2.2" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#exploring-the-relationship-between-alcohol-outlets-and-crime"><i class="fa fa-check"></i><b>2.2</b> Exploring the relationship between alcohol outlets and crime</a></li>
+<li class="chapter" data-level="2.3" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#get-the-data"><i class="fa fa-check"></i><b>2.3</b> Get the data</a>
+<ul>
+<li class="chapter" data-level="2.3.1" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#reading-in-crime-data"><i class="fa fa-check"></i><b>2.3.1</b> Reading in crime data</a></li>
+<li class="chapter" data-level="2.3.2" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#meet-a-new-format-geojson"><i class="fa fa-check"></i><b>2.3.2</b> Meet a new format: geojson</a></li>
+<li class="chapter" data-level="2.3.3" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#open-street-map-and-points-of-interest"><i class="fa fa-check"></i><b>2.3.3</b> Open Street Map and points of interest</a></li>
+</ul></li>
+<li class="chapter" data-level="2.4" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#attribute-operations"><i class="fa fa-check"></i><b>2.4</b> Attribute operations</a></li>
+<li class="chapter" data-level="2.5" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#spatial-operations"><i class="fa fa-check"></i><b>2.5</b> Spatial operations</a>
+<ul>
+<li class="chapter" data-level="2.5.1" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#reprojecting-coordinates"><i class="fa fa-check"></i><b>2.5.1</b> Reprojecting coordinates</a></li>
+<li class="chapter" data-level="2.5.2" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#subsetting-points"><i class="fa fa-check"></i><b>2.5.2</b> Subsetting points</a></li>
+<li class="chapter" data-level="2.5.3" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#building-buffers"><i class="fa fa-check"></i><b>2.5.3</b> Building buffers</a></li>
+<li class="chapter" data-level="2.5.4" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#counting-points-within-a-polygon"><i class="fa fa-check"></i><b>2.5.4</b> Counting Points within a Polygon</a></li>
+<li class="chapter" data-level="2.5.5" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#distances-finding-the-nearest-point"><i class="fa fa-check"></i><b>2.5.5</b> Distances: Finding the nearest point</a></li>
+<li class="chapter" data-level="2.5.6" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#measuring-distances"><i class="fa fa-check"></i><b>2.5.6</b> Measuring distances</a></li>
+</ul></li>
+<li class="chapter" data-level="2.6" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#plotting-interactive-maps-with-leaflet"><i class="fa fa-check"></i><b>2.6</b> Plotting interactive maps with leaflet</a></li>
+<li class="chapter" data-level="2.7" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#geocoding"><i class="fa fa-check"></i><b>2.7</b> Geocoding</a></li>
+<li class="chapter" data-level="2.8" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#measuring-distance-more-thoroughly"><i class="fa fa-check"></i><b>2.8</b> Measuring distance more thoroughly</a>
+<ul>
+<li class="chapter" data-level="2.8.1" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#how-far-are-police-stations-in-madrid"><i class="fa fa-check"></i><b>2.8.1</b> How far are police stations in Madrid?</a></li>
+<li class="chapter" data-level="2.8.2" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#distance-in-geographical-space"><i class="fa fa-check"></i><b>2.8.2</b> Distance in geographical space</a></li>
+<li class="chapter" data-level="2.8.3" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#a-practical-example-to-evaluate-distance"><i class="fa fa-check"></i><b>2.8.3</b> A practical example to evaluate distance</a></li>
+</ul></li>
+<li class="chapter" data-level="2.9" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#summary-and-further-reading-1"><i class="fa fa-check"></i><b>2.9</b> Summary and further reading</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="mapping-rates-and-counts.html"><a href="mapping-rates-and-counts.html"><i class="fa fa-check"></i><b>3</b> Mapping rates and counts</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="mapping-rates-and-counts.html"><a href="mapping-rates-and-counts.html#introduction-2"><i class="fa fa-check"></i><b>3.1</b> Introduction</a></li>
+<li class="chapter" data-level="3.2" data-path="mapping-rates-and-counts.html"><a href="mapping-rates-and-counts.html#thematic-maps-key-terms-and-ideas"><i class="fa fa-check"></i><b>3.2</b> Thematic maps: key terms and ideas</a>
+<ul>
+<li class="chapter" data-level="3.2.1" data-path="mapping-rates-and-counts.html"><a href="mapping-rates-and-counts.html#choropleth-maps"><i class="fa fa-check"></i><b>3.2.1</b> Choropleth maps</a></li>
+<li class="chapter" data-level="3.2.2" data-path="mapping-rates-and-counts.html"><a href="mapping-rates-and-counts.html#what-do-we-use-choropleth-maps-for"><i class="fa fa-check"></i><b>3.2.2</b> What do we use choropleth maps for?</a></li>
+<li class="chapter" data-level="3.2.3" data-path="mapping-rates-and-counts.html"><a href="mapping-rates-and-counts.html#proportional-and-graduate-symbol-maps-mapping-crime-counts"><i class="fa fa-check"></i><b>3.2.3</b> Proportional and graduate symbol maps: mapping crime counts</a></li>
+</ul></li>
+<li class="chapter" data-level="3.3" data-path="mapping-rates-and-counts.html"><a href="mapping-rates-and-counts.html#creating-proportional-symbol-maps"><i class="fa fa-check"></i><b>3.3</b> Creating proportional symbol maps</a></li>
+<li class="chapter" data-level="3.4" data-path="mapping-rates-and-counts.html"><a href="mapping-rates-and-counts.html#mapping-rates-rather-than-counts"><i class="fa fa-check"></i><b>3.4</b> Mapping rates rather than counts</a>
+<ul>
+<li class="chapter" data-level="3.4.1" data-path="mapping-rates-and-counts.html"><a href="mapping-rates-and-counts.html#generating-the-rates"><i class="fa fa-check"></i><b>3.4.1</b> Generating the rates</a></li>
+<li class="chapter" data-level="3.4.2" data-path="mapping-rates-and-counts.html"><a href="mapping-rates-and-counts.html#creating-a-choropleth-map-with-tmap"><i class="fa fa-check"></i><b>3.4.2</b> Creating a choropleth map with tmap</a></li>
+</ul></li>
+<li class="chapter" data-level="3.5" data-path="mapping-rates-and-counts.html"><a href="mapping-rates-and-counts.html#classification-systems-for-thematic-maps"><i class="fa fa-check"></i><b>3.5</b> Classification systems for thematic maps</a></li>
+<li class="chapter" data-level="3.6" data-path="mapping-rates-and-counts.html"><a href="mapping-rates-and-counts.html#interactive-mapping-with-tmap"><i class="fa fa-check"></i><b>3.6</b> Interactive mapping with tmap</a></li>
+<li class="chapter" data-level="3.7" data-path="mapping-rates-and-counts.html"><a href="mapping-rates-and-counts.html#smoothing-rates-adjusting-for-small-sample-noise"><i class="fa fa-check"></i><b>3.7</b> Smoothing rates: adjusting for small sample noise</a></li>
+<li class="chapter" data-level="3.8" data-path="mapping-rates-and-counts.html"><a href="mapping-rates-and-counts.html#summary-and-further-reading-2"><i class="fa fa-check"></i><b>3.8</b> Summary and further reading</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html"><i class="fa fa-check"></i><b>4</b> Variations of thematic mapping</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#introduction-3"><i class="fa fa-check"></i><b>4.1</b> Introduction</a></li>
+<li class="chapter" data-level="4.2" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#binning-points"><i class="fa fa-check"></i><b>4.2</b> Binning points</a>
+<ul>
+<li class="chapter" data-level="4.2.1" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#the-binning-process"><i class="fa fa-check"></i><b>4.2.1</b> The Binning Process</a></li>
+<li class="chapter" data-level="4.2.2" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#different-binning-techniques"><i class="fa fa-check"></i><b>4.2.2</b> Different Binning Techniques</a></li>
+<li class="chapter" data-level="4.2.3" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#benefits-of-binning"><i class="fa fa-check"></i><b>4.2.3</b> Benefits of Binning</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#transforming-polygons"><i class="fa fa-check"></i><b>4.3</b> Transforming polygons</a>
+<ul>
+<li class="chapter" data-level="4.3.1" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#dorling-cartogram"><i class="fa fa-check"></i><b>4.3.1</b> Dorling Cartogram</a></li>
+</ul></li>
+<li class="chapter" data-level="4.4" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#bivariate-maps"><i class="fa fa-check"></i><b>4.4</b> Bivariate Maps</a>
+<ul>
+<li class="chapter" data-level="4.4.1" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#step-1-bin-our-variables-of-interest"><i class="fa fa-check"></i><b>4.4.1</b> Step 1: Bin our variables of interest</a></li>
+<li class="chapter" data-level="4.4.2" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#step-2-new-variable"><i class="fa fa-check"></i><b>4.4.2</b> Step 2: New variable</a></li>
+<li class="chapter" data-level="4.4.3" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#step-3-create-colour-scheme"><i class="fa fa-check"></i><b>4.4.3</b> Step 3: Create colour scheme</a></li>
+<li class="chapter" data-level="4.4.4" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#step-4-join-colour-scheme"><i class="fa fa-check"></i><b>4.4.4</b> Step 4: Join colour scheme</a></li>
+<li class="chapter" data-level="4.4.5" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#step-5-create-legend"><i class="fa fa-check"></i><b>4.4.5</b> Step 5: Create legend</a></li>
+<li class="chapter" data-level="4.4.6" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#step-6-map"><i class="fa fa-check"></i><b>4.4.6</b> Step 6: Map</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#a-note-of-caution-maup"><i class="fa fa-check"></i><b>4.5</b> A note of caution: MAUP</a>
+<ul>
+<li class="chapter" data-level="4.5.1" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#why-does-maup-matter"><i class="fa fa-check"></i><b>4.5.1</b> Why does MAUP matter?</a></li>
+<li class="chapter" data-level="4.5.2" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#what-can-we-do"><i class="fa fa-check"></i><b>4.5.2</b> What can we do?</a></li>
+</ul></li>
+<li class="chapter" data-level="4.6" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#summary-and-further-reading-3"><i class="fa fa-check"></i><b>4.6</b> Summary and further reading</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="visualisation-good-cartographic-design.html"><a href="visualisation-good-cartographic-design.html"><i class="fa fa-check"></i><b>5</b> Visualisation: good cartographic design</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="visualisation-good-cartographic-design.html"><a href="visualisation-good-cartographic-design.html#introduction-4"><i class="fa fa-check"></i><b>5.1</b> Introduction</a></li>
+<li class="chapter" data-level="5.2" data-path="visualisation-good-cartographic-design.html"><a href="visualisation-good-cartographic-design.html#data-representation"><i class="fa fa-check"></i><b>5.2</b> Data representation</a>
+<ul>
+<li class="chapter" data-level="5.2.1" data-path="visualisation-good-cartographic-design.html"><a href="visualisation-good-cartographic-design.html#thematic-maps"><i class="fa fa-check"></i><b>5.2.1</b> Thematic maps</a></li>
+<li class="chapter" data-level="5.2.2" data-path="visualisation-good-cartographic-design.html"><a href="visualisation-good-cartographic-design.html#symbols"><i class="fa fa-check"></i><b>5.2.2</b> Symbols</a></li>
+<li class="chapter" data-level="5.2.3" data-path="visualisation-good-cartographic-design.html"><a href="visualisation-good-cartographic-design.html#rate-vs-count"><i class="fa fa-check"></i><b>5.2.3</b> Rate vs count</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="visualisation-good-cartographic-design.html"><a href="visualisation-good-cartographic-design.html#colour"><i class="fa fa-check"></i><b>5.3</b> Colour</a></li>
+<li class="chapter" data-level="5.4" data-path="visualisation-good-cartographic-design.html"><a href="visualisation-good-cartographic-design.html#text"><i class="fa fa-check"></i><b>5.4</b> Text</a>
+<ul>
+<li class="chapter" data-level="5.4.1" data-path="visualisation-good-cartographic-design.html"><a href="visualisation-good-cartographic-design.html#titles-and-subtitles"><i class="fa fa-check"></i><b>5.4.1</b> Titles and subtitles</a></li>
+<li class="chapter" data-level="5.4.2" data-path="visualisation-good-cartographic-design.html"><a href="visualisation-good-cartographic-design.html#legend"><i class="fa fa-check"></i><b>5.4.2</b> Legend</a></li>
+<li class="chapter" data-level="5.4.3" data-path="visualisation-good-cartographic-design.html"><a href="visualisation-good-cartographic-design.html#annotation"><i class="fa fa-check"></i><b>5.4.3</b> Annotation</a></li>
+<li class="chapter" data-level="5.4.4" data-path="visualisation-good-cartographic-design.html"><a href="visualisation-good-cartographic-design.html#production-notes"><i class="fa fa-check"></i><b>5.4.4</b> Production notes</a></li>
+</ul></li>
+<li class="chapter" data-level="5.5" data-path="visualisation-good-cartographic-design.html"><a href="visualisation-good-cartographic-design.html#composition"><i class="fa fa-check"></i><b>5.5</b> Composition</a>
+<ul>
+<li class="chapter" data-level="5.5.1" data-path="visualisation-good-cartographic-design.html"><a href="visualisation-good-cartographic-design.html#orientation-indicators"><i class="fa fa-check"></i><b>5.5.1</b> Orientation indicators</a></li>
+<li class="chapter" data-level="5.5.2" data-path="visualisation-good-cartographic-design.html"><a href="visualisation-good-cartographic-design.html#scale-indicators"><i class="fa fa-check"></i><b>5.5.2</b> Scale indicators</a></li>
+</ul></li>
+<li class="chapter" data-level="5.6" data-path="visualisation-good-cartographic-design.html"><a href="visualisation-good-cartographic-design.html#context"><i class="fa fa-check"></i><b>5.6</b> Context</a>
+<ul>
+<li class="chapter" data-level="5.6.1" data-path="visualisation-good-cartographic-design.html"><a href="visualisation-good-cartographic-design.html#basemap"><i class="fa fa-check"></i><b>5.6.1</b> Basemap</a></li>
+<li class="chapter" data-level="5.6.2" data-path="visualisation-good-cartographic-design.html"><a href="visualisation-good-cartographic-design.html#inset-maps"><i class="fa fa-check"></i><b>5.6.2</b> Inset maps</a></li>
+</ul></li>
+<li class="chapter" data-level="5.7" data-path="visualisation-good-cartographic-design.html"><a href="visualisation-good-cartographic-design.html#summary-and-further-reading-4"><i class="fa fa-check"></i><b>5.7</b> Summary and further reading</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="time-matters.html"><a href="time-matters.html"><i class="fa fa-check"></i><b>6</b> Time matters</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="time-matters.html"><a href="time-matters.html#introduction-5"><i class="fa fa-check"></i><b>6.1</b> Introduction</a></li>
+<li class="chapter" data-level="6.2" data-path="time-matters.html"><a href="time-matters.html#temporal-data-wrangling"><i class="fa fa-check"></i><b>6.2</b> Temporal data wrangling</a></li>
+<li class="chapter" data-level="6.3" data-path="time-matters.html"><a href="time-matters.html#calendar-heatmaps"><i class="fa fa-check"></i><b>6.3</b> Calendar heatmaps</a></li>
+<li class="chapter" data-level="6.4" data-path="time-matters.html"><a href="time-matters.html#temporal-crime-analysis"><i class="fa fa-check"></i><b>6.4</b> Temporal crime analysis</a>
+<ul>
+<li class="chapter" data-level="6.4.1" data-path="time-matters.html"><a href="time-matters.html#plotting-time-series-data"><i class="fa fa-check"></i><b>6.4.1</b> Plotting time series data</a></li>
+</ul></li>
+<li class="chapter" data-level="6.5" data-path="time-matters.html"><a href="time-matters.html#spatio-temporal-data-visualisation"><i class="fa fa-check"></i><b>6.5</b> Spatio-temporal data visualisation</a>
+<ul>
+<li class="chapter" data-level="6.5.1" data-path="time-matters.html"><a href="time-matters.html#small-multiples-to-show-temporal-variation"><i class="fa fa-check"></i><b>6.5.1</b> Small multiples to show temporal variation</a></li>
+<li class="chapter" data-level="6.5.2" data-path="time-matters.html"><a href="time-matters.html#spaghetti-plots"><i class="fa fa-check"></i><b>6.5.2</b> Spaghetti plots</a></li>
+<li class="chapter" data-level="6.5.3" data-path="time-matters.html"><a href="time-matters.html#animations"><i class="fa fa-check"></i><b>6.5.3</b> Animations</a></li>
+</ul></li>
+<li class="chapter" data-level="6.6" data-path="time-matters.html"><a href="time-matters.html#summary-and-further-reading-5"><i class="fa fa-check"></i><b>6.6</b> Summary and further reading</a></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Crime Mapping and Spatial Data Analysis using R</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="time-matters" class="section level1" number="6">
+<h1><span class="header-section-number">Chapter 6</span> Time matters</h1>
+<div id="introduction-5" class="section level2" number="6.1">
+<h2><span class="header-section-number">6.1</span> Introduction</h2>
+<p>In this chapter we provide a brief introduction into spatio-temporal visualisation. The importance of place in criminology and crime analysis is widely recognised, and is the central topic of this book. However, taking into consideration <strong>time</strong> is just as important as place. We often hear that crime is “going up” or “going down” over time. These variations on the levels of crime along time also vary across space. These variations across both time and place are called <strong>spatio temporal variations</strong>, and are of crucial importance for crime analysis, explanation, and prevention.</p>
+<p>Traditionally the temporal and spatial analysis of crime are not introduced in a combined manner. Although a great deal of energy has been devoted to produce accessible training material for crime analysts on geographic information systems and spatial analysis, most criminology degrees (even at postgraduate level) and training packages for crime analysis devote a very limited (if any) content to the appropriate visualisation and analysis of temporal and spatio temporal data. Therefore, before we discuss the spatio temporal, we have to introduce a few key ideas and concepts about temporal crime analysis.</p>
+<p>In this chapter, we will therefore give a very high-level overview of <strong>temporal crime analysis</strong>, before moving on to ways in which we can display spatio temporal variation in our data using maps. The key concepts covered in this chapter are:</p>
+<ul>
+<li></li>
+<li></li>
+<li></li>
+</ul>
+<p>We will be making use of the following R packages:</p>
+<div class="sourceCode" id="cb292"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb292-1"><a href="time-matters.html#cb292-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Basic reading and data carpentry</span></span>
+<span id="cb292-2"><a href="time-matters.html#cb292-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
+<span id="cb292-3"><a href="time-matters.html#cb292-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb292-4"><a href="time-matters.html#cb292-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate) <span class="co"># adds functionality for better handling of temporal data</span></span>
+<span id="cb292-5"><a href="time-matters.html#cb292-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb292-6"><a href="time-matters.html#cb292-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Packages for handling spatial data</span></span>
+<span id="cb292-7"><a href="time-matters.html#cb292-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
+<span id="cb292-8"><a href="time-matters.html#cb292-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(spacetime)</span>
+<span id="cb292-9"><a href="time-matters.html#cb292-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sp)</span>
+<span id="cb292-10"><a href="time-matters.html#cb292-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb292-11"><a href="time-matters.html#cb292-11" aria-hidden="true" tabindex="-1"></a><span class="co"># General visualisation and ggplot plugins for temporal data</span></span>
+<span id="cb292-12"><a href="time-matters.html#cb292-12" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb292-13"><a href="time-matters.html#cb292-13" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggfortify)</span>
+<span id="cb292-14"><a href="time-matters.html#cb292-14" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggTimeSeries)</span>
+<span id="cb292-15"><a href="time-matters.html#cb292-15" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggseas)</span>
+<span id="cb292-16"><a href="time-matters.html#cb292-16" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gganimate)</span>
+<span id="cb292-17"><a href="time-matters.html#cb292-17" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tmap)</span></code></pre></div>
+</div>
+<div id="temporal-data-wrangling" class="section level2" number="6.2">
+<h2><span class="header-section-number">6.2</span> Temporal data wrangling</h2>
+<p>Temporal data means that we can perform all sorts of exciting operations in our data wrangling processes. Just how we learned about spatial operations with spatial data, there are some things we can do only with temporal data.</p>
+<p>A key R package that will help with temporal data wrangling is <code>lubridate</code>. Date-time data can be frustrating to work with and many base R commands for date-times can be unintuitive. The package <code>lubridate</code> was created to address such issues, and make it easier to do the things R does with date-times.</p>
+<p>Specifically, we will be using crime data from New York City made available by <span class="citation"><a href="time-matters.html#ref-Ashby_2019" role="doc-biblioref">Ashby</a> (<a href="time-matters.html#ref-Ashby_2019" role="doc-biblioref">2019</a>)</span> which is also accessible through the R package <code>crimedata</code> <span class="citation"><a href="time-matters.html#ref-Ashby_2018" role="doc-biblioref">Ashby</a> (<a href="time-matters.html#ref-Ashby_2018" role="doc-biblioref">2018</a>)</span>. You can refer to these citations to learn more about acquiring data from this fantastic resource! However for now, let’s make use of the data provided with the book, where we selected a specific subset of aggravated assault in New York for a period of five years.</p>
+<div class="sourceCode" id="cb293"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb293-1"><a href="time-matters.html#cb293-1" aria-hidden="true" tabindex="-1"></a>agassault_ny<span class="ot">&lt;-</span><span class="fu">read_csv</span>(<span class="st">&quot;data/agassault.csv&quot;</span>)</span></code></pre></div>
+<p>When you read the data into R, you will see that there is a column for date called <strong>date_single</strong>. Let’s have a look at the first value in this column:</p>
+<div class="sourceCode" id="cb294"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb294-1"><a href="time-matters.html#cb294-1" aria-hidden="true" tabindex="-1"></a>agassault_ny <span class="sc">%&gt;%</span> </span>
+<span id="cb294-2"><a href="time-matters.html#cb294-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(date_single) <span class="sc">%&gt;%</span> </span>
+<span id="cb294-3"><a href="time-matters.html#cb294-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">1</span>)</span></code></pre></div>
+<pre><code>## # A tibble: 1 x 1
+##   date_single        
+##   &lt;dttm&gt;             
+## 1 2014-01-01 00:03:00</code></pre>
+<p>We can see that the date is stored in the following format: year-month-day hour-minute-second. So the first date on there you can see is <em>2014-01-01 00:03:00</em>. What kind of variable is this?</p>
+<div class="sourceCode" id="cb296"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb296-1"><a href="time-matters.html#cb296-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(agassault_ny<span class="sc">$</span>date_single)</span></code></pre></div>
+<pre><code>## [1] &quot;POSIXct&quot; &quot;POSIXt&quot;</code></pre>
+<p>Our date and time variables are of class <code>POSIXct</code> and <code>POSIXt</code>. These are the two basic classes of date/times. Class “POSIXct” represents the (signed) <a href="https://en.wikipedia.org/wiki/Unix_time">number of seconds since the beginning of 1970</a> as a numeric vector. Class “POSIXt” is a named list of vectors representing seconds (0–61), minutes (0–59), hours (0–23), day of the month (1–31), months after the first of the year (0–11), years since 1900, day of the week, starting on Sunday (0–6), and a flag for whether it is daylight savings time or not (positive if in force, zero if not, negative if unknown).</p>
+<p>Let’s plot this data:</p>
+<div class="sourceCode" id="cb298"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb298-1"><a href="time-matters.html#cb298-1" aria-hidden="true" tabindex="-1"></a>agassault_ny <span class="sc">%&gt;%</span> </span>
+<span id="cb298-2"><a href="time-matters.html#cb298-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(date_single)) <span class="sc">+</span> </span>
+<span id="cb298-3"><a href="time-matters.html#cb298-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_freqpoly</span>(<span class="at">binwidth =</span> <span class="dv">7</span><span class="sc">*</span><span class="dv">24</span><span class="sc">*</span><span class="dv">60</span><span class="sc">*</span><span class="dv">60</span>) <span class="co"># 7 days in seconds</span></span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/ggplot_8b-1.png" width="672" /></p>
+<p>Notice what <code>geom_freqpoly()</code> is doing. We have a dataframe with rows for each case. The data is not aggregated in any form. But this function counts on the fly the number of cases (of rows) for each of the bins as we define them. It is, thus, a convenient function that saves us from having to first do that aggregation ourselves when we want to plot it.</p>
+<p>An alternative approach to plotting individual components is to round the date to a nearby unit of time, with <code>floor_date()</code>, <code>round_date()</code>, and <code>ceiling_date()</code>. These functions live inside the lubridate package.</p>
+<p>Each function takes a vector of dates to adjust and then the name of the unit round down (floor), round up (ceiling), or round to. So to aggregate per month we will code as:</p>
+<div class="sourceCode" id="cb299"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb299-1"><a href="time-matters.html#cb299-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span>
+<span id="cb299-2"><a href="time-matters.html#cb299-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb299-3"><a href="time-matters.html#cb299-3" aria-hidden="true" tabindex="-1"></a>agassault_ny <span class="sc">%&gt;%</span> </span>
+<span id="cb299-4"><a href="time-matters.html#cb299-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(<span class="at">month =</span> <span class="fu">floor_date</span>(date_single, <span class="st">&quot;month&quot;</span>)) <span class="sc">%&gt;%</span> <span class="co"># use floor date function</span></span>
+<span id="cb299-5"><a href="time-matters.html#cb299-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(month, n)) <span class="sc">+</span></span>
+<span id="cb299-6"><a href="time-matters.html#cb299-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>()</span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/ggplot_rounding_8b-1.png" width="672" /></p>
+<p>What if I asked you the question: which year had the most aggravated assaults? Or what if I want to know if aggravated assaults happen more in the weekday, when people are at work, or in the weekends, maybe when people are away for a holiday? You have the date, so you should be able to answer these questions, right?</p>
+<p>Well you need to be able to have the right variables to answer these questions. To know what year saw the most aggravated assaults, you need to have a variable for year. To know what day of the week has the most aggravated assaults, you need to have a variable for day of the week. So how can we extract these variables from your date column? Well luckily the <code>lubridate</code> package can help us do this. We can use the <code>year()</code>, <code>month()</code>, <code>day()</code>, and <code>wday()</code> to extract these components of a date-time.</p>
+<div class="sourceCode" id="cb300"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb300-1"><a href="time-matters.html#cb300-1" aria-hidden="true" tabindex="-1"></a>agassault_ny <span class="ot">&lt;-</span> agassault_ny <span class="sc">%&gt;%</span> </span>
+<span id="cb300-2"><a href="time-matters.html#cb300-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> <span class="fu">year</span>(date_single), </span>
+<span id="cb300-3"><a href="time-matters.html#cb300-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">month =</span> <span class="fu">month</span>(date_single, <span class="at">label =</span> <span class="cn">TRUE</span>, <span class="at">abbr=</span><span class="cn">FALSE</span>), </span>
+<span id="cb300-4"><a href="time-matters.html#cb300-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">day =</span> <span class="fu">day</span>(date_single), </span>
+<span id="cb300-5"><a href="time-matters.html#cb300-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">wday =</span> <span class="fu">wday</span>(date_single, <span class="at">label =</span> <span class="cn">TRUE</span>, <span class="at">abbr=</span><span class="cn">FALSE</span>)</span>
+<span id="cb300-6"><a href="time-matters.html#cb300-6" aria-hidden="true" tabindex="-1"></a>         )</span></code></pre></div>
+<p>We have now created a set of additional variables that have extracted information from your original time of occurrence variable.</p>
+<p>Let’s consider distribution of events per day of the week.</p>
+<div class="sourceCode" id="cb301"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb301-1"><a href="time-matters.html#cb301-1" aria-hidden="true" tabindex="-1"></a>agassault_ny <span class="sc">%&gt;%</span> </span>
+<span id="cb301-2"><a href="time-matters.html#cb301-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> wday)) <span class="sc">+</span></span>
+<span id="cb301-3"><a href="time-matters.html#cb301-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_bar</span>()</span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/assaults_per_wday-1.png" width="672" /></p>
+<p>In order to extract such date-time information from variables, we need these to be date-time objects. We saw above that in this case this assumption was met. However if it is not, you can turn text column of dates into a date-time object using lubridate’s functions. For example if you have a data set of day-month-year separated with “/,” you can use the <code>dmy()</code> function (stands for day month year) to parse it as a date-time object. On the other hand, if you have some US data, and it is actually written as month-day-year, separated by “/,” you can simply shuffle the order of the letters in the function, and use the function <code>mdy()</code>. They will translate into the same item. See for yourself:</p>
+<div class="sourceCode" id="cb302"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb302-1"><a href="time-matters.html#cb302-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dmy</span>(<span class="st">&quot;15/3/2021&quot;</span>) <span class="sc">==</span> <span class="fu">mdy</span>(<span class="st">&quot;3/15/2021&quot;</span>)</span></code></pre></div>
+<pre><code>## [1] TRUE</code></pre>
+<p>In fact, <code>lubridate</code> is so good, it can even parse text representations of months. Look at this for example:</p>
+<div class="sourceCode" id="cb304"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb304-1"><a href="time-matters.html#cb304-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dmy</span>(<span class="st">&quot;15/3/2021&quot;</span>) <span class="sc">==</span> <span class="fu">mdy</span>(<span class="st">&quot;March/15/2021&quot;</span>)</span></code></pre></div>
+<pre><code>## [1] TRUE</code></pre>
+<p>Amazing stuff, which will definitely come in handy, especially if you might be a crime analyst working with some messy messy data. Lubridate should most definitely form part of your data wrangling toolkit in this case!</p>
+<!-- The `lubridate` package is incredibly helpful for anything date related. There is also a more recent package `clock` that has only recently being released and solves some problems with...  [[[]]] -->
+</div>
+<div id="calendar-heatmaps" class="section level2" number="6.3">
+<h2><span class="header-section-number">6.3</span> Calendar heatmaps</h2>
+<p>Once we have parsed and cleaned the temporal information that is available in our date variable, we can make use of this to visualise trends in other ways, not just using time series. For example, we might want to show where hotspots in time occur, within a year, or within a week, or some other set interval.</p>
+<p>First, we create a column for date, removing the time (hour minute and second). We can achieve this easily by using the <code>date()</code> function in <code>lubridate</code>:</p>
+<div class="sourceCode" id="cb306"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb306-1"><a href="time-matters.html#cb306-1" aria-hidden="true" tabindex="-1"></a>agassault_ny<span class="sc">$</span>date <span class="ot">&lt;-</span> <span class="fu">date</span>(agassault_ny<span class="sc">$</span>date_single)</span></code></pre></div>
+<p>If we have a look we can now see that the time component has been stripped away, and we have this date object. Let’s look at the value for the first row.</p>
+<div class="sourceCode" id="cb307"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb307-1"><a href="time-matters.html#cb307-1" aria-hidden="true" tabindex="-1"></a>agassault_ny<span class="sc">$</span>date[<span class="dv">1</span>]</span></code></pre></div>
+<pre><code>## [1] &quot;2014-01-01&quot;</code></pre>
+<p>That looks like what we are expecting. Now let’s see the class of this variable.</p>
+<div class="sourceCode" id="cb309"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb309-1"><a href="time-matters.html#cb309-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(agassault_ny<span class="sc">$</span>date)</span></code></pre></div>
+<pre><code>## [1] &quot;Date&quot;</code></pre>
+<p>It is a date object, so we will be able to do date-time operations to it. Good stuff. Now what we want to do is create a heatmap, a sort of calendar, of the number of aggrevated assault incidents per date. We can use our well known attribute operations here, specifically the <code>group_by()</code> function in the <code>dplyr</code> packate to count the events per day.</p>
+<div class="sourceCode" id="cb311"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb311-1"><a href="time-matters.html#cb311-1" aria-hidden="true" tabindex="-1"></a>agassault_ny_d <span class="ot">&lt;-</span> agassault_ny <span class="sc">%&gt;%</span></span>
+<span id="cb311-2"><a href="time-matters.html#cb311-2" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">group_by</span>(date) <span class="sc">%&gt;%</span></span>
+<span id="cb311-3"><a href="time-matters.html#cb311-3" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">summarise</span>(<span class="at">assaults =</span> <span class="fu">n</span>())</span></code></pre></div>
+<p>Now we have this new dataframe, the number of aggravated assaults per day. To make our temporal heatmap calendar, we will now use a <code>ggplot2</code> extension, <code>ggTimeSeries</code>, that allows us to produce calendar heat visualisations. In this package, we can use the <code>ggplot_calendar_heatmap()</code> function, which creates a calendar heatmap. This approach provides context for weeks, and day of week which makes it a better way to visualise daily data than line charts.</p>
+<div class="sourceCode" id="cb312"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb312-1"><a href="time-matters.html#cb312-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggTimeSeries)</span>
+<span id="cb312-2"><a href="time-matters.html#cb312-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb312-3"><a href="time-matters.html#cb312-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot_calendar_heatmap</span>(</span>
+<span id="cb312-4"><a href="time-matters.html#cb312-4" aria-hidden="true" tabindex="-1"></a>   agassault_ny_d,  <span class="co"># our dataset of dates and number of crimes</span></span>
+<span id="cb312-5"><a href="time-matters.html#cb312-5" aria-hidden="true" tabindex="-1"></a>   <span class="at">cDateColumnName =</span> <span class="st">&#39;date&#39;</span>, <span class="co"># column name of the dates</span></span>
+<span id="cb312-6"><a href="time-matters.html#cb312-6" aria-hidden="true" tabindex="-1"></a>   <span class="at">cValueColumnName =</span> <span class="st">&#39;assaults&#39;</span>) <span class="sc">+</span> <span class="co"># column name of the data</span></span>
+<span id="cb312-7"><a href="time-matters.html#cb312-7" aria-hidden="true" tabindex="-1"></a>   <span class="fu">xlab</span>(<span class="cn">NULL</span>) <span class="sc">+</span> <span class="co"># x axis lable</span></span>
+<span id="cb312-8"><a href="time-matters.html#cb312-8" aria-hidden="true" tabindex="-1"></a>   <span class="fu">ylab</span>(<span class="cn">NULL</span>) <span class="sc">+</span> <span class="co"># y axis lable</span></span>
+<span id="cb312-9"><a href="time-matters.html#cb312-9" aria-hidden="true" tabindex="-1"></a>   <span class="fu">scale_fill_continuous</span>(<span class="at">low =</span> <span class="st">&#39;#f7fcfd&#39;</span>,  <span class="co"># set colour for low count</span></span>
+<span id="cb312-10"><a href="time-matters.html#cb312-10" aria-hidden="true" tabindex="-1"></a>                         <span class="at">high =</span> <span class="st">&#39;#6e016b&#39;</span>) <span class="sc">+</span>   <span class="co"># set colour for high count</span></span>
+<span id="cb312-11"><a href="time-matters.html#cb312-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>Year, <span class="at">ncol =</span> <span class="dv">1</span>) <span class="sc">+</span>  <span class="co"># separate out by each year</span></span>
+<span id="cb312-12"><a href="time-matters.html#cb312-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/unnamed-chunk-173-1.png" width="672" /></p>
+<p>This sort of visualisation might be useful for example to see if certain days of the week see more incidents than others, possibly due to differences in the underlying routine activities that predominate for example weekends versus weekdays. For a bit of fun, you can read <span class="citation"><a href="time-matters.html#ref-Moss_2013" role="doc-biblioref">Moss</a> (<a href="time-matters.html#ref-Moss_2013" role="doc-biblioref">2013</a>)</span> for a safety rating on each day of the week.</p>
+</div>
+<div id="temporal-crime-analysis" class="section level2" number="6.4">
+<h2><span class="header-section-number">6.4</span> Temporal crime analysis</h2>
+<p><strong>Temporal crime analysis</strong> looks at trends in crime or incidents. A crime or incident trend is a broad direction or pattern that specific types or general crime and/or incidents are following. Three types of trend can be identified:</p>
+<ul>
+<li><strong>overall trend</strong> – highlights if the problem is getting worse, better or staying the same over a period of time</li>
+<li><strong>seasonal, monthly, weekly or daily cycles of offences</strong> – identified by comparing previous time periods with the same period being analysed</li>
+<li><strong>random fluctuations</strong> – caused by a large number of minor influences, or a one-off event, and can include displacement of crime from neighbouring areas due to partnership activity or crime initiatives.</li>
+</ul>
+<p>Decomposing these trends is an important part of what <strong>time series</strong> analysis is all about. We will see some examples.</p>
+<div id="plotting-time-series-data" class="section level3" number="6.4.1">
+<h3><span class="header-section-number">6.4.1</span> Plotting time series data</h3>
+<p>Let’s get some fresh data by travelling about three and a half thousand miles to Spain. The data we will work with now is called <code>femicidos.csv</code> in the companion data, and is a collection of intimate partner femicides from Spain.</p>
+<div class="sourceCode" id="cb313"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb313-1"><a href="time-matters.html#cb313-1" aria-hidden="true" tabindex="-1"></a>femicidos <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;data/femicidos.csv&quot;</span>)</span></code></pre></div>
+<p>This dataframe has only two columns, <code>femicidos</code>, which is a monthly observation of the number of intimate partner femicides per month, starting in January 2003, and <code>month</code>, which is the date for each observation. So, each row represents a monthly count of these crimes.</p>
+<p>We could do something like plot the number of crimes over each month using <code>ggplot2</code>.</p>
+<div class="sourceCode" id="cb314"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb314-1"><a href="time-matters.html#cb314-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb314-2"><a href="time-matters.html#cb314-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb314-3"><a href="time-matters.html#cb314-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(femicidos, <span class="fu">aes</span>(<span class="at">x =</span> month, <span class="at">y =</span> femicidios, <span class="at">group =</span> <span class="dv">1</span>)) <span class="sc">+</span> </span>
+<span id="cb314-4"><a href="time-matters.html#cb314-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> </span>
+<span id="cb314-5"><a href="time-matters.html#cb314-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span> </span>
+<span id="cb314-6"><a href="time-matters.html#cb314-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
+<span id="cb314-7"><a href="time-matters.html#cb314-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="at">label =</span> <span class="st">&quot;Number of femicides per month&quot;</span>, <span class="at">subtitle =</span> <span class="st">&quot;In Spain&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb314-8"><a href="time-matters.html#cb314-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">angle =</span> <span class="dv">45</span>))</span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/ggplottime-1.png" width="672" /></p>
+<p>This visualisation gives us an insight into how the count of crimes varies between observations, but it subsumes in itself the three elements mentioned above (the overal trend, seasonal fluctuation, and random noise). This makes it difficult to isolate and discuss any one of these, making it difficult to answer the question about whether crime is going up or down, or whether there are any seasonal fluctuations present. In order to achieve this, we want to <strong>decompose</strong> the data into these components.</p>
+<p>To look into decomposing into these components, we can use the many functionality within R to deal with time series data. To take advantage of many of these, we will need our dataframe to be stored as a <strong>time series</strong> object. This enables us to apply R’s many functions for analysing time series data. To store the data in a time series object, we use the <code>ts()</code> function. Inside this function, we pass only the column which contains the number of crimes for each month (we filter with the <code>select()</code> function)</p>
+<div class="sourceCode" id="cb315"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb315-1"><a href="time-matters.html#cb315-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb315-2"><a href="time-matters.html#cb315-2" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb315-3"><a href="time-matters.html#cb315-3" aria-hidden="true" tabindex="-1"></a>fem_timeseries <span class="ot">&lt;-</span> <span class="fu">ts</span>(femicidos <span class="sc">%&gt;%</span> </span>
+<span id="cb315-4"><a href="time-matters.html#cb315-4" aria-hidden="true" tabindex="-1"></a>                       <span class="fu">select</span>(femicidios))</span></code></pre></div>
+<p>We have taken our dataframe of observed values in our time series (montly observations of crime counts in this case) and tranformed it into a matric with class of “ts” - essentially representing our data as having been sampled at set intervals (in this case every month). Once we have the result stored in our <code>fem_timeseries</code> object, we can auto print to see some details:</p>
+<div class="sourceCode" id="cb316"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb316-1"><a href="time-matters.html#cb316-1" aria-hidden="true" tabindex="-1"></a>fem_timeseries</span></code></pre></div>
+<p>We can see that each observation point has been numbered in order, and we have a value for each observation (the number of femicides recorded in each month). Sometimes the time series data set that you have may have been collected at regular intervals that were less than one year, for example, monthly or quarterly. In this case, you can specify the number of times that data was collected per year by using the <code>frequency</code> parameter in the <code>ts()</code> function. For monthly time series data, you set <code>frequency = 12</code>, while for quarterly time series data, you set <code>frequency = 4</code></p>
+<p>You can also specify the first year that the data was collected, and the first interval in that year by using the <code>start</code> parameter in the <code>ts()</code> function. So, in our case, we would do as follows:</p>
+<div class="sourceCode" id="cb317"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb317-1"><a href="time-matters.html#cb317-1" aria-hidden="true" tabindex="-1"></a><span class="co"># transform into time series</span></span>
+<span id="cb317-2"><a href="time-matters.html#cb317-2" aria-hidden="true" tabindex="-1"></a>fem_timeseries <span class="ot">&lt;-</span> <span class="fu">ts</span>(femicidos <span class="sc">%&gt;%</span> </span>
+<span id="cb317-3"><a href="time-matters.html#cb317-3" aria-hidden="true" tabindex="-1"></a>                       <span class="fu">select</span>(femicidios), <span class="co"># specify dataframe selecting column</span></span>
+<span id="cb317-4"><a href="time-matters.html#cb317-4" aria-hidden="true" tabindex="-1"></a>                     <span class="at">frequency=</span><span class="dv">12</span>,  <span class="co"># specify monthly frequency</span></span>
+<span id="cb317-5"><a href="time-matters.html#cb317-5" aria-hidden="true" tabindex="-1"></a>                     <span class="at">start=</span><span class="fu">c</span>(<span class="dv">2003</span>,<span class="dv">1</span>) <span class="co"># specify start time (January 2003)</span></span>
+<span id="cb317-6"><a href="time-matters.html#cb317-6" aria-hidden="true" tabindex="-1"></a>                     )</span></code></pre></div>
+<p>Now that we have created this timeseries object, we can use the timeseries specific functions in order to extract meaning and insight. For example, going back to plotting our data so that we can see what sort of trends might be going on with crime, we can make use of the <code>plot.ts()</code> function, the basic plotting method for objects that are of class “ts.”</p>
+<div class="sourceCode" id="cb318"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb318-1"><a href="time-matters.html#cb318-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot.ts</span>(fem_timeseries)</span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/plot.ts_8a-1.png" width="672" /></p>
+<p>This plot should look similar to the one we created using ggplot2 above, however our observations are now treated as a continuous variable, labeled “Time.” We can of course also use <code>ggplot2</code>to plot a time series like the one we just did but here we would need a variable encoding the date (and preferably a full date, not just month and year as here).</p>
+<p>As you can see it is very noisy. Fortunately, the annual count for intimate partner femicides is low in Spain. There seems to be some seasonality too. But what more can we do with plotting time series objects? Well we can use the function <code>decompose()</code> in order to break down our plot into the three constituent parts discussed above. This function will decompose a time series into the trend, seasonal, and the noise (also called irregular component) using moving averages.</p>
+<p>A seasonal time series consists of a trend component, a seasonal component and an irregular component. Decomposing the time series means separating the time series into these three components: that is, using statistics to estimate these three components.</p>
+<p>To estimate the trend component and seasonal component of a seasonal time series that can be described using an additive model, we can use the <code>decompose()</code> function in R. This function estimates the trend, seasonal, and irregular components of a time series using moving averages. It deals with additive or multiplicative seasonal components (the default is additive).</p>
+<p>The function <code>decompose()</code> returns a list object as its result, where the estimates of the seasonal component, trend component and irregular component are stored in named elements of that list objects, called “seasonal,” “trend,” and “random” respectively.</p>
+<p>Let’s now decompose this time series to estimate the trend, seasonal and irregular components.</p>
+<div class="sourceCode" id="cb319"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb319-1"><a href="time-matters.html#cb319-1" aria-hidden="true" tabindex="-1"></a>fem_timeseriescomponents <span class="ot">&lt;-</span> <span class="fu">decompose</span>(fem_timeseries)</span></code></pre></div>
+<p>The estimated values of the seasonal, trend and irregular components are now stored in variables <code>fem_timeseriescomponents$seasonal</code>, <code>fem_timeseriescomponents$trend</code> and <code>fem_timeseriescomponents$random</code>. For example, we can print out the estimated values of the seasonal component by typing:</p>
+<div class="sourceCode" id="cb320"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb320-1"><a href="time-matters.html#cb320-1" aria-hidden="true" tabindex="-1"></a>fem_timeseriescomponents<span class="sc">$</span>seasonal</span></code></pre></div>
+<p>The estimated seasonal factors are given for the months January-December, and are the same for each year. The largest seasonal factor is for July (about 0.70), and the lowest is for February (about -0.76), indicating that there seems to be a peak in femicides in July and a trough in femicides in February each year. We can plot the estimated trend, seasonal, and irregular components of the time series by using the <code>plot()</code> function, for example:</p>
+<div class="sourceCode" id="cb321"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb321-1"><a href="time-matters.html#cb321-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fem_timeseriescomponents)</span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/unnamed-chunk-176-1.png" width="672" /></p>
+<p>Once we remove the noise and the seasonal components, it becomes easier to see the estimated trend. Notice that while random and seasonal components still look messy, their scales are different and centred around zero.</p>
+<p>We can adapt this code to decompose and estimate the trends for the aggravated assault data for NYC that we used earlier in the chapter too.</p>
+<div class="sourceCode" id="cb322"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb322-1"><a href="time-matters.html#cb322-1" aria-hidden="true" tabindex="-1"></a><span class="co"># select relevant column (assaults)</span></span>
+<span id="cb322-2"><a href="time-matters.html#cb322-2" aria-hidden="true" tabindex="-1"></a>agassault_ny_d2 <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">select</span>(agassault_ny_d, assaults)</span>
+<span id="cb322-3"><a href="time-matters.html#cb322-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb322-4"><a href="time-matters.html#cb322-4" aria-hidden="true" tabindex="-1"></a><span class="co">#use ts() to transform to time series object</span></span>
+<span id="cb322-5"><a href="time-matters.html#cb322-5" aria-hidden="true" tabindex="-1"></a>ny_timeseries <span class="ot">&lt;-</span> <span class="fu">ts</span>(agassault_ny_d2, </span>
+<span id="cb322-6"><a href="time-matters.html#cb322-6" aria-hidden="true" tabindex="-1"></a>                    <span class="at">frequency=</span><span class="dv">365</span>, </span>
+<span id="cb322-7"><a href="time-matters.html#cb322-7" aria-hidden="true" tabindex="-1"></a>                    <span class="at">start=</span><span class="fu">c</span>(<span class="dv">2014</span>,<span class="dv">1</span>,<span class="dv">1</span>))</span>
+<span id="cb322-8"><a href="time-matters.html#cb322-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb322-9"><a href="time-matters.html#cb322-9" aria-hidden="true" tabindex="-1"></a><span class="co"># decompose time series</span></span>
+<span id="cb322-10"><a href="time-matters.html#cb322-10" aria-hidden="true" tabindex="-1"></a>ny_timeseriescomponents <span class="ot">&lt;-</span> <span class="fu">decompose</span>(ny_timeseries)</span>
+<span id="cb322-11"><a href="time-matters.html#cb322-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb322-12"><a href="time-matters.html#cb322-12" aria-hidden="true" tabindex="-1"></a><span class="co">#plot results</span></span>
+<span id="cb322-13"><a href="time-matters.html#cb322-13" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(ny_timeseriescomponents)</span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/decompose_8b-1.png" width="672" /></p>
+<p>We can also use <code>ggplot2</code> for these purposes. In particular we can use the <code>ggseas</code> extension which allows for seasonal decomposition within <code>ggplot</code> (see <span class="citation"><a href="time-matters.html#ref-Ellis_2018" role="doc-biblioref">Ellis</a> (<a href="time-matters.html#ref-Ellis_2018" role="doc-biblioref">2018</a>)</span> for details). First we can use the <code>tsdf()</code> function from the <code>ggseas</code> package. This turns the <code>ts</code> object we just created into a dataframe and then plot the series.</p>
+<div class="sourceCode" id="cb323"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb323-1"><a href="time-matters.html#cb323-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggseas)</span>
+<span id="cb323-2"><a href="time-matters.html#cb323-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb323-3"><a href="time-matters.html#cb323-3" aria-hidden="true" tabindex="-1"></a>ny_df <span class="ot">&lt;-</span> <span class="fu">tsdf</span>(ny_timeseries)</span></code></pre></div>
+<p>Then we can use the <code>ggsdc()</code> function in order to create a four-facet plot of seasonal decomposition showing observed, trend, seasonal and random components</p>
+<div class="sourceCode" id="cb324"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb324-1"><a href="time-matters.html#cb324-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsdc</span>(ny_df, <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> y), </span>
+<span id="cb324-2"><a href="time-matters.html#cb324-2" aria-hidden="true" tabindex="-1"></a>      <span class="at">method =</span> <span class="st">&quot;decompose&quot;</span>) <span class="sc">+</span></span>
+<span id="cb324-3"><a href="time-matters.html#cb324-3" aria-hidden="true" tabindex="-1"></a>   <span class="fu">geom_line</span>()</span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/unnamed-chunk-177-1.png" width="672" /></p>
+<p>The resulting graph similarly presents the 4 components, the observe data, the trend, the seasonal component and the random fluctuation.</p>
+<p>We have now covered a quick overview of ways of making sense of temporal data. Of course there is a lot more out there, and we urge interested readers to make use of the recommended reading section in this chapter to explore further the topic of temporal data analysis. But now let’s return to the spatial focus of our book.</p>
+</div>
+</div>
+<div id="spatio-temporal-data-visualisation" class="section level2" number="6.5">
+<h2><span class="header-section-number">6.5</span> Spatio-temporal data visualisation</h2>
+<p>For the next set of exercises we are going to look at temporal variations on burglary across Greater Manchester. We are going to focus on wards as the unit of analysis. Accordingly, we will need to import another data set, this time a geojson which contains the wards (administrative boundaries) for Manchester, and the montly burglary count for each ward in 2018.</p>
+<p>To load the ward shapefiles for Manchester into a <code>sf</code> object we use code we had already used in a previous session.</p>
+<div class="sourceCode" id="cb325"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb325-1"><a href="time-matters.html#cb325-1" aria-hidden="true" tabindex="-1"></a>mcr_burglary <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="st">&quot;data/mcr_burglary.geojson&quot;</span>)</span></code></pre></div>
+<pre><code>## Reading layer `mcr_burglary&#39; from data source `/Users/reka/Desktop/crime_mapping/crime_mapping/data/mcr_burglary.geojson&#39; using driver `GeoJSON&#39;
+## Simple feature collection with 384 features and 3 fields
+## Geometry type: POLYGON
+## Dimension:     XY
+## Bounding box:  xmin: -2.319906 ymin: 53.34013 xmax: -2.146819 ymax: 53.54462
+## Geodetic CRS:  WGS 84</code></pre>
+<p>With this data in our environment we can plot a map using <code>tmap</code>.</p>
+<div class="sourceCode" id="cb327"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb327-1"><a href="time-matters.html#cb327-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tmap)</span>
+<span id="cb327-2"><a href="time-matters.html#cb327-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb327-3"><a href="time-matters.html#cb327-3" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(mcr_burglary) <span class="sc">+</span> </span>
+<span id="cb327-4"><a href="time-matters.html#cb327-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_fill</span>(<span class="st">&quot;burglaries&quot;</span>) <span class="sc">+</span></span>
+<span id="cb327-5"><a href="time-matters.html#cb327-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>() </span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/unnamed-chunk-179-1.png" width="672" /></p>
+<p>So this is something we’re already familiar with. But how can we map the temporal information? We will now cover two approaches.</p>
+<div id="small-multiples-to-show-temporal-variation" class="section level3" number="6.5.1">
+<h3><span class="header-section-number">6.5.1</span> Small multiples to show temporal variation</h3>
+<p>As noted by <span class="citation"><a href="time-matters.html#ref-Pebesma_2012" role="doc-biblioref">Pebesma</a> (<a href="time-matters.html#ref-Pebesma_2012" role="doc-biblioref">2012</a>)</span>, spatio-temporal data often come in the form of single tables expressed in one of the three following formats:</p>
+<ul>
+<li><em>time-wide</em> where different columns reflect different moments in time,</li>
+<li><em>space-wide</em> where different columns reflect different measurement locations or areas, or</li>
+<li><em>long formats</em> where each record reflects a single time and space combination.</li>
+</ul>
+<p>What we have in the <code>mcr_burglary</code> object if we view the data frame is a table expressed in the long format, where each row represents a single month and ward combination. We can see as well this is not simple a data table but a <code>sf</code> object which embeds the geographical information that allow us to place it in a map. We can now try to produce the small multiples with the <code>tm_facets()</code> function. (Note: if you wanted to use <code>ggplot2</code> instead of <code>tmap</code> you can look up the function <code>facet_wrap()</code> to achieve the same result).</p>
+<div class="sourceCode" id="cb328"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb328-1"><a href="time-matters.html#cb328-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(mcr_burglary) <span class="sc">+</span> </span>
+<span id="cb328-2"><a href="time-matters.html#cb328-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_fill</span>(<span class="st">&quot;burglaries&quot;</span>) <span class="sc">+</span></span>
+<span id="cb328-3"><a href="time-matters.html#cb328-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>() <span class="sc">+</span></span>
+<span id="cb328-4"><a href="time-matters.html#cb328-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_facets</span>(<span class="st">&quot;month&quot;</span>, <span class="at">free.coords=</span><span class="cn">FALSE</span>)</span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/unnamed-chunk-180-1.png" width="672" /></p>
+<p>So this is one way to visualise temporal variation. What are some more?</p>
+</div>
+<div id="spaghetti-plots" class="section level3" number="6.5.2">
+<h3><span class="header-section-number">6.5.2</span> Spaghetti plots</h3>
+<p>In longitudinal studies and in studies looking at areas over time, sometimes researchers use spaghetti plots. On their own they are not great, but they can used when one wants to put a trajectory within a broader context or when comparing different trajectories. You can read more about how to not use them in <span class="citation"><a href="time-matters.html#ref-Nussbaumer_2013" role="doc-biblioref">Nussbaumer</a> (<a href="time-matters.html#ref-Nussbaumer_2013" role="doc-biblioref">2013</a>)</span>.</p>
+<p>While we will include the ward name as a spatial component in a way, this isn’t technically spatio-temporal data visualisation, as we are stripping away any sort of spatial element, and keeping ward name only as a nominal variable. It is not great, but let’s show you why you might use it. The basic concept is just the same line chart we saw earlier, but with the trajectories grouped within the wards. So instead of one line, we will get 32, one for each ward in our data.</p>
+<div class="sourceCode" id="cb329"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb329-1"><a href="time-matters.html#cb329-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(mcr_burglary, </span>
+<span id="cb329-2"><a href="time-matters.html#cb329-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x =</span> month, </span>
+<span id="cb329-3"><a href="time-matters.html#cb329-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">y =</span> burglaries, </span>
+<span id="cb329-4"><a href="time-matters.html#cb329-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">group =</span> ward_name)) <span class="sc">+</span> </span>
+<span id="cb329-5"><a href="time-matters.html#cb329-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span> </span>
+<span id="cb329-6"><a href="time-matters.html#cb329-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/unnamed-chunk-181-1.png" width="672" /></p>
+<p>This is quite the mess. So in what situation may this be useful? Well maybe you want to compare the variation here with some central tendency. For this we can “grey out” the lines (by chanhing the colour) and add some summary such as the median let’s say, by using the <code>stat_summary()</code> function.</p>
+<div class="sourceCode" id="cb330"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb330-1"><a href="time-matters.html#cb330-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(mcr_burglary, </span>
+<span id="cb330-2"><a href="time-matters.html#cb330-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x =</span> month, </span>
+<span id="cb330-3"><a href="time-matters.html#cb330-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">y =</span> burglaries, </span>
+<span id="cb330-4"><a href="time-matters.html#cb330-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">group =</span> ward_name)) <span class="sc">+</span> </span>
+<span id="cb330-5"><a href="time-matters.html#cb330-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">color=</span><span class="st">&quot;darkgrey&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb330-6"><a href="time-matters.html#cb330-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="fu">aes</span>(<span class="at">group =</span> <span class="dv">1</span>), <span class="co"># we want to summarise all the data together</span></span>
+<span id="cb330-7"><a href="time-matters.html#cb330-7" aria-hidden="true" tabindex="-1"></a>               <span class="at">geom =</span> <span class="st">&quot;line&quot;</span>,  <span class="co"># geometry to display the summary </span></span>
+<span id="cb330-8"><a href="time-matters.html#cb330-8" aria-hidden="true" tabindex="-1"></a>               <span class="at">fun.y =</span> median, <span class="co"># function to apply</span></span>
+<span id="cb330-9"><a href="time-matters.html#cb330-9" aria-hidden="true" tabindex="-1"></a>              <span class="at">lwd =</span> <span class="fl">1.5</span>) <span class="sc">+</span>   <span class="co"># specifying thick line for attention</span></span>
+<span id="cb330-10"><a href="time-matters.html#cb330-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/unnamed-chunk-182-1.png" width="672" /></p>
+<p>This way we can show something like the median trajectory compared with the individual observations’ trajectories.</p>
+<p>We could also use colour to highlight a specific area compared to the rest of the wards. For example, if we are interested in Fallowfield ward, we might highlight that as an additional layer in our spaghetti pile:</p>
+<div class="sourceCode" id="cb331"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb331-1"><a href="time-matters.html#cb331-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(mcr_burglary, </span>
+<span id="cb331-2"><a href="time-matters.html#cb331-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x =</span> month, </span>
+<span id="cb331-3"><a href="time-matters.html#cb331-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">y =</span> burglaries, </span>
+<span id="cb331-4"><a href="time-matters.html#cb331-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">group =</span> ward_name)) <span class="sc">+</span> </span>
+<span id="cb331-5"><a href="time-matters.html#cb331-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">color=</span><span class="st">&quot;darkgrey&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb331-6"><a href="time-matters.html#cb331-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> mcr_burglary <span class="sc">%&gt;%</span>    <span class="co"># pass new data in this layer</span></span>
+<span id="cb331-7"><a href="time-matters.html#cb331-7" aria-hidden="true" tabindex="-1"></a>              <span class="fu">filter</span>(ward_name <span class="sc">==</span> <span class="st">&quot;Fallowfield&quot;</span>),  <span class="co">#filter only Fallowfield </span></span>
+<span id="cb331-8"><a href="time-matters.html#cb331-8" aria-hidden="true" tabindex="-1"></a>            <span class="fu">aes</span>(<span class="at">x =</span> month, </span>
+<span id="cb331-9"><a href="time-matters.html#cb331-9" aria-hidden="true" tabindex="-1"></a>           <span class="at">y =</span> burglaries), </span>
+<span id="cb331-10"><a href="time-matters.html#cb331-10" aria-hidden="true" tabindex="-1"></a>           <span class="at">colour =</span> <span class="st">&quot;blue&quot;</span>,  <span class="co"># change colour for emphasis</span></span>
+<span id="cb331-11"><a href="time-matters.html#cb331-11" aria-hidden="true" tabindex="-1"></a>           <span class="at">lwd =</span> <span class="fl">1.5</span>) <span class="sc">+</span> <span class="co"># change line width for emphasis</span></span>
+<span id="cb331-12"><a href="time-matters.html#cb331-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/unnamed-chunk-183-1.png" width="672" /></p>
+<p>We can now maybe draw some conclusions about Fallowfield’s burglary trajectory compared with the other wards in our data set. But let’s move on now to the final approach, where we again make use of our spatial component.</p>
+</div>
+<div id="animations" class="section level3" number="6.5.3">
+<h3><span class="header-section-number">6.5.3</span> Animations</h3>
+<p>The final way we will present here to visualise time and place together is through the use of animations. This feature is brought to <code>ggplot2</code> thanks to the <code>gganimate</code> extension.</p>
+<p>The idea behind this display is really similar to that behind the small multiples, introduced earlier. A separate map is created for each month, and these are displayed near one another in order to show the change over time. However, instead of side by side, these maps are sequential - they appear in the same place but one after another, in order to present change.</p>
+<p>So first thing we do is to load the <code>gganimate</code> package:</p>
+<div class="sourceCode" id="cb332"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb332-1"><a href="time-matters.html#cb332-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gganimate)</span></code></pre></div>
+<p>Also, to apply <code>gganimate</code> to <code>sf</code> objects, you need to have a package called <code>transformr</code> installed. You don’t need to load this, but make sure it is installed! If not, install with <code>install.packages(transformr)</code>.</p>
+<p>Then, we need to make sure that our temporal variable is a date object. We can use the <code>ymd()</code> function, from the fantastic <code>lubridate</code> package (really I cannot praise this package enough, it makes handling dates so easy…!) to make sure that our month variable is a date object.</p>
+<p>One thing you might notice looking at this data is that there is no date associated with each observation, only month and year. How can we use <code>ymd()</code> which clearly requires <em>y</em>ear <em>m</em>onth and <em>day</em>! Well, one approach is to make this up, and just say that everything in our data happened on the 1st of the month. We can use the <code>paste0()</code> function to do this:</p>
+<div class="sourceCode" id="cb333"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb333-1"><a href="time-matters.html#cb333-1" aria-hidden="true" tabindex="-1"></a>mcr_burglary<span class="sc">$</span>date_month <span class="ot">&lt;-</span> <span class="fu">ymd</span>(<span class="fu">paste0</span>(mcr_burglary<span class="sc">$</span>month, <span class="st">&quot;-01&quot;</span>))</span></code></pre></div>
+<p>Now, we can create a simple static plot, the way we already know how. Let’s plot the number of burglary incidents per ward, and save this in an object called <code>anim</code>:</p>
+<div class="sourceCode" id="cb334"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb334-1"><a href="time-matters.html#cb334-1" aria-hidden="true" tabindex="-1"></a>anim <span class="ot">&lt;-</span> <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb334-2"><a href="time-matters.html#cb334-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> mcr_burglary, </span>
+<span id="cb334-3"><a href="time-matters.html#cb334-3" aria-hidden="true" tabindex="-1"></a>          <span class="fu">aes</span>(<span class="at">fill =</span> burglaries)) <span class="sc">+</span> </span>
+<span id="cb334-4"><a href="time-matters.html#cb334-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>()</span></code></pre></div>
+<p>Now, finally, we can animate this graph. Take the object of the static graph (<code>anim</code>) and add a form of transition, which will be used to animate the graph. In this case, we can use <code>transition_states()</code>. This transition splits your data into multiple states based on the levels in a given column, much like how faceting splits up the data in multiple panels. It then shifts between the defined states and pauses at each state. Layers with data without the specified column will be kept constant during the animation (again, mimicking facet_wrap). States are the unquoted name of the column holding the state levels in the data. You can then use <code>closest_state</code> to dynamically label the graph:</p>
+<div class="sourceCode" id="cb335"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb335-1"><a href="time-matters.html#cb335-1" aria-hidden="true" tabindex="-1"></a>anim <span class="sc">+</span> </span>
+<span id="cb335-2"><a href="time-matters.html#cb335-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transition_states</span>(date_month,  <span class="co"># column holding the state levels in the data</span></span>
+<span id="cb335-3"><a href="time-matters.html#cb335-3" aria-hidden="true" tabindex="-1"></a>                    <span class="at">transition_length =</span> <span class="dv">1</span>, <span class="co"># relative length of the transition</span></span>
+<span id="cb335-4"><a href="time-matters.html#cb335-4" aria-hidden="true" tabindex="-1"></a>                    <span class="at">state_length =</span> <span class="dv">2</span>) <span class="sc">+</span> <span class="co"># elative length of the pause </span></span>
+<span id="cb335-5"><a href="time-matters.html#cb335-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Month: {closest_state}&quot;</span>)</span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/unnamed-chunk-187-1.gif" /><!-- --></p>
+<p>In the print book, this will not look very exciting, but hopefull you are following along, and now are looking at a very smooth animation of how burglary changed over the months of 2018 in Manchester.</p>
+</div>
+</div>
+<div id="summary-and-further-reading-5" class="section level2" number="6.6">
+<h2><span class="header-section-number">6.6</span> Summary and further reading</h2>
+<p>In this chapter we had a very brief introduction to temporal data, and considered how we can manipulate and wrangle this new type of data using packages such as <code>lubridate</code>. We then introduced some approaches to visualising temporal data, and finally, ways to visualise spatio-temporal variation as well. To read up on the importance of time, and specifically spatio-temporal crime analysis, we recommend <span class="citation"><a href="time-matters.html#ref-Ratcliffe_2010" role="doc-biblioref">Ratcliffe</a> (<a href="time-matters.html#ref-Ratcliffe_2010" role="doc-biblioref">2010</a>)</span>, <span class="citation"><a href="time-matters.html#ref-Wheeler_2016" role="doc-biblioref">Wheeler</a> (<a href="time-matters.html#ref-Wheeler_2016" role="doc-biblioref">2016</a>)</span>, and <span class="citation"><a href="time-matters.html#ref-Roth_2013" role="doc-biblioref">Roth et al.</a> (<a href="time-matters.html#ref-Roth_2013" role="doc-biblioref">2013</a>)</span>.</p>
+<p>While we did not get to go into any spatio-temporal analysis at this stage, visualisation is a good starting point to begin to engage with this important element of crime data. To move into spatio-temporal analysis would require a more thorough training in temporal data analysis first, and so we do not cover here. But we provide some resources for those interested. Notably <span class="citation"><a href="time-matters.html#ref-Hyndman_2021" role="doc-biblioref">Hyndman and Athanasopoulos</a> (<a href="time-matters.html#ref-Hyndman_2021" role="doc-biblioref">2021</a>)</span> is an excellent resource for this, and we can also recommend <span class="citation"><a href="time-matters.html#ref-Chatfield_2019" role="doc-biblioref">Chatfield and Xing</a> (<a href="time-matters.html#ref-Chatfield_2019" role="doc-biblioref">2019</a>)</span>. For those already comfortable with this, <span class="citation"><a href="time-matters.html#ref-Pebesma_2012" role="doc-biblioref">Pebesma</a> (<a href="time-matters.html#ref-Pebesma_2012" role="doc-biblioref">2012</a>)</span> also offers a very thoughtful introduction to how spatio-temporal data layouts appear and useful graphs for spatio temporal data. <span class="citation"><a href="time-matters.html#ref-Pebesma_2012" role="doc-biblioref">Pebesma</a> (<a href="time-matters.html#ref-Pebesma_2012" role="doc-biblioref">2012</a>)</span> also introduces the R package <code>spacetime</code>, for handling such analyses. At the time of writing, functions in <code>spacetime</code> take as inputs older <code>sp</code> objects, but work in <code>sftime</code>, to work with <code>sf</code> objects is ongoing. For additional details in how to visualise space-time data with R we suggest <span class="citation">(<a href="#ref-Perpinan_2014" role="doc-biblioref"><strong>Perpinan_2014?</strong></a>)</span> and Chapter 2 of <span class="citation">(<a href="#ref-Wikkle_2019" role="doc-biblioref"><strong>Wikkle_2019?</strong></a>)</span>.</p>
+<p>As noted there are packages that provide functionality for better handling of dates and time. It is worth to go over the details of ´lubridate´ in the official page and the relevant chapter in <span class="citation"><a href="time-matters.html#ref-Wickham_2017" role="doc-biblioref">Wickham and Grolemund</a> (<a href="time-matters.html#ref-Wickham_2017" role="doc-biblioref">2017</a>)</span> is also very helpful. There is a brand new package <code>clock</code> that aims to improve on <code>lubridate</code> and that is also worth exploring (for details see <span class="citation"><a href="time-matters.html#ref-Vaughan_2021" role="doc-biblioref">Vaughan</a> (<a href="time-matters.html#ref-Vaughan_2021" role="doc-biblioref">2021</a>)</span>).</p>
+
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-Andresen_2011" class="csl-entry">
+Andresen, Martin. 2011. <span>“The Ambient Population and Crime Analysis.”</span> <em>The Professional Geographer</em> 63 (2): 193–212.
+</div>
+<div id="ref-Andresen_2020" class="csl-entry">
+Andresen, Martin, Nick Malleson, Wouter Steenbek, Michael Townsley, and Christophe Vandeviver. 2020. <span>“Minimum Geocoding Match Rates: An International Study of the Impact of Data and Areal Unit Sizes.”</span> <em>International Journal of Geographical Information Science</em> 34 (7): 1306–22.
+</div>
+<div id="ref-Ashby_2018" class="csl-entry">
+Ashby, Matthew P J. 2018. <span>“Studying Crime and Place with the Crime Open Database.”</span> SocArXiv pre-print. <a href="https://doi.org/10.31235/osf.io/9y7qz">https://doi.org/10.31235/osf.io/9y7qz</a>.
+</div>
+<div id="ref-Ashby_2019" class="csl-entry">
+———. 2019. <span>“Studying Crime and Place with the Crime Open Database: Social and Behavioural Scienes.”</span> <em>Research Data Journal for the Humanities and Social Sciences</em> 4 (1): 65–80.
+</div>
+<div id="ref-Blumstein_1986" class="csl-entry">
+Blumstein, Al, J Cohen, J Roth, and C Visher. 1986. <span>“Criminal Careers and Career Criminals.”</span> Research Report. National Science Foundation.
+</div>
+<div id="ref-Bolstad_2019" class="csl-entry">
+Bolstad, Paul. 2019. <em>GIS Fundamentals: A First Text on Geographic Information Systems</em>. 6th ed. White Bear Lake, MN: Eider Press.
+</div>
+<div id="ref-Bowers_2021" class="csl-entry">
+Bowers, Kate. 2021. <span>“Risky Places: Crime Absorbers, Crime Radiators as Risky Places.”</span> <a href="https://play.kth.se/media/Risky+PlacesA+Crime+absorbers,+crime+radiators+as+risky+places,+Prof+Kate+Bowers,+UCL/0_zya4j354">https://play.kth.se/media/Risky+PlacesA+Crime+absorbers,+crime+radiators+as+risky+places,+Prof+Kate+Bowers,+UCL/0_zya4j354</a>.
+</div>
+<div id="ref-Brantingham_1982" class="csl-entry">
+Brantingham, Patricia L, and Paul J Brantingham. 1982. <span>“Mobility, Notoriety and Crime: A Study of Crime Patterns in Urban Nodal Points.”</span> <em>Journal of Environmental Systems</em> 11 (1): 89–99.
+</div>
+<div id="ref-Brantingham_1995" class="csl-entry">
+———. 1995. <span>“Criminality of Place: Crime Generators and Crime Attractors.”</span> <em>European Journal on Criminal Policy and Research</em> 3: 5–26.
+</div>
+<div id="ref-Brewer_2006" class="csl-entry">
+Brewer, Cynthia. 2006. <span>“Basic Mapping Principles for Visualizing Cancer Data Using Geographic Information Systems (GIS).”</span> <em>American Journal of Preventive Medicine</em> 30 (2S): S25–36.
+</div>
+<div id="ref-Briggs_2017" class="csl-entry">
+Briggs, Daniel, and Rubén Monge Gamero. 2017. <em>Dead-End Lives: Drugs and Violence in the City Shadows</em>. Bristol, UK: Policy Press.
+</div>
+<div id="ref-Bruinsma_2018" class="csl-entry">
+Bruinsma, Gerben J. N., and Shane Johnson, eds. 2018. <em>The Oxford Handbook of Environmental Criminology</em>. Oxford, England: Oxford Univerisity Press.
+</div>
+<div id="ref-Buil-Gil_2021" class="csl-entry">
+Buil-Gil, David, Juanjo Medina, and Natalie Shlomo. 2021. <span>“Measuring the Dark Figure of Crime in Geographic Areas: Small Area Estimation from the Crime Survey for England and Wales.”</span> <em>British Journal of Criminology</em> 61 (2): 364–88.
+</div>
+<div id="ref-Cairo_2016" class="csl-entry">
+Cairo, Alberto. 2016. <em>The Truthful Art: Data, Charts, and Maps for Communication</em>. New Riders.
+</div>
+<div id="ref-Cameron_2005" class="csl-entry">
+Cameron, James. 2005. In <em>Mapping Crime: Understanding Hot Spots</em>, edited by John Eck, Spencer Chainey, James Cameron, Michael Leitner, and Ronald Wilson, 35–64. Washington, DC: National Institute of Justice.
+</div>
+<div id="ref-Camoes_2016" class="csl-entry">
+Camoes, Jorge. 2016. <em>Data at Work: Best Practices for Creating Effective Charts and Information Graphics in Microsoft Excel</em>. New Riders.
+</div>
+<div id="ref-Carr_2010" class="csl-entry">
+Carr, Daniel, and Linda Pickle. 2010. <em>Visualizing Data Patterns with Micromaps</em>. Boca Raton, CA: CRC Press.
+</div>
+<div id="ref-Chainey_2005" class="csl-entry">
+Chainey, Spencer, and Jerry Rattcliffe. 2005. <em>GIS and Crime Mapping</em>. Chichester, England: John Wiley; Sons.
+</div>
+<div id="ref-Chatfield_2019" class="csl-entry">
+Chatfield, Chris, and Haipeng Xing. 2019. <em>The Analysis of Time Series: An Introduction with r</em>. 7th ed. Boca Ratón, CA: CRC Press.
+</div>
+<div id="ref-Cohen_1979" class="csl-entry">
+Cohen, Lawrence E, and Marcus Felson. 1979. <span>“Social Change and Crime Rate Trends: A Routine Activity Approach.”</span> <em>American Sociological Review</em>, 588–608.
+</div>
+<div id="ref-HMIC_2014" class="csl-entry">
+Constabulary, Her Majesty Inspectorate of. 2014. <span>“Crime Recording: Making the Victim Count.”</span> Final Report. HMIC.
+</div>
+<div id="ref-Cornish_1986" class="csl-entry">
+Cornish, Derek B, and Ronald V Clarke. 1986. <span>“The Reasoning Criminal: Rational Choice Perspectives on Offending.”</span>
+</div>
+<div id="ref-Dent_2008" class="csl-entry">
+Dent, Borden, J Torguson, and T Hodler. 2008. <em>Thematic Map Design</em>. New York, New York, NY: McGraw-Hill.
+</div>
+<div id="ref-Dorling_1996" class="csl-entry">
+Dorling, D. 1996. <span>“Area Cartograms: Their Use and Creation, Concepts and Techniques in Modern Geography.”</span>
+</div>
+<div id="ref-Dougenik_1985" class="csl-entry">
+Dougenik, James A, Nicholas R Chrisman, and Duane R Niemeyer. 1985. <span>“An Algorithm to Construct Continuous Area Cartograms.”</span> <em>The Professional Geographer</em> 37 (1): 75–81.
+</div>
+<div id="ref-Eck_2015" class="csl-entry">
+Eck, John, and David L Weisburd. 2015. <span>“Crime Places in Crime Theory.”</span> <em>Crime and Place: Crime Prevention Studies</em> 4.
+</div>
+<div id="ref-Ellis_2018" class="csl-entry">
+Ellis, Peter. 2018. <span>“Ggseas r Package.”</span> <a href="https://github.com/ellisp/ggseas">https://github.com/ellisp/ggseas</a>.
+</div>
+<div id="ref-Field_2007" class="csl-entry">
+Field, Kenneth. 2007. <span>“Map Evaluation Guidelines.”</span> <a href="http://downloads.esri.com/MappingCenter2007/arcGISResources/more/MapEvaluationGuidelines.pdf">http://downloads.esri.com/MappingCenter2007/arcGISResources/more/MapEvaluationGuidelines.pdf</a>.
+</div>
+<div id="ref-Field_2018" class="csl-entry">
+———. 2018. <em>Cartography</em>. Redlands, CA: ESRI Press.
+</div>
+<div id="ref-Field_2012" class="csl-entry">
+Field, Kenneth, and Damien Demaj. 2012. <span>“Reasserting Design Relevance in Cartography: Some Concepts.”</span> <em>The Cartographic Journal</em> 49 (1): 70–76.
+</div>
+<div id="ref-Field_2016" class="csl-entry">
+Field, Kenneth, and Danny Dorling. 2016. <span>“UK Election Cartography.”</span> <em>International Journal of Cartography</em> 2: 202–32.
+</div>
+<div id="ref-Gelman_1999" class="csl-entry">
+Gelman, Andrew, and Phillip Price. 1999. <span>“All Maps of Parameters Estimates Are Misleading.”</span> <em>Statistics in Medicine</em> 18: 3221–34.
+</div>
+<div id="ref-Gerell_2017" class="csl-entry">
+Gerell, Manne. 2017. <span>“Smallest Is Better? The Spatial Distribution of Arson and the Modifiable Areal Unit Problem.”</span> <em>Journal of Quantitative Criminology</em> 33 (2): 293–318.
+</div>
+<div id="ref-Goudriaan_2006" class="csl-entry">
+Goudriaan, Heike, Karin Witterbrood, and Paul Nieuwbeerta. 2006. <span>“Neigbourhood Characteristics and Reporting Crime.”</span> <em>British Journal of Criminology</em> 46: 719–42.
+</div>
+<div id="ref-Grossenbacher_2019" class="csl-entry">
+Grossenbacher, Timo. 2019. <span>“Bivariate Maps with Ggplot2 and Sf.”</span> Blog. Tamedia. <a href="https://timogrossenbacher.ch/2019/04/bivariate-maps-with-ggplot2-and-sf/">https://timogrossenbacher.ch/2019/04/bivariate-maps-with-ggplot2-and-sf/</a>.
+</div>
+<div id="ref-Guerry_1833" class="csl-entry">
+Guerry, Andre-Michelle. 1833. <span>“Essay on the Moral Statistics of France, Trans. HP Whitt and VW Reinking.”</span> Lewiston, NY: Edwin Mellen Press.
+</div>
+<div id="ref-Harries_1999" class="csl-entry">
+Harries, Keith. 1999. <span>“Mapping Crime: Principle and Practice.”</span> Research Report. National Institute of Justice.
+</div>
+<div id="ref-Hart_2012" class="csl-entry">
+Hart, Timothy, and Paul Zandbergen. 2012. <span>“Effects of Data Quality on Predictive Hotspot Mapping.”</span> Final Report. National Institute of Justice.
+</div>
+<div id="ref-Healy_2019" class="csl-entry">
+Healy, Kieran. 2019. <em>Data Visualization. A Practical Introduction</em>. Princeto, NJ: Princeton University Press.
+</div>
+<div id="ref-Hyndman_2021" class="csl-entry">
+Hyndman, Rob, and George Athanasopoulos. 2021. <em>Forecasting: Principles and Practice</em>. 3rd ed. Melbourne, Australia: OTexts.
+</div>
+<div id="ref-Jiang_2013" class="csl-entry">
+Jiang, Bin. 2013. <span>“Head/Tail Breaks: A New Classification Scheme for Data with a Heavy-Tailed Distribution.”</span> <em>The Professional Geographer</em> 65 (3): 482–94.
+</div>
+<div id="ref-Johnson_2011" class="csl-entry">
+Johnson, Zachary Forest. 2011. <span>“Hexbins!”</span> <a href="http://indiemaps.com/blog/2011/10/hexbins/">http://indiemaps.com/blog/2011/10/hexbins/</a>.
+</div>
+<div id="ref-Kirk_2016" class="csl-entry">
+Kirk, Andy. 2016. <em>Data Visualisation: A Handbook for Data Driven Design</em>. London, UK: Sage.
+</div>
+<div id="ref-Langton_2018" class="csl-entry">
+Langton, Samuel, and Reka Solymosi. 2018. <span>“Open Data.”</span> <em>In <span>“The Study of Crime and Place: A Methods Handbook”</span> Eds: Elisabeth Groff and Corey Haberman. Temple University Press.</em>
+</div>
+<div id="ref-Lawson_2021a" class="csl-entry">
+Lawson, Andrew. 2021a. <em>Bayesian Disease Mapping</em>. 3rd ed. Boca Raton, CA: CRC Press.
+</div>
+<div id="ref-Lawson_2006" class="csl-entry">
+———. 2021b. <em>Statistical Methods in Spatial Epidemiology</em>. 2nd ed. Chichester, UK: John Wiley; Sons.
+</div>
+<div id="ref-Lawson_2021b" class="csl-entry">
+———. 2021c. <em>Using r for Bayesian Spatial and Spatio-Temporal Health Modeling</em>. Boca Raton, CA: CRC Press.
+</div>
+<div id="ref-Li_2014" class="csl-entry">
+Li, Huiyang, and Nadine Moacdieh. 2014. <span>“Is <span>‘Chart Junk’</span> Useful? An Extended Examination of Visual Embellishment.”</span> In <em>Proceedings of the Human Factors and Ergonomics Society Annual Meeting</em>, 58:1516–20. 1. SAGE Publications Sage CA: Los Angeles, CA.
+</div>
+<div id="ref-Lovelace_2019" class="csl-entry">
+Lovelace, Robin, Jakub Nowosad, and Jannes Muenchow. 2019. <em>Geocomputation with r</em>. Boca Raton, Florida: Chapman; Hall/CRC Press.
+</div>
+<div id="ref-Marshall_1991" class="csl-entry">
+Marshall, Roger. 1991. <span>“Mapping Disease and Mortality Rates Using Empirical Bayes Estimators.”</span> <em>Applied Statistics</em> 40 (2): 283–94.
+</div>
+<div id="ref-Mayhew_1861" class="csl-entry">
+Mayhew, Henry. 1861. <em>London Labour and the London Poor: A Cyclopaedia of the Condition and Earnings of Those That Will Work, Those That Cannot Work, and Those That Will Not Work. Those That Will Not Work: Comprising Prostitutes, Thieves, Swindlers, Beggars/by Several Contributors; with Introductory Essay on the Agencies at Present in Operation in the Metropolis for the Suppression of Vice and Crime by William Tuckniss; with Illustrations</em>. Charles Griffin.
+</div>
+<div id="ref-Monmonier_1993" class="csl-entry">
+Monmonier, Mark. 1993. <em>Mapping It Out: Expository Cartography for the Humanities and Social Sciences</em>. Chicago: The University of Chicago Press.
+</div>
+<div id="ref-Monmonier_1996" class="csl-entry">
+———. 1996. <em>How to Lie with Maps</em>. 2nd ed. Chicago: The University of Chicago Press.
+</div>
+<div id="ref-Moss_2013" class="csl-entry">
+Moss, Stephen. 2013. <span>“Which Is the Most Dangerous Day of the Week?”</span> <a href="https://www.theguardian.com/lifeandstyle/2013/may/29/most-dangerous-day-of-week">https://www.theguardian.com/lifeandstyle/2013/may/29/most-dangerous-day-of-week</a>.
+</div>
+<div id="ref-Newton_2018" class="csl-entry">
+Newton, Andrew David. 2018. <span>“Macro-Level Generators of Crime, Including Parks, Stadiums, and Transit Stations.”</span> In <em>The Oxford Handbook of Environmental Criminology</em>, edited by Gerben J N Bruinsma and Shane D Johnson, 497–517. Oxford: Oxford University Press.
+</div>
+<div id="ref-Nusrat_2016" class="csl-entry">
+Nusrat, Sabrina, and Stephen Kobourov. 2016. <span>“The State of the Art in Cartograms.”</span> In <em>Computer Graphics Forum</em>, 35:619–42. 3. Wiley Online Library.
+</div>
+<div id="ref-Nussbaumer_2013" class="csl-entry">
+Nussbaumer, Cole. 2013. <span>“Strategies for Avoiding the Spaghetti Graph.”</span> <a href="https://www.storytellingwithdata.com/blog/2013/03/avoiding-spaghetti-graph">https://www.storytellingwithdata.com/blog/2013/03/avoiding-spaghetti-graph</a>.
+</div>
+<div id="ref-OSullivan_2010" class="csl-entry">
+O´Sullivan, David, and David J. Unwin. 2010. <em>Geographic Information Analysis</em>. 2nd ed. Hoboken, NJ: John Wiley; Sons.
+</div>
+<div id="ref-Openshaw_1981" class="csl-entry">
+Openshaw, Stan. 1981. <span>“The Modifiable Areal Unit Problem.”</span> <em>Quantitative Geography: A British View</em>, 60–69.
+</div>
+<div id="ref-Park_1925" class="csl-entry">
+Park, Robert E, and Ernest W Burgess. 1925. <em>The City</em>. University of Chicago Press.
+</div>
+<div id="ref-Pebesma_2012" class="csl-entry">
+Pebesma, Edzer. 2012. <span>“Spacetime: Spatio-Temporal Data in r.”</span> <em>Journal of Statistical Software</em> 51 (7): 1–30.
+</div>
+<div id="ref-Pebesma_2018" class="csl-entry">
+———. 2018. <span>“Simple Features for r: Standardized Support for Spatial Vector Data.”</span> <em>The R Journal</em> 10 (1): 439–46.
+</div>
+<div id="ref-Pebesma_2021" class="csl-entry">
+Pebesma, Edzer, and Roger Bivand. 2021. <span>“Spatial Data Science with Applications in r.”</span> <a href="https://keen-swartz-3146c4.netlify.app/">https://keen-swartz-3146c4.netlify.app/</a>.
+</div>
+<div id="ref-Quetelet_1842" class="csl-entry">
+Quetelet, Adolphe. 1842. <em>Instructions Pour l’observation Des Ph<span>é</span>nom<span>è</span>nes p<span>é</span>riodiques</em>. Vol. 1. 22.
+</div>
+<div id="ref-Ratcliffe_2004" class="csl-entry">
+Ratcliffe, Jerry. 2004. <span>“Geocoding Crime and a First Estimate of a Minimum Acceptable Hit Rate.”</span> <em>International Journal of Geographical Information Science</em> 18 (1): 61–72.
+</div>
+<div id="ref-Ratcliffe_2010" class="csl-entry">
+———. 2010. <span>“Crime Mapping: Spatial and Temporal Challenges.”</span> In <em>Handbook of Quantitative Criminology</em>, edited by Alex Piquero and David Weisburd, 5–24. New York, NY: Springer.
+</div>
+<div id="ref-Rengert_2009" class="csl-entry">
+Rengert, George F, and Brian Lockwood. 2009. <span>“Geographical Units of Analysis and the Analysis of Crime.”</span> In <em>Putting Crime in Its Place</em>, edited by David Weisburd, Wim Bernasco, and Gerben J. N. Bruinsma, 109–22. New York, NY: Springer.
+</div>
+<div id="ref-Roth_2013" class="csl-entry">
+Roth, Robert E, Kevin S Ross, Benjamin G Finch, Wei Luo, and Alan M MacEachren. 2013. <span>“Spatiotemporal Crime Analysis in US Law Enforcement Agencies: Current Practices and Unmet Needs.”</span> <em>Government Information Quarterly</em> 30 (3): 226–40.
+</div>
+<div id="ref-Boba_2013" class="csl-entry">
+Santos, Rachel Boba. 2013. <em>Crime Analysis with Crime Mapping</em>. 3rd ed. Thousand Oaks, CA: Sage.
+</div>
+<div id="ref-Schwabish_2021" class="csl-entry">
+Schwabish, Jonathan. 2021. <em>Better Data Visualizations. A Guide for Scholars, Researchers, and Wonks</em>. New York: Columbia University Press.
+</div>
+<div id="ref-Shaw_1942" class="csl-entry">
+Shaw, Clifford Robe, and Henry Donald McKay. 1942. <span>“Juvenile Delinquency and Urban Areas.”</span>
+</div>
+<div id="ref-Solymosi_2021" class="csl-entry">
+Solymosi, Reka. 2021. <span>“Minimizing Misrepresentation in Spatial Data Visualizations.”</span> <a href="https://www.doi.org/10.4135/9781529774047">https://www.doi.org/10.4135/9781529774047</a>.
+</div>
+<div id="ref-Haining_2020" class="csl-entry">
+Spatial, Modelling, and Spatial-Temporal Data. A Bayesian Approach. 2020. <em>Robert Haining and Guangquan Li</em>. Boca Raton, FL: CRC Press.
+</div>
+<div id="ref-Stevens_2015" class="csl-entry">
+Stevens, Joshua. 2015. <span>“Bivariate Choropleth Maps: A How-to Guide.”</span> Blog. NASA’s Earth Observatory. <a href="https://www.joshuastevens.net/cartography/make-a-bivariate-choropleth-map/">https://www.joshuastevens.net/cartography/make-a-bivariate-choropleth-map/</a>.
+</div>
+<div id="ref-Tanimura_2006" class="csl-entry">
+Tanimura, Susumu, Chusi Kuroiwa, and Tsutomu Mizota. 2006. <span>“Propotional Symbol Mapping in r.”</span> <em>Journal of Statistical Software</em> 15 (5): 1–7.
+</div>
+<div id="ref-Tobler_2004" class="csl-entry">
+Tobler, Waldo. 2004. <span>“Thirty Five Years of Computer Cartograms.”</span> <em>ANNALS of the Association of American Geographers</em> 94 (1): 58–73.
+</div>
+<div id="ref-Tufte_2001" class="csl-entry">
+Tufte, Edward. 2001. <em>The Visual Display of Quantitative Information</em>. Cheshire: Graphic Press.
+</div>
+<div id="ref-Tukey_1979" class="csl-entry">
+Tukey, John. 1979. <span>“Statistical Mapping: What Should Not Be Plotted.”</span> In <em>Proceedings of the 1976 Workshop on Automated Cartography and Epidemiology</em>, edited by DHEW, 18–21. Washington, DC: US Department of Health, Education,; Welfare.
+</div>
+<div id="ref-Vaughan_2021" class="csl-entry">
+Vaughan, Davis. 2021. <span>“Comprehensive Date-Time Handling for r.”</span> <a href="https://www.tidyverse.org/blog/2021/03/clock-0-1-0/">https://www.tidyverse.org/blog/2021/03/clock-0-1-0/</a>.
+</div>
+<div id="ref-Waller_2004" class="csl-entry">
+Waller, HLance, and Carol Gotway. 2004. <em>Applied Spatial Statistics for Public Health Data</em>. Chichester, UK: John Wiley; Sons.
+</div>
+<div id="ref-Wheeler_2016" class="csl-entry">
+Wheeler, Andrew P. 2016. <span>“Tables and Graphs for Monitoring Temporal Crime Trends: Translating Theory into Practical Crime Analysis Advice.”</span> <em>International Journal of Police Science &amp; Management</em> 18 (3): 159–72.
+</div>
+<div id="ref-Wickham_2010" class="csl-entry">
+Wickham, Hadley. 2010. <span>“A Layered Grammar of Graphics.”</span> <em>Journal of Computational and Graphical Statistics</em> 19 (1): 3–28.
+</div>
+<div id="ref-Wickham_2017" class="csl-entry">
+Wickham, Hadley, and Garrett Grolemund. 2017. <em>R for Data Science: Import, Tidy, Transform, Visualize, and Model Data</em>. Boston, MA: O´Reilly.
+</div>
+<div id="ref-Yutani_2018" class="csl-entry">
+Yutani, Hiroaki. 2018. <a href="https://yutani.rbind.io/post/geom-sf-text-and-geom-sf-label-are-coming/">https://yutani.rbind.io/post/geom-sf-text-and-geom-sf-label-are-coming/</a>.
+</div>
+</div>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="visualisation-good-cartographic-design.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/rstudio/bookdown-demo/edit/master/06-time_matters.Rmd",
+"text": "Edit"
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": ["crime_mapping.pdf", "crime_mapping.epub"],
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

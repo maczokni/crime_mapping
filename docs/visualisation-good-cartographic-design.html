@@ -32,7 +32,7 @@
   
   
 <link rel="prev" href="variations-of-thematic-mapping.html"/>
-
+<link rel="next" href="time-matters.html"/>
 <script src="libs/header-attrs-2.7.2/header-attrs.js"></script>
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -155,7 +155,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="1.2.4" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#networks"><i class="fa fa-check"></i><b>1.2.4</b> Networks</a></li>
 <li class="chapter" data-level="1.2.5" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#maps-and-their-types"><i class="fa fa-check"></i><b>1.2.5</b> Maps and their types</a></li>
 <li class="chapter" data-level="1.2.6" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#map-projections-and-geographic-coordinate-systems"><i class="fa fa-check"></i><b>1.2.6</b> Map projections and geographic coordinate systems</a></li>
-<li class="chapter" data-level="1.2.7" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#summary"><i class="fa fa-check"></i><b>1.2.7</b> Summary</a></li>
+<li class="chapter" data-level="1.2.7" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#key-terms-summary"><i class="fa fa-check"></i><b>1.2.7</b> Key terms summary</a></li>
 </ul></li>
 <li class="chapter" data-level="1.3" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#getting-started-with-crime-data"><i class="fa fa-check"></i><b>1.3</b> Getting started with crime data</a></li>
 <li class="chapter" data-level="1.4" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#from-dataframes-to-spatial-objects"><i class="fa fa-check"></i><b>1.4</b> From dataframes to spatial objects</a>
@@ -285,6 +285,23 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul></li>
 <li class="chapter" data-level="5.7" data-path="visualisation-good-cartographic-design.html"><a href="visualisation-good-cartographic-design.html#summary-and-further-reading-4"><i class="fa fa-check"></i><b>5.7</b> Summary and further reading</a></li>
 </ul></li>
+<li class="chapter" data-level="6" data-path="time-matters.html"><a href="time-matters.html"><i class="fa fa-check"></i><b>6</b> Time matters</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="time-matters.html"><a href="time-matters.html#introduction-5"><i class="fa fa-check"></i><b>6.1</b> Introduction</a></li>
+<li class="chapter" data-level="6.2" data-path="time-matters.html"><a href="time-matters.html#temporal-data-wrangling"><i class="fa fa-check"></i><b>6.2</b> Temporal data wrangling</a></li>
+<li class="chapter" data-level="6.3" data-path="time-matters.html"><a href="time-matters.html#calendar-heatmaps"><i class="fa fa-check"></i><b>6.3</b> Calendar heatmaps</a></li>
+<li class="chapter" data-level="6.4" data-path="time-matters.html"><a href="time-matters.html#temporal-crime-analysis"><i class="fa fa-check"></i><b>6.4</b> Temporal crime analysis</a>
+<ul>
+<li class="chapter" data-level="6.4.1" data-path="time-matters.html"><a href="time-matters.html#plotting-time-series-data"><i class="fa fa-check"></i><b>6.4.1</b> Plotting time series data</a></li>
+</ul></li>
+<li class="chapter" data-level="6.5" data-path="time-matters.html"><a href="time-matters.html#spatio-temporal-data-visualisation"><i class="fa fa-check"></i><b>6.5</b> Spatio-temporal data visualisation</a>
+<ul>
+<li class="chapter" data-level="6.5.1" data-path="time-matters.html"><a href="time-matters.html#small-multiples-to-show-temporal-variation"><i class="fa fa-check"></i><b>6.5.1</b> Small multiples to show temporal variation</a></li>
+<li class="chapter" data-level="6.5.2" data-path="time-matters.html"><a href="time-matters.html#spaghetti-plots"><i class="fa fa-check"></i><b>6.5.2</b> Spaghetti plots</a></li>
+<li class="chapter" data-level="6.5.3" data-path="time-matters.html"><a href="time-matters.html#animations"><i class="fa fa-check"></i><b>6.5.3</b> Animations</a></li>
+</ul></li>
+<li class="chapter" data-level="6.6" data-path="time-matters.html"><a href="time-matters.html#summary-and-further-reading-5"><i class="fa fa-check"></i><b>6.6</b> Summary and further reading</a></li>
+</ul></li>
 <li class="divider"></li>
 <li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
 
@@ -331,21 +348,21 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div class="sourceCode" id="cb243"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb243-1"><a href="visualisation-good-cartographic-design.html#cb243-1" aria-hidden="true" tabindex="-1"></a><span class="co">#join the csv (attribute) data to the polygons</span></span>
 <span id="cb243-2"><a href="visualisation-good-cartographic-design.html#cb243-2" aria-hidden="true" tabindex="-1"></a>hu_dd <span class="ot">&lt;-</span> <span class="fu">left_join</span>(hungary, drink_driving, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;name&quot;</span> <span class="ot">=</span> <span class="st">&quot;name&quot;</span>))</span></code></pre></div>
 <p>We can now use this example to talk through the important principles of good visualisation of spatial data. We draw specifically from two areas of research: cartography and data visualisation.</p>
-<p>Cartographers have always been concerned about the appearance of maps and how the display marries form with function <span class="citation"><a href="visualisation-good-cartographic-design.html#ref-Field_2012" role="doc-biblioref">Field and Demaj</a> (<a href="visualisation-good-cartographic-design.html#ref-Field_2012" role="doc-biblioref">2012</a>)</span>. As there is no definitive definition for what is meant by <em>cartographic design</em> it can be challenging to evaluate what makes <em>good</em> design. However there are themes and elements which can be used to guide the map maker, and offer points of reflection to encourage thoughtful designs.</p>
-<p>Te primary aim of maps is the communication of information in an honest and ethical way. This means each map should have a clear goal and know its audience, show all relevant data and not use the data to lie or mislead <span class="citation"><a href="visualisation-good-cartographic-design.html#ref-Dent_2008" role="doc-biblioref">Dent, Torguson, and Hodler</a> (<a href="visualisation-good-cartographic-design.html#ref-Dent_2008" role="doc-biblioref">2008</a>)</span>. It should also be reproducible, transparent, cite all data sources, and consider diversity in its audience <span class="citation"><a href="visualisation-good-cartographic-design.html#ref-Dent_2008" role="doc-biblioref">Dent, Torguson, and Hodler</a> (<a href="visualisation-good-cartographic-design.html#ref-Dent_2008" role="doc-biblioref">2008</a>)</span>. So what does that mean for specifically implementing these into practice. While a good amount of critical thought from the map maker will be required, there are aids we can rely upon. For example, <span class="citation"><a href="visualisation-good-cartographic-design.html#ref-Field_2007" role="doc-biblioref">Field</a> (<a href="visualisation-good-cartographic-design.html#ref-Field_2007" role="doc-biblioref">n.d.</a>)</span> developed a map evaluation checklist which you can access here: <a href="http://downloads.esri.com/MappingCenter2007/arcGISResources/more/MapEvaluationGuidelines.pdf">http://downloads.esri.com/MappingCenter2007/arcGISResources/more/MapEvaluationGuidelines.pdf</a>. The questions fall into three broad categories:</p>
+<p>Cartographers have always been concerned about the appearance of maps and how the display marries form with function <span class="citation"><a href="time-matters.html#ref-Field_2012" role="doc-biblioref">Field and Demaj</a> (<a href="time-matters.html#ref-Field_2012" role="doc-biblioref">2012</a>)</span>. As there is no definitive definition for what is meant by <em>cartographic design</em> it can be challenging to evaluate what makes <em>good</em> design. However there are themes and elements which can be used to guide the map maker, and offer points of reflection to encourage thoughtful designs.</p>
+<p>Te primary aim of maps is the communication of information in an honest and ethical way. This means each map should have a clear goal and know its audience, show all relevant data and not use the data to lie or mislead <span class="citation"><a href="time-matters.html#ref-Dent_2008" role="doc-biblioref">Dent, Torguson, and Hodler</a> (<a href="time-matters.html#ref-Dent_2008" role="doc-biblioref">2008</a>)</span>. It should also be reproducible, transparent, cite all data sources, and consider diversity in its audience <span class="citation"><a href="time-matters.html#ref-Dent_2008" role="doc-biblioref">Dent, Torguson, and Hodler</a> (<a href="time-matters.html#ref-Dent_2008" role="doc-biblioref">2008</a>)</span>. So what does that mean for specifically implementing these into practice. While a good amount of critical thought from the map maker will be required, there are aids we can rely upon. For example, <span class="citation"><a href="time-matters.html#ref-Field_2007" role="doc-biblioref">Field</a> (<a href="time-matters.html#ref-Field_2007" role="doc-biblioref">2007</a>)</span> developed a map evaluation checklist which you can access here: <a href="http://downloads.esri.com/MappingCenter2007/arcGISResources/more/MapEvaluationGuidelines.pdf">http://downloads.esri.com/MappingCenter2007/arcGISResources/more/MapEvaluationGuidelines.pdf</a>. The questions fall into three broad categories:</p>
 <ul>
 <li><em>Cartographic Requirements</em>: such as what is the rationale for the map, who are the audience?</li>
 <li><em>Cartographic Complication and Design</em> such as are all the relevant features included and do the colours, symbold, and other features legible and appropriate to achieve the map’s objectives? And finally,</li>
 <li><em>Map Elements and Page Layout</em> which tackle some specific features such as orientation indicator, scale indicator, legend, titles and subtitles, and production notes.</li>
 </ul>
 <p>We will discuss these elements in this chapter to some degree, and the recommended reading will guide the reader to further advice on these topics.</p>
-<p>Data visualisation is a somewhat newer field, however, it seems to encompass the same guiding principles when consdiering what makes good design. According to <span class="citation"><a href="visualisation-good-cartographic-design.html#ref-Kirk_2016" role="doc-biblioref">Kirk</a> (<a href="visualisation-good-cartographic-design.html#ref-Kirk_2016" role="doc-biblioref">2016</a>)</span> three principles offer a guide when deciding what makes a <em>good</em> data visualisation. It must be:</p>
+<p>Data visualisation is a somewhat newer field, however, it seems to encompass the same guiding principles when consdiering what makes good design. According to <span class="citation"><a href="time-matters.html#ref-Kirk_2016" role="doc-biblioref">Kirk</a> (<a href="time-matters.html#ref-Kirk_2016" role="doc-biblioref">2016</a>)</span> three principles offer a guide when deciding what makes a <em>good</em> data visualisation. It must be:</p>
 <ul>
 <li>Trustworthy</li>
 <li>Accessible, and</li>
 <li>Elegant</li>
 </ul>
-<p>The first principle, of trust speaks to the integrity, accuracy, and legitimacy of any data visualisation we produce. <span class="citation"><a href="visualisation-good-cartographic-design.html#ref-Kirk_2016" role="doc-biblioref">Kirk</a> (<a href="visualisation-good-cartographic-design.html#ref-Kirk_2016" role="doc-biblioref">2016</a>)</span> suggests this principle to be held above all else, as our primary goal is to communicate truth (as far as we know it) and avoid at all cost to present what we know to be misleading content. Accessibility refers to our visualisation being useful, understandable, and unobtrusive, as well as accessible for all users. There are many things to consider in your audience such as <em>dynamic of need</em> (do they have to engage with your visualisation, or is it voluntary?), <em>subject-matter knowledge</em> are they experts in the area, are they lay people to whom you must communicate a complex message?, and many other factors (see <span class="citation"><a href="visualisation-good-cartographic-design.html#ref-Kirk_2016" role="doc-biblioref">Kirk</a> (<a href="visualisation-good-cartographic-design.html#ref-Kirk_2016" role="doc-biblioref">2016</a>)</span>). Finally, elegance refers to aesthetics, attention to detail, and an element of <em>doing as little design as possible</em> - meaning a certain invisibility whereby the viewer of your visualisation focussed on the content, rather than the design - that is the main point is the message that you are trying to communicate with your data! There are various schools of though within data visualisation research. For example, the work of <span class="citation"><a href="visualisation-good-cartographic-design.html#ref-Tufte_2001" role="doc-biblioref">Tufte</a> (<a href="visualisation-good-cartographic-design.html#ref-Tufte_2001" role="doc-biblioref">2001</a>)</span> emphasises clean, minimalist approaches to data visualisation, emphasising a low <em>data-to-ink-ratio</em>, which means all the ink needed to print the visualisation should contribute data to the graph. However, other research has explored the usefulness of additional embellishments on charts (which Tufte calls “chart junk”) - finding there may be value to these sorts of approaches as well (e.g. see <span class="citation"><a href="visualisation-good-cartographic-design.html#ref-Li_2014" role="doc-biblioref">Li and Moacdieh</a> (<a href="visualisation-good-cartographic-design.html#ref-Li_2014" role="doc-biblioref">2014</a>)</span>).</p>
+<p>The first principle, of trust speaks to the integrity, accuracy, and legitimacy of any data visualisation we produce. <span class="citation"><a href="time-matters.html#ref-Kirk_2016" role="doc-biblioref">Kirk</a> (<a href="time-matters.html#ref-Kirk_2016" role="doc-biblioref">2016</a>)</span> suggests this principle to be held above all else, as our primary goal is to communicate truth (as far as we know it) and avoid at all cost to present what we know to be misleading content. Accessibility refers to our visualisation being useful, understandable, and unobtrusive, as well as accessible for all users. There are many things to consider in your audience such as <em>dynamic of need</em> (do they have to engage with your visualisation, or is it voluntary?), <em>subject-matter knowledge</em> are they experts in the area, are they lay people to whom you must communicate a complex message?, and many other factors (see <span class="citation"><a href="time-matters.html#ref-Kirk_2016" role="doc-biblioref">Kirk</a> (<a href="time-matters.html#ref-Kirk_2016" role="doc-biblioref">2016</a>)</span>). Finally, elegance refers to aesthetics, attention to detail, and an element of <em>doing as little design as possible</em> - meaning a certain invisibility whereby the viewer of your visualisation focussed on the content, rather than the design - that is the main point is the message that you are trying to communicate with your data! There are various schools of though within data visualisation research. For example, the work of <span class="citation"><a href="time-matters.html#ref-Tufte_2001" role="doc-biblioref">Tufte</a> (<a href="time-matters.html#ref-Tufte_2001" role="doc-biblioref">2001</a>)</span> emphasises clean, minimalist approaches to data visualisation, emphasising a low <em>data-to-ink-ratio</em>, which means all the ink needed to print the visualisation should contribute data to the graph. However, other research has explored the usefulness of additional embellishments on charts (which Tufte calls “chart junk”) - finding there may be value to these sorts of approaches as well (e.g. see <span class="citation"><a href="time-matters.html#ref-Li_2014" role="doc-biblioref">Li and Moacdieh</a> (<a href="time-matters.html#ref-Li_2014" role="doc-biblioref">2014</a>)</span>).</p>
 <p>In this chapter, we will aim to bring together the above principles, and work through a practical example of how to apply these to the maps we make. Specifically we will cover:</p>
 <ul>
 <li>data representation</li>
@@ -538,7 +555,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb265-3"><a href="visualisation-good-cartographic-design.html#cb265-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_grey</span>() <span class="sc">+</span> </span>
 <span id="cb265-4"><a href="visualisation-good-cartographic-design.html#cb265-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>()</span></code></pre></div>
 <p><img src="crime_mapping_files/figure-html/greyscaletestsmap-1.png" width="672" /></p>
-<p>Sometimes you might prefer such a map. However, do keep in mind, a number of studies have shown the desirability of monochrome colour (over greyscale) thematic maps, as they are linked to less observer variability in interpretation (<span class="citation"><a href="visualisation-good-cartographic-design.html#ref-Lawson_2006" role="doc-biblioref">Lawson</a> (<a href="visualisation-good-cartographic-design.html#ref-Lawson_2006" role="doc-biblioref">2021b</a>)</span>). So you might want to use something like this instead:</p>
+<p>Sometimes you might prefer such a map. However, do keep in mind, a number of studies have shown the desirability of monochrome colour (over greyscale) thematic maps, as they are linked to less observer variability in interpretation (<span class="citation"><a href="time-matters.html#ref-Lawson_2006" role="doc-biblioref">Lawson</a> (<a href="time-matters.html#ref-Lawson_2006" role="doc-biblioref">2021b</a>)</span>). So you might want to use something like this instead:</p>
 <div class="sourceCode" id="cb266"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb266-1"><a href="visualisation-good-cartographic-design.html#cb266-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> hu_dd) <span class="sc">+</span> </span>
 <span id="cb266-2"><a href="visualisation-good-cartographic-design.html#cb266-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill =</span> total_quantiles), <span class="at">lwd =</span> <span class="fl">0.5</span>, <span class="at">col =</span> <span class="st">&quot;white&quot;</span>) <span class="sc">+</span> </span>
 <span id="cb266-3"><a href="visualisation-good-cartographic-design.html#cb266-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_brewer</span>(<span class="at">type =</span> <span class="st">&quot;seq&quot;</span>, <span class="at">palette =</span> <span class="st">&quot;Greens&quot;</span>) <span class="sc">+</span> </span>
@@ -618,7 +635,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb273-9"><a href="visualisation-good-cartographic-design.html#cb273-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="at">label =</span> <span class="st">&quot;Number of breathalyser tests per county&quot;</span>, </span>
 <span id="cb273-10"><a href="visualisation-good-cartographic-design.html#cb273-10" aria-hidden="true" tabindex="-1"></a>          <span class="at">subtitle =</span> <span class="st">&quot;January 2020&quot;</span>)</span></code></pre></div>
 <p><img src="crime_mapping_files/figure-html/addcountynames-1.png" width="672" /></p>
-<p>You may notice there is some overlapping here which renders some names unreadable. Well while <a href="https://github.com/slowkow/ggrepel/issues/111">there is work in this space to develop the function geom_sf_label_repel()</a> at the time of writing this is not yet available. However this application of the <code>geom_label_repel()</code> function from the <code>ggrepel</code> package advised by <span class="citation"><a href="visualisation-good-cartographic-design.html#ref-Yutani_2018" role="doc-biblioref">Yutani</a> (<a href="visualisation-good-cartographic-design.html#ref-Yutani_2018" role="doc-biblioref">n.d.</a>)</span> achieves the same outcome:</p>
+<p>You may notice there is some overlapping here which renders some names unreadable. Well while <a href="https://github.com/slowkow/ggrepel/issues/111">there is work in this space to develop the function geom_sf_label_repel()</a> at the time of writing this is not yet available. However this application of the <code>geom_label_repel()</code> function from the <code>ggrepel</code> package advised by <span class="citation"><a href="time-matters.html#ref-Yutani_2018" role="doc-biblioref">Yutani</a> (<a href="time-matters.html#ref-Yutani_2018" role="doc-biblioref">2018</a>)</span> achieves the same outcome:</p>
 <div class="sourceCode" id="cb274"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb274-1"><a href="visualisation-good-cartographic-design.html#cb274-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggrepel)</span>
 <span id="cb274-2"><a href="visualisation-good-cartographic-design.html#cb274-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb274-3"><a href="visualisation-good-cartographic-design.html#cb274-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> hu_dd) <span class="sc">+</span> </span>
@@ -948,227 +965,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <div id="summary-and-further-reading-4" class="section level2" number="5.7">
 <h2><span class="header-section-number">5.7</span> Summary and further reading</h2>
-<p>In this chapter we covered some principles of data visualisation and good map design, specifically how to implement some of these using <code>ggplot2</code> library in R. We talked about symbols, about colour, about text, and about adding context. GGplot2 is an incredibly flexible framework, and through the use of layers you can achieve a very beautiful and meaningful map output. We could for example consider adding topography, such as rivers, lakes, and mountains to our maps, and it would be only a case of adding another layer. To get more familiar with this I recommend <span class="citation"><a href="visualisation-good-cartographic-design.html#ref-Wickham_2010" role="doc-biblioref">Wickham</a> (<a href="visualisation-good-cartographic-design.html#ref-Wickham_2010" role="doc-biblioref">2010</a>)</span> and <span class="citation"><a href="visualisation-good-cartographic-design.html#ref-Healy_2019" role="doc-biblioref">Healy</a> (<a href="visualisation-good-cartographic-design.html#ref-Healy_2019" role="doc-biblioref">2019</a>)</span>.</p>
-<p>For general readings on cartography, the work of Kenneth Field privudes (eg: <span class="citation"><a href="visualisation-good-cartographic-design.html#ref-Field_2012" role="doc-biblioref">Field and Demaj</a> (<a href="visualisation-good-cartographic-design.html#ref-Field_2012" role="doc-biblioref">2012</a>)</span> or <span class="citation"><a href="visualisation-good-cartographic-design.html#ref-Field_2018" role="doc-biblioref">Field</a> (<a href="visualisation-good-cartographic-design.html#ref-Field_2018" role="doc-biblioref">2018</a>)</span>) thorough and engaging guidance. For data visualisation, while <span class="citation"><a href="visualisation-good-cartographic-design.html#ref-Tufte_2001" role="doc-biblioref">Tufte</a> (<a href="visualisation-good-cartographic-design.html#ref-Tufte_2001" role="doc-biblioref">2001</a>)</span> is a classic text, those looking for practical instruction may wish to turn to <span class="citation"><a href="visualisation-good-cartographic-design.html#ref-Kirk_2016" role="doc-biblioref">Kirk</a> (<a href="visualisation-good-cartographic-design.html#ref-Kirk_2016" role="doc-biblioref">2016</a>)</span> or <span class="citation"><a href="visualisation-good-cartographic-design.html#ref-Cairo_2016" role="doc-biblioref">Cairo</a> (<a href="visualisation-good-cartographic-design.html#ref-Cairo_2016" role="doc-biblioref">2016</a>)</span> for more guidance.</p>
+<p>In this chapter we covered some principles of data visualisation and good map design, specifically how to implement some of these using <code>ggplot2</code> library in R. We talked about symbols, about colour, about text, and about adding context. GGplot2 is an incredibly flexible framework, and through the use of layers you can achieve a very beautiful and meaningful map output. We could for example consider adding topography, such as rivers, lakes, and mountains to our maps, and it would be only a case of adding another layer. To get more familiar with this I recommend <span class="citation"><a href="time-matters.html#ref-Wickham_2010" role="doc-biblioref">Wickham</a> (<a href="time-matters.html#ref-Wickham_2010" role="doc-biblioref">2010</a>)</span> and <span class="citation"><a href="time-matters.html#ref-Healy_2019" role="doc-biblioref">Healy</a> (<a href="time-matters.html#ref-Healy_2019" role="doc-biblioref">2019</a>)</span>.</p>
+<p>For general readings on cartography, the work of Kenneth Field privudes (eg: <span class="citation"><a href="time-matters.html#ref-Field_2012" role="doc-biblioref">Field and Demaj</a> (<a href="time-matters.html#ref-Field_2012" role="doc-biblioref">2012</a>)</span> or <span class="citation"><a href="time-matters.html#ref-Field_2018" role="doc-biblioref">Field</a> (<a href="time-matters.html#ref-Field_2018" role="doc-biblioref">2018</a>)</span>) thorough and engaging guidance. For data visualisation, while <span class="citation"><a href="time-matters.html#ref-Tufte_2001" role="doc-biblioref">Tufte</a> (<a href="time-matters.html#ref-Tufte_2001" role="doc-biblioref">2001</a>)</span> is a classic text, those looking for practical instruction may wish to turn to <span class="citation"><a href="time-matters.html#ref-Kirk_2016" role="doc-biblioref">Kirk</a> (<a href="time-matters.html#ref-Kirk_2016" role="doc-biblioref">2016</a>)</span> or <span class="citation"><a href="time-matters.html#ref-Cairo_2016" role="doc-biblioref">Cairo</a> (<a href="time-matters.html#ref-Cairo_2016" role="doc-biblioref">2016</a>)</span> for more guidance.</p>
 
-<div id="refs" class="references csl-bib-body hanging-indent">
-<div id="ref-Andresen_2011" class="csl-entry">
-Andresen, Martin. 2011. <span>“The Ambient Population and Crime Analysis.”</span> <em>The Professional Geographer</em> 63 (2): 193–212.
-</div>
-<div id="ref-Andresen_2020" class="csl-entry">
-Andresen, Martin, Nick Malleson, Wouter Steenbek, Michael Townsley, and Christophe Vandeviver. 2020. <span>“Minimum Geocoding Match Rates: An International Study of the Impact of Data and Areal Unit Sizes.”</span> <em>International Journal of Geographical Information Science</em> 34 (7): 1306–22.
-</div>
-<div id="ref-Bolstad_2019" class="csl-entry">
-Bolstad, Paul. 2019. <em>GIS Fundamentals: A First Text on Geographic Information Systems</em>. 6th ed. White Bear Lake, MN: Eider Press.
-</div>
-<div id="ref-Bowers_2021" class="csl-entry">
-Bowers, Kate. 2021. <span>“Risky Places: Crime Absorbers, Crime Radiators as Risky Places.”</span> <a href="https://play.kth.se/media/Risky+PlacesA+Crime+absorbers,+crime+radiators+as+risky+places,+Prof+Kate+Bowers,+UCL/0_zya4j354">https://play.kth.se/media/Risky+PlacesA+Crime+absorbers,+crime+radiators+as+risky+places,+Prof+Kate+Bowers,+UCL/0_zya4j354</a>.
-</div>
-<div id="ref-Brantingham_1982" class="csl-entry">
-Brantingham, Patricia L, and Paul J Brantingham. 1982. <span>“Mobility, Notoriety and Crime: A Study of Crime Patterns in Urban Nodal Points.”</span> <em>Journal of Environmental Systems</em> 11 (1): 89–99.
-</div>
-<div id="ref-Brantingham_1995" class="csl-entry">
-———. 1995. <span>“Criminality of Place: Crime Generators and Crime Attractors.”</span> <em>European Journal on Criminal Policy and Research</em> 3: 5–26.
-</div>
-<div id="ref-Brewer_2006" class="csl-entry">
-Brewer, Cynthia. 2006. <span>“Basic Mapping Principles for Visualizing Cancer Data Using Geographic Information Systems (GIS).”</span> <em>American Journal of Preventive Medicine</em> 30 (2S): S25–36.
-</div>
-<div id="ref-Briggs_2017" class="csl-entry">
-Briggs, Daniel, and Rubén Monge Gamero. 2017. <em>Dead-End Lives: Drugs and Violence in the City Shadows</em>. Bristol, UK: Policy Press.
-</div>
-<div id="ref-Bruinsma_2018" class="csl-entry">
-Bruinsma, Gerben J. N., and Shane Johnson, eds. 2018. <em>The Oxford Handbook of Environmental Criminology</em>. Oxford, England: Oxford Univerisity Press.
-</div>
-<div id="ref-Buil-Gil_2021" class="csl-entry">
-Buil-Gil, David, Juanjo Medina, and Natalie Shlomo. 2021. <span>“Measuring the Dark Figure of Crime in Geographic Areas: Small Area Estimation from the Crime Survey for England and Wales.”</span> <em>British Journal of Criminology</em> 61 (2): 364–88.
-</div>
-<div id="ref-Cairo_2016" class="csl-entry">
-Cairo, Alberto. 2016. <em>The Truthful Art: Data, Charts, and Maps for Communication</em>. New Riders.
-</div>
-<div id="ref-Cameron_2005" class="csl-entry">
-Cameron, James. 2005. In <em>Mapping Crime: Understanding Hot Spots</em>, edited by John Eck, Spencer Chainey, James Cameron, Michael Leitner, and Ronald Wilson, 35–64. Washington, DC: National Institute of Justice.
-</div>
-<div id="ref-Camoes_2016" class="csl-entry">
-Camoes, Jorge. 2016. <em>Data at Work: Best Practices for Creating Effective Charts and Information Graphics in Microsoft Excel</em>. New Riders.
-</div>
-<div id="ref-Carr_2010" class="csl-entry">
-Carr, Daniel, and Linda Pickle. 2010. <em>Visualizing Data Patterns with Micromaps</em>. Boca Raton, CA: CRC Press.
-</div>
-<div id="ref-Chainey_2005" class="csl-entry">
-Chainey, Spencer, and Jerry Rattcliffe. 2005. <em>GIS and Crime Mapping</em>. Chichester, England: John Wiley; Sons.
-</div>
-<div id="ref-Cohen_1979" class="csl-entry">
-Cohen, Lawrence E, and Marcus Felson. 1979. <span>“Social Change and Crime Rate Trends: A Routine Activity Approach.”</span> <em>American Sociological Review</em>, 588–608.
-</div>
-<div id="ref-HMIC_2014" class="csl-entry">
-Constabulary, Her Majesty Inspectorate of. 2014. <span>“Crime Recording: Making the Victim Count.”</span> Final Report. HMIC.
-</div>
-<div id="ref-Cornish_1986" class="csl-entry">
-Cornish, Derek B, and Ronald V Clarke. 1986. <span>“The Reasoning Criminal: Rational Choice Perspectives on Offending.”</span>
-</div>
-<div id="ref-Dent_2008" class="csl-entry">
-Dent, Borden, J Torguson, and T Hodler. 2008. <em>Thematic Map Design</em>. New York, New York, NY: McGraw-Hill.
-</div>
-<div id="ref-Dorling_1996" class="csl-entry">
-Dorling, D. 1996. <span>“Area Cartograms: Their Use and Creation, Concepts and Techniques in Modern Geography.”</span>
-</div>
-<div id="ref-Dougenik_1985" class="csl-entry">
-Dougenik, James A, Nicholas R Chrisman, and Duane R Niemeyer. 1985. <span>“An Algorithm to Construct Continuous Area Cartograms.”</span> <em>The Professional Geographer</em> 37 (1): 75–81.
-</div>
-<div id="ref-Eck_2015" class="csl-entry">
-Eck, John, and David L Weisburd. 2015. <span>“Crime Places in Crime Theory.”</span> <em>Crime and Place: Crime Prevention Studies</em> 4.
-</div>
-<div id="ref-Field_2018" class="csl-entry">
-Field, Kenneth. 2018. <em>Cartography</em>. Redlands, CA: ESRI Press.
-</div>
-<div id="ref-Field_2007" class="csl-entry">
-———. n.d. <span>“Map Evaluation Guidelines.”</span> <a href="http://downloads.esri.com/MappingCenter2007/arcGISResources/more/MapEvaluationGuidelines.pdf">http://downloads.esri.com/MappingCenter2007/arcGISResources/more/MapEvaluationGuidelines.pdf</a>.
-</div>
-<div id="ref-Field_2012" class="csl-entry">
-Field, Kenneth, and Damien Demaj. 2012. <span>“Reasserting Design Relevance in Cartography: Some Concepts.”</span> <em>The Cartographic Journal</em> 49 (1): 70–76.
-</div>
-<div id="ref-Field_2016" class="csl-entry">
-Field, Kenneth, and Danny Dorling. 2016. <span>“UK Election Cartography.”</span> <em>International Journal of Cartography</em> 2: 202–32.
-</div>
-<div id="ref-Gelman_1999" class="csl-entry">
-Gelman, Andrew, and Phillip Price. 1999. <span>“All Maps of Parameters Estimates Are Misleading.”</span> <em>Statistics in Medicine</em> 18: 3221–34.
-</div>
-<div id="ref-Gerell_2017" class="csl-entry">
-Gerell, Manne. 2017. <span>“Smallest Is Better? The Spatial Distribution of Arson and the Modifiable Areal Unit Problem.”</span> <em>Journal of Quantitative Criminology</em> 33 (2): 293–318.
-</div>
-<div id="ref-Goudriaan_2006" class="csl-entry">
-Goudriaan, Heike, Karin Witterbrood, and Paul Nieuwbeerta. 2006. <span>“Neigbourhood Characteristics and Reporting Crime.”</span> <em>British Journal of Criminology</em> 46: 719–42.
-</div>
-<div id="ref-Grossenbacher_2019" class="csl-entry">
-Grossenbacher, Timo. 2019. <span>“Bivariate Maps with Ggplot2 and Sf.”</span> Blog. Tamedia. <a href="https://timogrossenbacher.ch/2019/04/bivariate-maps-with-ggplot2-and-sf/">https://timogrossenbacher.ch/2019/04/bivariate-maps-with-ggplot2-and-sf/</a>.
-</div>
-<div id="ref-Guerry_1833" class="csl-entry">
-Guerry, Andre-Michelle. 1833. <span>“Essay on the Moral Statistics of France, Trans. HP Whitt and VW Reinking.”</span> Lewiston, NY: Edwin Mellen Press.
-</div>
-<div id="ref-Harries_1999" class="csl-entry">
-Harries, Keith. 1999. <span>“Mapping Crime: Principle and Practice.”</span> Research Report. National Institute of Justice.
-</div>
-<div id="ref-Hart_2012" class="csl-entry">
-Hart, Timothy, and Paul Zandbergen. 2012. <span>“Effects of Data Quality on Predictive Hotspot Mapping.”</span> Final Report. National Institute of Justice.
-</div>
-<div id="ref-Healy_2019" class="csl-entry">
-Healy, Kieran. 2019. <em>Data Visualization. A Practical Introduction</em>. Princeto, NJ: Princeton University Press.
-</div>
-<div id="ref-Jiang_2013" class="csl-entry">
-Jiang, Bin. 2013. <span>“Head/Tail Breaks: A New Classification Scheme for Data with a Heavy-Tailed Distribution.”</span> <em>The Professional Geographer</em> 65 (3): 482–94.
-</div>
-<div id="ref-Johnson_2011" class="csl-entry">
-Johnson, Zachary Forest. n.d. <span>“Hexbins!”</span> <a href="http://indiemaps.com/blog/2011/10/hexbins/">http://indiemaps.com/blog/2011/10/hexbins/</a>.
-</div>
-<div id="ref-Kirk_2016" class="csl-entry">
-Kirk, Andy. 2016. <em>Data Visualisation: A Handbook for Data Driven Design</em>. London, UK: Sage.
-</div>
-<div id="ref-Langton_2019" class="csl-entry">
-Langton, Samuel, and Reka Solymosi. 2021. <span>“Open Data.”</span> <em>In <span>“The Study of Crime and Place: A Methods Handbook”</span> Eds: Elisabeth Groff and Corey Haberman. Temple University Press.</em>
-</div>
-<div id="ref-Lawson_2021a" class="csl-entry">
-Lawson, Andrew. 2021a. <em>Bayesian Disease Mapping</em>. 3rd ed. Boca Raton, CA: CRC Press.
-</div>
-<div id="ref-Lawson_2006" class="csl-entry">
-———. 2021b. <em>Statistical Methods in Spatial Epidemiology</em>. 2nd ed. Chichester, UK: John Wiley; Sons.
-</div>
-<div id="ref-Lawson_2021b" class="csl-entry">
-———. 2021c. <em>Using r for Bayesian Spatial and Spatio-Temporal Health Modeling</em>. Boca Raton, CA: CRC Press.
-</div>
-<div id="ref-Li_2014" class="csl-entry">
-Li, Huiyang, and Nadine Moacdieh. 2014. <span>“Is <span>‘Chart Junk’</span> Useful? An Extended Examination of Visual Embellishment.”</span> In <em>Proceedings of the Human Factors and Ergonomics Society Annual Meeting</em>, 58:1516–20. 1. SAGE Publications Sage CA: Los Angeles, CA.
-</div>
-<div id="ref-Lovelace_2019" class="csl-entry">
-Lovelace, Robin, Jakub Nowosad, and Jannes Muenchow. 2019. <em>Geocomputation with r</em>. Boca Raton, Florida: Chapman; Hall/CRC Press.
-</div>
-<div id="ref-Marshall_1991" class="csl-entry">
-Marshall, Roger. 1991. <span>“Mapping Disease and Mortality Rates Using Empirical Bayes Estimators.”</span> <em>Applied Statistics</em> 40 (2): 283–94.
-</div>
-<div id="ref-Mayhew_1861" class="csl-entry">
-Mayhew, Henry. 1861. <em>London Labour and the London Poor: A Cyclopaedia of the Condition and Earnings of Those That Will Work, Those That Cannot Work, and Those That Will Not Work. Those That Will Not Work: Comprising Prostitutes, Thieves, Swindlers, Beggars/by Several Contributors; with Introductory Essay on the Agencies at Present in Operation in the Metropolis for the Suppression of Vice and Crime by William Tuckniss; with Illustrations</em>. Charles Griffin.
-</div>
-<div id="ref-Monmonier_1993" class="csl-entry">
-Monmonier, Mark. 1993. <em>Mapping It Out: Expository Cartography for the Humanities and Social Sciences</em>. Chicago: The University of Chicago Press.
-</div>
-<div id="ref-Monmonier_1996" class="csl-entry">
-———. 1996. <em>How to Lie with Maps</em>. 2nd ed. Chicago: The University of Chicago Press.
-</div>
-<div id="ref-Newton_2018" class="csl-entry">
-Newton, Andrew David. 2018. <span>“Macro-Level Generators of Crime, Including Parks, Stadiums, and Transit Stations.”</span> In <em>The Oxford Handbook of Environmental Criminology</em>, edited by Gerben J N Bruinsma and Shane D Johnson, 497–517. Oxford: Oxford University Press.
-</div>
-<div id="ref-Nusrat_2016" class="csl-entry">
-Nusrat, Sabrina, and Stephen Kobourov. 2016. <span>“The State of the Art in Cartograms.”</span> In <em>Computer Graphics Forum</em>, 35:619–42. 3. Wiley Online Library.
-</div>
-<div id="ref-OSullivan_2010" class="csl-entry">
-O´Sullivan, David, and David J. Unwin. 2010. <em>Geographic Information Analysis</em>. 2nd ed. Hoboken, NJ: John Wiley; Sons.
-</div>
-<div id="ref-Openshaw_1981" class="csl-entry">
-Openshaw, Stan. 1981. <span>“The Modifiable Areal Unit Problem.”</span> <em>Quantitative Geography: A British View</em>, 60–69.
-</div>
-<div id="ref-Park_1925" class="csl-entry">
-Park, Robert E, and Ernest W Burgess. 1925. <em>The City</em>. University of Chicago Press.
-</div>
-<div id="ref-Pebesma_2018" class="csl-entry">
-Pebesma, Edzer. 2018. <span>“Simple Features for r: Standardized Support for Spatial Vector Data.”</span> <em>The R Journal</em> 10 (1): 439–46.
-</div>
-<div id="ref-Pebesma_2021" class="csl-entry">
-Pebesma, Edzer, and Roger Bivand. n.d. <span>“Spatial Data Science with Applications in r.”</span> <a href="https://keen-swartz-3146c4.netlify.app/">https://keen-swartz-3146c4.netlify.app/</a>.
-</div>
-<div id="ref-Quetelet_1842" class="csl-entry">
-Quetelet, Adolphe. 1842. <em>Instructions Pour l’observation Des Ph<span>é</span>nom<span>è</span>nes p<span>é</span>riodiques</em>. Vol. 1. 22.
-</div>
-<div id="ref-Ratcliffe_2004" class="csl-entry">
-Ratcliffe, Jerry. 2004. <span>“Geocoding Crime and a First Estimate of a Minimum Acceptable Hit Rate.”</span> <em>International Journal of Geographical Information Science</em> 18 (1): 61–72.
-</div>
-<div id="ref-Ratcliffe_2010" class="csl-entry">
-———. 2010. <span>“Crime Mapping: Spatial and Temporal Challenges.”</span> In <em>Handbook of Quantitative Criminology</em>, edited by Alex Piquero and David Weisburd, 5–24. New York, NY: Springer.
-</div>
-<div id="ref-Rengert_2009" class="csl-entry">
-Rengert, George F, and Brian Lockwood. 2009. <span>“Geographical Units of Analysis and the Analysis of Crime.”</span> In <em>Putting Crime in Its Place</em>, edited by David Weisburd, Wim Bernasco, and Gerben J. N. Bruinsma, 109–22. New York, NY: Springer.
-</div>
-<div id="ref-Boba_2013" class="csl-entry">
-Santos, Rachel Boba. 2013. <em>Crime Analysis with Crime Mapping</em>. 3rd ed. Thousand Oaks, CA: Sage.
-</div>
-<div id="ref-Schwabish_2021" class="csl-entry">
-Schwabish, Jonathan. 2021. <em>Better Data Visualizations. A Guide for Scholars, Researchers, and Wonks</em>. New York: Columbia University Press.
-</div>
-<div id="ref-Shaw_1942" class="csl-entry">
-Shaw, Clifford Robe, and Henry Donald McKay. 1942. <span>“Juvenile Delinquency and Urban Areas.”</span>
-</div>
-<div id="ref-Solymosi_2021" class="csl-entry">
-Solymosi, Reka. n.d. <span>“Minimizing Misrepresentation in Spatial Data Visualizations.”</span> <a href="https://www.doi.org/10.4135/9781529774047">https://www.doi.org/10.4135/9781529774047</a>.
-</div>
-<div id="ref-Haining_2020" class="csl-entry">
-Spatial, Modelling, and Spatial-Temporal Data. A Bayesian Approach. 2020. <em>Robert Haining and Guangquan Li</em>. Boca Raton, FL: CRC Press.
-</div>
-<div id="ref-Stevens_2015" class="csl-entry">
-Stevens, Joshua. 2015. <span>“Bivariate Choropleth Maps: A How-to Guide.”</span> Blog. NASA’s Earth Observatory. <a href="https://www.joshuastevens.net/cartography/make-a-bivariate-choropleth-map/">https://www.joshuastevens.net/cartography/make-a-bivariate-choropleth-map/</a>.
-</div>
-<div id="ref-Tanimura_2006" class="csl-entry">
-Tanimura, Susumu, Chusi Kuroiwa, and Tsutomu Mizota. 2006. <span>“Propotional Symbol Mapping in r.”</span> <em>Journal of Statistical Software</em> 15 (5): 1–7.
-</div>
-<div id="ref-Tobler_2004" class="csl-entry">
-Tobler, Waldo. 2004. <span>“Thirty Five Years of Computer Cartograms.”</span> <em>ANNALS of the Association of American Geographers</em> 94 (1): 58–73.
-</div>
-<div id="ref-Tufte_2001" class="csl-entry">
-Tufte, Edward. 2001. <span>“The Visual Display of Quantitative Information.”</span> Cheshire: Graphic Press.–2001.–213 p.
-</div>
-<div id="ref-Tukey_1979" class="csl-entry">
-Tukey, John. 1979. <span>“Statistical Mapping: What Should Not Be Plotted.”</span> In <em>Proceedings of the 1976 Workshop on Automated Cartography and Epidemiology</em>, edited by DHEW, 18–21. Washington, DC: US Department of Health, Education,; Welfare.
-</div>
-<div id="ref-Waller_2004" class="csl-entry">
-Waller, HLance, and Carol Gotway. 2004. <em>Applied Spatial Statistics for Public Health Data</em>. Chichester, UK: John Wiley; Sons.
-</div>
-<div id="ref-Wickham_2010" class="csl-entry">
-Wickham, Hadley. 2010. <span>“A Layered Grammar of Graphics.”</span> <em>Journal of Computational and Graphical Statistics</em> 19 (1): 3–28.
-</div>
-<div id="ref-Wickham_2017" class="csl-entry">
-Wickham, Hadley, and Garrett Grolemund. 2017. <em>R for Data Science: Import, Tidy, Transform, Visualize, and Model Data</em>. Boston, MA: O´Reilly.
-</div>
-<div id="ref-Yutani_2018" class="csl-entry">
-Yutani, Hiroaki. n.d. <a href="https://yutani.rbind.io/post/geom-sf-text-and-geom-sf-label-are-coming/">https://yutani.rbind.io/post/geom-sf-text-and-geom-sf-label-are-coming/</a>.
-</div>
-</div>
 </div>
 </div>
             </section>
@@ -1176,8 +975,8 @@ Yutani, Hiroaki. n.d. <a href="https://yutani.rbind.io/post/geom-sf-text-and-geo
           </div>
         </div>
       </div>
-<a href="variations-of-thematic-mapping.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-
+<a href="variations-of-thematic-mapping.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="time-matters.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
