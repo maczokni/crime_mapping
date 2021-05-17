@@ -146,7 +146,7 @@ The maps above and the ones we introduced in chapter 6 produced through kernel d
 
 In crime analysis is common to use a technique developed by Arthur Getis and JK Ord in the early 1990s (@Getis_1992 and @Ord_1995), partly because it was implemented in the widely successful ArcGIS as part of their hot spot analysis tool. This statistic provides a measure of spatial dependence at the local level. They are not testing homogeneity, they are testing dependence of a given attribute around neighbouring areas (which could be operationalised as micro cells in a grid, as above, or could be some form of administrative areas). 
 
-Whereas the tests we covered in the previous chapter measure dependence at the global level (whereas areas are surrounded by alike areas), these measures of local clustering try to identify pockets of dependence. They are also called local indicators of spatial autocorrelation.
+Whereas the tests we covered in the previous chapter measure dependence at the global level (whereas areas are surrounded by alike areas), these measures of local clustering try to identify pockets of dependence. They are also called local indicators of spatial autocorrelation. It is indeed useful for us to be able to assess quantitatively whether crime events cluster in a non-random manner. in the words of Jerry @Ratcliffe_2010, however, "while a global Moran’s I test can show that crime events cluster in a non-random manner, this simply explains what most criminal justice students learn in their earliest classes." (p. 13). For a crime analyst and practitioner, whereas clustering is of interest, learning about the existence and location of local clusters is of paramount importance.
 
 There are two variants of the local Getis-Ord statistic. The local $G$ is computed a ratio of the weighted average of the values of the attribute of interest in the neighboring locations, not including the value at the location. It is generally used for spread and diffusion studies. The local $G^*$ includes the value at the location in both numerator and denominator. It is more generally used for clustering studies. High positive values indicate the possibility of a local cluster of high values of the variable being analysed ("hot spot"), very low relative values a similar cluster of low values ("cold spot"). "A value larger than the mean (or, a positive value for a standardized z-value) suggests a High-High cluster or hot spot, a value smaller than the mean (or, negative for a z-value) indicates a Low-Low cluster or cold spot." (@Anselin_2020a) 
 
@@ -169,6 +169,14 @@ weighted_neighbors <- nb2listw(include.self(neighbors), zero.policy=T)
 
 ```
 
+We could quickly check if there is global clustering running a Moran´s test.
+
+```{r}
+moran.mc(getisgrid$layer, 
+         weighted_neighbors, 
+         nsim=99)
+```
+ww
 Now that we have the data ready we can, analytically, compute the statistic using the `localG()` function. We can then add the computed local $Gi^*$ to each cell.
 
 ```{r, message=FALSE, warning=FALSe}
@@ -233,7 +241,7 @@ tmap_arrange(map1, map2, nrow=1)
 
 ## Local spatial autocorrelation with lattice data
 
-It is indeed useful for us to be able to assess quantitatively whether crime events cluster in a non-random manner. in the words of Jerry @Ratcliffe_2010, however, "while a global Moran’s I test can show that crime events cluster in a non-random manner, this simply explains what most criminal justice students learn in their earliest classes." (p. 13). For a crime analyst and practitioner, whereas clustering is of interest, learning about the existence and location of local clusters is of paramount importance.
+
 
 In this section we will learn about local indicators of spatial association (LISA) and show how they allow for the decomposition of global indicators, such as Moran's I, into the contribution of each observation. The LISA statistics serve two purposes. On one hand, they may be interpreted as indicators of local pockets of nonstationarity, or hot spots. On the other hand, they may be used to assess the influence of individual locations on the magnitude of the global statistic and to identify “outliers” (@Anselin_1995). @Anselin_1995 suggests that any LISA satisfies two requirements (p. 94:
 "-a) the LISA for each observation gives an indication of the extent of significant spatial clustering of similar values around that observation;
