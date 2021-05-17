@@ -119,6 +119,7 @@ burglary_raster_cc <- rasterize(cc_burglary,
 plot(burglary_raster_cc)
 plot(st_geometry(city_centre), border='#00000040', add=T)
 ```
+
 We don´t have in this raster object incidents outside the boundaries of the neighborhoud, so we could prefer to declare those cells as NAs. We can do that with the `raster::mask()` function.
 
 ```{r}
@@ -139,7 +140,96 @@ mapview(burglary_raster_cc,
         col.regions = my.palette)
 ```
 
+## Local Getis-Ord
 
+The maps above and the ones we introduced in chapter 6 produced through kernel density estimation are helpful for visualising the varying intensity of crime across the study region of interest. However, as we noted in Chapter 6, it may be hard to discern random variation from clustering of crime incidents simply using these techniques. There are a number of statistical tools that have been developed to extract the signal from the noise, to determine what is hot from random variation, and that were originally designed to detect clusters of disease.
+
+In crime analysis is common to use a technique developed by Arthur Getis and JK Ord in the early 1990s (@Getis_1992 and @Ord_1995), partly because it was implemented in the widely successful ArcGIS as part of their hot spot analysis tool. This statistic provides a measure of spatial dependence at the local level. They are not testing homogeneity, they are testing dependence of a given attribute around neighbouring areas (which could be operationalised as micro cells in a grid, as above, or could be some form of administrative areas). 
+
+Whereas the tests we covered in the previous chapter measure dependence at the global level (whereas areas are surrounded by alike areas), these measures of local clustering try to identify pockets of dependence. They are also called local indicators of spatial autocorrelation.
+
+There are two variants of the local Getis-Ord statistic. The local $G$ is computed a ratio of the weighted average of the values of the attribute of interest in the neighboring locations, not including the value at the location. It is generally used for spread and diffusion studies. The local $G^*$ includes the value at the location in both numerator and denominator. It is more generally used for clustering studies. High positive values indicate the possibility of a local cluster of high values of the variable being analysed ("hot spot"), very low relative values a similar cluster of low values ("cold spot"). "A value larger than the mean (or, a positive value for a standardized z-value) suggests a High-High cluster or hot spot, a value smaller than the mean (or, negative for a z-value) indicates a Low-Low cluster or cold spot." (@Anselin_2020a) 
+
+For statistical inference, a Bonferroni-type test is suggested in the the papers by Getis and Ord, where tables of critical values are included. The critical values for the 95th percentile under the assumptions discussed by @Ord_1995 are for $n$=30: 2.93, $n$=50: 3.08, $n$=100: 3.29, $n$=500: 3.71, and for $n$=1000: 3.89. @Anselin_2020a suggest that this analytical approximation may not be reliable in practice and that conditional permutation is advisable. Inference with these local measures are also complicated by problems of multiple comparisons, so it is typically advisable to use some form of adjustment to this problem.
+
+The first step in computing the Getis and Ord statistics involves defining the neighbours of each area. And to do that first we have to turn each cell in our grid into a polygon, so we basically move from the raster to the vector model by virtue of using `raster::rasterToPolygons`. 
+
+```{r}
+# Move to vector model
+getisgrid <-  rasterToPolygons(burglary_raster_cc)
+
+```
+
+What is a neighbour and the code related to defining neighbours is a topic we covered in the previous chapter. For brevity, we will only use the Queen criteria for this illustration. Only to indicate that `include.self()` ensures we get the $G^*$ variation of the local Getis-Ord test, the second variation we mentioned above.
+
+```{r}
+neighbors <-  poly2nb(getisgrid)
+weighted_neighbors <- nb2listw(include.self(neighbors), zero.policy=T)
+
+
+```
+
+Now that we have the data ready we can, analytically, compute the statistic using the `localG()` function. We can then add the computed local $Gi^*$ to each cell.
+
+```{r, message=FALSE, warning=FALSe}
+
+# Perform the local G analysis (Getis-Ord GI*)
+getisgrid$HOTSPOT_z <- as.vector(localG(getisgrid$layer, weighted_neighbors))
+
+
+```
+
+We can then see the produced z scores:
+
+```{r}
+summary(getisgrid$HOTSPOT_z)
+
+```
+
+How do you interpret these? They are z scores. So you expect large absolute values to index the existence of cold spots (if they are negative) or hot spots (if they are positive). Our sample size is 475 cells and there are only a very small handful of cells with values that reach the critical value in our dataset.
+
+A known problem with this statistic is that of multiple comparisons. As noted by @Pebesma_2021: "although the apparent detection of hotspots from values of local indicators has been quite widely adopted, it remains fraught with difficulty because adjustment of the inferential basis to accommodate multiple comparisons is not often chosen." So we need to ensure the critical values we use adjust for this. We can use `stats::p.adjust()` to count the number of observations that this statistic identifies as hot spots using different solutions for the multiple comparison problem, such as Bonferroni, False Discovery Rate, or the method developed by Benjamini and Yekutielli (BY).
+
+```{r}
+p_values <- 2 * pnorm(abs(c(getisgrid$HOTSPOT_z)), lower.tail = FALSE)
+p_values_mc <- cbind(p_values, 
+              p.adjust(p_values, "bonferroni"), 
+              p.adjust(p_values, "fdr"), 
+              p.adjust(p_values, "BY"))
+colnames(p_values_mc) <- c("None", "Bonferroni", 
+                           "False Discovery Rate", "BY (2001)")
+apply(p_values_mc, 2, function(x) sum(x < 0.05))
+```
+
+We can now plot this significant clusters in the map. First we will do some recoding to identify these cells in the spatial polygon object.
+
+```{r}
+# Creates p values for Bonferroni adjustment
+getisgrid$HOTSPOT_bonf <- p.adjust(p_values, "bonferroni")
+# Create character vector based on Z score and p values (since this is a spatial polygon tidier functions such as mutate won´t do the job and have to use base R)
+getisgrid$HOTSPOT <- "Not significant"
+getisgrid$HOTSPOT[getisgrid$HOTSPOT_bonf < 0.05 & getisgrid$HOTSPOT_z > 0] <- "Hot spot"
+getisgrid$HOTSPOT[getisgrid$HOTSPOT_bonf < 0.05 & getisgrid$HOTSPOT_z < 0] <- "Cold spot"
+table(getisgrid$HOTSPOT)
+
+```
+
+We can now map these values.
+
+```{r, message=FALSE, warning=FALSE}
+tmap_mode("view")
+map1 <- tm_shape(st_as_sf(getisgrid)) + 
+  tm_fill(c("HOTSPOT_z"), 
+          title="Z scores",
+          alpha = 0.5)
+map2 <- tm_shape(st_as_sf(getisgrid)) +
+  tm_fill(c("HOTSPOT"), 
+          title="Hot spots",
+          alpha = 0.5)
+tmap_arrange(map1, map2, nrow=1)
+
+
+```
 
 ## Local spatial autocorrelation with lattice data
 
@@ -336,92 +426,6 @@ So how do we interpret these results? Well keep in mind:
 
 So essentially this map now tells us that there was statistically significant moderate clustering in burglaries in Manchester. If you were familiar with the city you could see they are located around the city centre, areas of university student residencies, and some pockets of social exclusion.  When reporting your results, report at least the Moran’s I test value and the p value.  So, for this test, you should report Moran’s I = 0.32, p < .001. Including the LISA cluster map is also a great way of showing how the attribute is actually clustering.
 
-## Local Getis-Ord
-
-The maps above and the ones we introduced in chapter 6 produced through kernel density estimation are helpful for visualising the varying intensity of crime across the study region of interest. However, as we noted in Chapter 6, it may be hard to discern random variation from clustering of crime incidents simply using these techniques. There are a number of statistical tools that have been developed to extract the signal from the noise, to determine what is hot from random variation, and that were originally designed to detect clusters of disease.
-
-In crime analysis is common to use a technique developed by Arthur Getis and JK Ord in the early 1990s (@Getis_1992 and @Ord_1995), partly because it was implemented in the widely successful ArcGIS as part of their hot spot analysis tool. This statistic provides a measure of spatial dependence at the local level. They are not testing homogeneity, they are testing dependence of a given attribute around neighbouring areas (which could be operationalised as micro cells in a grid, as above, or could be some form of administrative areas). 
-
-There are two variants of the local Getis-Ord statistic. The local $G$ is computed a ratio of the weighted average of the values of the attribute of interest in the neighboring locations, not including the value at the location. It is generally used for spread and diffusion studies. The local $G^*$ includes the value at the location in both numerator and denominator. It is more generally used for clustering studies. High positive values indicate the possibility of a local cluster of high values of the variable being analysed ("hot spot"), very low relative values a similar cluster of low values ("cold spot"). "A value larger than the mean (or, a positive value for a standardized z-value) suggests a High-High cluster or hot spot, a value smaller than the mean (or, negative for a z-value) indicates a Low-Low cluster or cold spot." (@Anselin_2020a) 
-
-For statistical inference, a Bonferroni-type test is suggested in the the papers by Getis and Ord, where tables of critical values are included. The critical values for the 95th percentile under the assumptions discussed by @Ord_1995 are for $n$=30: 2.93, $n$=50: 3.08, $n$=100: 3.29, $n$=500: 3.71, and for $n$=1000: 3.89. @Anselin_2020a suggest that this analytical approximation may not be reliable in practice and that conditional permutation is advisable. Inference with these local measures are also complicated by problems of multiple comparisons, so it is typically advisable to use some form of adjustment to this problem.
-
-The first step in computing the Getis and Ord statistics involves defining the neighbours of each area. And to do that first we have to turn each cell in our grid into a polygon, so we basically move from the raster to the vector model by virtue of using `raster::rasterToPolygons`. 
-
-```{r}
-# Move to vector model
-getisgrid <-  rasterToPolygons(break_enter_raster_k)
-
-```
-
-What is a neighbour and the code related to defining neighbours is a topic we explain in much greater detail in chapter 10 when we discuss more generally related measures of dependence. For now, just take the code at face value and understand we are simply looking at each cell and establishing that immediately adjacent cells are its neighbours. Only to indicate that `include.self()` ensures we get the $G^*$ variation of the local Getis-Ord test, the second variation we mentioned above.
-
-```{r}
-neighbors <-  poly2nb(getisgrid)
-weighted_neighbors <- nb2listw(include.self(neighbors), zero.policy=T)
-
-
-```
-
-Now that we have the data ready we can, analytically, compute the statistic using the `localG()` function. We can then add the computed local $Gi^*$ to each cell.
-
-```{r, message=FALSE, warning=FALSe}
-
-# Perform the local G analysis (Getis-Ord GI*)
-getisgrid$HOTSPOT_z <- as.vector(localG(getisgrid$layer, weighted_neighbors))
-
-
-```
-
-We can then see the produced z scores:
-
-```{r}
-summary(getisgrid$HOTSPOT_z)
-
-```
-
-How do you interpret these? They are z scores. So you expect large absolute values to index the existence of cold spots (if they are negative) or hot spots (if they are positive). Our sample size is 475 cells and there are only a very small handful of cells with values that reach the critical value in our dataset.
-
-A known problem with this statistic is that of multiple comparisons. As noted by @Pebesma_2021: "although the apparent detection of hotspots from values of local indicators has been quite widely adopted, it remains fraught with difficulty because adjustment of the inferential basis to accommodate multiple comparisons is not often chosen." So we need to ensure the critical values we use adjust for this. We can use `stats::p.adjust()` to count the number of observations that this statistic identifies as hot spots using different solutions for the multiple comparison problem, such as Bonferroni, False Discovery Rate, or the method developed by Benjamini and Yekutielli (BY).
-
-```{r}
-p_values <- 2 * pnorm(abs(c(getisgrid$HOTSPOT_z)), lower.tail = FALSE)
-p_values_mc <- cbind(p_values, 
-              p.adjust(p_values, "bonferroni"), 
-              p.adjust(p_values, "fdr"), 
-              p.adjust(p_values, "BY"))
-colnames(p_values_mc) <- c("None", "Bonferroni", 
-                           "False Discovery Rate", "BY (2001)")
-apply(p_values_mc, 2, function(x) sum(x < 0.05))
-```
-
-We can now plot this significant clusters in the map. First we will do some recoding to identify these cells in the spatial polygon object.
-
-```{r}
-# Creates p values for Bonferroni adjustment
-getisgrid$HOTSPOT_bonf <- p.adjust(p_values, "bonferroni")
-# Create character vector based on Z score and p values (since this is a spatial polygon tidier functions such as mutate won´t do the job and have to use base R)
-getisgrid$HOTSPOT <- "Not significant"
-getisgrid$HOTSPOT[getisgrid$HOTSPOT_bonf < 0.05 & getisgrid$HOTSPOT_z > 0] <- "Hot spot"
-getisgrid$HOTSPOT[getisgrid$HOTSPOT_bonf < 0.05 & getisgrid$HOTSPOT_z < 0] <- "Cold spot"
-table(getisgrid$HOTSPOT)
-
-```
-
-We can now map these values.
-
-```{r}
-tmap_mode("plot")
-map1 <- tm_shape(st_as_sf(getisgrid)) + 
-  tm_fill(c("HOTSPOT_z"), 
-          title="Z scores")
-map2 <- tm_shape(st_as_sf(getisgrid)) +
-  tm_fill(c("HOTSPOT"), 
-          title="Hot spots")
-tmap_arrange(map1, map2, nrow=1)
-
-
-```
 
 ## Scan Statistics
 
