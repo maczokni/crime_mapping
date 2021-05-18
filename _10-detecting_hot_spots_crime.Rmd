@@ -169,14 +169,6 @@ weighted_neighbors <- nb2listw(include.self(neighbors), zero.policy=T)
 
 ```
 
-We could quickly check if there is global clustering running a Moran´s test.
-
-```{r}
-moran.mc(getisgrid$layer, 
-         weighted_neighbors, 
-         nsim=99)
-```
-ww
 Now that we have the data ready we can, analytically, compute the statistic using the `localG()` function. We can then add the computed local $Gi^*$ to each cell.
 
 ```{r, message=FALSE, warning=FALSe}
@@ -239,54 +231,47 @@ tmap_arrange(map1, map2, nrow=1)
 
 ```
 
-## Local spatial autocorrelation with lattice data
+## Local Moran´s I and Moran scaterplot
 
-In this section we will learn about local indicators of spatial association (LISA) and show how they allow for the decomposition of global indicators, such as Moran's I, into the contribution of each observation. The LISA statistics serve two purposes. On one hand, they may be interpreted as indicators of local pockets of nonstationarity, or hot spots. On the other hand, they may be used to assess the influence of individual locations on the magnitude of the global statistic and to identify “outliers” (@Anselin_1995). @Anselin_1995 suggests that any LISA satisfies two requirements (p. 94:
+The Local Gerdis and Ord statistic, as we noted is a type of local indicator of spatial autocorrelation. There is also a local version of Moran´s I, which allow for the  the decomposition of such as Moran's I, into the contribution of each observation. 
+
+These LISA statistics serve two purposes. On one hand, they may be interpreted as indicators of local pockets of nonstationarity, or hot spots. On the other hand, they may be used to assess the influence of individual locations on the magnitude of the global statistic and to identify “outliers” (@Anselin_1995). @Anselin_1995 suggests that any LISA satisfies two requirements (p. 94:
 "-a) the LISA for each observation gives an indication of the extent of significant spatial clustering of similar values around that observation;
 - b) the sum of LISAs for all observations is proportional to a global indicator of spatial association".
 
-### Getting Manchester data and weights 
-
-To demonstrate how to derive these local indicators of spatial correlation, let's go back to using all of Manchester, rather than just the City Centre ward. We want to have enough data to see local variation. We will use the `burglaries_per_lsoa` object that we loaded at the outset of this chapter. Now that we have the data we need to coerce it into a spatial object, as before, for it to work well with the functions we use from the `sp` package, and then generate the weight matrix. Again, what we do here is stuff we did earlier in this chapter. 
-
-```{r, warning=FALSE}
-
-#Coerce sf into sp
-burglary_m <- as(burglaries_per_lsoa, "Spatial")
-#Generate list of neighbours using the Queen criteria
-ln_m <- poly2nb(burglary_m, row.names=burglary_m$lsoa_code)
-#Generate list with weights using row standardisation
-lw_m <-  nb2listw(ln_m, style='W')
-
-```
-
-### Generating the LISA measures
-
-Let's first look at the Moran's scatterplot for our data:
+Let's first look at the Moran's scatterplot for our data. Remember from last chapter that a Moran´s scatterplot is plotting the values of the variable of interest, in this case the burglary count on each micro grid, against the spatial lagged value. For creating the Moran´s scatterplot we generally use row standardisation in the weight matrix so that the Y and the X axis are more comparable.
 
 ```{r}
-moran.plot(burglary_m$burglary, lw_m)
+nb_queen <- poly2nb(getisgrid)
+lw_queen_rs <-  nb2listw(nb_queen, style='W')
+m_plot_burglary <- moran.plot(getisgrid$layer, lw_queen_rs,
+           cex=1, 
+           pch=".", 
+           xlab="burglary count", 
+           ylab="lagged burglary count")
+
 ```
 
 Notice how the plot is split in 4 quadrants. The top right corner belongs to areas that have high level of burglary and are surrounded by other areas that have above the average level of burglary. These are **high-high** locations. The bottom left corner belongs to the **low-low areas**. These are areas with low level of burglary and surrounded by areas with below average levels of burglary. Both the high-high and low-low represent clusters. A high-high cluster is what you may refer to as a *hot spot*. And the low-low clusters represent *cold spots*. 
 
 In the opposite diagonal we have **spatial outliers**. They are not outliers in the standard statistical sense, extreme observations, they are outliers in that they are surrounded by areas that are very unlike them. So you could have *high-low spatial outliers*, areas with high levels of burglary and low levels of surrounding burglary, or *low-high spatial outliers*, areas that have themselves low levels of burglary (or whatever else we are mapping) and that are surrounded by areas with above average levels of burglary.
 
-You can also see here that the positive spatial autocorrelation is more noticeable when we focus on the whole of Manchester city, unlike what we observed when only looked at the city centre. You can check this running the global Moran's I.
+The slope of the line in the scatterplot gives you a measure of the global spatial autocorrelation. As we noted earlier, the local Moran´s I  help you to identify what are the locations that weigh more heavily in the computation of the global Moran´s I. The object generated by the `moran.plot()` function includes a measure of this influence for each location in your study area and we can plot these values if we want to geographically visualise those locations:
 
-```{r}
-moran(burglary_m$burglary, lw_m, n=length(ww$neighbours), S0=Szero(ww))
-moran_range(lw_m)
-moran.mc(burglary_m$burglary, lw_m, nsim=99999)
+```{r, warning=FALSE, message=FALSE}
+# We extract the influence measure and place it in the sp object
+getisgrid$hat <- m_plot_burglary$hat
+# Then we can plot this measure of influence
+tm_shape(getisgrid) + tm_fill("hat")
+
 ```
-
-You can see that the global Moran's is 0.32 (for a range of I between -.5 to 1.02) and that is highly significant. There is indeed global spatial autocorrelation, when we look at all of Manchester (not just city centre ward). Knowing this we can try to decompose this, figure out what is driving this global measure.
 
 To compute the local Moran we can use a function from the `spdep` package: `localmoran()`.
 
 ```{r}
-locm_bm <- localmoran(burglary_m$burglary, lw_m)
-summary(locm_bm)
+locm_burglary <- localmoran(getisgrid$layer, lw_queen_rs,
+                            alternative = "two.sided")
+summary(locm_burglary)
 ```
 
 The first column provides the summary statistic for the local moran statistic. Being local you will have one for each of the areas. The last column gives you a p value for this statistic. 
