@@ -170,7 +170,7 @@ We can see the bounding box takes the form of Greater Manchester. We can now use
 
 Besides specifying what area we want to query with our bounding box object(s) in the `opq()` function, we must also define the feature which we want returned. Features in Open Street Map are defined through 'keys' and 'values'. Keys are used to describe a broad category of features (e.g. highway, amenity), and values are more specific descriptions (e.g. cycleway, bar). These are tags which contributors to Open Street Map have defined. A useful way to explore these is by using the comprehensive Open Street Map Wiki page on map features (https://wiki.openstreetmap.org/wiki/Map_Features). 
 
-We can select what features we want using the `add_osm_feature()` function, specifying our key as 'amenity' and our value as 'bar'. We also want to specify what sort of object (what class) to get our data into, and as we are still working with spatial data, we stick to the `sf` format, for which the function is `osmdata_sf()`. Here, we specify our bounding box as the `bb_sf` object we created above [^1]. [^1]: If you use the bounding box obtained through `getbb()` one can subsequently trim down the outputs from `add_osm_feature()` using `trim_osmdata()`. For instance, we could add `trim_osmdata(bb_poly = bb_sf)` to our initial query.
+We can select what features we want using the `add_osm_feature()` function, specifying our key as 'amenity' and our value as 'bar'. We also want to specify what sort of object (what class) to get our data into, and as we are still working with spatial data, we stick to the `sf` format, for which the function is `osmdata_sf()`. Here, we specify our bounding box as the `bb_sf` object we created above. If you use the bounding box obtained through `getbb()` one can subsequently trim down the outputs from `add_osm_feature()` using `trim_osmdata()`. For instance, we could add `trim_osmdata(bb_poly = bb_sf)` to our initial query.
 
 ```{r opq}
 osm_bar_sf <- opq(bbox = bb_sf) %>%    # select bounding box
@@ -593,9 +593,14 @@ We can use `mapply()` and the `st_union()` function to draw a linestring between
 
 
 ```{r}
-dist_lines <- st_sfc(mapply(function(a,b){st_cast(st_union(a,b),"LINESTRING")}, nd_crimes$geometry, nd_crimes$nearest_bar$geometry, SIMPLIFY=FALSE))
-
-
+dist_lines <- st_sfc( # Create simple feature geometry list column
+  mapply(   # apply function to multiple objects 
+    function(a,b){              # specify function parameters
+      st_cast(st_union(a,b),"LINESTRING") # specify function
+      }, 
+    nd_crimes$geometry,  # input a for function
+    nd_crimes$nearest_bar$geometry,  # input b for function
+    SIMPLIFY=FALSE)) # don't attempt to reduce the result 
 ```
 
 We can then plot these to get an idea of what we're looking at: 
@@ -658,7 +663,9 @@ You can add a point manually:
 ```{r, cache=FALSE}
 m <- leaflet() %>%
   addTiles()  %>% 
-  addMarkers(lng=-2.230899, lat=53.464987, popup="University of Manchester")
+  addMarkers(lng=-2.230899,  # longitude
+             lat=53.464987,  # latitude
+             popup="University of Manchester") # text for popup
 m  
 ```
 
