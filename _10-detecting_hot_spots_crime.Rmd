@@ -2,17 +2,23 @@
 
 ## Introduction
 
-There has been a great interest within criminology and crime analysis in the study of local clusters of crime or hot spots. Hot spots is the term typically used within criminology and crime analysis to refer to small geographical areas with a high concentration of crime. @Weisburd_2015 argues for a law of concentration of crime that postulates that a large proportion of crime events occur at relatively few places (such as specific addresses or street blocks) within larger geographical areas such as cities. In one of the earlier contributions to this field of research, @Sherman_1989 noted how roughly 3% of all addresses in Minneapolis (USA) generated about 50% of all calls to police services. This literature also argues that many crime hot spots are relatively stable over time.
+There has been a great interest within criminology and crime analysis in the study of local clusters of crime or hot spots over the last 30 years. Hot spots is the term typically used within criminology and crime analysis to refer to small geographical areas with a high concentration of crime. @Weisburd_2015 argues for a law of concentration of crime that postulates that a large proportion of crime events occur at relatively few places (such as specific addresses, street intersections, street blocks, or other small micro places) within larger geographical areas such as cities. In one of the earlier contributions to this field of research, @Sherman_1989 noted how roughly 3% of all addresses in Minneapolis (USA) generated about 50% of all calls to police services. A number of subsequent studies have confirmed this pattern elsewhere. @Steenbeek_2016 argue that, in fact, most of the variability of (58% to 69% in their data from The Hague) can be attributed to micro geographic units, with a very limited contribution from the neighbourhood level. This literature also argues that many crime hot spots are relatively stable over time (@Andresen_2011b; @Andresen_2017; @Andresen_2017b).
 
-There is also now a considerable body of research evaluating police interventions that take this insight as key to shape their responses to crime. Hot spots policing , or place based policing, assumes that police can reduce crime by focusing their resources on the small number of places that generate a majority of crime problems. Policing crime hot spots has become a popular strategy in the US and efforts to adopt this approach have also taken place elsewhere. Theoretically one could use all sort of proactive creative approaches to solve crime in these locations (using for example conceptual and tactical tools from @Goldstein_1990 problem oriented policing approach), though too often in practice directed patrol becomes the default response. Recent reviews of the literature (dominated by US experiences) suggest the approach can have a small effect size (@Braga_2019), though some authors contend alternative measures of effect size (which are suggestive of a moderate effect) should be used instead (@Braga_2020).
+There is also now a considerable body of research evaluating police interventions that take this insight as key to shape their responses to crime. Hot spots policing , or place based policing, assumes that police can reduce crime by focusing their resources on the small number of places that generate a majority of crime problems. Policing crime hot spots has become a popular strategy in the US and efforts to adopt this approach have also taken place elsewhere. Theoretically one could use all sort of proactive creative approaches to solve crime in these locations (using for example conceptual and tactical tools from @Goldstein_1990 problem oriented policing approach), though too often in practice directed patrol becomes the default response. Recent reviews of the literature (dominated by US experiences) suggest the approach can have a small effect size (@Braga_2019), though some authors contend alternative measures of effect size (which are suggestive of a moderate effect) should be used instead (@Braga_2020). Whether these findings would replicate well in other contexts is still an open question (see, for example, @Collazos_2020)
 
 In the previous chapter we explored ways to visualise the concentration of crime incidents in particular location. We used tesselation and kernel density estimation as a way to do this. As noted by @Chainey_2020:
 
 >"Hot spot maps generated using KDE are useful for showing where crime concentrates but may fail to determine unambiguosly what is hot (in hot spot analysis terms) from what is not hot. That is, a KDE hot spot map may fail to separate the significant spatial concentrations of crime from those spatial distributions of less interest, or from random variation"
 
-There are a number of tools that have been developed to detect local clusters. In crime analysis is common the use of the local $Gi^*$ statistic. Whereas in spatial epidemiology a number of techniques have been developed for detecting areas with an unusually high risk of disease. Although originally developed in the context of studying disease, the techniques can also be applied to the study of crime. Most of the methods in spatial epidemiology are based on the idea of "moving windows", such as the spatial scan statistic developed by @Kulldorff_1997. Several packages bring this scan statistics to R. There are also other packages that use different algorithms to detect disease clusters, such as AMOEBA, that is based in the Getis-Ord algorithm. As we will see we are spoiled for choice in this regard.
+There are a number of tools that have been developed to detect local clusters. In crime analysis, for example, is common the use of the local $Gi^*$ statistic, which is a type of a **local indicator of spatial autocorrelation**. Another popular LISA is the local Moran´s $I$. 
 
-In crime analysis is also relevant the study of near repeat victimisation. bla bla bla...
+These LISA statistics serve two purposes. On one hand, they may be interpreted as indicators of local pockets of nonstationarity, or hot spots. On the other hand, they may be used to assess the influence of individual locations on the magnitude of the global statistic and to identify “outliers” (@Anselin_1995). @Anselin_1995 suggests that any LISA satisfies two requirements (p. 94:
+"-a) the LISA for each observation gives an indication of the extent of significant spatial clustering of similar values around that observation;
+- b) the sum of LISAs for all observations is proportional to a global indicator of spatial association".
+
+Whereas in spatial epidemiology a number of techniques have been developed for detecting areas with an unusually high risk of disease. Although originally developed in the context of studying disease, the techniques can also be applied to the study of crime. Most of the methods in spatial epidemiology are based on the idea of "moving windows", such as the spatial scan statistic developed by @Kulldorff_1997. Several packages bring this scan statistics to R. There are also other packages that use different algorithms to detect disease clusters, such as AMOEBA, that is based in the Getis-Ord algorithm. As we will see we are spoiled for choice in this regard.
+
+[[[In crime analysis is also relevant the study of near repeat victimisation. bla bla bla...]]]
 
 For this section we will need the following packages:
 
@@ -145,9 +151,9 @@ The maps above and the ones we introduced in chapter 6 produced through kernel d
 
 In crime analysis is common to use a technique developed by Arthur Getis and JK Ord in the early 1990s (@Getis_1992 and @Ord_1995), partly because it was implemented in the widely successful ArcGIS as part of their hot spot analysis tool. This statistic provides a measure of spatial dependence at the local level. They are not testing homogeneity, they are testing dependence of a given attribute around neighbouring areas (which could be operationalised as micro cells in a grid, as above, or could be some form of administrative areas). 
 
-Whereas the tests we covered in the previous chapter measure dependence at the global level (whereas areas are surrounded by alike areas), these measures of local clustering try to identify pockets of dependence. They are also called local indicators of spatial autocorrelation. It is indeed useful for us to be able to assess quantitatively whether crime events cluster in a non-random manner. in the words of Jerry @Ratcliffe_2010, however, "while a global Moran’s I test can show that crime events cluster in a non-random manner, this simply explains what most criminal justice students learn in their earliest classes." (p. 13). For a crime analyst and practitioner, whereas clustering is of interest, learning about the existence and location of local clusters is of paramount importance.
+Whereas the tests we covered in the previous chapter measure dependence at the global level (whereas areas are surrounded by alike areas), these measures of local clustering try to identify pockets of dependence. They are also called **local indicators of spatial autocorrelation**. It is indeed useful for us to be able to assess quantitatively whether crime events cluster in a non-random manner. in the words of Jerry @Ratcliffe_2010, however, "while a global Moran’s I test can show that crime events cluster in a non-random manner, this simply explains what most criminal justice students learn in their earliest classes." (p. 13). For a crime analyst and practitioner, whereas clustering is of interest, learning about the existence and location of local clusters is of paramount importance.
 
-There are two variants of the local Getis-Ord statistic. The local $G$ is computed a ratio of the weighted average of the values of the attribute of interest in the neighboring locations, not including the value at the location. It is generally used for spread and diffusion studies. The local $G^*$ includes the value at the location in both numerator and denominator. It is more generally used for clustering studies. High positive values indicate the possibility of a local cluster of high values of the variable being analysed ("hot spot"), very low relative values a similar cluster of low values ("cold spot"). "A value larger than the mean (or, a positive value for a standardized z-value) suggests a High-High cluster or hot spot, a value smaller than the mean (or, negative for a z-value) indicates a Low-Low cluster or cold spot." (@Anselin_2020a) 
+There are two variants of the local Getis-Ord statistic. The local $G$ is computed as a ratio of the weighted average of the values of the attribute of interest in the neighboring locations, not including the value at the location. It is generally used for spread and diffusion studies. The local $G^*$,on the other hand, includes the value at the location in both numerator and denominator. It is more generally used for clustering studies. High positive values indicate the possibility of a local cluster of high values of the variable being analysed ("hot spot"), very low relative values a similar cluster of low values ("cold spot"). "A value larger than the mean (or, a positive value for a standardized z-value) suggests a High-High cluster or hot spot, a value smaller than the mean (or, negative for a z-value) indicates a Low-Low cluster or cold spot." (@Anselin_2020a) 
 
 For statistical inference, a Bonferroni-type test is suggested in the the papers by Getis and Ord, where tables of critical values are included. The critical values for the 95th percentile under the assumptions discussed by @Ord_1995 are for $n$=30: 2.93, $n$=50: 3.08, $n$=100: 3.29, $n$=500: 3.71, and for $n$=1000: 3.89. @Anselin_2020a suggest that this analytical approximation may not be reliable in practice and that conditional permutation is advisable. Inference with these local measures are also complicated by problems of multiple comparisons, so it is typically advisable to use some form of adjustment to this problem.
 
@@ -187,7 +193,7 @@ summary(getisgrid$HOTSPOT_z)
 
 How do you interpret these? They are z scores. So you expect large absolute values to index the existence of cold spots (if they are negative) or hot spots (if they are positive). Our sample size is 475 cells and there are only a very small handful of cells with values that reach the critical value in our dataset.
 
-A known problem with this statistic is that of multiple comparisons. As noted by @Pebesma_2021: "although the apparent detection of hotspots from values of local indicators has been quite widely adopted, it remains fraught with difficulty because adjustment of the inferential basis to accommodate multiple comparisons is not often chosen." So we need to ensure the critical values we use adjust for this. We can use `stats::p.adjust()` to count the number of observations that this statistic identifies as hot spots using different solutions for the multiple comparison problem, such as Bonferroni, False Discovery Rate, or the method developed by Benjamini and Yekutielli (BY).
+A known problem with this statistic is that of multiple comparisons. As noted by @Pebesma_2021: "although the apparent detection of hotspots from values of local indicators has been quite widely adopted, it remains fraught with difficulty because adjustment of the inferential basis to accommodate multiple comparisons is not often chosen." So we need to ensure the critical values we use adjust for this. We can use `stats::p.adjust()` to count the number of observations that this statistic identifies as hot spots using different solutions for the multiple comparison problem, such as Bonferroni, False Discovery Rate (`fdr`), or the method developed by Benjamini and Yekutielli (`BY`).
 
 ```{r}
 p_values <- 2 * pnorm(abs(c(getisgrid$HOTSPOT_z)), lower.tail = FALSE)
@@ -200,7 +206,7 @@ colnames(p_values_mc) <- c("None", "Bonferroni",
 apply(p_values_mc, 2, function(x) sum(x < 0.05))
 ```
 
-We can now plot this significant clusters in the map. First we will do some recoding to identify these cells in the spatial polygon object.
+We can now plot this significant clusters in the map. We will just take the areas identified as significant clusters with the Bonferroni adjustment. First we will do some recoding to identify these cells in the spatial polygon object.
 
 ```{r}
 # Creates p values for Bonferroni adjustment
@@ -230,13 +236,11 @@ tmap_arrange(map1, map2, nrow=1)
 
 ```
 
+We can see here that not all the micro grid cells with an elevated count of burglaries exhibit significant local dependence. There are only two clusters of burglaries where we see positive spatial dependence. One is located north of Picadilly Gardens in the Northern Quarter of Manchester (an area of trendy bars and shops, and significant gentrification, in proximity to a methadone delivery centre) and the Deansgate area of the city centre (one of the main commercial hubs of the city not far from the criminal courts).
+
 ## Local Moran´s I and Moran scaterplot
 
 The Local Gerdis and Ord statistic, as we noted is a type of local indicator of spatial autocorrelation. There is also a local version of Moran´s I, which allow for the  the decomposition of such as Moran's I, into the contribution of each observation. 
-
-These LISA statistics serve two purposes. On one hand, they may be interpreted as indicators of local pockets of nonstationarity, or hot spots. On the other hand, they may be used to assess the influence of individual locations on the magnitude of the global statistic and to identify “outliers” (@Anselin_1995). @Anselin_1995 suggests that any LISA satisfies two requirements (p. 94:
-"-a) the LISA for each observation gives an indication of the extent of significant spatial clustering of similar values around that observation;
-- b) the sum of LISAs for all observations is proportional to a global indicator of spatial association".
 
 Let's first look at the Moran's scatterplot for our data. Remember from last chapter that a Moran´s scatterplot is plotting the values of the variable of interest, in this case the burglary count on each micro grid, against the spatial lagged value. For creating the Moran´s scatterplot we generally use row standardisation in the weight matrix so that the Y and the X axis are more comparable.
 
@@ -255,7 +259,7 @@ Notice how the plot is split in 4 quadrants. The top right corner belongs to are
 
 In the opposite diagonal we have **spatial outliers**. They are not outliers in the standard statistical sense, extreme observations, they are outliers in that they are surrounded by areas that are very unlike them. So you could have *high-low spatial outliers*, areas with high levels of burglary and low levels of surrounding burglary, or *low-high spatial outliers*, areas that have themselves low levels of burglary (or whatever else we are mapping) and that are surrounded by areas with above average levels of burglary.
 
-The slope of the line in the scatterplot gives you a measure of the global spatial autocorrelation. As we noted earlier, the local Moran´s I  help you to identify what are the locations that weigh more heavily in the computation of the global Moran´s I. The object generated by the `moran.plot()` function includes a measure of this influence for each location in your study area and we can plot these values if we want to geographically visualise those locations:
+The slope of the line in the scatterplot gives you a measure of the global spatial autocorrelation. As we noted earlier, the local Moran´s I  help you to identify what are the locations that weigh more heavily in the computation of the global Moran´s I. The object generated by the `moran.plot()` function includes a measure of this influence, a hat value, for each location in your study area and we can plot these values if we want to geographically visualise those locations:
 
 ```{r, warning=FALSE, message=FALSE}
 # We extract the influence measure and place it in the sp object
@@ -270,10 +274,9 @@ To compute the local Moran we can use a function from the `spdep` package: `loca
 ```{r}
 locm_burglary <- localmoran(getisgrid$layer, lw_queen_rs,
                             alternative = "two.sided")
-summary(locm_burglary)
 ```
 
-The first column provides the summary statistic for the local moran statistic. Being local you will have one for each of the areas. The last column gives you a p value for this statistic. 
+
 
 ### Creating a LISA map
 
