@@ -10,11 +10,13 @@ In the previous chapter we explored ways to visualise the concentration of crime
 
 >"Hot spot maps generated using KDE are useful for showing where crime concentrates but may fail to determine unambiguosly what is hot (in hot spot analysis terms) from what is not hot. That is, a KDE hot spot map may fail to separate the significant spatial concentrations of crime from those spatial distributions of less interest, or from random variation"
 
-There are a number of tools that have been developed to detect local clusters. In crime analysis, for example, is common the use of the local $Gi^*$ statistic, which is a type of a **local indicator of spatial autocorrelation**. Another popular LISA is the local Moran´s $I$. 
+There are a number of tools that have been developed to detect local clusters. In crime analysis, for example, is common the use of the local $Gi^*$ statistic, which is a type of a **local indicator of spatial autocorrelation**. Another popular LISA is the local Moran´s $I$, developed by @Anselin_1995. 
 
 These LISA statistics serve two purposes. On one hand, they may be interpreted as indicators of local pockets of nonstationarity, or hot spots. On the other hand, they may be used to assess the influence of individual locations on the magnitude of the global statistic and to identify “outliers” (@Anselin_1995). @Anselin_1995 suggests that any LISA satisfies two requirements (p. 94:
 "-a) the LISA for each observation gives an indication of the extent of significant spatial clustering of similar values around that observation;
 - b) the sum of LISAs for all observations is proportional to a global indicator of spatial association".
+
+These measures of local spatial dependence are available in tools often used by crime analysts (CrimeStat, GeoDa, ArcGIS, and also R). But it is important to realise that there are some subtle differences in implementation that reflect design decisions by the programmers. These differences in design may result on apparent differences in numerical findings generated with these different programs. @Bivand_2018 offers an excellent thorough review of these different implementations. Our focus here will be in introducing the functionality of the `spdep` and `rgeoda` packages.
 
 Whereas in spatial epidemiology a number of techniques have been developed for detecting areas with an unusually high risk of disease. Although originally developed in the context of studying disease, the techniques can also be applied to the study of crime. Most of the methods in spatial epidemiology are based on the idea of "moving windows", such as the spatial scan statistic developed by @Kulldorff_1997. Several packages bring this scan statistics to R. There are also other packages that use different algorithms to detect disease clusters, such as AMOEBA, that is based in the Getis-Ord algorithm. As we will see we are spoiled for choice in this regard.
 
@@ -275,8 +277,21 @@ To compute the local Moran we can use a function from the `spdep` package: `loca
 locm_burglary <- localmoran(getisgrid$layer, lw_queen_rs,
                             alternative = "two.sided")
 ```
+As with the local $G*$ it is necessary to adjust for multiple comparisons. The unadjusted p vale for the test is stored in the fith column of the object of class `localmoran` that we generated with the `localmoran` function. As before we can extract this element and pass it as an argument to the `p.adjust()` function in order to obtain p values with some method of adjustment for the probem of multiple comparisons.
 
+```{r}
+p_values_lm <- locm_burglary[,5]
+sum(p_values_lm < 0.05)
 
+```
+If we do not adjust for multiple comparisons, then, there would be 33 areas with a significant p value.
+
+```{r}
+bonferroni_lm <- p.adjust(p_values_lm, "bonferroni")
+sum(bonferroni_lm < 0.05)
+```
+
+These get reduced to 11 once we apply the Bonferroni correction.
 
 ### Creating a LISA map
 
