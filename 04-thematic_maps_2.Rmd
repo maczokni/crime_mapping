@@ -324,7 +324,7 @@ ggplot() +
 ```
 
 
-We can see that in smaller LAs we don't even really see the result, as the boundary lines pretty much cover everything. Hmm. In this case, we cannot really see what was happening with the EU referendum in London. This is where augmenting our polygons may be handy. Cartograms offer one way to achieve this. 
+The Local Authorities vary greatly in their shape and size, and in the case of smaller LAs the result is barely visible. In this case, we cannot really see what was happening with the EU referendum in London, for example. This is the sort of situationwhere augmenting our polygons may be handy. Cartograms offer one way to achieve this. 
 
 There are different types of cartograms. **Density-equalizing (contiguous) cartograms** are your traditional cartograms. In density-equalizing cartograms, map features bulge out a specific variable. Even though it distorts each feature, it remains connected during its creation. On the other hand, you can have **Non-Contiguous Cartograms**, where features in non-contiguous cartograms don’t have to stay connected. Finally, **Dorling Cartograms** (named after professor [Danny Dorling](https://www.geog.ox.ac.uk/staff/ddorling.html)) use shapes like circles and rectangles to depict area. These types of cartograms make it easy to recognize patterns. 
 
@@ -339,11 +339,11 @@ eu_cartogram <- cartogram(eu_sf, "Electorate")
 ```
 
 
-If you run this, it might take a long time. This function, while it looks nice and simple, is actually very computationally taxing for your computer. For those interested, you may like to take the time while R works this out for you to read up on the maths behind this transformation in @Dougenik_1985. 
+If you run this, it might take a long time. This function, while it looks nice and simple, is actually very computationally taxing for your computer. For those interested, you may like to take the time while R works this out for you to read up on the maths behind this transformation in @Dougenik_1985 (it's got a fun name: a rubber sheet distortion algorithm!). 
 
 I do have a tip for you if you want to make sure the process does not take too long. You can set another parameter in the cartogram function which is the `itermax=` parameter. This specifies the maximum number of iterations we are happy to sit through for our cartogram. If you do not specify it's set to 15. Let's set to 5 for the sake of speed: 
 
-```{r}
+```{r, message=FALSE}
 
 # construct a cartogram using the percentage voting leave
 eu_cartogram <- cartogram_cont(eu_sf, "Electorate", itermax = 5)
@@ -358,11 +358,11 @@ ggplot() +
   theme_void()
 ```
 
-We can now see London much better, and see that darker coloured cluster where much smaller percentage of people voted leave. 
+We can now see London much better, and see that darker coloured cluster where much smaller percentage of people voted leave. We can eye-ball where London may be, as this continuous area cartogram tries to maintain some fidelity to our original shapes, while weighting them by some variable of interest, in our case the electorate in each Local Authority.
 
 ### Dorling Cartogram
 
-I mentioned there are many types of cartogram. The one we created above tries to maintain some fidelity to our original shapes, while weighting them by some variable of interest, in our case the electorate in each Local Authority. However sometimes this may not be important. In that case, you might be interested in creating a **Dorling cartogram**. 
+While the continuous area cartogram we created above tries to maintain some fidelity to our original shapes, other approaches take more freedom when applyign transformations. Sometimes, maintaining a resemblance to the original geometry of each polygon may not be important. In that case, you might be interested in creating a **Dorling cartogram**. 
 
 ```{r}
 
@@ -404,11 +404,11 @@ So first, let's create the breaks first for the `Pct_Leave` variable.
 ```{r}
 
 leave_breaks <- quantile(eu_sf$Pct_Leave, 
-                         probs = seq(0,1, by = 1/3), # vector of probabilities
-                         na.rm=TRUE, # remove NAs before computing quantiles
-                         names=TRUE, # result will have names attribute
+                         probs = seq(0,1, by = 1/3), # probabilities
+                         na.rm=TRUE, # remove NAs 
+                         names=TRUE, # keep names attribute
                          include.lowest=TRUE) # include value equal to 
-                                              # the lowest ‘breaks’ value 
+                                              # lowest ‘breaks’ value 
 ```
 
 
@@ -439,8 +439,10 @@ The results are the cutoff values which we want to use to "cut" our numeric vari
 ```{r}
 
 eu_sf <- eu_sf %>% 
-  mutate(leave_quantiles = cut(Pct_Leave, breaks = leave_breaks), 
-         turnout_quantiles = cut(Pct_Turnout, breaks = tunrout_breaks))
+  mutate(leave_quantiles = cut(Pct_Leave, 
+                               breaks = leave_breaks), 
+         turnout_quantiles = cut(Pct_Turnout, 
+                                 breaks = tunrout_breaks))
 
 ```
 
@@ -617,9 +619,7 @@ Now that we've shown you how to do a lot of spatial crime analysis, we wanted to
 
 I borrow here from George Renghert and Brian Lockwood: 
 
-> When spatial analysis of crime is conducted, the analyst should not ignore the spatial units that data are aggregated into and the impact of this choice on the interpretation of findings. Just as several independent variables are considered to determine whether they have statistical significance, a consideration of multiple spatial units of analysis should be made as well, in order to determine whether the choice of aggregation level used in a spatial analysis can result in biased findings.
-
-- @Rengert_2009
+> When spatial analysis of crime is conducted, the analyst should not ignore the spatial units that data are aggregated into and the impact of this choice on the interpretation of findings. Just as several independent variables are considered to determine whether they have statistical significance, a consideration of multiple spatial units of analysis should be made as well, in order to determine whether the choice of aggregation level used in a spatial analysis can result in biased findings. @Rengert_2009
 
 
 In particular, they highlight four main issues inherent in most studies of space:
@@ -681,6 +681,6 @@ For the purposes of this course, it's enough that you know of, and understand th
 
 In this chapter we explored the use of binning points into hexbins and rectangular grids, as well as transforming polygons in order to enhanche the legibility of your maps. For some more information on binning see @Johnson_2011. For transforming polygons, read @Tobler_2004 and @Nusrat_2016. We can also suggest a read of @Langton_2018 and check out this video from SAGE methods @Solymosi_2021. 
 
-To read up more on the Modifiable Areal Unit Problem (MAUP) in general, we recommend the original @Openshaw_1981. For some criminology/ crime mapping specific reading try @Rengert_2009 and @Gerell_2017
+To read up more on the Modifiable Areal Unit Problem (MAUP) in general, we recommend the original @Openshaw_1981. For some criminology/ crime mapping specific reading try @Rengert_2009 and @Gerell_2017. 
 
 

@@ -143,7 +143,7 @@
 
 \title{Crime Mapping and Spatial Data Analysis using R}
 \author{Juanjo Medina and Reka Solymosi}
-\date{2021-05-17}
+\date{2021-05-19}
 
 \begin{document}
 \maketitle
@@ -164,7 +164,7 @@ Given the source material, this book may be used as a companion text for similar
 
 Crime mapping and analysis sits at the intersection of geocomputation, data visualisation and cartography, spatial statistics, environmental criminology, and crime analysis. In this book, environmental criminology, that focus on the analysis of the spatial and geographical distribution of crime, provides the substantive background.
 
-This text cannot make justice to each of these bodies of inquiry, professional practice, and literature. We cannot offer a comprehensive and systematic treatment of each of these areas. What we do is provide a, we hope helpful, introduction to R as a way to bring together these specialties and offer adequate references to our readers so that they can deepen their understanding of each of them. We also provide further resources at the end of each chapter for those who wish to delve deeper into each topic introduced.
+This text cannot make justice to each of these bodies of inquiry, professional practice, and literature. We cannot offer a comprehensive and systematic treatment of each of these areas. What we do is provide a helpful introduction to R as a way to bring together these specialties and offer adequate references to our readers so that they can deepen their understanding of each of them. For a grounding in Environmental Criminology we recommend \protect\hyperlink{ref-Bruinsma_2018}{Bruinsma and Johnson} (\protect\hyperlink{ref-Bruinsma_2018}{2018}), for debates and issues in spatial criminology/crime analysis and crime and place research we suggest \protect\hyperlink{ref-Weisburd_2008}{Weisburd, Bernasco, and Bruinsma} (\protect\hyperlink{ref-Weisburd_2008}{2008}), and for geocomputation and spatial data science \protect\hyperlink{ref-Lovelace_2019}{Lovelace, Nowosad, and Muenchow} (\protect\hyperlink{ref-Lovelace_2019}{2019}) and \protect\hyperlink{ref-DeSmith_2007}{De Smith, Goodchild, and Longley} (\protect\hyperlink{ref-DeSmith_2007}{2007}) provide great foundations. For further topics for crime analysts \protect\hyperlink{ref-Chainey_2005}{Chainey and Rattcliffe} (\protect\hyperlink{ref-Chainey_2005}{2005}) and more recently \protect\hyperlink{ref-Chainey_2021}{Chainey} (\protect\hyperlink{ref-Chainey_2021}{2021}) are excellent as well. We also provide further resources at the end of each chapter for those who wish to delve deeper into each individual topic introduced.
 
 Although all the examples we use concern the study of crime, there is fairly limited substantive criminology in the text. In fact, and despite the title, the volume could also be used, more generally, as a companion text for courses on social science spatial data analysis, since the techniques we cover are transferable to other substantive domains.
 
@@ -174,14 +174,15 @@ To follow along with the exercises we provide the data we use in a zip file. The
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\FunctionTok{download.file}\NormalTok{(}\AttributeTok{url =} \StringTok{"https://osf.io/5urxc/download"}\NormalTok{, }\AttributeTok{destfile =} \StringTok{"data.zip"}\NormalTok{)}
+\FunctionTok{download.file}\NormalTok{(}\AttributeTok{url =} \StringTok{"https://osf.io/5urxc/download"}\NormalTok{, }
+              \AttributeTok{destfile =} \StringTok{"data.zip"}\NormalTok{)}
 \FunctionTok{unzip}\NormalTok{(}\StringTok{"data.zip"}\NormalTok{, }\AttributeTok{exdir =} \StringTok{"data"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
 From then on, you can read all files in from this downloaded data directory. In our code, we use the convention that all data are stored in a \texttt{"data/"} folder within our working directory.
 
-We hope you enjoy this book and find it useful in your journey into crime mapping. The world of R and spatial analysis is ever-evolving, and we will try to stay updated. If you have ever suggestions, comments, concerns, or requestion, do not hesitate to get in touch, or raise this as an issue in our GitHub repository: \href{https://github.com/maczokni/crime_mapping}{www.github.com/maczokni/crime\_mapping}.
+We hope you enjoy this book and find it useful in your journey into crime mapping. The world of R and spatial analysis is ever-evolving, and we will try to stay updated. If you have ever suggestions, comments, concerns, or requests, do not hesitate to get in touch, or raise this as an issue in our GitHub repository: \href{https://github.com/maczokni/crime_mapping}{www.github.com/maczokni/crime\_mapping}.
 
 \hypertarget{producing-your-first-crime-map}{%
 \chapter{Producing your first crime map}\label{producing-your-first-crime-map}}
@@ -189,9 +190,9 @@ We hope you enjoy this book and find it useful in your journey into crime mappin
 \hypertarget{introduction}{%
 \section{Introduction}\label{introduction}}
 
-This chapter introduces some basic concepts and will get you started to make some maps using R. We will learn how we can take regular crime data, and assign the appropriate geometry for our chosen unit of analysis. Spatial or environmental criminology works with data that often is \textbf{discrete}. In other scientific disciplines the mapped data is continuous (e.g., temperature) across the study surface. In environmental criminology, on the other hand, we mostly work with data represented by points (e.g., locations of a crime) or counts and rates of crimes within a particular geographical unit (e.g., a neigbourhoud, a census tract, a municipality, etc). Therefore in these first few chapters we will focus on ways to work with these kind of discrete data. Firstly, we will introduce the spatial and non-spatial R packages we will use frequently throughout the book, and learn some key terms around projection and coordinate reference systems which will be essential for subsequent chapters.
+This chapter introduces some basic concepts and will get you started to make some maps using R. We will learn how we can take regular crime data, and assign the appropriate geometry for our chosen unit of analysis. Spatial or environmental criminologist most often work with data that are \textbf{discrete}. This may include data represented by points (e.g.~locations of a crime incident) or counts and rates of crimes within a particular geographical unit (e.g.~a neighbourhood, a census tract, or a municipality). In other scientific disciplines the mapped data may be \textbf{continuous} across the study surface (e.g.~temperature).
 
-As we will discover throughout the book there are multiple R packages that have been developed to visualise spatial data. We will introduce the ones we feel are more important in different parts of the book. They all have advantages and disadvantages, but many offer similar functionality. Sometimes choosing one or the other is a matter of personal preference. In this chapter we will focus on map-making with \texttt{ggplot2}, a general package for all kinds of data visualisations (not just maps) based on the theory of the grammar of graphics. If you are not new to R, you may already be familiar with this package. Our intention in this chapter is to let you to quickly produce your first map. In subsequent chapters we will further refine their look and aesthetic appeal.
+In these first few chapters we will focus on ways to work with discrete data. Firstly, we introduce the spatial and non-spatial R packages used frequently throughout the book, and cover some key terms around projection and coordinate reference systems which will be essential for subsequent chapters. As we will discover throughout the book there are multiple R packages that have been developed to visualise spatial data. They all have advantages and disadvantages, but many offer similar functionality. Sometimes choosing one or the other is a matter of personal preference. We will introduce many different approaches throughout the book, to allow readers to select their own preferences. In this chapter we will focus on map-making with \texttt{ggplot2}, a general package for data visualisation (not just maps) based on the theory of the grammar of graphics. If you are not new to R, you may already be familiar with this package. Our intention in this chapter is to introduce enough background to let you to quickly produce your first map. In subsequent chapters we will further refine their look and aesthetic appeal, and discuss the many decisions that go into producing a crime map.
 
 In this chapter we will use the following packages:
 
@@ -229,53 +230,39 @@ We can talk about a few different concepts when it comes to spatial information.
   Attributes
 \item
   Objects
+\item
+  Networks
 \end{itemize}
+
+Let's discuss each in turn now.
 
 \hypertarget{place}{%
 \subsection{Place}\label{place}}
 
-At the center of all spatial analysis is the concept of \emph{place}. People identify with places of various sizes and shapes, from the parcel of land, to the neighbourhood, to the city, the country, the state or the nation state. Places often have names, and people use these to talk about and distinguish names. Names can be official or unofficial. Places also change continually as people move. In geospatial analysis, the basis of rigorous and precise definition of place is a coordinate system. A \textbf{coordinate system} is a set of measurements that allows place to be specified unambiguously and in a way that is meaningful across different users, analysts, mappers, researchers, and more.
+At the center of all spatial analysis is the concept of \emph{place}. People identify with places of various sizes and shapes, from the parcel of land, to the neighbourhood, to the city, the country, the state or the nation state. Places often have names, and people use these to talk about and distinguish names. Names can be official or unofficial. Places also change continually as people move. In geospatial analysis, the basis of rigorous and precise definition of place is a coordinate system. A \textbf{coordinate system} is a set of measurements that allows place to be specified unambiguously and in a way that is meaningful across different users, analysts, mappers, and researchers.
 
-In Environmental Criminology, place has acquired different meanings through history. The first geographical studies of crime during the XIX century looked at variation across provinces in France \protect\hyperlink{ref-Guerry_1833}{Guerry} (\protect\hyperlink{ref-Guerry_1833}{1833}), Belgium \protect\hyperlink{ref-Quetelet_1842}{Quetelet} (\protect\hyperlink{ref-Quetelet_1842}{1842}), and England \protect\hyperlink{ref-Mayhew_1861}{Mayhew} (\protect\hyperlink{ref-Mayhew_1861}{1861}). Later on, in the first decades of the XX century, the Chicago School of Sociology focused on the study of neighbourhoods (\protect\hyperlink{ref-Park_1925}{Park and Burgess} (\protect\hyperlink{ref-Park_1925}{1925}) \protect\hyperlink{ref-Shaw_1942}{Shaw and McKay} (\protect\hyperlink{ref-Shaw_1942}{1942})). With the emergence of Environmental Criminology (\protect\hyperlink{ref-Brantingham_1982}{Brantingham and Brantingham} (\protect\hyperlink{ref-Brantingham_1982}{1982}) \protect\hyperlink{ref-Cohen_1979}{Cohen and Felson} (\protect\hyperlink{ref-Cohen_1979}{1979}) \protect\hyperlink{ref-Cornish_1986}{Cornish and Clarke} (\protect\hyperlink{ref-Cornish_1986}{1986})) a shift towards a greater interest in microplaces, such as street segments or particular addresses, can be seen \protect\hyperlink{ref-Eck_2015}{Eck and Weisburd} (\protect\hyperlink{ref-Eck_2015}{2015}). Although an interest in variation across large administrative units (as ``place'') remains within criminology, there has been a trend towards understanding place as particular locations, and focusing on risky places for crime .
+In Environmental Criminology, place has acquired different meanings through history. The first geographical studies of crime during the XIX century looked at variation across provinces in France (\protect\hyperlink{ref-Guerry_1833}{Guerry} (\protect\hyperlink{ref-Guerry_1833}{1833})), Belgium (\protect\hyperlink{ref-Quetelet_1842}{Quetelet} (\protect\hyperlink{ref-Quetelet_1842}{1842})), and England (\protect\hyperlink{ref-Mayhew_1861}{Mayhew} (\protect\hyperlink{ref-Mayhew_1861}{1861})). Later on, in the first decades of the XX century, the Chicago School of Sociology focused on the study of neighbourhoods (\protect\hyperlink{ref-Park_1925}{Park and Burgess} (\protect\hyperlink{ref-Park_1925}{1925}) , \protect\hyperlink{ref-Shaw_1942}{Shaw and McKay} (\protect\hyperlink{ref-Shaw_1942}{1942})). With the emergence of Environmental Criminology (\protect\hyperlink{ref-Brantingham_1982}{Brantingham and Brantingham} (\protect\hyperlink{ref-Brantingham_1982}{1982}), \protect\hyperlink{ref-Cohen_1979}{Cohen and Felson} (\protect\hyperlink{ref-Cohen_1979}{1979}), \protect\hyperlink{ref-Cornish_1986}{Cornish and Clarke} (\protect\hyperlink{ref-Cornish_1986}{1986})) a shift towards a greater interest in microplaces, such as street segments or particular addresses, can be seen (\protect\hyperlink{ref-Eck_2015}{Eck and Weisburd} (\protect\hyperlink{ref-Eck_2015}{2015})). Although an interest in variation across large administrative units (as ``place'') remains within criminology, there has been a trend towards understanding place as particular locations, and focusing on risky places for crime .
 
 However we define ``place,'' it is the central concept to crime mapping, and spatial data analysis. Most human activity takes place in a specific location, and accounting for this spatial information is a key task for criminologists, crime analysts, and social and data scientists more broadly.
 
 \hypertarget{attributes}{%
 \subsection{Attributes}\label{attributes}}
 
-Attribute has become the preferred term for any recorded characteristic or property of a place. It is what more generally in statistics we may call a variable and in data science a feature. A place's name is an obvious example of an attribute. But there can be other pieces of information, such as number of crimes in a neighbourhood, or the GDP of a country. Within geographic information science (GIS) the term `attributes' usually refers to records in a data table associated with individual elements in a vector map, or cells in a grid in a raster or image file. These data behave exactly as data you have encountered in your past experience with non-spatial statistics. The rows represent observations, and the columns represent variables. The variables can be have different levels of measurement (like numeric (interval or ratio, discrete or continuous) or categorical(binary, nominal, ordinal)), and depending on what they are, you can apply different methods to making sense of them. The difference with other kind of data table is that the observations, your rows, correspond to places or locations and that the data necessarily will include elements that allow us to place it in a map.
+Attribute has become the preferred term for any recorded characteristic or property of a place. It is what more generally in statistics we may call a variable and in data science a feature. A place's name is an obvious example of an attribute. But there can be other pieces of information, such as number of crimes in a neighbourhood, or the GDP of a country. Within geographic information science (GIS) the term `attributes' usually refers to records in a data table associated with individual elements in a vector map, or cells in a grid in a raster or image file. These data behave exactly as data you may have encountered in past experience with non-spatial statistics. The rows represent observations, and the columns represent variables. The variables can be have different levels of measurement (like numeric (interval or ratio, discrete or continuous) or categorical (binary, nominal, ordinal)), and depending on what they are, you can apply different methods to making sense of them. The difference with other kind of data table is that the observations, your rows, correspond to places or locations and that the data necessarily will include elements that allow us to place it in a map.
 
 \hypertarget{spatial-objects}{%
 \subsection{Spatial objects}\label{spatial-objects}}
 
-In spatial analysis it is customary to refer to places as objects. These objects can be a whole country, or a road. In forestry, the objects of interest might be trees, and their location will be represented as points. On the other hand, studies of social or economic patterns may need to consider the two-dimensional extent of places, which will therefore be represented as areas. These representations of the world are part of what is called the \textbf{vector data model}: A representation of the world using points, lines, and polygons. Vector models are useful for storing data that have discrete boundaries, such as country borders, land parcels, and streets. This is made up of points, lines, and areas (polygons):
+In spatial analysis it is customary to refer to places as objects. These objects can be a whole country, or a road. In forestry, the objects of interest might be trees, and their location will be represented as points. On the other hand, studies of social or economic patterns may need to consider the two-dimensional extent of places, which will therefore be represented as areas. These representations of the world are part of what is called the \textbf{vector data model}: a representation of the world using points, lines, and polygons. Vector models are useful for storing data that have discrete boundaries, such as country borders, land parcels, and streets. This is made up of points, lines, and areas (polygons):
 
 \begin{itemize}
 \tightlist
 \item
-  \emph{Points}
-
-  \begin{itemize}
-  \tightlist
-  \item
-    *Points are pairs of coordinates, in latitude/longitude or some other standard system. In the context of crime analysis, the typical point we work with, though not the only one, represents the specific location of a criminal event. These points form patterns we explore and analyse.
-  \end{itemize}
+  \emph{Points}: Points are pairs of coordinates, in latitude/longitude or some other standard system. In the context of crime analysis, the typical point we work with, though not the only one, represents the specific location of a criminal event. These points form patterns we explore and analyse.
 \item
-  \emph{Lines}
-
-  \begin{itemize}
-  \tightlist
-  \item
-    Lines are ordered sequences of points connected by straight lines.
-  \end{itemize}
+  \emph{Lines}: Lines are ordered sequences of points connected by straight lines.
 \item
-  \emph{Areas} (polygons)
-
-  \begin{itemize}
-  \tightlist
-  \item
-    Areas are ordered rings of points, also connected by straight lines to form polygons. It can contain holes, or be linked with separate islands. Areas can represent neighbourhouds, police districts, municipal terms, etc. You may come across the term \textbf{lattice data} to denote the type of data we work with when we observed attributes of areas and want to explore and analyse this data.
-  \end{itemize}
+  \emph{Areas} (polygons): Areas are ordered rings of points, also connected by straight lines to form polygons. It can contain holes, or be linked with separate islands. Areas can represent neighbourhouds, police districts, municipal terms, etc. You may come across the term \textbf{lattice data} to denote the type of data we work with when we observed attributes of areas and want to explore and analyse this data.
 \end{itemize}
 
 Spatial objects may also be stored as \textbf{raster data}. Raster data are made up of pixels (or cells), and each cell has an associated value. Simplifying slightly, a digital photograph is an example of a raster dataset where each pixel value corresponds to a particular colour. In GIS, the pixel values usually represent continuous data such as elevation above sea level, or chemical concentrations, or rainfall, etc. The key point is that all of this data is represented as a grid of (usually square or hexagonal) cells.
@@ -286,7 +273,7 @@ Spatial objects may also be stored as \textbf{raster data}. Raster data are made
 We already mentioned lines that constitute objects of spatial data, such as streets, roads, railroads, etc. Networks constitute one-dimensional structures embedded in two or three dimensions. Discrete point objects may be distributed on the network, representing phenomena such as landmarks, or observation points. Mathematically, a network forms a graph, and many techniques developed for graphs have application to networks. These include various ways of measuring a network's connectivity, or of finding the shortest path between pairs of points on a network.
 
 \hypertarget{maps-and-their-types}{%
-\subsection{Maps and their types}\label{maps-and-their-types}}
+\section{Maps and their types}\label{maps-and-their-types}}
 
 Historically maps have been the primary means to store and communicate spatial data. Objects and their attributes can be readily depicted, and the human eye can quickly discern patterns and anomalies in a well-designed map.
 
@@ -297,24 +284,22 @@ In GIS we distinguish between reference and thematic maps. A \textbf{reference m
 Another useful distinction is between \textbf{static} and \textbf{interactive} maps. Your traditional printed road map is an example of a static map, whereas the web application Google maps is an example of an interactive map. In an interactive map you can zoom in and out, you can select and query information about objects in an interactive fashion, etc. In this chapter we introduce the R package \texttt{ggplot2}, which excels at static maps. In other chapters we will introduce another package called \texttt{leaflet}, which is particularly useful for interactive purposes, and the package \texttt{tmap}, in which we can shift our maps between static and interactive mode.
 
 \hypertarget{map-projections-and-geographic-coordinate-systems}{%
-\subsection{Map projections and geographic coordinate systems}\label{map-projections-and-geographic-coordinate-systems}}
+\section{Map projections and geographic coordinate systems}\label{map-projections-and-geographic-coordinate-systems}}
 
-Whenever we put something into a map we need some sort of system to pinpoint the location. A coordinate system allows you to integrate any dataset with other geographical datasets within a common framework. With the help of \textbf{coordinate reference systems} (CRS) every place on the earth can be specified by a set of three numbers, called coordinates. In general CRS can be divided into \textbf{projected coordinate reference systems} (also called Cartesian or rectangular coordinate reference systems) and \textbf{geographic coordinate reference systems}.
+Whenever we put something into a map we need some sort of system to pinpoint the location. A coordinate system allows you to integrate any dataset with other geographical datasets within a common framework. With the help of \textbf{coordinate reference systems} (CRS) every place on the Earth can be specified by a set of three numbers, called coordinates. In general CRS can be divided into \textbf{projected coordinate reference systems} (also called Cartesian or rectangular coordinate reference systems) and \textbf{geographic coordinate reference systems}.
 
-A \textbf{geographic coordinate system} is a \emph{three dimensional} reference system that enables you to locate any location on earth. Often this is done with longitude, latitude and elevation. The use of geographic coordinate reference systems is very common. They use degrees of latitude and longitude and sometimes also a height value to describe a location on the earth's surface. The most popular is called \textbf{WGS 84}. This is the one you will most likely be using, and if you get your data in latitude and longitude, then this is the CRS you are working in. It is also possible that you will be using a projected CRS. This two-dimensional coordinate reference system is commonly defined by two axes. At right angles to each other, they form a so called XY-plane. The horizontal axis is normally labeled X, and the vertical axis is normally labeled Y.
+A \textbf{geographic coordinate system} is a \emph{three dimensional} reference system that enables you to locate any location on Earth. This coordinate system is round, and so records locations in angular units (usually degrees). The use of geographic coordinate reference systems is very common. The most popular is called the \textbf{World Geodetic System (WGS 84)} which refers to locations using ``Longitude,'' ``Latitude,'' and in some cases ``Elevations.'' For example, to communicate where is the University of Manchester, I would say it is Longitude: -2.2360724 degrees and Latitude: 53.466853 degrees.
 
-\textbf{Projected coordinate systems} or map projections, on the other hand, try to portray the surface of the earth or a portion of the earth on a \emph{two dimensional} flat piece of paper or computer screen.
+\textbf{Projected coordinate systems} or map projections, on the other hand, try to portray the surface of the Earth or a portion of the Earth on a \emph{two dimensional} flat piece of paper or computer screen. Therefore location is recorded in linear units (usually meters). Working, for example, with data in the UK, we will be using \textbf{British National Grid (BNG)}. In this case, points will be defined by ``Easting'' and ``Northing'' rather than ``Longitude'' and ``Latitude.'' It basically divides the UK into a series of squares, and uses references to these to locate something. The most common usage is the six figure grid reference, employing three digits in each coordinate to determine a 100 m square. For example, the grid reference of the 100 m square containing the summit of Ben Nevis is NN 166 712.
 
-All projections of a sphere like the Earth in a two-dimensional map involve some sort of distortion. You can't fit a three dimensional object into two dimensions without doing so. Projections differ to a large extent on the kind of distortion that they introduce. The decision as to which map projection and coordinate reference system to use, depends on the regional extent of the area you want to work in, on the analysis you want to do and often on the availability of data. Knowing the system you use would allow you to translate your data into other systems whenever this may be necessary. Often you may have to integrate data that is provided to you in different coordinate or projected systems. As long as you know the systems, you can do this, and we will be demonstrating this throughout the book.
+All projections of a sphere like the Earth in a two-dimensional map involve some sort of distortion. You can't fit a three dimensional object into two dimensions without doing so. \textbf{Projections} differ to a large extent on the kind of distortion that they introduce. This will be important later on when we are linking data from different projections, or when you look at your map and you try to figure out why it might look ``squished.''
 
-Working, for example, with data in the UK, you are most likely to be using \textbf{British National Grid (BNG)}. The Ordnance Survey National Grid reference system is a system of geographic grid references used in Great Britain, different from using Latitude and Longitude. In this case, points will be defined by ``Easting'' and ``Northing'' rather than ``Longitude'' and ``Latitude.'' It basically divides the UK into a series of squares, and uses references to these to locate something. The most common usage is the six figure grid reference, employing three digits in each coordinate to determine a 100 m square. For example, the grid reference of the 100 m square containing the summit of Ben Nevis is NN 166 712.
+The decision as to which map projection and coordinate reference system to use, depends on the regional extent of the area you want to work in, on the analysis you want to do and often on the availability of data. Knowing the system you use would allow you to translate your data into other systems whenever this may be necessary. Often you may have to integrate data that is provided to you in different coordinate or projected systems. As long as you know the systems, you can do this, and we will be demonstrating this throughout the book.
 
-This will be important later on when we are linking data from different projections, or when you look at your map and you try to figure out why it might look ``squished.''
-
-You will often see the notation \emph{epsg} when referring to different coordinate systems. This refers to the EPSG registry or \textbf{EPSG Geodetic Parameter Dataset}. It is a collection of geodetic datums, spatial reference systems, earth ellipsoids, coordinate transformations, and related units of measurement. All standard coordinate systems will have one of these codes assigned to it. So, for example, the WGS84 coordinate system corresponds the epsg key 4326, whereas the British National Grid has the key 27700. Having this common framework to identify projections make things much easier when we want to change our data from one system to another. You can query the website \url{https://epsg.io/} for the different keys and information associated to each of them. This EPSG dataset was originally developed by the European Petroleum Survey Group (EPSG), thus the name.
+You will often see the notation \emph{epsg} when referring to different coordinate systems. This refers to the EPSG registry or \textbf{EPSG Geodetic Parameter Dataset}. It is a collection of geodetic datums, spatial reference systems, Earth ellipsoids, coordinate transformations, and related units of measurement. All standard coordinate systems will have one of these codes assigned to it. So, for example, the WGS84 coordinate system corresponds the epsg key 4326, whereas the British National Grid has the key 27700. Having this common framework to identify projections make things much easier when we want to change our data from one system to another. You can query the website \url{https://epsg.io/} for the different keys and information associated to each of them. This EPSG dataset was originally developed by the European Petroleum Survey Group (EPSG), thus the name.
 
 \hypertarget{key-terms-summary}{%
-\subsection{Key terms summary}\label{key-terms-summary}}
+\section{Key terms summary}\label{key-terms-summary}}
 
 While the above was a whistlestop tour of some key terms, this should start you thinking about these concepts. For a deeper understanding, consult the further reading at the end of this chapter. For now, to progress, be sure that you are confident to know about:
 
@@ -333,9 +318,9 @@ While the above was a whistlestop tour of some key terms, this should start you 
 
 We live in a world awash with data and through this book we will use the different examples to show you some useful places and sources you can use to obtain your spatial data. Most geographically referenced crime data is based on crime reported to the police, although there are some notable exceptions (e.g., public health data on violence, geocoded victim survey data, etc.). Many police departments across the world make this data readily available to the public or researchers. This is more common in places like the United States, where crime mapping applications first got established, but increasingly we see publicly available crime data from other countries as well.
 
-For our first map we will use data from the UK, which can be downloaded from the \href{https://data.police.uk/data/}{police.uk} website. We have downloaded some data for crime in Manchester, which is included in the data file you have downloaded to follow along (see the Preamble chapter for details). If you wanted to acquire the data yourself directly from the source, you could open the \href{https://data.police.uk/data/}{data.police.uk/data} website and then choose the data tab, in order to manually download some data. After selecting a data range, a police force, and the type of data, one could generate a file. This would take you to a download page, where you have to click the \texttt{Download\ now} button. This will open a dialogue to save a .zip file. After all this pointing and clicking, one would have to unzip the file and read it into R.
+For our first map we will use data from the UK, which can be downloaded from the \href{https://data.police.uk/data/}{police.uk} website. We have downloaded some data for crime in Manchester, which is included in the data file you have downloaded to follow along (see the Preamble chapter for details). If you wanted to acquire the data yourself directly from the source, you could open the \href{https://data.police.uk/data/}{data.police.uk/data} website and then choose the data tab, in order to manually download some data.
 
-So whether from the website, or the provided data file, you should have some police data ready. The next step is to read this into R. How can we do this? We say, ``hello R, i would like to create a new object please and I will call this new object \texttt{my\_data}.'' We do this by typing the name we are giving the object and the assignment function \texttt{\textless{}-}. Then on the right hand side of the assignment function, there is the value that we are assigning the variable. So it could be a bit of text, or it could be some function, for example when you read a csv file with the \texttt{read\_csv()} function from the \texttt{readr} package.
+So whether from the website, or the provided data file, you should have some police data ready. The next step is to read this into R. How can we do this? We say, ``hello R, i would like to create a new object please and I will call this new object \texttt{my\_data}.'' We do this by typing the name we are giving the object and the assignment operator \texttt{\textless{}-}. Then on the right hand side of the assignment operator, there is the value that we are assigning the variable. So it could be a bit of text, or it could be some function, for example when you read a csv file with the \texttt{read\_csv()} function from the \texttt{readr} package.
 
 When we read in this file, inside the function, we also need to specify \emph{where} to read the csv from. Where should R look to find this data? This is where normally you are putting in the path to your file. Something like:
 
@@ -345,7 +330,7 @@ When we read in this file, inside the function, we also need to specify \emph{wh
 \end{Highlighting}
 \end{Shaded}
 
-If you downloaded the data following the steps in the preamble chapter for this book, your data will be in your working directory, in a sub-folder called ``data.'' It is within this subfolder that you'll find all you need. In this case, let's look for the file \texttt{2019-06-greater-manchester-street.csv}. To read this into R we run:
+If you downloaded the data following the steps in the Preamble chapter for this book, your data will be in your working directory, in a sub-folder called ``data.'' It is within this subfolder that you'll find all you need. In this case, let's look for the file \texttt{2019-06-greater-manchester-street.csv}. To read this into R we run:
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -357,7 +342,7 @@ If you downloaded the data following the steps in the preamble chapter for this 
 
 If you look at the \emph{Environment} window in the top right corner of RStudio you should see now a new object that contains a \emph{tibble}, a particular format for dataframes, and that is called \texttt{crimes}. It will tell you how many observations (rows - and incidentally the number of recorded crimes in June 2019 within the GMP jurisdiction) and how many variables (columns) your data has.
 
-Let's have a look at the crimes dataframe with the \texttt{View()} function. This will open the data browser in RStudio
+Let's have a look at the crimes dataframe with the \texttt{View()} function. This will open the data browser in RStudio.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -422,7 +407,7 @@ Now the names are much neater. You can print them all for a view using the \text
 
 Having had a chance to inspect the data set you've downloaded, let's consider what sort of spatial information we might be able to use. If you have a look at the column names, what are some of the variables which you think might have some spatial component? Have a think about each column, and how you think it may help to put these crimes on the map.
 
-There are a few answers here. In fact there are one each to map onto point, line, and polygon, which we read about earlier.
+There are a few answers here. In fact there are one each to map onto point, line, and polygon.
 
 \hypertarget{the-point}{%
 \subsection{The point}\label{the-point}}
@@ -435,14 +420,20 @@ First, and possibly most obvious, are the coordinates provided with each crime i
 \end{Highlighting}
 \end{Shaded}
 
-You can see that the values are for Longitude and for Latitude. These two numbers allow us to put this point on a map.
+You can see that the values are -2.464422 for Longitude and 53.612495 for Latitude. These two numbers allow us to put this point on a map.
 
 \hypertarget{the-line}{%
 \subsection{The line}\label{the-line}}
 
 Another column which contains information about \emph{where} the crime happened is the aptly named \emph{location} variable. This shows you a list of locations related to where the crimes happened. You may see a few values such as on or near XYZ street. Let's look again at the first entry.
 
-You can see that the value is this isn't great, as we might struggle to identify \emph{which} parking area\ldots{} Some other ones are more useful, let's look at the last entry for example with the \texttt{tail()} function.
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{head}\NormalTok{(crimes, }\AttributeTok{n =} \DecValTok{1}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+You can see that the value is On or near Parking Area this isn't great, as we might struggle to identify \emph{which} parking area\ldots{} Some other ones are more useful, let's look at the last entry for example with the \texttt{tail()} function.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -450,36 +441,40 @@ You can see that the value is this isn't great, as we might struggle to identify
 \end{Highlighting}
 \end{Shaded}
 
-You can see that the value is . This makes our crime much easier to find, we just need to locate where is . We might have a file of lines of all the roads of Manchester, and if we did, we can link the crime to that particular road, in order to map it.
+You can see that the value is On or near Fulwood Road. This makes our crime much easier to find, we just need to locate where is Fulwood Road. We might have a file of lines of all the roads of Manchester, and if we did, we can link the crime to that particular road, in order to map it.
 
 \hypertarget{the-polygon}{%
 \subsection{The polygon}\label{the-polygon}}
 
-What more? You may also have seen the column ``lsoa\_name'' seems to have some spatial component, Let's have a look at the first crime again. You see the value for LSOA name is - Bolton we know is a Borough of Greater Manchester, but what is the 001 for ?
+What more? You may also have seen the column ``lsoa\_name'' and it seems to contain what looks like names for some sort of area or place. Let's have a look at the first crime again. You see the value for LSOA name is Bolton 001A - Bolton we know is a Borough of Greater Manchester, but what does the 001 mean?
 
 Well, it denotes a particular geographical sub-unit within the municipality of Bolton called a \textbf{Lower Layer Super Output Area}. This is a unit of \href{https://www.ons.gov.uk/methodology/geography/ukgeographies/censusgeography}{UK Census Geography}. The basic unit for Census Geography in the UK is an `Output area' - this is the resolution at which we can access data from the UK Census. The Output Area (OA) is therefore the smallest unit we could use. The census in other countries use different names for the units for which they publish information, but the logic is similar.
 
-There are 181,408 OAs, 34,753 lower layer super output areas (LSOA) and 7,201 middle layer super output areas (MSOA) in England and Wales. The neat thing about these Census geographies is the idea is that they don't change much from census to census (unlike other administrative boundaries) and in the UK case were created with statistical analysis in mind (they were designed to be as homogeneous as possible). The less neat thing is that although we use them to operationalise the concept of neighbourhood a lot, they may not bear much resemblance to what residents might think of as their neighbourhood. This is a common problem in the UK and elsewhere (that has been widely discussed in the literature) when relying on census units as our proxy for community or neighbourhood, but one that is hard to escape from, for these units are those at which key demographic variable is typically sourced and published.
+There are 181,408 OAs, 34,753 lower layer super output areas (LSOA) and 7,201 middle layer super output areas (MSOA) in England and Wales. The neat thing about these Census geographies is the idea is that they don't change much from census to census (unlike other administrative boundaries) and in the UK case were created with statistical analysis in mind (they were designed to be as homogeneous as possible). The less neat thing is that although we use them to operationalise the concept of neighbourhood a lot, they may not bear much resemblance to what residents might think of as their neighbourhood. This is a common problem in the UK and elsewhere (that has been widely discussed in the literature - see \protect\hyperlink{ref-Weisburd_2009}{Weisburd, Bruinsma, and Bernasco} (\protect\hyperlink{ref-Weisburd_2009}{2009}) for example) when relying on census units as our proxy for community or neighbourhood, but one that is hard to escape from, for these units are those at which key demographic variable is typically sourced and published.
 
-Anyway back to our crime data. You see we have two columns that reference LSOAs, \texttt{lsoa\_name} and \texttt{lsoa\_code}. We can use these to \emph{link} our crime data to a file containing the geometries needed to put the crime data on the map.
+Looking back to our crime data, we find two columns that reference LSOAs, \texttt{lsoa\_name} and \texttt{lsoa\_code}. We can use these to \emph{link} our crime data to a file containing the geometries needed to put the crime data on the map. In the next section we will illustrate how.
+
+\hypertarget{choosing-the-ideal-unit-of-analysis}{%
+\subsection{Choosing the ideal unit of analysis}\label{choosing-the-ideal-unit-of-analysis}}
+
+The unit of analysis at which to consider approaching our research and analytical questions will depend most largely on what is the appropriate level at which addressing the question makes sense, and at what level can we get reliable data for the variables we wish to analyse. There is no simple answer to this. Questions around levels of measurement have formed a central part of discourse in the area of crime mapping (\protect\hyperlink{ref-Weisburd_2009}{Weisburd, Bruinsma, and Bernasco} (\protect\hyperlink{ref-Weisburd_2009}{2009})). It is important that careful thought and consideration is given to this decision.
 
 \hypertarget{the-simple-features-framework}{%
 \section{The simple features framework}\label{the-simple-features-framework}}
 
-So how can we use these spatial details in our dataset to put our crimes on the map? We need to somehow specify a geometry for our data, which links each unit of analysis (whether that is the point, line, or polygon) to a relevant geographical representation, which allows us to put this thing on the map.
+We've established now that our crime data has spatial information, which we can use to put our crimes on the map. In this section, we will introduce the simple features framework as a way to do this using R. Our task is to specify a geometry for our data, which links each unit of analysis (whether that is the point, line, or polygon) to a relevant geographical representation, allowing us to put this thing on the map.
 
-How you add geographical information will vary with the type of information we have, but in all of these, we will use the \textbf{simple features} framework. What are simple features? \texttt{sf} package author Edzer Pebesma describes simple features as a standardized way of encoding spatial \emph{vector data} (points, lines, polygons) in computers (we will return to this concept next chapter). The \texttt{sf} package is an R package for reading, writing, handling, and manipulating simple features in R, implementing the vector (points, lines, polygons) data handling functionality.
+How you add geographical information will vary with the type of information we have, but in all of these, we will use the \textbf{simple features} framework. \texttt{sf} package author Edzer Pebesma describes simple features as a standardized way of encoding spatial \emph{vector data} (points, lines, polygons). The \texttt{sf} package is an R package for reading, writing, handling, and manipulating simple features in R, implementing the vector data handling functionality.
 
-Traditionally spatial analysis in R were done using the \texttt{sp} package which creates a particular way of storing spatial objects in R. When most packages for spatial data analysis in R and for thematic cartography were first developed \texttt{sp} was the only way to work with spatial data in R. There are more than 450 packages that rely on \texttt{sp}, making it an important part of the R ecosystem. More recently \texttt{sf} is changing the way that R does spatial analysis. This package provides a new way of storing spatial objects in R and most recent R packages for spatial analysis and cartography are using it as the new default. It is easy to transform \texttt{sf} objects into \texttt{sp} objects and viceversa, so that those packages that still don't use this new format can be used. But in this book we will emphasise the use of \texttt{sf} whenever possible. You can read more about the history of spatial packages and the \texttt{sf} package in the first two chapters of \protect\hyperlink{ref-Lovelace_2019}{Lovelace, Nowosad, and Muenchow} (\protect\hyperlink{ref-Lovelace_2019}{2019}).
+Traditionally spatial analysis in R were done using the \texttt{sp} package which creates a particular way of storing spatial objects in R. When most packages for spatial data analysis in R and for thematic cartography were first developed \texttt{sp} was the only way to work with spatial data in R. There are more than 450 packages that rely on \texttt{sp}, making it an important part of the R ecosystem. More recently \texttt{sf} is changing the way that R does spatial analysis. This package provides a new way of storing spatial objects in R and most recent R packages for spatial analysis and cartography are using it as the new default. It is easy to transform \texttt{sf} objects into \texttt{sp} objects and viceversa, so that those packages that still don't use this new format can be used. In this book we will emphasise the use of \texttt{sf} whenever possible. You can read more about the history of spatial packages and the \texttt{sf} package in the first two chapters of \protect\hyperlink{ref-Lovelace_2019}{Lovelace, Nowosad, and Muenchow} (\protect\hyperlink{ref-Lovelace_2019}{2019}).
 
 Features can be thought of as ``things'' or objects that have a spatial location or extent; they may be physical objects like a building, or social conventions like a political state. Feature geometry refers to the spatial properties (location or extent) of a feature, and can be described by a point, a point set, a linestring, a set of linestrings, a polygon, a set of polygons, or a combination of these. The simple adjective of simple features refers to the property that linestrings and polygons are built from points connected by straight line segments. Features typically also have other properties (temporal properties, color, name, measured quantity), which are called feature attributes. For more detailed insight we recommend reading \protect\hyperlink{ref-Pebesma_2018}{Pebesma} (\protect\hyperlink{ref-Pebesma_2018}{2018}).
 
-Let's get started with making some maps using \texttt{sf}. First, make sure you install the package, and then load with \texttt{library()} function. We know that we have two columns one for Longitude and one for Latitude, which pinpoint each crime event to a specific point, close to where it happened. Not \emph{quite} where it happened, as the data are anonymised (more on this later), but for our purposes here, we can assume this is the location of the crime. To map these points, we can transform our ordinary dataframe into a simple features object.
+Let's get started with making some maps using \texttt{sf}. First, make sure you install the package, and then load with \texttt{library()} function. We know that we have two columns one for longitude and one for latitude, which pinpoint each crime event to a specific point, close to where it happened. Not \emph{quite} where it happened, as the data are anonymised (more on this later), but for our purposes here, we can assume this is the location of the crime. To map these points, we can transform our ordinary dataframe into a simple features object.
 
 To do so, we can use the \texttt{st\_as\_sf()} function from \texttt{sf}, into which we need to specify what we are to transform (our dataframe), where the spatial data can be found (our columns which hold the latitude and longitude information), and also what coordinate reference system the object has (see above our discussion about projections and coordinate reference systems).
 
-Latitude longitude coordinates specify location on the \textbf{WGS 84} CRS. We can tell R that this is our CRS of choice by including its EPSG identifier
-(see \url{https://en.wikipedia.org/wiki/EPSG_Geodetic_Parameter_Dataset}) as a parameter in our function. It is handy to know the more common EPSG identifiers. For example, for WGS84 the EPSG identifier is \emph{4326}. For British National Grid, the identifier is \emph{27700}.
+Latitude longitude coordinates specify location on the \textbf{WGS 84} CRS. We can tell R that this is our CRS of choice by including its EPSG identifier as a parameter in our function. It is handy to know the more common EPSG identifiers. For example, for WGS84 the EPSG identifier is \emph{4326}. For British National Grid, the identifier is \emph{27700}.
 
 Putting it all together in practice, we can create a simple features object from our dataframe using the latitude and longitude columns:
 
@@ -494,7 +489,7 @@ Putting it all together in practice, we can create a simple features object from
 \end{Highlighting}
 \end{Shaded}
 
-We can see that this is now a simple features object using the generic\texttt{class()} function the we see the result ``sf'':
+We can see that this is now a simple features object using the \texttt{class()} function to print the result ``sf'':
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -515,13 +510,16 @@ Now that we have this \texttt{sf} object, how can we map it? We mentioned before
 
 First, a quick refresher on \texttt{ggplot2} and the grammar of graphics. The grammar of graphics upon which this package is based on defines various components of a graphic. Some of the most important are:
 
--\textbf{The data}: For using \texttt{ggplot2} the data has to be stored as a data frame or tibble (\texttt{sf} objects are of class tibble).
-
--\textbf{The geoms}: They describe the objects that represent the data (e.g., points, lines, polygons, etc..). This is what gets drawn. And you can have various different types layered over each other in the same visualisation.
-
--\textbf{The aesthetics}: They describe the visual characteristics that represent data (e.g., position, size, colour, shape, transparency).
-
--\textbf{Facets}: They describe how data is split into subsets and displayed as multiple small graphs.
+\begin{itemize}
+\item
+  \textbf{The data}: For using \texttt{ggplot2} the data has to be stored as a data frame or tibble (\texttt{sf} objects are of class tibble).
+\item
+  \textbf{The geoms}: They describe the objects that represent the data (e.g., points, lines, polygons, etc..). This is what gets drawn. And you can have various different types layered over each other in the same visualisation.
+\item
+  \textbf{The aesthetics}: They describe the visual characteristics that represent data (e.g., position, size, colour, shape, transparency).
+\item
+  \textbf{Facets}: They describe how data is split into subsets and displayed as multiple small graphs.
+\end{itemize}
 
 -\textbf{Stats}: They describe statistical transformations that typically summarise data.
 
@@ -564,8 +562,7 @@ First let's create a small illustrative data set of only the crimes of ``Robbery
 \NormalTok{df }\OtherTok{\textless{}{-}}\NormalTok{ crimes }\SpecialCharTok{\%\textgreater{}\%} 
   \FunctionTok{filter}\NormalTok{(crime\_type }\SpecialCharTok{\%in\%} \FunctionTok{c}\NormalTok{(}\StringTok{"Robbery"}\NormalTok{, }
                            \StringTok{"Shoplifting"}\NormalTok{, }
-                           \StringTok{"Theft from the person"}\NormalTok{)}
-\NormalTok{         ) }\SpecialCharTok{\%\textgreater{}\%} 
+                           \StringTok{"Theft from the person"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
   \FunctionTok{group\_by}\NormalTok{(crime\_type) }\SpecialCharTok{\%\textgreater{}\%} 
   \FunctionTok{count}\NormalTok{() }
   
@@ -657,7 +654,9 @@ We can add further specifications within the \texttt{aes()} (aesthetics) functio
 
 \CommentTok{\# plot including new variable with fill= parameter in aes() function}
 
-\FunctionTok{ggplot}\NormalTok{(df, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ crime\_type, }\AttributeTok{y =}\NormalTok{ n, }\AttributeTok{fill =}\NormalTok{ last\_outcome\_category)) }\SpecialCharTok{+} 
+\FunctionTok{ggplot}\NormalTok{(df, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ crime\_type, }
+               \AttributeTok{y =}\NormalTok{ n, }
+               \AttributeTok{fill =}\NormalTok{ last\_outcome\_category)) }\SpecialCharTok{+} 
   \FunctionTok{geom\_col}\NormalTok{() }\SpecialCharTok{+} 
   \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \StringTok{"Frequency of crime types"}\NormalTok{) }\SpecialCharTok{+} 
   \FunctionTok{xlab}\NormalTok{(}\StringTok{"Crime type"}\NormalTok{) }\SpecialCharTok{+} 
@@ -667,8 +666,7 @@ We can add further specifications within the \texttt{aes()} (aesthetics) functio
                                    \AttributeTok{hjust =} \DecValTok{1}\NormalTok{), }
         \AttributeTok{panel.border =} \FunctionTok{element\_rect}\NormalTok{(}\AttributeTok{colour =} \StringTok{"black"}\NormalTok{, }
                                     \AttributeTok{fill=}\ConstantTok{NA}\NormalTok{, }
-                                    \AttributeTok{size=}\DecValTok{1}\NormalTok{)}
-\NormalTok{        )}
+                                    \AttributeTok{size=}\DecValTok{1}\NormalTok{))}
 \end{Highlighting}
 \end{Shaded}
 
@@ -678,7 +676,9 @@ We can be explicit about the colours we want to use with the function \texttt{sc
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\FunctionTok{ggplot}\NormalTok{(df, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ crime\_type, }\AttributeTok{y =}\NormalTok{ n, }\AttributeTok{fill =}\NormalTok{ last\_outcome\_category)) }\SpecialCharTok{+} 
+\FunctionTok{ggplot}\NormalTok{(df, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ crime\_type, }
+               \AttributeTok{y =}\NormalTok{ n, }
+               \AttributeTok{fill =}\NormalTok{ last\_outcome\_category)) }\SpecialCharTok{+} 
   \FunctionTok{geom\_col}\NormalTok{() }\SpecialCharTok{+} 
   \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \StringTok{"Frequency of crime types"}\NormalTok{) }\SpecialCharTok{+} 
   \FunctionTok{xlab}\NormalTok{(}\StringTok{"Crime type"}\NormalTok{) }\SpecialCharTok{+} 
@@ -732,19 +732,19 @@ We can do this by adding a layer to our graph object. Specifically we will use t
 
 So what you see above behind the points is what we can call a \textbf{basemap}. The term basemap is seen often in GIS and refers to a collection of GIS data and/or orthorectified imagery that form the background setting for a map. The function of the basemap is to provide background detail necessary to orient the location of the map. Basemaps also add to the aesthetic appeal of a map. \textbf{Basemaps} are essentially reference maps that may give us context and help with the interpretation. You can see above that you are seeing the \emph{Open Street Map} Basemap. This is one option but there are others.
 
-Let's leave out points for now, and move on to how we might map our lines and polygons.
+Let's leave the points for now, and move on to how we might map our lines and polygons.
 
 \hypertarget{mapping-crime-data-as-polygons}{%
 \section{Mapping crime data as polygons}\label{mapping-crime-data-as-polygons}}
 
-What about our other two columns, location, and LSOAs? Well to put these on the map, we need a geometry representation of them. We need boundary data representing the areas we want to map put. We will learn in this section where you may find these, how to download them, turn them into sf objects, and how to link your data to them to be able to map them.
+What about our other two columns, location, and LSOAs? Well to put these on the map, we need a geometry representation of them. We need boundary data representing the areas we want to map. We will learn in this section where you may find, download and turn them into sf objects, and how to link our dataframe as attribute data in order to be able to map them.
 
 \hypertarget{finding-boundary-data}{%
 \subsection{Finding boundary data}\label{finding-boundary-data}}
 
-In this section you are going to learn how you take one of the most popular data formats for spatial objects, the \textbf{shapefile}, and read it into R. The shapefile was introduced by ESRI, the developers and vendors or ArcGIS. And although many other formats have developed since and ESRI no longer holds the same market position it once occupied (though they're still the player to beat), shapefiles continue to be one of the most popular formats you will encounter in your work. You can read more about shapefiles in Wikipedia (\url{https://en.wikipedia.org/wiki/Shapefile}).
+In this section you are going to learn how you take one of the most popular data formats for spatial objects, the \textbf{shapefile}, and read it into R. The shapefile was introduced by ESRI, the developers and vendors or ArcGIS. And although many other formats have developed since and ESRI no longer holds the same market position it once occupied (though they're still the player to beat), shapefiles continue to be one of the most popular formats you will encounter in your work.
 
-We are going to learn here how to obtain shapefiles for British census geographies. For this activity we will focus on the polygon (the LSOA) rather than the lines of the streets, but the logic is more or less the same.
+We are going to obtain shapefiles for British census geographies. For this activity we will focus on the polygon (the LSOA) rather than the lines of the streets, but the logic is more or less the same.
 
 Census boundary data are a digitised representation of the underlying geography of the census. Census Geography is often used in research and spatial analysis because it is divided into units based on population counts, created to form comparable units, rather than other administrative boundaries such as wards or police force areas. However depending on your research question and the context for your analysis, you might be using different units.
 
@@ -752,13 +752,17 @@ The hierarchy of the census geographies in the UK goes from Country to Local Aut
 
 \includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-16-1.pdf}
 
-Here we will get some boundaries for Manchester. Let's use the LSOA level, so that we can link back to our crime data easily. These are geographical regions designed to be more stable over time and consistent in size than existing administrative and political boundaries. LSOAs comprise, on average, 600 households that are combined on the basis of spatial proximity and homogeneity of dwelling type and tenure.
+Here we will get some boundaries for Manchester. We know that our crime data has a column for LSOA, so we can proceed with this as our appropriate unit of analysis.
 
 To get some boundary data, you can use the UK Data Service website. There is a simple \href{https://borders.ukdataservice.ac.uk/bds.html}{Boundary Data Selector} tool which you could use. Other countries also have such repositories, and in some cases where they do not, other resources, such as Open Street Map, or natural earth (and associated R package \texttt{rnaturalearth}) can be handy resources. In Appendix C ``Sourcing geographical data for crime analysis'' we elaborate more on these, with some examples.
 
-For now, you can turn to the data folder which you have downloaded from this book's repository. (If unsure, refer to the ``Preamble'' section!).
+For now, you can turn to the data folder which you have downloaded from this book's repository. (If unsure, refer to the Preamble section!).
 
-Specifically, we're looking for a folder called \texttt{BoundaryData}. When we download a shapefile, we usually get many files, and a folder which contains them all. It is important for these files to be kept together, in the same folder. If you have a look inside thie BoundaryData folder, you will notice that there are 4 files with the same name ``england\_lsoa\_2011.'' \textbf{NOTE AGAIN: It is important that you keep all these files in the same location as each other!} They all contain different bits of information about your shapefile (and they are all needed):
+Specifically, we're looking for a folder called \texttt{BoundaryData}. When we download a shapefile, we usually get many files, and a folder which contains them all. It is important for these files to be kept together, in the same folder. If you have a look inside thie BoundaryData folder, you will notice that there are 4 files with the same name ``england\_lsoa\_2011.''
+
+\textbf{NOTE: It is important that you keep all these files in the same location as each other!}
+
+They all contain different bits of information about your shapefile (and they are all needed):
 
 \begin{itemize}
 \tightlist
@@ -982,7 +986,7 @@ In subsequent chapters we will play around with other packages in R that you can
 
 In this chapter we had a play around with some regular old crime data and discovered how we can use the \texttt{sf} package in R to assign it a geometry (both at point and polygon level), and how that can help us visualise our results. We covered some very important concepts such as projections and coordinate reference systems, and we had a play at acquiring shapefiles which can help us visualise our data. We had a think about units of analysis, and how that will affect how we visualise our data. In the next chapter we will spend a bit of more time discussing how to make good choices when producing maps.
 
-There are a number of introductory texts to geographic information systems and analysis that provide adequate background to some of the key concepts we introduce in this chapter (\protect\hyperlink{ref-OSullivan_2010}{O´Sullivan and Unwin} (\protect\hyperlink{ref-OSullivan_2010}{2010}), \protect\hyperlink{ref-Bolstad_2019}{Bolstad} (\protect\hyperlink{ref-Bolstad_2019}{2019})). The report by \protect\hyperlink{ref-Harries_1999}{Harries} (\protect\hyperlink{ref-Harries_1999}{1999}) produced for the National Institute of Justice still provides a good general introduction for basic ideas around crime mapping and CAN be accessed for free online. Chapter 3 of \protect\hyperlink{ref-Haining_2020}{Spatial and Approach} (\protect\hyperlink{ref-Haining_2020}{2020}) offers invaluable observations on the nature of spatial and spatial-temporal attribute data, often using examples from crime research. From a more domain-knowledge point of view, the early chapters of \protect\hyperlink{ref-Boba_2013}{Santos} (\protect\hyperlink{ref-Boba_2013}{2013}) and \protect\hyperlink{ref-Chainey_2005}{Chainey and Rattcliffe} (\protect\hyperlink{ref-Chainey_2005}{2005}) set the stage for the use of GIS as part of the crime analysis process, whereas \protect\hyperlink{ref-Bruinsma_2018}{Bruinsma and Johnson} (\protect\hyperlink{ref-Bruinsma_2018}{2018}) edited handbook provides an excellent introduction to environmental criminology (that provides the theoretical and empirical backbone to spatial analysis of crime). Finally, \protect\hyperlink{ref-Healy_2019}{Healy} (\protect\hyperlink{ref-Healy_2019}{2019}) provides a general introduction to data visualisation with R using the \texttt{ggplot2} package. Although Healy´s text is not just about mapping, it offers a very practical and helpful introduction to using \texttt{ggplot2} where you can learn how to further customise your maps and other charts.
+There are a number of introductory texts to geographic information systems and analysis that provide adequate background to some of the key concepts we introduce in this chapter (\protect\hyperlink{ref-OSullivan_2010}{O´Sullivan and Unwin} (\protect\hyperlink{ref-OSullivan_2010}{2010}), \protect\hyperlink{ref-Bolstad_2019}{Bolstad} (\protect\hyperlink{ref-Bolstad_2019}{2019})). The report by \protect\hyperlink{ref-Harries_1999}{Harries} (\protect\hyperlink{ref-Harries_1999}{1999}) produced for the National Institute of Justice still provides a good general introduction for basic ideas around crime mapping and CAN be accessed for free online. Chapter 3 of \protect\hyperlink{ref-Haining_2020}{Spatial and Approach} (\protect\hyperlink{ref-Haining_2020}{2020}) offers invaluable observations on the nature of spatial and spatial-temporal attribute data, often using examples from crime research. From a more domain-knowledge point of view, the early chapters of \protect\hyperlink{ref-Boba_2013}{Boba} (\protect\hyperlink{ref-Boba_2013}{2013}) and \protect\hyperlink{ref-Chainey_2005}{Chainey and Rattcliffe} (\protect\hyperlink{ref-Chainey_2005}{2005}) set the stage for the use of GIS as part of the crime analysis process, whereas \protect\hyperlink{ref-Bruinsma_2018}{Bruinsma and Johnson} (\protect\hyperlink{ref-Bruinsma_2018}{2018}) edited handbook provides an excellent introduction to environmental criminology (that provides the theoretical and empirical backbone to spatial analysis of crime). Finally, \protect\hyperlink{ref-Healy_2019}{Healy} (\protect\hyperlink{ref-Healy_2019}{2019}) provides a general introduction to data visualisation with R using the \texttt{ggplot2} package. Although Healy´s text is not just about mapping, it offers a very practical and helpful introduction to using \texttt{ggplot2} where you can learn how to further customise your maps and other charts.
 
 This is a book about maps and spatial analysis, but clearly one of the first questions you need to ask yourself is whether producing a map is the right answer to your question. Just because your data is spatial doesn't mean you need a map for every question you pose to this data. There may be other forms of data visualisation that are more appropriate for exploring and summarising the story you want to tell with your data. If you are uncertain about whether you need a map or other kind of plot books such as \protect\hyperlink{ref-Cairo_2016}{Cairo} (\protect\hyperlink{ref-Cairo_2016}{2016}), \protect\hyperlink{ref-Camoes_2016}{Camoes} (\protect\hyperlink{ref-Camoes_2016}{2016}), or \protect\hyperlink{ref-Schwabish_2021}{Schwabish} (\protect\hyperlink{ref-Schwabish_2021}{2021}) provide useful guidance. For specifics of ggplot2 refer to \protect\hyperlink{ref-Wickham_2010}{Wickham} (\protect\hyperlink{ref-Wickham_2010}{2010})
 
@@ -1064,8 +1068,6 @@ On the other hand, it is possible that these areas are \emph{crime generators}.
 \begin{quote}
 Crime generators are particular areas to which large numbers of people are attracted for reasons unrelated to any particular level of criminal motivation they might have or to any particular crime they might end up committing. Typical examples might include shopping precincts; entertainment districts; office concentrations; or sports stadiums.
 \end{quote}
-
-To read further in crime attractors vs crime generators turn to the recommended readings by \protect\hyperlink{ref-Brantingham_1995}{Brantingham and Brantingham} (\protect\hyperlink{ref-Brantingham_1995}{1995}) and \protect\hyperlink{ref-Newton_2018}{Newton} (\protect\hyperlink{ref-Newton_2018}{2018}). There have since been more developments, for example about crime radiators and absorbers as well (watch this risky places lecture from Kate \protect\hyperlink{ref-Bowers_2021}{Bowers} (\protect\hyperlink{ref-Bowers_2021}{2021}) to learn more!)
 
 It is possible that some licensed premises attract crimes, due to their reputation. However it is also possible that some of them are simply located in areas that are busy, attracts lots of people for lots of reasons, and crimes occur as a result of an abundance of opportunities instead.
 
@@ -1204,7 +1206,7 @@ We can see the bounding box takes the form of Greater Manchester. We can now use
 
 Besides specifying what area we want to query with our bounding box object(s) in the \texttt{opq()} function, we must also define the feature which we want returned. Features in Open Street Map are defined through `keys' and `values.' Keys are used to describe a broad category of features (e.g.~highway, amenity), and values are more specific descriptions (e.g.~cycleway, bar). These are tags which contributors to Open Street Map have defined. A useful way to explore these is by using the comprehensive Open Street Map Wiki page on map features (\url{https://wiki.openstreetmap.org/wiki/Map_Features}).
 
-We can select what features we want using the \texttt{add\_osm\_feature()} function, specifying our key as `amenity' and our value as `bar.' We also want to specify what sort of object (what class) to get our data into, and as we are still working with spatial data, we stick to the \texttt{sf} format, for which the function is \texttt{osmdata\_sf()}. Here, we specify our bounding box as the \texttt{bb\_sf} object we created above {[}\^{}1{]}. {[}\^{}1{]}: If you use the bounding box obtained through \texttt{getbb()} one can subsequently trim down the outputs from \texttt{add\_osm\_feature()} using \texttt{trim\_osmdata()}. For instance, we could add \texttt{trim\_osmdata(bb\_poly\ =\ bb\_sf)} to our initial query.
+We can select what features we want using the \texttt{add\_osm\_feature()} function, specifying our key as `amenity' and our value as `bar.' We also want to specify what sort of object (what class) to get our data into, and as we are still working with spatial data, we stick to the \texttt{sf} format, for which the function is \texttt{osmdata\_sf()}. Here, we specify our bounding box as the \texttt{bb\_sf} object we created above. If you use the bounding box obtained through \texttt{getbb()} one can subsequently trim down the outputs from \texttt{add\_osm\_feature()} using \texttt{trim\_osmdata()}. For instance, we could add \texttt{trim\_osmdata(bb\_poly\ =\ bb\_sf)} to our initial query.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1814,7 +1816,14 @@ We can use \texttt{mapply()} and the \texttt{st\_union()} function to draw a lin
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{dist\_lines }\OtherTok{\textless{}{-}} \FunctionTok{st\_sfc}\NormalTok{(}\FunctionTok{mapply}\NormalTok{(}\ControlFlowTok{function}\NormalTok{(a,b)\{}\FunctionTok{st\_cast}\NormalTok{(}\FunctionTok{st\_union}\NormalTok{(a,b),}\StringTok{"LINESTRING"}\NormalTok{)\}, nd\_crimes}\SpecialCharTok{$}\NormalTok{geometry, nd\_crimes}\SpecialCharTok{$}\NormalTok{nearest\_bar}\SpecialCharTok{$}\NormalTok{geometry, }\AttributeTok{SIMPLIFY=}\ConstantTok{FALSE}\NormalTok{))}
+\NormalTok{dist\_lines }\OtherTok{\textless{}{-}} \FunctionTok{st\_sfc}\NormalTok{( }\CommentTok{\# Create simple feature geometry list column}
+  \FunctionTok{mapply}\NormalTok{(   }\CommentTok{\# apply function to multiple objects }
+    \ControlFlowTok{function}\NormalTok{(a,b)\{              }\CommentTok{\# specify function parameters}
+      \FunctionTok{st\_cast}\NormalTok{(}\FunctionTok{st\_union}\NormalTok{(a,b),}\StringTok{"LINESTRING"}\NormalTok{) }\CommentTok{\# specify function}
+\NormalTok{      \}, }
+\NormalTok{    nd\_crimes}\SpecialCharTok{$}\NormalTok{geometry,  }\CommentTok{\# input a for function}
+\NormalTok{    nd\_crimes}\SpecialCharTok{$}\NormalTok{nearest\_bar}\SpecialCharTok{$}\NormalTok{geometry,  }\CommentTok{\# input b for function}
+    \AttributeTok{SIMPLIFY=}\ConstantTok{FALSE}\NormalTok{)) }\CommentTok{\# don\textquotesingle{}t attempt to reduce the result }
 \end{Highlighting}
 \end{Shaded}
 
@@ -1887,7 +1896,9 @@ You can add a point manually:
 \begin{Highlighting}[]
 \NormalTok{m }\OtherTok{\textless{}{-}} \FunctionTok{leaflet}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
   \FunctionTok{addTiles}\NormalTok{()  }\SpecialCharTok{\%\textgreater{}\%} 
-  \FunctionTok{addMarkers}\NormalTok{(}\AttributeTok{lng=}\SpecialCharTok{{-}}\FloatTok{2.230899}\NormalTok{, }\AttributeTok{lat=}\FloatTok{53.464987}\NormalTok{, }\AttributeTok{popup=}\StringTok{"University of Manchester"}\NormalTok{)}
+  \FunctionTok{addMarkers}\NormalTok{(}\AttributeTok{lng=}\SpecialCharTok{{-}}\FloatTok{2.230899}\NormalTok{,  }\CommentTok{\# longitude}
+             \AttributeTok{lat=}\FloatTok{53.464987}\NormalTok{,  }\CommentTok{\# latitude}
+             \AttributeTok{popup=}\StringTok{"University of Manchester"}\NormalTok{) }\CommentTok{\# text for popup}
 \NormalTok{m  }
 \end{Highlighting}
 \end{Shaded}
@@ -2350,7 +2361,9 @@ And there you go. Just remember something. It is easy to misinterpret data and m
 \hypertarget{summary-and-further-reading-1}{%
 \section{Summary and further reading}\label{summary-and-further-reading-1}}
 
-In this chapter we explored the differences bweteen attribute and spatial operations, and made great use of the latter in practicing \textbf{spatial manipulation of data}. We covered how to subset points within an area, build buffers around geometries, count the number of points in a point layer that fall within each polygon in a polygon layer, find the nearest feature to a set of features, and turn non-spatial information such as an address into something we can map using geocoding. These spatial operations are just some of many, but we chose to cover them as they have the most frequent application in crime analysis.
+In this chapter we explored the differences bweteen attribute and spatial operations, and made great use of the latter in practicing \textbf{spatial manipulation of data}. These spatial operations allow us to manipulate our data in a way that lets us study what is going on with crime at micro places. At the start of the chapter we introduced the idea of different crime places. To read further in crime attractors vs crime generators turn to the recommended readings by \protect\hyperlink{ref-Brantingham_1995}{Brantingham and Brantingham} (\protect\hyperlink{ref-Brantingham_1995}{1995}) and \protect\hyperlink{ref-Newton_2018}{Newton} (\protect\hyperlink{ref-Newton_2018}{2018}). There have since been more developments, for example about crime radiators and absorbers as well (watch this risky places lecture from Kate \protect\hyperlink{ref-Bowers_2021}{Bowers} (\protect\hyperlink{ref-Bowers_2021}{2021}) to learn more!)
+
+We covered how to subset points within an area, build buffers around geometries, count the number of points in a point layer that fall within each polygon in a polygon layer, find the nearest feature to a set of features, and turn non-spatial information such as an address into something we can map using geocoding. These spatial operations are just some of many, but we chose to cover them as they have the most frequent application in crime analysis.
 
 For those interested to learn more, spatial operations are typically discussed in standard GIS textbooks, such as those we have recommended in previous chapters. You could see, for example, Chapter 9 of \protect\hyperlink{ref-Bolstad_2019}{Bolstad} (\protect\hyperlink{ref-Bolstad_2019}{2019}). But probably the best follow up to what we discuss here is Chapter 4 and 5 of \protect\hyperlink{ref-Lovelace_2019}{Lovelace, Nowosad, and Muenchow} (\protect\hyperlink{ref-Lovelace_2019}{2019}), for it provides a systematic introduction to how to perform these spatial operations with R. There is an online book on development by two giants of the R spatial community, Edzer Pebesma and Roger Bivand, which at the time of writing is best cited as \protect\hyperlink{ref-Pebesma_2021}{Pebesma and Bivand} (\protect\hyperlink{ref-Pebesma_2021}{2021}) . The first 5 chapters of the book provide a strong backbone to understand \texttt{sf} objects in greater detail, coordinate systems, and key concepts for spatial data science.
 
@@ -2402,9 +2415,16 @@ In this chapter, we introduce in particular two types of thematic maps used for 
 Choropleth maps display variation in areas (postal codes, police districts, census administrative units, municipal boundaries, regional areas, etc) through the use of the colour that fills each of these areas in the map. A simple case can be to use a light to dark color to represent less to more of the quantitative variable. They are appropriate to compare values across areas.
 
 Most choropleth maps you encounter are classified choropleth maps. They group the values of the quantitative variable into a number of classes, typically between 5 and 7. We will return to this later in the chapter. It is one of the most common forms of statistical maps and like pie charts they are subject to ongoing criticism. \protect\hyperlink{ref-Tukey_1979}{Tukey} (\protect\hyperlink{ref-Tukey_1979}{1979}) concluded they simply do not work. And there are indeed a number of known problems with choropleth maps:
-1. They may not display variation within the geographical units being employed. You are imposing some degree of distortion by assuming all parts of an area display the same value. Our crime map may show a neighborhoud as secure, when there is a part of this neighbourhoud that has a high level of crime. And viceversa.
-2. Boundaries of geographical areas are to a large extent arbitrary (and unlikely to be associated with major discontinuities in your variable of interest). In crime analysis we very often use census administrative units, but these rarely represent natural neighbourhoods.
-3. They work better if areas are of similar size. Areas of greater size may be more heterogeneous internally than those of smaller size: that is, they potentially have the largest error of representation. Also, visual attention may be drawn by areas that are large in size (if size is not the variable use to create a ratio)
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  They may not display variation within the geographical units being employed. You are imposing some degree of distortion by assuming all parts of an area display the same value. Our crime map may show a neighborhoud as secure, when there is a part of this neighbourhoud that has a high level of crime. And viceversa.
+\item
+  Boundaries of geographical areas are to a large extent arbitrary (and unlikely to be associated with major discontinuities in your variable of interest). In crime analysis we very often use census administrative units, but these rarely represent natural neighbourhoods.
+\item
+  They work better if areas are of similar size. Areas of greater size may be more heterogeneous internally than those of smaller size: that is, they potentially have the largest error of representation. Also, visual attention may be drawn by areas that are large in size (if size is not the variable use to create a ratio)
+\end{enumerate}
 
 \hypertarget{what-do-we-use-choropleth-maps-for}{%
 \subsection{What do we use choropleth maps for?}\label{what-do-we-use-choropleth-maps-for}}
@@ -2412,9 +2432,9 @@ Most choropleth maps you encounter are classified choropleth maps. They group th
 \hypertarget{crime-rates}{%
 \subsubsection{Crime rates}\label{crime-rates}}
 
-In a choropleth map you ``can'' show raw totals (absolute values), for example number of crimes, or derived values (ratios), crime per 100,000 inhabitants. But as a general rule, you should restrict choropleth maps to show derived variables such as rates or percentages (\protect\hyperlink{ref-Monmonier_1993}{Monmonier} (\protect\hyperlink{ref-Monmonier_1993}{1993}), \protect\hyperlink{ref-Field_2018}{Field} (\protect\hyperlink{ref-Field_2018}{2018})). This is because the areas we often use are of different size and this may introduce an element of confusion in the interpretation of choropleth maps. The size of say, a province or a county, ``has a big effect on the amount of color shown on the map, but unit area may have little relationship, or even an inverse relationship, to base populations and related counts.'' (\protect\hyperlink{ref-Brewer_2006}{Brewer} (\protect\hyperlink{ref-Brewer_2006}{2006}): S30)
+In a choropleth map you ``can'' show raw totals (absolute values), for example number of crimes, or derived values (ratios), crime per 100,000 inhabitants. But as a general rule, you should restrict choropleth maps to show derived variables such as rates or percentages (\protect\hyperlink{ref-Monmonier_1993}{Monmonier} (\protect\hyperlink{ref-Monmonier_1993}{1993}), \protect\hyperlink{ref-Field_2018}{Field} (\protect\hyperlink{ref-Field_2018}{2018})). This is because the areas we often use are of different size and this may introduce an element of confusion in the interpretation of choropleth maps. The size of say, a province or a county, ``has a big effect on the amount of color shown on the map, but unit area may have little relationship, or even an inverse relationship, to base populations and related counts.'' (\protect\hyperlink{ref-Brewer_2006}{C. Brewer} (\protect\hyperlink{ref-Brewer_2006}{2006}): S30)
 
-Mapping counts, mapping where a lot of the crime incidents concentrate is helpful, but we may want to understand as well if this is simply a function of the spatial distribution of the population at risk. As \protect\hyperlink{ref-Ratcliffe_2010}{Ratcliffe} (\protect\hyperlink{ref-Ratcliffe_2010}{2010}) suggests ``practitioners often recognize that a substantial density of crime in a location is sufficient information to initiate a more detailed analysis of the problem,'' but equally we may want to know if ``this clustering of crime is meaningfully non-random, and if the patterns observed are still present once the analysis has controlled for the population at risk.'' (p.~11-12).
+Mapping counts, mapping where a lot of the crime incidents concentrate is helpful, but we may want to understand as well if this is simply a function of the spatial distribution of the population at risk. As \protect\hyperlink{ref-Ratcliffe_2010}{J. Ratcliffe} (\protect\hyperlink{ref-Ratcliffe_2010}{2010}) suggests ``practitioners often recognize that a substantial density of crime in a location is sufficient information to initiate a more detailed analysis of the problem,'' but equally we may want to know if ``this clustering of crime is meaningfully non-random, and if the patterns observed are still present once the analysis has controlled for the population at risk.'' (p.~11-12).
 
 A map of rates essentially aims to provide information into geographic variation of crime risk - understood as the probability that a crime may occur. Maps of rates are ultimately about communicating the risk of crime, with greater rates suggesting a higher probability of becoming a victim of crime.
 
@@ -2422,7 +2442,7 @@ In social science the denominator on mapped ratios is typically some form of pop
 
 However, a great deal of discussion in crime analysis has focused on the choice of the right denominator. Authors relate to this as the \textbf{denominator dilemma}: ``the problem associated with identifying an appropriate target availability control that can overcome issues of spatial inequality in the areal units used to study crime'' (Ratcliffe\_2010). The best measure for your denominator is one which captures opportunities. If for example you are interested in residential burglary, it makes sense to use number of inhabited households as your denominator (rather than population size). Whatever denominator you choose, you will usually want to make a case as to why that is the best representation of the opportunities for the crime type you're interested in.
 
-As noted, population is a common choice, but it is not always the one that best captures crime opportunities. Population, on the other hand, is also highly mobile during the day. People do not stay in the areas where they live, they go to work, they go to school, they travel for tourism purposes, and in doing so they alter the population structure of any given area. As \protect\hyperlink{ref-Ratcliffe_2010}{Ratcliffe} (\protect\hyperlink{ref-Ratcliffe_2010}{2010}) highlights with an example ``the residential population (as is usually available from the census) tells the researcher little about the real number of people outside nightclubs at 2 a.m'' Geographers and criminologists, thus, distinguish between the standard measures of population (that relate to people that live in an area) provided by the census and government statistical authorities; and the so called \textbf{ambient population}, that relates to people that occupy an area at a given time, and which typically are a bit more difficult to source (see for more details: \protect\hyperlink{ref-Andresen_2011}{Andresen} (\protect\hyperlink{ref-Andresen_2011}{2011}), {[}{[}{[}MORE REFERENCES{]}{]}{]}).
+As noted, population is a common choice, but it is not always the one that best captures crime opportunities. Population, on the other hand, is also highly mobile during the day. People do not stay in the areas where they live, they go to work, they go to school, they travel for tourism purposes, and in doing so they alter the population structure of any given area. As \protect\hyperlink{ref-Ratcliffe_2010}{J. Ratcliffe} (\protect\hyperlink{ref-Ratcliffe_2010}{2010}) highlights with an example ``the residential population (as is usually available from the census) tells the researcher little about the real number of people outside nightclubs at 2 a.m'' Geographers and criminologists, thus, distinguish between the standard measures of population (that relate to people that live in an area) provided by the census and government statistical authorities; and the so called \textbf{ambient population}, that relates to people that occupy an area at a given time, and which typically are a bit more difficult to source (see for example: \protect\hyperlink{ref-Andresen_2011}{Andresen} (\protect\hyperlink{ref-Andresen_2011}{2011})).
 
 As we will see later, one of the key problems with mapping rates is that the estimated rates can be problematic if the enumeration areas we are studying have different population counts (or whatever it is we are counting in the denominator). When this happens, and those population counts produce small samples, we may have rates for some locations (those with more population) that are better estimated than others and, therefore, are less subject to noise.
 
@@ -2430,9 +2450,9 @@ Aside from problems with the denominator, we may also have problems with our num
 
 Equally, not all police forces or units are equally adept at properly \emph{recording} all crimes reported to the police. An in-depth study conducted in England and Wales concluded that over 800,000 crimes reported to the police were not properly recorded (an under-recording of 19\%, which is higher for violence and sexual abuse, 33\% and 26\% respectively) (\protect\hyperlink{ref-HMIC_2014}{Constabulary} (\protect\hyperlink{ref-HMIC_2014}{2014})). There are, indeed, institutional, economic, cultural and political factors that may shape the quality of crime recording across different parts of the area we want to map out.
 
-Finally, the quality of the geocoding process, which varies across crime type, also comes into the equation. Sometimes there are issues with positional accuracy or the inability to geocode an address. Some authors suggest we need to be able to geocode at least 85\% of the crime incidents to get accurate maps (\protect\hyperlink{ref-Ratcliffe_2004}{Ratcliffe} (\protect\hyperlink{ref-Ratcliffe_2004}{2004})), otherwise geocoded crime records may be spatially biased. More recent studies offer a less conservative estimate depending on the level of analysis and number of incidents (\protect\hyperlink{ref-Andresen_2020}{Andresen et al.} (\protect\hyperlink{ref-Andresen_2020}{2020})). Although all this has been known for a while, criminologists and crime analysts are only now beginning to appreciate how this can affect the quality of crime mapping and the decision making based on this mapping (\protect\hyperlink{ref-Buil-Gil_2021}{Buil-Gil, Medina, and Shlomo} (\protect\hyperlink{ref-Buil-Gil_2021}{2021}); \protect\hyperlink{ref-Hart_2012}{Hart and Zandbergen} (\protect\hyperlink{ref-Hart_2012}{2012})).
+Finally, the quality of the geocoding process, which varies across crime type, also comes into the equation. Sometimes there are issues with positional accuracy or the inability to geocode an address. Some authors suggest we need to be able to geocode at least 85\% of the crime incidents to get accurate maps (\protect\hyperlink{ref-Ratcliffe_2004}{J. Ratcliffe} (\protect\hyperlink{ref-Ratcliffe_2004}{2004})), otherwise geocoded crime records may be spatially biased. More recent studies offer a less conservative estimate depending on the level of analysis and number of incidents (\protect\hyperlink{ref-Andresen_2020}{Andresen et al.} (\protect\hyperlink{ref-Andresen_2020}{2020})). Although all this has been known for a while, criminologists and crime analysts are only now beginning to appreciate how this can affect the quality of crime mapping and the decision making based on this mapping (\protect\hyperlink{ref-Buil-Gil_2021}{Buil-Gil, Medina, and Shlomo} (\protect\hyperlink{ref-Buil-Gil_2021}{2021}); \protect\hyperlink{ref-Hart_2012}{Hart and Zandbergen} (\protect\hyperlink{ref-Hart_2012}{2012})).
 
-Although most of the time crime analysts are primarily concerned with mapping crime incidence and those factors associated with it, increasingly we see interest in the spatial representation of other variables of interest to criminologists such as fear of crime, trust in the police, etc. In these cases, the data typically come from surveys and the problem that may arise is whether we have a sample size large enough to derive estimates at the geographical level that we may want to work with. When this is not the case, methods for small area estimation are required (for details and criminological examples see {[}{[}{[}ADD REFERENCES{]}{]}{]}).
+Although most of the time crime analysts are primarily concerned with mapping crime incidence and those factors associated with it, increasingly we see interest in the spatial representation of other variables of interest to criminologists such as fear of crime, trust in the police, and more. In these cases, the data may come from surveys and the problem that may arise is whether we have a sample size large enough to derive estimates at the geographical level that we may want to work with. When this is not the case, methods for small area estimation are required (for details and criminological examples see \protect\hyperlink{ref-Buil_2019}{Buil-Gil et al.} (\protect\hyperlink{ref-Buil_2019}{2019})). There has also been recent work mapping perception of place and fear of crime at micro-levels (see \protect\hyperlink{ref-Solymosi_2015}{Solymosi, Bowers, and Fujiyama} (\protect\hyperlink{ref-Solymosi_2015}{2015}) and \protect\hyperlink{ref-Solymosi_2020}{Solymosi et al.} (\protect\hyperlink{ref-Solymosi_2020}{2020})).
 
 \hypertarget{prevalence-vs-incidence}{%
 \subsubsection{Prevalence vs incidence}\label{prevalence-vs-incidence}}
@@ -2463,16 +2483,16 @@ There are a number of vignettes in the CRAN repository with helpful explanations
 
 In \texttt{tmap} each map can be plotted as a static map (\emph{plot mode}) and shown interactively (\emph{view mode}). We will start by focusing on static maps.
 
-For the purpose of demonstrating some of the functionality of this package we will use the Manchester crime data generated in the first chapter. We have now added a few variables obtained from the Census that will be handy later on. You can obtain the data in a GeoJSON format from our GitHub repo using the following code:
+For the purpose of demonstrating some of the functionality of this package we will use the Manchester crime data generated in the first chapter. We have now added a few variables obtained from the Census that will be handy later on. You can obtain the data in a GeoJSON format from the companion data to this book.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{manchester }\OtherTok{\textless{}{-}} \FunctionTok{st\_read}\NormalTok{(}\StringTok{"data/manchester"}\NormalTok{)}
+\NormalTok{manchester }\OtherTok{\textless{}{-}} \FunctionTok{st\_read}\NormalTok{(}\StringTok{"data/manchester.geojson"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{verbatim}
-## Reading layer `manchester' from data source `/Users/reka/Desktop/crime_mapping/crime_mapping/data/manchester' using driver `GeoJSON'
+## Reading layer `manchester' from data source `/Users/reka/Desktop/crime_mapping/crime_mapping/data/manchester.geojson' using driver `GeoJSON'
 ## Simple feature collection with 282 features and 5 fields
 ## Geometry type: POLYGON
 ## Dimension:     XY
@@ -2636,7 +2656,7 @@ Notice as well that the legend in this map is not very informative and could be 
   \FunctionTok{tm\_borders}\NormalTok{(}\AttributeTok{alpha =} \FloatTok{0.1}\NormalTok{) }\SpecialCharTok{+}
   \FunctionTok{tm\_layout}\NormalTok{(}\AttributeTok{main.title =} \StringTok{"Crime in Manchester City, Nov/2017"}\NormalTok{, }
             \AttributeTok{main.title.size =} \FloatTok{0.7}\NormalTok{ ,}
-            \AttributeTok{legend.outside =} \ConstantTok{TRUE}\NormalTok{,  }\CommentTok{\# Takes the legend outside the main map }
+            \AttributeTok{legend.outside =} \ConstantTok{TRUE}\NormalTok{,  }\CommentTok{\# Place legend outside of map }
             \AttributeTok{legend.title.size =} \FloatTok{0.8}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
@@ -2692,14 +2712,6 @@ The quantitative information is usually classified before its symbolization in a
 \includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-93-1.pdf}
 
 \textbf{The headtails method} This uses a method proposed by \protect\hyperlink{ref-Jiang_2013}{Jiang} (\protect\hyperlink{ref-Jiang_2013}{2013}) as a solution for variables with a heavy tail distribution, like we often have with crime. ``This new classification scheme partitions all of the data values around the mean into two parts and continues the process iteratively for the values (above the mean) in the head until the head part values are no longer heavy-tailed distributed. Thus, the number of classes and the class intervals are both naturally determined.'' (\protect\hyperlink{ref-Jiang_2013}{Jiang} (\protect\hyperlink{ref-Jiang_2013}{2013}), p.~482)
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{pal1 }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"wheat1"}\NormalTok{, }\StringTok{"red3"}\NormalTok{)}
-\FunctionTok{plot}\NormalTok{(}\FunctionTok{classIntervals}\NormalTok{(manchester}\SpecialCharTok{$}\NormalTok{crimr1, }\AttributeTok{style=}\StringTok{"headtails"}\NormalTok{), }\AttributeTok{pal =}\NormalTok{ pal1,}
-     \AttributeTok{main=}\StringTok{"Headtails"}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
 
 \includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-94-1.pdf}
 
@@ -2809,9 +2821,12 @@ Taken from the help file we can find more information about these, for example t
 Imagine you were a consultant working for one of the political parties in the city of Manchester. Which map would you choose to represent to the electorate the situation of crime in the city if you were the party in control of the local government and which map you would choose if you were working for the opposition? As noted above, it is very easy to mislead with maps and, thus, this means the professional map maker has to abide by strict deontological criteria and take well justified impartial decisions when visualising data.
 
 \protect\hyperlink{ref-Cameron_2005}{Cameron} (\protect\hyperlink{ref-Cameron_2005}{2005}) suggests the following:
-\textgreater{}``To know which classification scheme to use, an analyst needs to know how the
+
+\begin{quote}
+``To know which classification scheme to use, an analyst needs to know how the
 data are distributed and the mapping objective. If the data are unevenly distributed, with large jumps in values or extreme outliers, and the analyst wants to emphasize clusters of observations that house similar values, use the natural breaks classification approach. If the data are evenly distributed and the analyst wants to emphasize the percentage of observations in a given classification category or group of categories, use the quantile classification approach. If the data are normally distributed and the analyst wants to represent the density of observations around the mean, use the equal interval approach. If the data are skewed and the analyst wants to identify extreme outliers or clusters of very high or low values, use the standard deviation classification
 approach.''
+\end{quote}
 
 \hypertarget{interactive-mapping-with-tmap}{%
 \section{Interactive mapping with tmap}\label{interactive-mapping-with-tmap}}
@@ -2892,7 +2907,7 @@ In previous sections we discussed how to map rates. It seems a fairly straightfo
 
 Rates are funny animals. \protect\hyperlink{ref-Gelman_1999}{Gelman and Price} (\protect\hyperlink{ref-Gelman_1999}{1999}) goes so far as to suggest that all maps of rates are misleading. The problem at hand is well known in spatial epidemiology: " plotting observed rates can have serious drawbacks when sample sizes vary by area, since very high (and low) observed rates are found disproportionately in poorly-sampled areas" (\protect\hyperlink{ref-Gelman_1999}{Gelman and Price} (\protect\hyperlink{ref-Gelman_1999}{1999}), p.~3221). There is associated noise for those areas where the denominators give us a small sample size. And it is hard to solve this problem.
 
-Let´s illustrate with an example. We are going to use historic data on homicide across US counties. The dataset was used as the basis for the study by (\protect\hyperlink{ref-Baller_2006}{\textbf{Baller\_2006?}}). It contains data on homicide counts and rates for various decades across the US as well as information on structural factors often thought to be associated with violence. The data is freely available through the webpage of Geoda, a clever point-and-click interface developed by Luc Anselin (a spatial econometrician and coauthor of the above paper) and his team, to make spatial analysis accessible. It is also available as one of the packages in the \texttt{geodaData} package.
+Let's illustrate with an example. We are going to use historic data on homicide across US counties. The dataset was used as the basis for the study by \protect\hyperlink{ref-Baller_2001}{Baller et al.} (\protect\hyperlink{ref-Baller_2001}{2001}). It contains data on homicide counts and rates for various decades across the US as well as information on structural factors often thought to be associated with violence. The data is freely available through the webpage of Geoda, a clever point-and-click interface developed by Luc Anselin (a spatial econometrician and coauthor of the above paper) and his team, to make spatial analysis accessible. It is also available as one of the packages in the \texttt{geodaData} package.
 
 To read a data available in a library we have loaded we can use the \texttt{data()} function. If we check the \texttt{class()} of this object we will see it was already stored in \texttt{geodaData} as a \texttt{sf} object.
 
@@ -3120,9 +3135,9 @@ So to smooth or not too smooth? Clearly we can see how smoothing stabilises the 
 \hypertarget{summary-and-further-reading-2}{%
 \section{Summary and further reading}\label{summary-and-further-reading-2}}
 
-This chapter introduced some basic principles of thematic maps. We learned how to make them using the \texttt{tmap} package, we learned about the importance of classification schemes, and how each one may produce a different looking map, which may tell a different story. For further reading, (\protect\hyperlink{ref-Brewer_2016}{\textbf{Brewer\_2016?}}) provides a brief condensed introduction to thematic mapping for epidemiologists but that can be generally extrapolated for crime mapping purposes. We have talked about the potential to develop misleading maps and \protect\hyperlink{ref-Monmonier_1996}{Monmonier} (\protect\hyperlink{ref-Monmonier_1996}{1996}) ``How to lie with maps'' provides good guidance to avoid that our negligent choices when producing a map confuse the readers. \protect\hyperlink{ref-Carr_2010}{Carr and Pickle} (\protect\hyperlink{ref-Carr_2010}{2010}) offers a more detailed treatment of small multiples and micromaps.
+This chapter introduced some basic principles of thematic maps. We learned how to make them using the \texttt{tmap} package, we learned about the importance of classification schemes, and how each one may produce a different looking map, which may tell a different story. For further reading, \protect\hyperlink{ref-Brewer_2006}{C. Brewer} (\protect\hyperlink{ref-Brewer_2006}{2006}) provides a brief condensed introduction to thematic mapping for epidemiologists but that can be generally extrapolated for crime mapping purposes. We have talked about the potential to develop misleading maps and \protect\hyperlink{ref-Monmonier_1996}{Monmonier} (\protect\hyperlink{ref-Monmonier_1996}{1996}) ``How to lie with maps'' provides good guidance to avoid that our negligent choices when producing a map confuse the readers. \protect\hyperlink{ref-Carr_2010}{Carr and Pickle} (\protect\hyperlink{ref-Carr_2010}{2010}) offers a more detailed treatment of small multiples and micromaps.
 
-Mapping rates has been more thoroughly discussed within spatial epidemiology than in criminology. There is ample literature on disease mapping that address in more sophisticated ways some of the issues we introduce here (see \protect\hyperlink{ref-Waller_2004}{Waller and Gotway} (\protect\hyperlink{ref-Waller_2004}{2004}), \protect\hyperlink{ref-Lawson_2006}{Lawson} (\protect\hyperlink{ref-Lawson_2006}{2021b}), \protect\hyperlink{ref-Lawson_2021a}{Lawson} (\protect\hyperlink{ref-Lawson_2021a}{2021a}), or \protect\hyperlink{ref-Lawson_2021b}{Lawson} (\protect\hyperlink{ref-Lawson_2021b}{2021c})). Much of this work on spatial epidemiology adopts a Bayesian framework. We will talk a bit more about this later on, but if you want a friendly introduction to Bayesian data analysis there is no better introduction than (\protect\hyperlink{ref-McElreath_2020}{\textbf{McElreath\_2020?}}).
+Mapping rates has been more thoroughly discussed within spatial epidemiology than in criminology. There is ample literature on disease mapping that address in more sophisticated ways some of the issues we introduce here (see \protect\hyperlink{ref-Waller_2004}{Waller and Gotway} (\protect\hyperlink{ref-Waller_2004}{2004}), \protect\hyperlink{ref-Lawson_2006}{Lawson} (\protect\hyperlink{ref-Lawson_2006}{2021b}), \protect\hyperlink{ref-Lawson_2021a}{Lawson} (\protect\hyperlink{ref-Lawson_2021a}{2021a}), or \protect\hyperlink{ref-Lawson_2021b}{Lawson} (\protect\hyperlink{ref-Lawson_2021b}{2021c})). Much of this work on spatial epidemiology adopts a Bayesian framework. We will talk a bit more about this later on, but if you want a friendly introduction to Bayesian data analysis there is no better introduction than \protect\hyperlink{ref-McElreath_2018}{McElreath} (\protect\hyperlink{ref-McElreath_2018}{2018}).
 
 \hypertarget{variations-of-thematic-mapping}{%
 \chapter{Variations of thematic mapping}\label{variations-of-thematic-mapping}}
@@ -3498,7 +3513,7 @@ Now we can have a look at these data:
 
 \includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-134-1.pdf}
 
-We can see that in smaller LAs we don't even really see the result, as the boundary lines pretty much cover everything. Hmm. In this case, we cannot really see what was happening with the EU referendum in London. This is where augmenting our polygons may be handy. Cartograms offer one way to achieve this.
+The Local Authorities vary greatly in their shape and size, and in the case of smaller LAs the result is barely visible. In this case, we cannot really see what was happening with the EU referendum in London, for example. This is the sort of situationwhere augmenting our polygons may be handy. Cartograms offer one way to achieve this.
 
 There are different types of cartograms. \textbf{Density-equalizing (contiguous) cartograms} are your traditional cartograms. In density-equalizing cartograms, map features bulge out a specific variable. Even though it distorts each feature, it remains connected during its creation. On the other hand, you can have \textbf{Non-Contiguous Cartograms}, where features in non-contiguous cartograms don't have to stay connected. Finally, \textbf{Dorling Cartograms} (named after professor \href{https://www.geog.ox.ac.uk/staff/ddorling.html}{Danny Dorling}) use shapes like circles and rectangles to depict area. These types of cartograms make it easy to recognize patterns.
 
@@ -3512,7 +3527,7 @@ In our data set we have a variable ``Electorate'' which refers to the total numb
 \end{Highlighting}
 \end{Shaded}
 
-If you run this, it might take a long time. This function, while it looks nice and simple, is actually very computationally taxing for your computer. For those interested, you may like to take the time while R works this out for you to read up on the maths behind this transformation in \protect\hyperlink{ref-Dougenik_1985}{Dougenik, Chrisman, and Niemeyer} (\protect\hyperlink{ref-Dougenik_1985}{1985}).
+If you run this, it might take a long time. This function, while it looks nice and simple, is actually very computationally taxing for your computer. For those interested, you may like to take the time while R works this out for you to read up on the maths behind this transformation in \protect\hyperlink{ref-Dougenik_1985}{Dougenik, Chrisman, and Niemeyer} (\protect\hyperlink{ref-Dougenik_1985}{1985}) (it's got a fun name: a rubber sheet distortion algorithm!).
 
 I do have a tip for you if you want to make sure the process does not take too long. You can set another parameter in the cartogram function which is the \texttt{itermax=} parameter. This specifies the maximum number of iterations we are happy to sit through for our cartogram. If you do not specify it's set to 15. Let's set to 5 for the sake of speed:
 
@@ -3522,26 +3537,6 @@ I do have a tip for you if you want to make sure the process does not take too l
 \NormalTok{eu\_cartogram }\OtherTok{\textless{}{-}} \FunctionTok{cartogram\_cont}\NormalTok{(eu\_sf, }\StringTok{"Electorate"}\NormalTok{, }\AttributeTok{itermax =} \DecValTok{5}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
-
-\begin{verbatim}
-## Mean size error for iteration 1: 4.11884641547245
-\end{verbatim}
-
-\begin{verbatim}
-## Mean size error for iteration 2: 21.1096266805133
-\end{verbatim}
-
-\begin{verbatim}
-## Mean size error for iteration 3: 3.05848955329872
-\end{verbatim}
-
-\begin{verbatim}
-## Mean size error for iteration 4: 2.51480273537651
-\end{verbatim}
-
-\begin{verbatim}
-## Mean size error for iteration 5: 2.92812701653567
-\end{verbatim}
 
 This will be faster (but may not result in the best possible cartogram output). Once your cartogram has been created, you can now plot again the referendum results, but using the electorate to change the size of the Local Authority:
 
@@ -3555,12 +3550,12 @@ This will be faster (but may not result in the best possible cartogram output). 
 
 \includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-137-1.pdf}
 
-We can now see London much better, and see that darker coloured cluster where much smaller percentage of people voted leave.
+We can now see London much better, and see that darker coloured cluster where much smaller percentage of people voted leave. We can eye-ball where London may be, as this continuous area cartogram tries to maintain some fidelity to our original shapes, while weighting them by some variable of interest, in our case the electorate in each Local Authority.
 
 \hypertarget{dorling-cartogram}{%
 \subsection{Dorling Cartogram}\label{dorling-cartogram}}
 
-I mentioned there are many types of cartogram. The one we created above tries to maintain some fidelity to our original shapes, while weighting them by some variable of interest, in our case the electorate in each Local Authority. However sometimes this may not be important. In that case, you might be interested in creating a \textbf{Dorling cartogram}.
+While the continuous area cartogram we created above tries to maintain some fidelity to our original shapes, other approaches take more freedom when applyign transformations. Sometimes, maintaining a resemblance to the original geometry of each polygon may not be important. In that case, you might be interested in creating a \textbf{Dorling cartogram}.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -3606,11 +3601,11 @@ So first, let's create the breaks first for the \texttt{Pct\_Leave} variable.
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{leave\_breaks }\OtherTok{\textless{}{-}} \FunctionTok{quantile}\NormalTok{(eu\_sf}\SpecialCharTok{$}\NormalTok{Pct\_Leave, }
-                         \AttributeTok{probs =} \FunctionTok{seq}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{, }\AttributeTok{by =} \DecValTok{1}\SpecialCharTok{/}\DecValTok{3}\NormalTok{), }\CommentTok{\# vector of probabilities}
-                         \AttributeTok{na.rm=}\ConstantTok{TRUE}\NormalTok{, }\CommentTok{\# remove NAs before computing quantiles}
-                         \AttributeTok{names=}\ConstantTok{TRUE}\NormalTok{, }\CommentTok{\# result will have names attribute}
+                         \AttributeTok{probs =} \FunctionTok{seq}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{, }\AttributeTok{by =} \DecValTok{1}\SpecialCharTok{/}\DecValTok{3}\NormalTok{), }\CommentTok{\# probabilities}
+                         \AttributeTok{na.rm=}\ConstantTok{TRUE}\NormalTok{, }\CommentTok{\# remove NAs }
+                         \AttributeTok{names=}\ConstantTok{TRUE}\NormalTok{, }\CommentTok{\# keep names attribute}
                          \AttributeTok{include.lowest=}\ConstantTok{TRUE}\NormalTok{) }\CommentTok{\# include value equal to }
-                                              \CommentTok{\# the lowest ‘breaks’ value }
+                                              \CommentTok{\# lowest ‘breaks’ value }
 \end{Highlighting}
 \end{Shaded}
 
@@ -3644,8 +3639,10 @@ The results are the cutoff values which we want to use to ``cut'' our numeric va
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{eu\_sf }\OtherTok{\textless{}{-}}\NormalTok{ eu\_sf }\SpecialCharTok{\%\textgreater{}\%} 
-  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{leave\_quantiles =} \FunctionTok{cut}\NormalTok{(Pct\_Leave, }\AttributeTok{breaks =}\NormalTok{ leave\_breaks), }
-         \AttributeTok{turnout\_quantiles =} \FunctionTok{cut}\NormalTok{(Pct\_Turnout, }\AttributeTok{breaks =}\NormalTok{ tunrout\_breaks))}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{leave\_quantiles =} \FunctionTok{cut}\NormalTok{(Pct\_Leave, }
+                               \AttributeTok{breaks =}\NormalTok{ leave\_breaks), }
+         \AttributeTok{turnout\_quantiles =} \FunctionTok{cut}\NormalTok{(Pct\_Turnout, }
+                                 \AttributeTok{breaks =}\NormalTok{ tunrout\_breaks))}
 \end{Highlighting}
 \end{Shaded}
 
@@ -3801,14 +3798,8 @@ Now that we've shown you how to do a lot of spatial crime analysis, we wanted to
 I borrow here from George Renghert and Brian Lockwood:
 
 \begin{quote}
-When spatial analysis of crime is conducted, the analyst should not ignore the spatial units that data are aggregated into and the impact of this choice on the interpretation of findings. Just as several independent variables are considered to determine whether they have statistical significance, a consideration of multiple spatial units of analysis should be made as well, in order to determine whether the choice of aggregation level used in a spatial analysis can result in biased findings.
+When spatial analysis of crime is conducted, the analyst should not ignore the spatial units that data are aggregated into and the impact of this choice on the interpretation of findings. Just as several independent variables are considered to determine whether they have statistical significance, a consideration of multiple spatial units of analysis should be made as well, in order to determine whether the choice of aggregation level used in a spatial analysis can result in biased findings. \protect\hyperlink{ref-Rengert_2009}{Rengert and Lockwood} (\protect\hyperlink{ref-Rengert_2009}{2009})
 \end{quote}
-
-\begin{itemize}
-\tightlist
-\item
-  \protect\hyperlink{ref-Rengert_2009}{Rengert and Lockwood} (\protect\hyperlink{ref-Rengert_2009}{2009})
-\end{itemize}
 
 In particular, they highlight four main issues inherent in most studies of space:
 
@@ -3875,7 +3866,7 @@ For the purposes of this course, it's enough that you know of, and understand th
 
 In this chapter we explored the use of binning points into hexbins and rectangular grids, as well as transforming polygons in order to enhanche the legibility of your maps. For some more information on binning see \protect\hyperlink{ref-Johnson_2011}{Johnson} (\protect\hyperlink{ref-Johnson_2011}{2011}). For transforming polygons, read \protect\hyperlink{ref-Tobler_2004}{Tobler} (\protect\hyperlink{ref-Tobler_2004}{2004}) and \protect\hyperlink{ref-Nusrat_2016}{Nusrat and Kobourov} (\protect\hyperlink{ref-Nusrat_2016}{2016}). We can also suggest a read of \protect\hyperlink{ref-Langton_2018}{Langton and Solymosi} (\protect\hyperlink{ref-Langton_2018}{2018}) and check out this video from SAGE methods \protect\hyperlink{ref-Solymosi_2021}{Solymosi} (\protect\hyperlink{ref-Solymosi_2021}{2021}).
 
-To read up more on the Modifiable Areal Unit Problem (MAUP) in general, we recommend the original \protect\hyperlink{ref-Openshaw_1981}{Openshaw} (\protect\hyperlink{ref-Openshaw_1981}{1981}). For some criminology/ crime mapping specific reading try \protect\hyperlink{ref-Rengert_2009}{Rengert and Lockwood} (\protect\hyperlink{ref-Rengert_2009}{2009}) and \protect\hyperlink{ref-Gerell_2017}{Gerell} (\protect\hyperlink{ref-Gerell_2017}{2017})
+To read up more on the Modifiable Areal Unit Problem (MAUP) in general, we recommend the original \protect\hyperlink{ref-Openshaw_1981}{Openshaw} (\protect\hyperlink{ref-Openshaw_1981}{1981}). For some criminology/ crime mapping specific reading try \protect\hyperlink{ref-Rengert_2009}{Rengert and Lockwood} (\protect\hyperlink{ref-Rengert_2009}{2009}) and \protect\hyperlink{ref-Gerell_2017}{Gerell} (\protect\hyperlink{ref-Gerell_2017}{2017}).
 
 \hypertarget{visualisation-good-cartographic-design}{%
 \chapter{Visualisation: good cartographic design}\label{visualisation-good-cartographic-design}}
@@ -3899,21 +3890,7 @@ In this chapter we will be working with some data published by Hungarian police 
 
 \CommentTok{\#read in drink driving data }
 \NormalTok{drink\_driving }\OtherTok{\textless{}{-}} \FunctionTok{read\_csv}\NormalTok{(}\StringTok{"data/drink\_driving.csv"}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
 
-\begin{verbatim}
-## 
-## -- Column specification --------------------------------------------------------
-## cols(
-##   name = col_character(),
-##   total_breath_tests = col_double(),
-##   positive_breath_tests = col_double()
-## )
-\end{verbatim}
-
-\begin{Shaded}
-\begin{Highlighting}[]
 \CommentTok{\#join the csv (attribute) data to the polygons}
 \NormalTok{hu\_dd }\OtherTok{\textless{}{-}} \FunctionTok{left\_join}\NormalTok{(hungary, drink\_driving, }\AttributeTok{by =} \FunctionTok{c}\NormalTok{(}\StringTok{"name"} \OtherTok{=} \StringTok{"name"}\NormalTok{))}
 \end{Highlighting}
@@ -3923,7 +3900,7 @@ We can now use this example to talk through the important principles of good vis
 
 Cartographers have always been concerned about the appearance of maps and how the display marries form with function \protect\hyperlink{ref-Field_2012}{Field and Demaj} (\protect\hyperlink{ref-Field_2012}{2012}). As there is no definitive definition for what is meant by \emph{cartographic design} it can be challenging to evaluate what makes \emph{good} design. However there are themes and elements which can be used to guide the map maker, and offer points of reflection to encourage thoughtful designs.
 
-Te primary aim of maps is the communication of information in an honest and ethical way. This means each map should have a clear goal and know its audience, show all relevant data and not use the data to lie or mislead \protect\hyperlink{ref-Dent_2008}{Dent, Torguson, and Hodler} (\protect\hyperlink{ref-Dent_2008}{2008}). It should also be reproducible, transparent, cite all data sources, and consider diversity in its audience \protect\hyperlink{ref-Dent_2008}{Dent, Torguson, and Hodler} (\protect\hyperlink{ref-Dent_2008}{2008}). So what does that mean for specifically implementing these into practice. While a good amount of critical thought from the map maker will be required, there are aids we can rely upon. For example, \protect\hyperlink{ref-Field_2007}{Field} (\protect\hyperlink{ref-Field_2007}{2007}) developed a map evaluation checklist which you can access here: \url{http://downloads.esri.com/MappingCenter2007/arcGISResources/more/MapEvaluationGuidelines.pdf}. The questions fall into three broad categories:
+The primary aim of maps is the communication of information in an honest and ethical way. This means each map should have a clear goal and know its audience, show all relevant data and not use the data to lie or mislead \protect\hyperlink{ref-Dent_2008}{Dent, Torguson, and Hodler} (\protect\hyperlink{ref-Dent_2008}{2008}). It should also be reproducible, transparent, cite all data sources, and consider diversity in its audience \protect\hyperlink{ref-Dent_2008}{Dent, Torguson, and Hodler} (\protect\hyperlink{ref-Dent_2008}{2008}). So what does that mean for specifically implementing these into practice. While a good amount of critical thought from the map maker will be required, there are aids we can rely upon. For example, \protect\hyperlink{ref-Field_2007}{Field} (\protect\hyperlink{ref-Field_2007}{2007}) developed a map evaluation checklist which you can access here: \url{http://downloads.esri.com/MappingCenter2007/arcGISResources/more/MapEvaluationGuidelines.pdf}. The questions fall into three broad categories:
 
 \begin{itemize}
 \tightlist
@@ -3987,8 +3964,6 @@ In this chapter, we will aim to bring together the above principles, and work th
   \end{itemize}
 \item
   inset maps
-\item
-  interactivity (??)
 \end{itemize}
 
 \hypertarget{data-representation}{%
@@ -4193,22 +4168,7 @@ We now have this new dataframe which has coordinates for the centroid of each po
 \begin{Shaded}
 \begin{Highlighting}[]
 \FunctionTok{library}\NormalTok{(scatterpie)}
-\end{Highlighting}
-\end{Shaded}
 
-\begin{verbatim}
-## 
-## Attaching package: 'scatterpie'
-\end{verbatim}
-
-\begin{verbatim}
-## The following object is masked from 'package:sp':
-## 
-##     recenter
-\end{verbatim}
-
-\begin{Shaded}
-\begin{Highlighting}[]
 \FunctionTok{ggplot}\NormalTok{(}\AttributeTok{data =}\NormalTok{ hu\_dd) }\SpecialCharTok{+} 
   \FunctionTok{geom\_sf}\NormalTok{(}\AttributeTok{data =}\NormalTok{ hu\_dd, }
           \AttributeTok{fill =} \StringTok{"light yellow"}\NormalTok{, }
@@ -4252,7 +4212,7 @@ Of course, perceptual uniformity matters for your qualitative scales for your un
 
 The main message here is that you should generally not put together your color palettes in an ad hoc way. It is too easy to go astray. In addition to the considerations we have been discussing, there we might also want to avoid producing plots that confuse people who are colour blind, for example, and color blindness comes in a variety of forms. Fortunately for us, almost all of the work has been done for us already. Different color spaces have been defined and standardized in ways that account for these uneven or nonlinear aspects of human color perception.
 
-A good resource is \href{http://colorbrewer2.org/}{colorbrewer}. We have come across (\protect\hyperlink{ref-Brewer_2016}{\textbf{Brewer\_2016?}}) in Chapter 3. Colorbrewer is a resource developed by Cynthia Brewer and colleagues in order to help implement good colour practice in data visualisation and cartography. This site offers many colour schemes we can make use of for our maps, which are easily integrated into R using the \texttt{Rcolorbrewer} package.
+A good resource is \href{http://colorbrewer2.org/}{colorbrewer}. We have come across \protect\hyperlink{ref-Brewer_2006}{C. Brewer} (\protect\hyperlink{ref-Brewer_2006}{2006}) in Chapter 3. Colorbrewer is a resource developed by Cynthia Brewer and colleagues in order to help implement good colour practice in data visualisation and cartography \protect\hyperlink{ref-Brewer_1994}{C. A. Brewer} (\protect\hyperlink{ref-Brewer_1994}{1994}). This site offers many colour schemes we can make use of for our maps, which are easily integrated into R using the \texttt{Rcolorbrewer} package.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -4578,11 +4538,6 @@ Great, so we have the end point for our segment, but where should it start. Well
 \end{Highlighting}
 \end{Shaded}
 
-\begin{verbatim}
-## Warning in st_point_on_surface.sfc(sf::st_zm(x)): st_point_on_surface may not
-## give correct results for longitude/latitude data
-\end{verbatim}
-
 \includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-162-1.pdf}
 
 This is one way to include annotation while keeping the map clear, but still using the geographic information to reference. Annotations can be useful, but think carefully about whether you need them for your map, as they can also be distracting if not used appropriately.
@@ -4798,7 +4753,7 @@ This provides one way to add context. In previous iterations, we have adjusted t
 
 Inset maps provide another approach to situating your map in context. You might use this to show where your main map fits into the context of a larger area, for example, here we might illustrate how Hungary is situated within Europe. You might also use an inset map in another situation, where you have additional areas which you want to show which may be geographically far but politically related to your region. For example, we might want to portray a map of the United States of America, and make sure to include Hawaii and Alaska on the map. The basic principles behind these maps is the same. Essentially we must create two map objects, and then bring these together. Let's illustrate how.
 
-First, we need to create the map we will be displaying in the inset map. In this case, let's highlight the location of Hungary on the map. We can do this by creating a map of Europe (let's use the \texttt{rnaturalearth} package for this). We create a list of the countries from the world map `countries1101, and filter only Europe (we also exclude Russia because it is so big it makes the rest of Europe hard do see on a smaller map, and Iceland as it's far, also making the map bigger than we need).
+First, we need to create the map we will be displaying in the inset map. In this case, let's highlight the location of Hungary on the map. We can do this by creating a map of Europe (let's use the \texttt{rnaturalearth} package for this). We create a list of the countries from the world map `countries110', and filter only Europe (we also exclude Russia because it is so big it makes the rest of Europe hard do see on a smaller map, and Iceland as it's far, also making the map bigger than we need).
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -4882,7 +4837,7 @@ First, we set up an empty drawing layer for our ggplot using the \texttt{ggdraw(
 \NormalTok{hu\_dd\_with\_inset }\OtherTok{\textless{}{-}} \FunctionTok{ggdraw}\NormalTok{() }\SpecialCharTok{+}  \CommentTok{\# set layer}
   \FunctionTok{draw\_plot}\NormalTok{(main\_map) }\SpecialCharTok{+}  \CommentTok{\# draw the main map}
   \FunctionTok{draw\_plot}\NormalTok{(inset\_map,   }\CommentTok{\# draw inset map}
-            \AttributeTok{x =} \FloatTok{0.67}\NormalTok{,    }\CommentTok{\# specify location on x axis}
+            \AttributeTok{x =} \FloatTok{0.75}\NormalTok{,    }\CommentTok{\# specify location on x axis}
             \AttributeTok{y =} \DecValTok{0}\NormalTok{,    }\CommentTok{\# specify location on y axis}
             \AttributeTok{width =} \FloatTok{0.35}\NormalTok{,    }\CommentTok{\# specify width}
             \AttributeTok{height =} \FloatTok{0.35}\NormalTok{)   }\CommentTok{\# specify height}
@@ -4914,17 +4869,24 @@ For general readings on cartography, the work of Kenneth Field privudes (eg: \pr
 \hypertarget{introduction-5}{%
 \section{Introduction}\label{introduction-5}}
 
-In this chapter we provide a brief introduction into spatio-temporal visualisation. The importance of place in criminology and crime analysis is widely recognised, and is the central topic of this book. However, taking into consideration \textbf{time} is just as important as place. We often hear that crime is ``going up'' or ``going down'' over time. These variations on the levels of crime along time also vary across space. These variations across both time and place are called \textbf{spatio temporal variations}, and are of crucial importance for crime analysis, explanation, and prevention.
+In this chapter we provide a brief introduction into spatio-temporal visualisation. The importance of place in criminology and crime analysis is widely recognised, and is the central topic of this book. However, taking into consideration \textbf{time} is just as important as place. We often hear that crime is ``going up'' or ``going down'' over time. These variations on the levels of crime along time also vary across space. These variations across both time and place are called \textbf{spatio-temporal variations}, and are of crucial importance for crime analysis, explanation, and prevention.
 
-Traditionally the temporal and spatial analysis of crime are not introduced in a combined manner. Although a great deal of energy has been devoted to produce accessible training material for crime analysts on geographic information systems and spatial analysis, most criminology degrees (even at postgraduate level) and training packages for crime analysis devote a very limited (if any) content to the appropriate visualisation and analysis of temporal and spatio temporal data. Therefore, before we discuss the spatio temporal, we have to introduce a few key ideas and concepts about temporal crime analysis.
+Traditionally the temporal and spatial analysis of crime are not introduced in a combined manner. Although a great deal of energy has been devoted to produce accessible training material for crime analysts on geographic information systems and spatial analysis, most criminology degrees (even at postgraduate level) and training packages for crime analysis devote a very limited (if any) content to the appropriate visualisation and analysis of temporal and spatio-temporal data. Therefore, before we discuss the spatio-temporal, we have to introduce a few key ideas and concepts about temporal crime analysis.
 
-In this chapter, we will therefore give a very high-level overview of \textbf{temporal crime analysis}, before moving on to ways in which we can display spatio temporal variation in our data using maps. The key concepts covered in this chapter are:
+In this chapter, we will therefore give a very high-level overview of \textbf{temporal crime analysis}, before moving on to ways in which we can display spatio-temporal variation in our data using maps. The key concepts covered in this chapter are:
 
 \begin{itemize}
 \tightlist
 \item
+  an introduction to temporal data in crime analysis,
 \item
+  cleaning and wrangling temporal data,
 \item
+  visualising time data,
+\item
+  time series and its three components: trend, seasonality, and random variation,
+\item
+  visualising spatio-temporal variation.
 \end{itemize}
 
 We will be making use of the following R packages:
@@ -4951,10 +4913,25 @@ We will be making use of the following R packages:
 \end{Highlighting}
 \end{Shaded}
 
+\hypertarget{temporal-data-in-crime-analysis}{%
+\section{Temporal data in crime analysis}\label{temporal-data-in-crime-analysis}}
+
+In this book so far we have really emphasised the role of place in presenting opportunities for crimes to occur. However we cannot consider space without also considering time. An area might look very different during the day and during the night, on a weekend or on a weekday, and in the summer or in the winter.
+
+On a macro-scale, the relationship between crime and the seasons is something that had been a topic of concern for researchers as long as space has (\protect\hyperlink{ref-Baumer_1996}{Baumer and Wright} (\protect\hyperlink{ref-Baumer_1996}{1996})). Zooming into a micro-scale, changes in routine activities with time of day or day of week will affect the profile of a place, and linking back to the idea of crime places such as \emph{generators} or \emph{attractors}, will have significant effect on crime rates. In conceptualising these crime places, \protect\hyperlink{ref-Newton_2018}{Newton} (\protect\hyperlink{ref-Newton_2018}{2018}) emphasised the importance to consider the measure of busyness of a place by time of day in order to understand its role as an attractor, generator, or other crime place. For example, at transit stations during school days there is a morning peak time of work and school users combined, an afternoon school closing peak, and a secondary and slightly later end-of-workday peak time. Any calculation of crime rates needs to account for these micro-level temporal variations.
+
+At whatever unit of analysis, time is a vital variable to include in our crime analysis and criminological research. To quote \protect\hyperlink{ref-Tompson_2013}{Tompson and Bowers} (\protect\hyperlink{ref-Tompson_2013}{2013})
+
+\begin{quote}
+"{[}I{]}t is important to disaggregate data into sensible temporal categories to have a real understanding of the relationship between the variables under scrutiny. (\protect\hyperlink{ref-Tompson_2013}{Tompson and Bowers} (\protect\hyperlink{ref-Tompson_2013}{2013}), p.627)
+\end{quote}
+
+Returning to the importance of the role of place, we can introduce \textbf{spatio-temporal data} analysis. Spatio-temporal analysis is the process of utilising geo-and-time-referenced data in order to extract meaning and patterns from our data. In the earlier days, crime pattern analysis has tended to focus on identifying areas with higher densities of criminal activity, but not so much the monitoring of change in crime patterns over time (\protect\hyperlink{ref-Ratcliffe_1998}{J. H. Ratcliffe and McCullagh} (\protect\hyperlink{ref-Ratcliffe_1998}{1998})). However, crime hotspots display significant spatio-temporal variance, and the identification of spatio-temporal patterns of hot streets provides significant `actionable intelligence' for police departments (\protect\hyperlink{ref-Herrmann_2013}{Herrmann} (\protect\hyperlink{ref-Herrmann_2013}{2013})). Evidently, we cannot ignore time as a variable in our analyses. And while the main focus of this book is space, we must take at least one chapter to introduce some key concepts, and provide additional resources for readers to follow up with.
+
 \hypertarget{temporal-data-wrangling}{%
 \section{Temporal data wrangling}\label{temporal-data-wrangling}}
 
-Temporal data means that we can perform all sorts of exciting operations in our data wrangling processes. Just how we learned about spatial operations with spatial data, there are some things we can do only with temporal data.
+Temporal data means that we can perform all sorts of exciting operations in our data wrangling processes. Just how we learned about spatial operations with spatial data, there are some things we can do only with temporal data. In this section we will introduce some of these.
 
 A key R package that will help with temporal data wrangling is \texttt{lubridate}. Date-time data can be frustrating to work with and many base R commands for date-times can be unintuitive. The package \texttt{lubridate} was created to address such issues, and make it easier to do the things R does with date-times.
 
@@ -5083,10 +5060,12 @@ In fact, \texttt{lubridate} is so good, it can even parse text representations o
 
 Amazing stuff, which will definitely come in handy, especially if you might be a crime analyst working with some messy messy data. Lubridate should most definitely form part of your data wrangling toolkit in this case!
 
-\hypertarget{calendar-heatmaps}{%
-\section{Calendar heatmaps}\label{calendar-heatmaps}}
+\hypertarget{visualising-time-data}{%
+\section{Visualising time data}\label{visualising-time-data}}
 
 Once we have parsed and cleaned the temporal information that is available in our date variable, we can make use of this to visualise trends in other ways, not just using time series. For example, we might want to show where hotspots in time occur, within a year, or within a week, or some other set interval.
+
+One approach for this is to use a calendar heatmap.
 
 First, we create a column for date, removing the time (hour minute and second). We can achieve this easily by using the \texttt{date()} function in \texttt{lubridate}:
 
@@ -5130,7 +5109,8 @@ It is a date object, so we will be able to do date-time operations to it. Good s
 \end{Highlighting}
 \end{Shaded}
 
-Now we have this new dataframe, the number of aggravated assaults per day. To make our temporal heatmap calendar, we will now use a \texttt{ggplot2} extension, \texttt{ggTimeSeries}, that allows us to produce calendar heat visualisations. In this package, we can use the \texttt{ggplot\_calendar\_heatmap()} function, which creates a calendar heatmap. This approach provides context for weeks, and day of week which makes it a better way to visualise daily data than line charts.
+Now we hav
+e this new dataframe, the number of aggravated assaults per day. To make our temporal heatmap calendar, we will now use a \texttt{ggplot2} extension, \texttt{ggTimeSeries}, that allows us to produce calendar heat visualisations. In this package, we can use the \texttt{ggplot\_calendar\_heatmap()} function, which creates a calendar heatmap. This approach provides context for weeks, and day of week which makes it a better way to visualise daily data than line charts.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -5153,10 +5133,25 @@ Now we have this new dataframe, the number of aggravated assaults per day. To ma
 
 This sort of visualisation might be useful for example to see if certain days of the week see more incidents than others, possibly due to differences in the underlying routine activities that predominate for example weekends versus weekdays. For a bit of fun, you can read \protect\hyperlink{ref-Moss_2013}{Moss} (\protect\hyperlink{ref-Moss_2013}{2013}) for a safety rating on each day of the week.
 
-\hypertarget{temporal-crime-analysis}{%
-\section{Temporal crime analysis}\label{temporal-crime-analysis}}
+\hypertarget{how-not-to-present-time}{%
+\subsection{How (not) to present time}\label{how-not-to-present-time}}
 
-\textbf{Temporal crime analysis} looks at trends in crime or incidents. A crime or incident trend is a broad direction or pattern that specific types or general crime and/or incidents are following. Three types of trend can be identified:
+In our calendar heatmap above we presented count of crimes on each day. But there are other approaches to visualise change over time as well. One such approach is to present \textbf{percentage change} from one point in time to the next. There are many issues with this approach, which lead to misinterpreting the data, which are explored in detail by \protect\hyperlink{ref-Wheeler_2016}{Wheeler} (\protect\hyperlink{ref-Wheeler_2016}{2016}). For example, he mentions that percent change is not symmetric.
+
+\begin{quote}
+For example, an increase from 4 to 5 crimes is a 25\% increase, whereas a decrease from 5 to 4 crimes is only a 20\% decrease. (p.x).
+\end{quote}
+
+He presents an alternative metric in Poisson z-scores.
+
+Another issue is with the very popular approach of showing changes as \textbf{year-to-date}. In the post ``Why you can't identify changes in crime by comparing this month to last month'' \protect\hyperlink{ref-Ashby_2020}{Ashby} (\protect\hyperlink{ref-Ashby_2020}{2020}) presents some great arguments for why attempts to identify changes in crime frequency that involve simply comparing the number of crimes this week/month/year to the number that occurred last week/month/year, or comparing this week, month etc to the same period last year is not an appropriate way to analyse change over time. For example, doing this means throwing away useful information, ignoring trends and seasonality, and leaves results vulnerable to noise. As an alternative, he promotes the use of creating a forecast based on historic data, and comparing observed values against this.
+
+It is important that when presenting temporal data, we keep in mind these notes of caution, and follow good practice recommendations such as those notes here.
+
+\hypertarget{time-series-analysis}{%
+\section{Time series analysis}\label{time-series-analysis}}
+
+A key way to ensure we are analysing our time data appropriately is to deal with time series data, and treat them accordingly. \textbf{Time series analysis} looks at trends in crime or incidents. A crime or incident trend is a broad direction or pattern that specific types or general crime and/or incidents are following. Three types of trend can be identified:
 
 \begin{itemize}
 \tightlist
@@ -5168,7 +5163,7 @@ This sort of visualisation might be useful for example to see if certain days of
   \textbf{random fluctuations} -- caused by a large number of minor influences, or a one-off event, and can include displacement of crime from neighbouring areas due to partnership activity or crime initiatives.
 \end{itemize}
 
-Decomposing these trends is an important part of what \textbf{time series} analysis is all about. We will see some examples.
+Decomposing these trends is an important part of what time series analysis is all about. We will see some examples.
 
 \hypertarget{plotting-time-series-data}{%
 \subsection{Plotting time series data}\label{plotting-time-series-data}}
@@ -5306,7 +5301,7 @@ We can adapt this code to decompose and estimate the trends for the aggravated a
 
 \includegraphics{crime_mapping_files/figure-latex/decompose_8b-1.pdf}
 
-We can also use \texttt{ggplot2} for these purposes. In particular we can use the \texttt{ggseas} extension which allows for seasonal decomposition within \texttt{ggplot} (see \protect\hyperlink{ref-Ellis_2018}{Ellis} (\protect\hyperlink{ref-Ellis_2018}{2018}) for details). First we can use the \texttt{tsdf()} function from the \texttt{ggseas} package. This turns the \texttt{ts} object we just created into a dataframe and then plot the series.
+We can also use \texttt{ggplot2} for these purposes. In particular we can use the \texttt{ggseas} extension which allows for seasonal decomposition within \texttt{ggplot} (see (\protect\hyperlink{ref-Ellis_2018}{\textbf{Ellis\_2018?}}) for details). First we can use the \texttt{tsdf()} function from the \texttt{ggseas} package. This turns the \texttt{ts} object we just created into a dataframe and then plot the series.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -5521,9 +5516,9 @@ In the print book, this will not look very exciting, but hopefull you are follow
 \hypertarget{summary-and-further-reading-5}{%
 \section{Summary and further reading}\label{summary-and-further-reading-5}}
 
-In this chapter we had a very brief introduction to temporal data, and considered how we can manipulate and wrangle this new type of data using packages such as \texttt{lubridate}. We then introduced some approaches to visualising temporal data, and finally, ways to visualise spatio-temporal variation as well. To read up on the importance of time, and specifically spatio-temporal crime analysis, we recommend \protect\hyperlink{ref-Ratcliffe_2010}{Ratcliffe} (\protect\hyperlink{ref-Ratcliffe_2010}{2010}), \protect\hyperlink{ref-Wheeler_2016}{Wheeler} (\protect\hyperlink{ref-Wheeler_2016}{2016}), and \protect\hyperlink{ref-Roth_2013}{Roth et al.} (\protect\hyperlink{ref-Roth_2013}{2013}).
+In this chapter we had a very brief introduction to temporal data, and considered how we can manipulate and wrangle this new type of data using packages such as \texttt{lubridate}. We then introduced some approaches to visualising temporal data, and finally, ways to visualise spatio-temporal variation as well. To read up on the importance of time, and specifically spatio-temporal crime analysis, we recommend \protect\hyperlink{ref-Ratcliffe_2010}{J. Ratcliffe} (\protect\hyperlink{ref-Ratcliffe_2010}{2010}), \protect\hyperlink{ref-Wheeler_2016}{Wheeler} (\protect\hyperlink{ref-Wheeler_2016}{2016}), and \protect\hyperlink{ref-Roth_2013}{Roth et al.} (\protect\hyperlink{ref-Roth_2013}{2013}).
 
-While we did not get to go into any spatio-temporal analysis at this stage, visualisation is a good starting point to begin to engage with this important element of crime data. To move into spatio-temporal analysis would require a more thorough training in temporal data analysis first, and so we do not cover here. But we provide some resources for those interested. Notably \protect\hyperlink{ref-Hyndman_2021}{Hyndman and Athanasopoulos} (\protect\hyperlink{ref-Hyndman_2021}{2021}) is an excellent resource for this, and we can also recommend \protect\hyperlink{ref-Chatfield_2019}{Chatfield and Xing} (\protect\hyperlink{ref-Chatfield_2019}{2019}). For those already comfortable with this, \protect\hyperlink{ref-Pebesma_2012}{Pebesma} (\protect\hyperlink{ref-Pebesma_2012}{2012}) also offers a very thoughtful introduction to how spatio-temporal data layouts appear and useful graphs for spatio temporal data. \protect\hyperlink{ref-Pebesma_2012}{Pebesma} (\protect\hyperlink{ref-Pebesma_2012}{2012}) also introduces the R package \texttt{spacetime}, for handling such analyses. At the time of writing, functions in \texttt{spacetime} take as inputs older \texttt{sp} objects, but work in \texttt{sftime}, to work with \texttt{sf} objects is ongoing. For additional details in how to visualise space-time data with R we suggest (\protect\hyperlink{ref-Perpinan_2014}{\textbf{Perpinan\_2014?}}) and Chapter 2 of (\protect\hyperlink{ref-Wikkle_2019}{\textbf{Wikkle\_2019?}}).
+While we did not get to go into any spatio-temporal analysis at this stage, visualisation is a good starting point to begin to engage with this important element of crime data. To move into spatio-temporal analysis would require a more thorough training in temporal data analysis first, and so we do not cover here. But we provide some resources for those interested. Notably \protect\hyperlink{ref-Hyndman_2021}{Hyndman and Athanasopoulos} (\protect\hyperlink{ref-Hyndman_2021}{2021}) is an excellent resource for this, and we can also recommend \protect\hyperlink{ref-Chatfield_2019}{Chatfield and Xing} (\protect\hyperlink{ref-Chatfield_2019}{2019}). For those already comfortable with this, \protect\hyperlink{ref-Pebesma_2012}{Pebesma} (\protect\hyperlink{ref-Pebesma_2012}{2012}) also offers a very thoughtful introduction to how spatio-temporal data layouts appear and useful graphs for spatio-temporal data. \protect\hyperlink{ref-Pebesma_2012}{Pebesma} (\protect\hyperlink{ref-Pebesma_2012}{2012}) also introduces the R package \texttt{spacetime}, for handling such analyses. At the time of writing, functions in \texttt{spacetime} take as inputs older \texttt{sp} objects, but work in \texttt{sftime}, to work with \texttt{sf} objects is ongoing. For additional details in how to visualise space-time data with R we suggest \protect\hyperlink{ref-Perpinan_2014}{Lamigueiro} (\protect\hyperlink{ref-Perpinan_2014}{2014}) and Chapter 2 of (\protect\hyperlink{ref-Wikkle_2019}{\textbf{Wikkle\_2019?}}).
 
 As noted there are packages that provide functionality for better handling of dates and time. It is worth to go over the details of ´lubridate´ in the official page and the relevant chapter in \protect\hyperlink{ref-Wickham_2017}{Wickham and Grolemund} (\protect\hyperlink{ref-Wickham_2017}{2017}) is also very helpful. There is a brand new package \texttt{clock} that aims to improve on \texttt{lubridate} and that is also worth exploring (for details see \protect\hyperlink{ref-Vaughan_2021}{Vaughan} (\protect\hyperlink{ref-Vaughan_2021}{2021})).
 
@@ -5541,8 +5536,20 @@ Ashby, Matthew P J. 2018. {``Studying Crime and Place with the Crime Open Databa
 \leavevmode\hypertarget{ref-Ashby_2019}{}%
 ---------. 2019. {``Studying Crime and Place with the Crime Open Database: Social and Behavioural Scienes.''} \emph{Research Data Journal for the Humanities and Social Sciences} 4 (1): 65--80.
 
+\leavevmode\hypertarget{ref-Ashby_2020}{}%
+---------. 2020. {``Why You Can't Identify Changes in Crime by Comparing This Month to Last Month.''} \url{https://the-sra.org.uk/SRA/Blog/whyyoucantidentifychangesincrimebycomparingthismonthtolastmonth.aspx}.
+
+\leavevmode\hypertarget{ref-Baller_2001}{}%
+Baller, Robert D, Luc Anselin, Steven F Messner, Glenn Deane, and Darnell F Hawkins. 2001. {``Structural Covariates of US County Homicide Rates: Incorporating Spatial Effects.''} \emph{Criminology} 39 (3): 561--88.
+
+\leavevmode\hypertarget{ref-Baumer_1996}{}%
+Baumer, Eric, and Richard Wright. 1996. {``Crime Seasonality and Serious Scholarship: A Comment on Farrell and Pease.''} \emph{Brit. J. Criminology} 36: 579.
+
 \leavevmode\hypertarget{ref-Blumstein_1986}{}%
 Blumstein, Al, J Cohen, J Roth, and C Visher. 1986. {``Criminal Careers and Career Criminals.''} Research Report. National Science Foundation.
+
+\leavevmode\hypertarget{ref-Boba_2013}{}%
+Boba, Rachel. 2013. \emph{Crime Analysis with Crime Mapping}. 3rd ed. Thousand Oaks, CA: Sage.
 
 \leavevmode\hypertarget{ref-Bolstad_2019}{}%
 Bolstad, Paul. 2019. \emph{GIS Fundamentals: A First Text on Geographic Information Systems}. 6th ed. White Bear Lake, MN: Eider Press.
@@ -5559,6 +5566,9 @@ Brantingham, Patricia L, and Paul J Brantingham. 1982. {``Mobility, Notoriety an
 \leavevmode\hypertarget{ref-Brewer_2006}{}%
 Brewer, Cynthia. 2006. {``Basic Mapping Principles for Visualizing Cancer Data Using Geographic Information Systems (GIS).''} \emph{American Journal of Preventive Medicine} 30 (2S): S25--36.
 
+\leavevmode\hypertarget{ref-Brewer_1994}{}%
+Brewer, Cynthia A. 1994. {``Color Use Guidelines for Mapping.''} \emph{Visualization in Modern Cartography} 1994: 123--48.
+
 \leavevmode\hypertarget{ref-Briggs_2017}{}%
 Briggs, Daniel, and Rubén Monge Gamero. 2017. \emph{Dead-End Lives: Drugs and Violence in the City Shadows}. Bristol, UK: Policy Press.
 
@@ -5567,6 +5577,9 @@ Bruinsma, Gerben J. N., and Shane Johnson, eds. 2018. \emph{The Oxford Handbook 
 
 \leavevmode\hypertarget{ref-Buil-Gil_2021}{}%
 Buil-Gil, David, Juanjo Medina, and Natalie Shlomo. 2021. {``Measuring the Dark Figure of Crime in Geographic Areas: Small Area Estimation from the Crime Survey for England and Wales.''} \emph{British Journal of Criminology} 61 (2): 364--88.
+
+\leavevmode\hypertarget{ref-Buil_2019}{}%
+Buil-Gil, David, Angelo Moretti, Natalie Shlomo, and Juanjo Medina. 2019. {``Worry about Crime in Europe: A Model-Based Small Area Estimation from the European Social Survey.''} \emph{European Journal of Criminology}, 1477370819845752.
 
 \leavevmode\hypertarget{ref-Cairo_2016}{}%
 Cairo, Alberto. 2016. \emph{The Truthful Art: Data, Charts, and Maps for Communication}. New Riders.
@@ -5579,6 +5592,9 @@ Camoes, Jorge. 2016. \emph{Data at Work: Best Practices for Creating Effective C
 
 \leavevmode\hypertarget{ref-Carr_2010}{}%
 Carr, Daniel, and Linda Pickle. 2010. \emph{Visualizing Data Patterns with Micromaps}. Boca Raton, CA: CRC Press.
+
+\leavevmode\hypertarget{ref-Chainey_2021}{}%
+Chainey, Spencer. 2021. \emph{Understanding Crime: Analyzing the Geography of Crime}. Redlands, CA: ESRI Press.
 
 \leavevmode\hypertarget{ref-Chainey_2005}{}%
 Chainey, Spencer, and Jerry Rattcliffe. 2005. \emph{GIS and Crime Mapping}. Chichester, England: John Wiley; Sons.
@@ -5595,6 +5611,9 @@ Constabulary, Her Majesty Inspectorate of. 2014. {``Crime Recording: Making the 
 \leavevmode\hypertarget{ref-Cornish_1986}{}%
 Cornish, Derek B, and Ronald V Clarke. 1986. {``The Reasoning Criminal: Rational Choice Perspectives on Offending.''}
 
+\leavevmode\hypertarget{ref-DeSmith_2007}{}%
+De Smith, Michael John, Michael F Goodchild, and Paul Longley. 2007. \emph{Geospatial Analysis: A Comprehensive Guide to Principles, Techniques and Software Tools}. Troubador publishing ltd.
+
 \leavevmode\hypertarget{ref-Dent_2008}{}%
 Dent, Borden, J Torguson, and T Hodler. 2008. \emph{Thematic Map Design}. New York, New York, NY: McGraw-Hill.
 
@@ -5606,9 +5625,6 @@ Dougenik, James A, Nicholas R Chrisman, and Duane R Niemeyer. 1985. {``An Algori
 
 \leavevmode\hypertarget{ref-Eck_2015}{}%
 Eck, John, and David L Weisburd. 2015. {``Crime Places in Crime Theory.''} \emph{Crime and Place: Crime Prevention Studies} 4.
-
-\leavevmode\hypertarget{ref-Ellis_2018}{}%
-Ellis, Peter. 2018. {``Ggseas r Package.''} \url{https://github.com/ellisp/ggseas}.
 
 \leavevmode\hypertarget{ref-Field_2007}{}%
 Field, Kenneth. 2007. {``Map Evaluation Guidelines.''} \url{http://downloads.esri.com/MappingCenter2007/arcGISResources/more/MapEvaluationGuidelines.pdf}.
@@ -5646,6 +5662,9 @@ Hart, Timothy, and Paul Zandbergen. 2012. {``Effects of Data Quality on Predicti
 \leavevmode\hypertarget{ref-Healy_2019}{}%
 Healy, Kieran. 2019. \emph{Data Visualization. A Practical Introduction}. Princeto, NJ: Princeton University Press.
 
+\leavevmode\hypertarget{ref-Herrmann_2013}{}%
+Herrmann, Christopher R. 2013. {``Street-Level Spatiotemporal Crime Analysis: Examples from Bronx County, NY (2006--2010).''} In \emph{Crime Modeling and Mapping Using Geospatial Technologies}, 73--104. Springer.
+
 \leavevmode\hypertarget{ref-Hyndman_2021}{}%
 Hyndman, Rob, and George Athanasopoulos. 2021. \emph{Forecasting: Principles and Practice}. 3rd ed. Melbourne, Australia: OTexts.
 
@@ -5657,6 +5676,9 @@ Johnson, Zachary Forest. 2011. {``Hexbins!''} \url{http://indiemaps.com/blog/201
 
 \leavevmode\hypertarget{ref-Kirk_2016}{}%
 Kirk, Andy. 2016. \emph{Data Visualisation: A Handbook for Data Driven Design}. London, UK: Sage.
+
+\leavevmode\hypertarget{ref-Perpinan_2014}{}%
+Lamigueiro, Oscar Perpiñan. 2014. \emph{Displaying Time Series, Spatial, and Space-Time Data with r}. Boca Raton, CA: CRC Press.
 
 \leavevmode\hypertarget{ref-Langton_2018}{}%
 Langton, Samuel, and Reka Solymosi. 2018. {``Open Data.''} \emph{In {``The Study of Crime and Place: A Methods Handbook''} Eds: Elisabeth Groff and Corey Haberman. Temple University Press.}
@@ -5681,6 +5703,9 @@ Marshall, Roger. 1991. {``Mapping Disease and Mortality Rates Using Empirical Ba
 
 \leavevmode\hypertarget{ref-Mayhew_1861}{}%
 Mayhew, Henry. 1861. \emph{London Labour and the London Poor: A Cyclopaedia of the Condition and Earnings of Those That Will Work, Those That Cannot Work, and Those That Will Not Work. Those That Will Not Work: Comprising Prostitutes, Thieves, Swindlers, Beggars/by Several Contributors; with Introductory Essay on the Agencies at Present in Operation in the Metropolis for the Suppression of Vice and Crime by William Tuckniss; with Illustrations}. Charles Griffin.
+
+\leavevmode\hypertarget{ref-McElreath_2018}{}%
+McElreath, Richard. 2018. \emph{Statistical Rethinking: A Bayesian Course with Examples in r and Stan}. Chapman; Hall/CRC.
 
 \leavevmode\hypertarget{ref-Monmonier_1993}{}%
 Monmonier, Mark. 1993. \emph{Mapping It Out: Expository Cartography for the Humanities and Social Sciences}. Chicago: The University of Chicago Press.
@@ -5727,14 +5752,14 @@ Ratcliffe, Jerry. 2004. {``Geocoding Crime and a First Estimate of a Minimum Acc
 \leavevmode\hypertarget{ref-Ratcliffe_2010}{}%
 ---------. 2010. {``Crime Mapping: Spatial and Temporal Challenges.''} In \emph{Handbook of Quantitative Criminology}, edited by Alex Piquero and David Weisburd, 5--24. New York, NY: Springer.
 
+\leavevmode\hypertarget{ref-Ratcliffe_1998}{}%
+Ratcliffe, Jerry H, and Michael J McCullagh. 1998. {``Aoristic Crime Analysis.''} \emph{International Journal of Geographical Information Science} 12 (7): 751--64.
+
 \leavevmode\hypertarget{ref-Rengert_2009}{}%
 Rengert, George F, and Brian Lockwood. 2009. {``Geographical Units of Analysis and the Analysis of Crime.''} In \emph{Putting Crime in Its Place}, edited by David Weisburd, Wim Bernasco, and Gerben J. N. Bruinsma, 109--22. New York, NY: Springer.
 
 \leavevmode\hypertarget{ref-Roth_2013}{}%
 Roth, Robert E, Kevin S Ross, Benjamin G Finch, Wei Luo, and Alan M MacEachren. 2013. {``Spatiotemporal Crime Analysis in US Law Enforcement Agencies: Current Practices and Unmet Needs.''} \emph{Government Information Quarterly} 30 (3): 226--40.
-
-\leavevmode\hypertarget{ref-Boba_2013}{}%
-Santos, Rachel Boba. 2013. \emph{Crime Analysis with Crime Mapping}. 3rd ed. Thousand Oaks, CA: Sage.
 
 \leavevmode\hypertarget{ref-Schwabish_2021}{}%
 Schwabish, Jonathan. 2021. \emph{Better Data Visualizations. A Guide for Scholars, Researchers, and Wonks}. New York: Columbia University Press.
@@ -5745,8 +5770,14 @@ Shaw, Clifford Robe, and Henry Donald McKay. 1942. {``Juvenile Delinquency and U
 \leavevmode\hypertarget{ref-Solymosi_2021}{}%
 Solymosi, Reka. 2021. {``Minimizing Misrepresentation in Spatial Data Visualizations.''} \url{https://www.doi.org/10.4135/9781529774047}.
 
+\leavevmode\hypertarget{ref-Solymosi_2015}{}%
+Solymosi, Reka, Kate Bowers, and Taku Fujiyama. 2015. {``Mapping Fear of Crime as a Context-Dependent Everyday Experience That Varies in Space and Time.''} \emph{Legal and Criminological Psychology} 20 (2): 193--211.
+
+\leavevmode\hypertarget{ref-Solymosi_2020}{}%
+Solymosi, Reka, David Buil-Gil, Laura Vozmediano, and Inês Sousa Guedes. 2020. {``Towards a Place-Based Measure of Fear of Crime: A Systematic Review of App-Based and Crowdsourcing Approaches.''} \emph{Environment and Behavior}, 0013916520947114.
+
 \leavevmode\hypertarget{ref-Haining_2020}{}%
-Spatial, Modelling, and Spatial-Temporal Data. A Bayesian Approach. 2020. \emph{Robert Haining and Guangquan Li}. Boca Raton, FL: CRC Press.
+Spatial, Modelling, and Spatial-Temporal Data: A Bayesian Approach. 2020. \emph{Robert Haining and Guangquan Li}. Boca Raton, FL: CRC Press.
 
 \leavevmode\hypertarget{ref-Stevens_2015}{}%
 Stevens, Joshua. 2015. {``Bivariate Choropleth Maps: A How-to Guide.''} Blog. NASA's Earth Observatory. \url{https://www.joshuastevens.net/cartography/make-a-bivariate-choropleth-map/}.
@@ -5756,6 +5787,9 @@ Tanimura, Susumu, Chusi Kuroiwa, and Tsutomu Mizota. 2006. {``Propotional Symbol
 
 \leavevmode\hypertarget{ref-Tobler_2004}{}%
 Tobler, Waldo. 2004. {``Thirty Five Years of Computer Cartograms.''} \emph{ANNALS of the Association of American Geographers} 94 (1): 58--73.
+
+\leavevmode\hypertarget{ref-Tompson_2013}{}%
+Tompson, Lisa, and Kate Bowers. 2013. {``A Stab in the Dark? A Research Note on Temporal Patterns of Street Robbery.''} \emph{Journal of Research in Crime and Delinquency} 50 (4): 616--31.
 
 \leavevmode\hypertarget{ref-Tufte_2001}{}%
 Tufte, Edward. 2001. \emph{The Visual Display of Quantitative Information}. Cheshire: Graphic Press.
@@ -5769,8 +5803,17 @@ Vaughan, Davis. 2021. {``Comprehensive Date-Time Handling for r.''} \url{https:/
 \leavevmode\hypertarget{ref-Waller_2004}{}%
 Waller, HLance, and Carol Gotway. 2004. \emph{Applied Spatial Statistics for Public Health Data}. Chichester, UK: John Wiley; Sons.
 
+\leavevmode\hypertarget{ref-Weisburd_2008}{}%
+Weisburd, David, Wim Bernasco, and Gerben Bruinsma. 2008. \emph{Putting Crime in Its Place}. Springer.
+
+\leavevmode\hypertarget{ref-Weisburd_2009}{}%
+Weisburd, David, Gerben JN Bruinsma, and Wim Bernasco. 2009. {``Units of Analysis in Geographic Criminology: Historical Development, Critical Issues, and Open Questions.''} In \emph{Putting Crime in Its Place}, 3--31. Springer.
+
 \leavevmode\hypertarget{ref-Wheeler_2016}{}%
 Wheeler, Andrew P. 2016. {``Tables and Graphs for Monitoring Temporal Crime Trends: Translating Theory into Practical Crime Analysis Advice.''} \emph{International Journal of Police Science \& Management} 18 (3): 159--72.
+
+\leavevmode\hypertarget{ref-Wheeler_2016}{}%
+---------. 2016. {``Tables and Graphs for Monitoring Temporal Crime Trends: Translating Theory into Practical Crime Analysis Advice.''} \emph{International Journal of Police Science \& Management} 18 (3): 159--72.
 
 \leavevmode\hypertarget{ref-Wickham_2010}{}%
 Wickham, Hadley. 2010. {``A Layered Grammar of Graphics.''} \emph{Journal of Computational and Graphical Statistics} 19 (1): 3--28.

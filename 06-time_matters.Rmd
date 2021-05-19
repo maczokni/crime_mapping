@@ -2,15 +2,17 @@
 
 ## Introduction
 
-In this chapter we provide a brief introduction into spatio-temporal visualisation. The importance of place in criminology and crime analysis is widely recognised, and is the central topic of this book. However, taking into consideration **time** is just as important as place. We often hear that crime is "going up" or "going down" over time. These variations on the levels of crime along time also vary across space. These variations across both time and place are called **spatio temporal variations**, and are of crucial importance for crime analysis, explanation, and prevention. 
+In this chapter we provide a brief introduction into spatio-temporal visualisation. The importance of place in criminology and crime analysis is widely recognised, and is the central topic of this book. However, taking into consideration **time** is just as important as place. We often hear that crime is "going up" or "going down" over time. These variations on the levels of crime along time also vary across space. These variations across both time and place are called **spatio-temporal variations**, and are of crucial importance for crime analysis, explanation, and prevention. 
 
-Traditionally the temporal and spatial analysis of crime are not introduced in a combined manner. Although a great deal of energy has been devoted to produce accessible training material for crime analysts on geographic information systems and spatial analysis, most criminology degrees (even at postgraduate level) and training packages for crime analysis devote a very limited (if any) content to the appropriate visualisation and analysis of temporal and spatio temporal data. Therefore, before we discuss the spatio temporal, we have to introduce a few key ideas and concepts about temporal crime analysis.
+Traditionally the temporal and spatial analysis of crime are not introduced in a combined manner. Although a great deal of energy has been devoted to produce accessible training material for crime analysts on geographic information systems and spatial analysis, most criminology degrees (even at postgraduate level) and training packages for crime analysis devote a very limited (if any) content to the appropriate visualisation and analysis of temporal and spatio-temporal data. Therefore, before we discuss the spatio-temporal, we have to introduce a few key ideas and concepts about temporal crime analysis.
 
-In this chapter, we will therefore give a very high-level overview of **temporal crime analysis**, before moving on to ways in which we can display spatio temporal variation in our data using maps. The key concepts covered in this chapter are: 
+In this chapter, we will therefore give a very high-level overview of **temporal crime analysis**, before moving on to ways in which we can display spatio-temporal variation in our data using maps. The key concepts covered in this chapter are: 
 
-- 
-- 
-- 
+- an introduction to temporal data in crime analysis,
+- cleaning and wrangling temporal data,
+- visualising time data,
+- time series and its three components: trend, seasonality, and random variation,
+- visualising spatio-temporal variation.
 
 We will be making use of the following R packages: 
 
@@ -37,11 +39,23 @@ library(tmap)
 ```
 
 
+## Temporal data in crime analysis
 
+In this book so far we have really emphasised the role of place in presenting opportunities for crimes to occur. However we cannot consider space without also considering time. An area might look very different during the day and during the night, on a weekend or on a weekday, and in the summer or in the winter. 
+
+On a macro-scale, the relationship between crime and the seasons is something that had been a topic of concern for researchers as long as space has (@Baumer_1996). Zooming into a micro-scale, changes in routine activities with time of day or day of week  will affect the profile of a place, and linking back to the idea of crime places such as *generators* or *attractors*, will have significant effect on crime rates.  In conceptualising these crime places, @Newton_2018 emphasised the importance to consider the measure of busyness of a place by time of day in order to understand its role as an attractor, generator, or other crime place. For example, at transit stations during school days there is a morning peak time of work and school users combined, an afternoon school closing peak, and a secondary and slightly later end-of-workday peak time. Any calculation of crime rates needs to account for these micro-level temporal variations. 
+
+At whatever unit of analysis, time is a vital variable to include in our crime analysis and criminological research. To quote @Tompson_2013
+
+
+> "[I]t is important to disaggregate data into sensible temporal categories to have a real understanding of the relationship between the variables under scrutiny. (@Tompson_2013, p.627)
+
+
+Returning to the importance of the role of place, we can introduce **spatio-temporal data** analysis. Spatio-temporal analysis is the process of utilising geo-and-time-referenced data in order to extract meaning and patterns from our data. In the earlier days, crime pattern analysis has tended to focus on identifying areas with higher densities of criminal activity, but not so much the monitoring of change in crime patterns over time (@Ratcliffe_1998). However, crime hotspots display significant spatio-temporal variance, and the identification of spatio-temporal patterns of hot streets provides significant ‘actionable intelligence’ for police departments (@Herrmann_2013). Evidently, we cannot ignore time as a variable in our analyses. And while the main focus of this book is space, we must take at least one chapter to introduce some key concepts, and provide additional resources for readers to follow up with. 
 
 ## Temporal data wrangling
 
-Temporal data means that we can perform all sorts of exciting operations in our data wrangling processes. Just how we learned about spatial operations with spatial data, there are some things we can do only with temporal data. 
+Temporal data means that we can perform all sorts of exciting operations in our data wrangling processes. Just how we learned about spatial operations with spatial data, there are some things we can do only with temporal data. In this section we will introduce some of these. 
 
 A key R package that will help with temporal data wrangling is `lubridate`. Date-time data can be frustrating to work with and many base R commands for date-times can be unintuitive. The package `lubridate` was created to address such issues, and make it easier to do the things R does with date-times.
 
@@ -154,9 +168,11 @@ Amazing stuff, which will definitely come in handy, especially if you might be a
 <!-- The `lubridate` package is incredibly helpful for anything date related. There is also a more recent package `clock` that has only recently being released and solves some problems with...  [[[]]] -->
 
 
-## Calendar heatmaps
+## Visualising time data
 
 Once we have parsed and cleaned the temporal information that is available in our date variable, we can make use of this to visualise trends in other ways, not just using time series. For example, we might want to show where hotspots in time occur, within a year, or within a week, or some other set interval. 
+
+One approach for this is to use a calendar heatmap. 
 
 
 First, we create a column for date, removing the time (hour minute and second). We can achieve this easily by using the `date()` function in `lubridate`: 
@@ -195,7 +211,9 @@ agassault_ny_d <- agassault_ny %>%
 
 ```
 
-Now we have this new dataframe, the number of aggravated assaults per day. To make our temporal heatmap calendar, we will now use a `ggplot2` extension, `ggTimeSeries`, that allows us to produce calendar heat visualisations. In this package, we can use the `ggplot_calendar_heatmap()` function, which creates a calendar heatmap. This approach provides context for weeks, and day of week which makes it a better way to visualise daily data than line charts.
+Now we hav
+e this new dataframe, the number of aggravated assaults per day. To make our temporal heatmap calendar, we will now use a `ggplot2` extension, `ggTimeSeries`, that allows us to produce calendar heat visualisations. In this package, we can use the `ggplot_calendar_heatmap()` function, which creates a calendar heatmap. This approach provides context for weeks, and day of week which makes it a better way to visualise daily data than line charts.
+
 
 ```{r, message=FALSE, fig.height=6}
 
@@ -217,15 +235,28 @@ ggplot_calendar_heatmap(
 
 This sort of visualisation might be useful for example to see if certain days of the week see more incidents than others, possibly due to differences in the underlying routine activities that predominate for example weekends versus weekdays. For a bit of fun, you can read @Moss_2013 for a safety rating on each day of the week. 
 
-## Temporal crime analysis
 
-**Temporal crime analysis** looks at trends in crime or incidents. A crime or incident trend is a broad direction or pattern that specific types or general crime and/or incidents are following. Three types of trend can be identified:
+### How (not) to present time
+
+In our calendar heatmap above we presented count of crimes on each day. But there are other approaches to visualise change over time as well. One such approach is to present **percentage change** from one point in time to the next. There are many issues with this approach, which lead to misinterpreting the data, which are explored in detail by @Wheeler_2016. For example, he mentions that percent change is not symmetric. 
+
+> For example, an increase from 4 to 5 crimes is a 25% increase, whereas a decrease from 5 to 4 crimes is only a 20% decrease. (p.x).
+
+He presents an alternative metric in Poisson z-scores. 
+
+Another issue is with the very popular approach of showing changes as **year-to-date**. In the post "Why you can't identify changes in crime by comparing this month to last month" @Ashby_2020 presents some great arguments for why attempts to identify changes in crime frequency that involve simply comparing the number of crimes this week/month/year to the number that occurred last week/month/year, or comparing this week, month etc to the same period last year is not an appropriate way to analyse change over time. For example, doing this means throwing away useful information, ignoring trends and seasonality, and leaves results vulnerable to noise. As an alternative, he promotes the use of creating a forecast based on historic data, and comparing observed values against this. 
+
+It is important that when presenting temporal data, we keep in mind these notes of caution, and follow good practice recommendations such as those notes here. 
+
+## Time series analysis
+
+A key way to ensure we are analysing our time data appropriately is to deal with time series data, and treat them accordingly. **Time series analysis** looks at trends in crime or incidents. A crime or incident trend is a broad direction or pattern that specific types or general crime and/or incidents are following. Three types of trend can be identified:
 
 - **overall trend** – highlights if the problem is getting worse, better or staying the same over a period of time
 - **seasonal, monthly, weekly or daily cycles of offences** – identified by comparing previous time periods with the same period being analysed
 - **random fluctuations** – caused by a large number of minor influences, or a one-off event, and can include displacement of crime from neighbouring areas due to partnership activity or crime initiatives.
 
-Decomposing these trends is an important part of what **time series** analysis is all about. We will see some examples.
+Decomposing these trends is an important part of what time series analysis is all about. We will see some examples.
 
 
 ### Plotting time series data
@@ -561,13 +592,12 @@ anim +
 In the print book, this will not look very exciting, but hopefull you are following along, and now are looking at a very smooth animation of how burglary changed over the months of 2018 in Manchester. 
 
 
-
 ## Summary and further reading
 
 In this chapter we had a very brief introduction to temporal data, and considered how we can manipulate and wrangle this new type of data using packages such as `lubridate`. We then introduced some approaches to visualising temporal data, and finally, ways to visualise spatio-temporal variation as well. To read up on the importance of time, and specifically spatio-temporal crime analysis, we recommend @Ratcliffe_2010, @Wheeler_2016, and @Roth_2013. 
 
 
-While we did not get to go into any spatio-temporal analysis at this stage, visualisation is a good starting point to begin to engage with this important element of crime data. To move into spatio-temporal analysis would require a more thorough training in temporal data analysis first, and so we do not cover here. But we provide some resources for those interested. Notably @Hyndman_2021 is an excellent resource for this, and we can also recommend @Chatfield_2019. For those already comfortable with this, @Pebesma_2012 also offers a very thoughtful introduction to how spatio-temporal data layouts appear and useful graphs for spatio temporal data. @Pebesma_2012 also introduces the R package `spacetime`, for handling such analyses. At the time of writing, functions in `spacetime` take as inputs older `sp` objects, but work in `sftime`, to work with `sf` objects is ongoing.  For additional details in how to visualise space-time data with R we suggest @Perpinan_2014 and Chapter 2 of @Wikkle_2019.
+While we did not get to go into any spatio-temporal analysis at this stage, visualisation is a good starting point to begin to engage with this important element of crime data. To move into spatio-temporal analysis would require a more thorough training in temporal data analysis first, and so we do not cover here. But we provide some resources for those interested. Notably @Hyndman_2021 is an excellent resource for this, and we can also recommend @Chatfield_2019. For those already comfortable with this, @Pebesma_2012 also offers a very thoughtful introduction to how spatio-temporal data layouts appear and useful graphs for spatio-temporal data. @Pebesma_2012 also introduces the R package `spacetime`, for handling such analyses. At the time of writing, functions in `spacetime` take as inputs older `sp` objects, but work in `sftime`, to work with `sf` objects is ongoing.  For additional details in how to visualise space-time data with R we suggest @Perpinan_2014 and Chapter 2 of @Wikkle_2019.
 
 
 As noted there are packages that provide functionality for better handling of dates and time. It is worth to go over the details of ´lubridate´ in the official page and the relevant chapter in @Wickham_2017 is also very helpful. There is a brand new package `clock` that aims to improve on `lubridate` and that is also worth exploring (for details see @Vaughan_2021). 

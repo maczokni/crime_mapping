@@ -47,8 +47,11 @@ library(geodaData)
 Choropleth maps display variation in areas (postal codes, police districts, census administrative units, municipal boundaries, regional areas, etc) through the use of the colour that fills each of these areas in the map. A simple case can be to use a light to dark color to represent less to more of the quantitative variable. They are appropriate to compare values across areas. 
 
 Most choropleth maps you encounter are classified choropleth maps. They group the values of the quantitative variable into a number of classes, typically between 5 and 7. We will return to this later in the chapter. It is one of the most common forms of statistical maps and like pie charts they are subject to ongoing criticism. @Tukey_1979 concluded they simply do not work. And there are indeed a number of known problems with choropleth maps:
+
 1. They may not display variation within the geographical units being employed. You are imposing some degree of distortion by assuming all parts of an area display the same value. Our crime map may show a neighborhoud as secure, when there is a part of this neighbourhoud that has a high level of crime. And viceversa.
+
 2. Boundaries of geographical areas are to a large extent arbitrary (and unlikely to be associated with major discontinuities in your variable of interest). In crime analysis we very often use census administrative units, but these rarely represent natural neighbourhoods.
+
 3. They work better if areas are of similar size. Areas of greater size may be more heterogeneous internally than those of smaller size: that is, they potentially have the largest error of representation. Also, visual attention may be drawn by areas that are large in size (if size is not the variable use to create a ratio)
 
 ### What do we use choropleth maps for?
@@ -65,7 +68,7 @@ In social science the denominator on mapped ratios is typically some form of pop
 
 However, a great deal of discussion in crime analysis has focused on the choice of the right denominator. Authors relate to this as the **denominator dilemma**: "the problem associated with identifying an appropriate target availability control that can overcome issues of spatial inequality in the areal units used to study crime" (Ratcliffe_2010). The best measure for your denominator is one which captures opportunities. If for example you are interested in residential burglary, it makes sense to use number of inhabited households as your denominator (rather than population size). Whatever denominator you choose, you will usually want to make a case as to why that is the best representation of the opportunities for the crime type you're interested in. 
 
-As noted, population is a common choice, but it is not always the one that best captures crime opportunities. Population, on the other hand, is also highly mobile during the day. People do not stay in the areas where they live, they go to work, they go to school, they travel for tourism purposes, and in doing so they alter the population structure of any given area. As @Ratcliffe_2010 highlights with an example "the residential population (as is usually available from the census) tells the researcher little about the real number of people outside nightclubs at 2 a.m" Geographers and criminologists, thus, distinguish between the standard measures of population (that relate to people that live in an area) provided by the census and government statistical authorities; and the so called **ambient population**, that relates to people that occupy an area at a given time, and which typically are a bit more difficult to source (see for more details: @Andresen_2011, [[[MORE REFERENCES]]]).
+As noted, population is a common choice, but it is not always the one that best captures crime opportunities. Population, on the other hand, is also highly mobile during the day. People do not stay in the areas where they live, they go to work, they go to school, they travel for tourism purposes, and in doing so they alter the population structure of any given area. As @Ratcliffe_2010 highlights with an example "the residential population (as is usually available from the census) tells the researcher little about the real number of people outside nightclubs at 2 a.m" Geographers and criminologists, thus, distinguish between the standard measures of population (that relate to people that live in an area) provided by the census and government statistical authorities; and the so called **ambient population**, that relates to people that occupy an area at a given time, and which typically are a bit more difficult to source (see for example: @Andresen_2011).
 
 As we will see later, one of the key problems with mapping rates is that the estimated rates can be problematic if the enumeration areas we are studying have different population counts (or whatever it is we are counting in the denominator). When this happens, and those population counts produce small samples, we may have rates for some locations (those with more population) that are better estimated than others and, therefore, are less subject to noise.
 
@@ -75,7 +78,7 @@ Equally, not all police forces or units are equally adept at properly *recording
 
 Finally, the quality of the geocoding process, which varies across crime type, also comes into the equation. Sometimes there are issues with positional accuracy or the inability to geocode an address. Some authors suggest we need to be able to geocode at least 85% of the crime incidents to get accurate maps (@Ratcliffe_2004), otherwise geocoded crime records may be spatially biased. More recent studies offer a less conservative estimate depending on the level of analysis and number of incidents (@Andresen_2020). Although all this has been known for a while, criminologists and crime analysts are only now beginning to appreciate how this can affect the quality of crime mapping and the decision making based on this mapping (@Buil-Gil_2021; @Hart_2012).
 
-Although most of the time crime analysts are primarily concerned with mapping crime incidence and those factors associated with it, increasingly we see interest in the spatial representation of other variables of interest to criminologists such as fear of crime, trust in the police, etc. In these cases, the data typically come from surveys and the problem that may arise is whether we have a sample size large enough to derive estimates at the geographical level that we may want to work with. When this is not the case, methods for small area estimation are required (for details and criminological examples see [[[ADD REFERENCES]]]).
+Although most of the time crime analysts are primarily concerned with mapping crime incidence and those factors associated with it, increasingly we see interest in the spatial representation of other variables of interest to criminologists such as fear of crime, trust in the police, and more. In these cases, the data may come from surveys and the problem that may arise is whether we have a sample size large enough to derive estimates at the geographical level that we may want to work with. When this is not the case, methods for small area estimation are required (for details and criminological examples see @Buil_2019). There has also been recent work mapping perception of place and fear of crime at micro-levels (see @Solymosi_2015 and @Solymosi_2020). 
 
 #### Prevalence vs incidence
 
@@ -103,11 +106,11 @@ There are a number of vignettes in the CRAN repository with helpful explanations
 
 In `tmap` each map can be plotted as a static map (*plot mode*) and shown interactively (*view mode*). We will start by focusing on static maps.
 
-For the purpose of demonstrating some of the functionality of this package we will use the Manchester crime data generated in the first chapter. We have now added a few variables obtained from the Census that will be handy later on. You can obtain the data in a GeoJSON format from our GitHub repo using the following code:
+For the purpose of demonstrating some of the functionality of this package we will use the Manchester crime data generated in the first chapter. We have now added a few variables obtained from the Census that will be handy later on. You can obtain the data in a GeoJSON format from the companion data to this book. 
 
 ```{r}
 
-manchester <- st_read("data/manchester")
+manchester <- st_read("data/manchester.geojson")
 
 ```
 
@@ -234,7 +237,7 @@ tm_shape(manchester) +
   tm_borders(alpha = 0.1) +
   tm_layout(main.title = "Crime in Manchester City, Nov/2017", 
             main.title.size = 0.7 ,
-            legend.outside = TRUE,  # Takes the legend outside the main map 
+            legend.outside = TRUE,  # Place legend outside of map 
             legend.title.size = 0.8)
 
 
@@ -307,7 +310,7 @@ plot(classIntervals(manchester$crimr1, style="sd"), pal = pal1,
 
 **The headtails method** This uses a method proposed by @Jiang_2013 as a solution for variables with a heavy tail distribution, like we often have with crime. "This new classification scheme partitions all of the data values around the mean into two parts and continues the process iteratively for the values (above the mean) in the head until the head part values are no longer heavy-tailed distributed. Thus, the number of classes and the class intervals are both naturally determined." (@Jiang_2013, p. 482)
 
-```{r}
+```{r, echo = FALSE}
 pal1 <- c("wheat1", "red3")
 plot(classIntervals(manchester$crimr1, style="headtails"), pal = pal1,
      main="Headtails")
@@ -411,7 +414,8 @@ Taken from the help file we can find more information about these, for example t
 Imagine you were a consultant working for one of the political parties in the city of Manchester. Which map would you choose to represent to the electorate the situation of crime in the city if you were the party in control of the local government and which map you would choose if you were working for the opposition? As noted above, it is very easy to mislead with maps and, thus, this means the professional map maker has to abide by strict deontological criteria and take well justified impartial decisions when visualising data.
 
 @Cameron_2005 suggests the following: 
->"To know which classification scheme to use, an analyst needs to know how the 
+
+> "To know which classification scheme to use, an analyst needs to know how the 
 data are distributed and the mapping objective. If the data are unevenly distributed, with large jumps in values or extreme outliers, and the analyst wants to emphasize clusters of observations that house similar values, use the natural breaks classification approach. If the data are evenly distributed and the analyst wants to emphasize the percentage of observations in a given classification category or group of categories, use the quantile classification approach. If the data are normally distributed and the analyst wants to represent the density of observations around the mean, use the equal interval approach. If the data are skewed and the analyst wants to identify extreme outliers or clusters of very high or low values, use the standard deviation classification 
 approach."  
 
@@ -465,7 +469,7 @@ In previous sections we discussed how to map rates. It seems a fairly straightfo
 
 Rates are funny animals. @Gelman_1999 goes so far as to suggest that all maps of rates are misleading. The problem at hand is well known in spatial epidemiology: " plotting observed rates can have serious drawbacks when sample sizes vary by area, since very high (and low) observed rates are found disproportionately in poorly-sampled areas" (@Gelman_1999, p. 3221). There is associated noise for those areas where the denominators give us a small sample size. And it is hard to solve this problem.
 
-Let´s illustrate with an example. We are going to use historic data on homicide across US counties. The dataset was used as the basis for the study by @Baller_2006. It contains data on homicide counts and rates for various decades across the US as well as information on structural factors often thought to be associated with violence. The data is freely available through the webpage of Geoda, a clever point-and-click interface developed by Luc Anselin (a spatial econometrician and coauthor of the above paper) and his team, to make spatial analysis accessible. It is also available as one of the packages in the `geodaData` package.
+Let's illustrate with an example. We are going to use historic data on homicide across US counties. The dataset was used as the basis for the study by @Baller_2001. It contains data on homicide counts and rates for various decades across the US as well as information on structural factors often thought to be associated with violence. The data is freely available through the webpage of Geoda, a clever point-and-click interface developed by Luc Anselin (a spatial econometrician and coauthor of the above paper) and his team, to make spatial analysis accessible. It is also available as one of the packages in the `geodaData` package.
 
 To read a data available in a library we have loaded we can use the `data()` function. If we check the `class()` of this object we will see it was already stored in `geodaData` as a `sf` object.
 
@@ -599,9 +603,9 @@ So to smooth or not too smooth? Clearly we can see how smoothing stabilises the 
 
 ## Summary and further reading
 
-This chapter introduced some basic principles of thematic maps. We learned how to make them using the `tmap` package, we learned about the importance of classification schemes, and how each one may produce a different looking map, which may tell a different story. For further reading, @Brewer_2016 provides a brief condensed introduction to thematic mapping for epidemiologists but that can be generally extrapolated for crime mapping purposes. We have talked about the potential to develop misleading maps and @Monmonier_1996 "How to lie with maps" provides good guidance to avoid that our negligent choices when producing a map confuse the readers. @Carr_2010 offers a more detailed treatment of small multiples and micromaps. 
+This chapter introduced some basic principles of thematic maps. We learned how to make them using the `tmap` package, we learned about the importance of classification schemes, and how each one may produce a different looking map, which may tell a different story. For further reading, @Brewer_2006 provides a brief condensed introduction to thematic mapping for epidemiologists but that can be generally extrapolated for crime mapping purposes. We have talked about the potential to develop misleading maps and @Monmonier_1996 "How to lie with maps" provides good guidance to avoid that our negligent choices when producing a map confuse the readers. @Carr_2010 offers a more detailed treatment of small multiples and micromaps. 
 
-Mapping rates has been more thoroughly discussed within spatial epidemiology than in criminology. There is ample literature on disease mapping that address in more sophisticated ways some of the issues we introduce here (see @Waller_2004, @Lawson_2006, @Lawson_2021a, or @Lawson_2021b). Much of this work on spatial epidemiology adopts a Bayesian framework. We will talk a bit more about this later on, but if you want a friendly introduction to Bayesian data analysis there is no better introduction than @McElreath_2020.
+Mapping rates has been more thoroughly discussed within spatial epidemiology than in criminology. There is ample literature on disease mapping that address in more sophisticated ways some of the issues we introduce here (see @Waller_2004, @Lawson_2006, @Lawson_2021a, or @Lawson_2021b). Much of this work on spatial epidemiology adopts a Bayesian framework. We will talk a bit more about this later on, but if you want a friendly introduction to Bayesian data analysis there is no better introduction than @McElreath_2018.
 
 
 
