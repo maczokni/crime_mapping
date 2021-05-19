@@ -174,7 +174,7 @@ To follow along with the exercises we provide the data we use in a zip file. The
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\FunctionTok{download.file}\NormalTok{(}\AttributeTok{url =} \StringTok{"https://osf.io/5urxc/download"}\NormalTok{, }
+\FunctionTok{download.file}\NormalTok{(}\AttributeTok{url =} \StringTok{"https://osf.io/5u42g/download"}\NormalTok{, }
               \AttributeTok{destfile =} \StringTok{"data.zip"}\NormalTok{)}
 \FunctionTok{unzip}\NormalTok{(}\StringTok{"data.zip"}\NormalTok{, }\AttributeTok{exdir =} \StringTok{"data"}\NormalTok{)}
 \end{Highlighting}
@@ -3282,9 +3282,7 @@ We have our longitude (X) and latitude (Y). We can select the first and second e
 \end{Highlighting}
 \end{Shaded}
 
-As a first step, we can plot asb in the borough of Manchester using simple ggplot, as demonstrated in Chapter 1.
-
-We can plot our points first:
+As a first step, we can plot asb in the borough of Manchester using simple ggplot, as demonstrated in Chapter 1. We can plot our points first:
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -3296,11 +3294,7 @@ We can plot our points first:
 
 \includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-124-1.pdf}
 
-We see our nice map of Manchester, as outlined by ASB across the Local Authority.
-
-To create a bin of this map, what we do, is generate a grid of tessellating map of our desired shape, and then count the number of points which fall into each one of these shapes. We can use `\texttt{ggplot} for this. It is such a great tool for building visualisations, because you can apply whatever geometry best suits your data. So for us to just have a look at the hexbinned version of our point data of antisocial behaviour, we can use the \texttt{stat\_binhex()} function as a layer on our ggplot object. We can also recreate the thematic map element, as we can use the frequency of points in each hex to shade each hexbin from white (least number of incidents) to red (most number of incidents).
-
-So let's have a go:
+We see our nice map of Manchester, as outlined by ASB across the Local Authority. To create a bin of this map, what we do, is generate a grid of tessellating map of our desired shape, and then count the number of points which fall into each one of these shapes. We can use `\texttt{ggplot} for this. It is such a great tool for building visualisations, because you can apply whatever geometry best suits your data. So for us to just have a look at the hexbinned version of our point data of antisocial behaviour, we can use the \texttt{stat\_binhex()} function as a layer on our ggplot object. We can also recreate the thematic map element, as we can use the frequency of points in each hex to shade each hexbin from white (least number of incidents) to red (most number of incidents). So let's have a go:
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -3338,9 +3332,7 @@ Neat, but doesn't quite tell us \emph{where} that really dark hexbon actually is
 
 \includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-126-1.pdf}
 
-Adding this basemap provides us with a bit more context. And combined with the hexbin map, it is much easier to see where in Manchester borough Antisocial Behaviour concentrates (as opposed to with the point map!).
-
-Above we used a hexagon shape for our binning, however you might choose other shapes as well. I will illustrate in a moment the approach to use rectangular binning, but first, I want to highlight why hexagon might still be your ideal choice. Here are some thoughts:
+Adding this basemap provides us with a bit more context. And combined with the hexbin map, it is much easier to see where in Manchester borough Antisocial Behaviour concentrates (as opposed to with the point map!). Above we used a hexagon shape for our binning, however you might choose other shapes as well. I will illustrate in a moment the approach to use rectangular binning, but first, I want to highlight why hexagon might still be your ideal choice. Here are some thoughts:
 
 \begin{itemize}
 \tightlist
@@ -3446,9 +3438,7 @@ To illustrate the differences of different approaches, let's see what this map w
 \hypertarget{benefits-of-binning}{%
 \subsection{Benefits of Binning}\label{benefits-of-binning}}
 
-Because of the plethora of data types available and the wide variety of projects being done in GIS, binning is a popular method for mapping complex data and making it meaningful. Binning is a good option for map makers as well as users because it makes data easy to understand and it can be both static and interactive on many different map scales. If every different point were shown on a map it would have to be a very large scale map to ensure that the data points did not overlap and were easily understood by people using the maps.
-
-According to Kenneth Field, an Esri Research Cartographer:
+Because of the plethora of data types available and the wide variety of projects being done in GIS, binning is a popular method for mapping complex data and making it meaningful. Binning is a good option for map makers as well as users because it makes data easy to understand and it can be both static and interactive on many different map scales. If every different point were shown on a map it would have to be a very large scale map to ensure that the data points did not overlap and were easily understood by people using the maps. According to Kenneth Field, an Esri Research Cartographer:
 
 \begin{quote}
 ``Data binning is a great alternative for mapping large point-based data sets which allows us to tell a better story without interpolation. Binning is a way of converting point-based data into a regular grid of polygons so that each polygon represents the aggregation of points that fall within it.''
@@ -3581,7 +3571,7 @@ This map has transformet each Local Authority's shape into a circle, where the r
 
 Usually in your thematic maps you are mapping one variable. For example in the maps above, we mapped the distribution of the percepntage who voted to leave the European Union (the \texttt{Pct\_Leave} variable). But occasionally, you might want to use your map to illustrate the relationship between \emph{two} variables. In this case, you may want to create a \textbf{Bivariate Choropleth Map}. Bivariate choropleths follow the same concept as the univariate ones (which display only one variable), except they show two variables at once. This is achieved through the creative use of colour.
 
-I first came across the idea of bivariate choropleth maps from the blog of \protect\hyperlink{ref-Stevens_2015}{Stevens} (\protect\hyperlink{ref-Stevens_2015}{2015}). I recommend having a read as he discusses in great detail how to develop the colour schemes necessary for these maps. The idea is that there are two main colours, each one representing gradual change in one of our two variables of interest. Then, these two colours are combined to create an overlapping colour scheme.
+We first came across the idea of bivariate choropleth maps from the blog of \protect\hyperlink{ref-Stevens_2015}{Stevens} (\protect\hyperlink{ref-Stevens_2015}{2015}). I recommend having a read as he discusses in great detail how to develop the colour schemes necessary for these maps. The idea is that there are two main colours, each one representing gradual change in one of our two variables of interest. Then, these two colours are combined to create an overlapping colour scheme.
 
 The process itself is not too complicated. We start with binning our two variables into classes. If we bin variable 1 into \(n\) classes, and then again variable 2 into \(n\) classes, then when we compare them across one another to create our bivariate map, we will end up with \(n^2\) classes. For example, if we bin both variables into 3 classes (low, medium, high), then when displaying them together, we will have 9 classes to visualise. \protect\hyperlink{ref-Stevens_2015}{Stevens} (\protect\hyperlink{ref-Stevens_2015}{2015}) blog illustrates with nice visuals, so I recommend having a look. However the practical example is in QGIS, and here we are working in R. There had been adaptations into R (eg see \protect\hyperlink{ref-Grossenbacher_2019}{Grossenbacher} (\protect\hyperlink{ref-Grossenbacher_2019}{2019})) which we can borrow from here too.
 
@@ -3795,7 +3785,7 @@ Overall these maps can help visualise two variables on one map, and motivate dis
 
 Now that we've shown you how to do a lot of spatial crime analysis, we wanted to close with some words of caution. Remember that everything you've learned here are just tools that you will be applying to data you are working with, but it's up to you, the researcher, the analyst, the domain expert, to apply and use these with careful consideration and cautions. This discussion is very much part of spatial crime analysis, and an important field of thought.
 
-I borrow here from George Renghert and Brian Lockwood:
+We borrow here from George Renghert and Brian Lockwood:
 
 \begin{quote}
 When spatial analysis of crime is conducted, the analyst should not ignore the spatial units that data are aggregated into and the impact of this choice on the interpretation of findings. Just as several independent variables are considered to determine whether they have statistical significance, a consideration of multiple spatial units of analysis should be made as well, in order to determine whether the choice of aggregation level used in a spatial analysis can result in biased findings. \protect\hyperlink{ref-Rengert_2009}{Rengert and Lockwood} (\protect\hyperlink{ref-Rengert_2009}{2009})
@@ -3833,9 +3823,7 @@ The basic issue with the MAUP is that aggregate units of analysis are often arbi
 
 The inherent problem with the MAUP and with situations such as Gerrymandering is that units of analysis are not based on geographic principles, and instead are based on political and social biases. For researchers and practitioners the MAUP has very important implications for research findings because it is possible that as arbitrarily defined units of analysis change shape findings based on these units will change as well.
 
-When spatial data are derived from counting or averaging data within areal units, the form of those areal units affects the data recorded, and any statistical measures derived from the data. Modifying the areal units therefore changes the data. Two effects are involved: a zoning effect arising from the particular choice of areas at a given scale; and an aggregation effect arising from the extent to which data are aggregated over smaller or larger areas. The modifiable areal unit problem arises in part from edge effect.
-
-If you're interested, in particular about politics and voting, you can read this interesting piece to learn \href{https://projects.fivethirtyeight.com/redistricting-maps/}{more about gerrymandering}
+When spatial data are derived from counting or averaging data within areal units, the form of those areal units affects the data recorded, and any statistical measures derived from the data. Modifying the areal units therefore changes the data. Two effects are involved: a zoning effect arising from the particular choice of areas at a given scale; and an aggregation effect arising from the extent to which data are aggregated over smaller or larger areas. The modifiable areal unit problem arises in part from edge effect. If you're interested, in particular about politics and voting, you can read this interesting piece to learn \href{https://projects.fivethirtyeight.com/redistricting-maps/}{more about gerrymandering}
 
 \hypertarget{why-does-maup-matter}{%
 \subsection{Why does MAUP matter?}\label{why-does-maup-matter}}
@@ -3859,7 +3847,7 @@ All studies based on geographical areas are susceptible to MAUP. The implication
 
 Most often you will just have to remain aware of the MAUP and its possible effects. There are some techniques, that can help you address these issues, and the chapter pointed out at the beginning of this section is a great place to start to explore these. It is possible to use also an alternative, zone-free approach to mapping these crime patterns, perhaps by using kernel density estimation. Here we model the relative density of the points as a density surface - essentially a function of location (x,y) representing the relative likelihood of occurrence of an event at that point. We have covered KDE elsewhere in this course.
 
-For the purposes of this course, it's enough that you know of, and understand the MAUP and its implications. Always be smart when choosing your appropriate spatial unit of analysis, and when you use binning of any form, make sure you consider how and if your conclusions might change compared to another possible approach.
+For now, it's enough that you know of, and understand the MAUP and its implications. Always be smart when choosing your appropriate spatial unit of analysis, and when you use binning of any form, make sure you consider how and if your conclusions might change compared to another possible approach.
 
 \hypertarget{summary-and-further-reading-3}{%
 \section{Summary and further reading}\label{summary-and-further-reading-3}}
