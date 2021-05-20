@@ -441,7 +441,7 @@ For convenience we will just place these four columns in a new object. It´s not
 
 ```{r}
 lsoas <- data.frame(Observed = burglary_lsoa$burglary,
-                    Expected = burglary_lsoa$b_expected,
+                   Expected = burglary_lsoa$b_expected,
                     Population = burglary_lsoa$dwellings,
                     x = burglary_lsoa$x,
                     y = burglary_lsoa$y)
@@ -466,6 +466,18 @@ oplus <- sum(lsoas$observed)
 1 - pnorm(pwtest$t0, oplus * (oplus - 1), sqrt(2 * 100 * oplus * (oplus - 1)))
 ```
 
+
+```{r}
+oppenheim_burglary <- opgam(data = as(lsoas, "data.frame"), 
+                   radius = 50, step = 10, alpha = 0.002)
+oppenheim <- st_as_sf(oppenheim_burglary, 
+                      coords = c("x", "y"),
+                      crs = 27700)
+oppenheim <- st_transform(oppenheim, crs = 4326)
+mapview(list(oppenheim, burglary_lsoa),
+        layer.name = c("Franconian districts", "Franconian breweries"))
+
+```
 
 
 ```{r}
