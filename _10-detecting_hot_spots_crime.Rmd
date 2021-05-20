@@ -163,16 +163,15 @@ The first step in computing the Getis and Ord statistics involves defining the n
 
 ```{r}
 # Move to vector model
-getisgrid <-  rasterToPolygons(burglary_raster_cc)
+grid_cc <-  rasterToPolygons(burglary_raster_cc)
 
 ```
 
 What is a neighbour and the code related to defining neighbours is a topic we covered in the previous chapter. For brevity, we will only use the Queen criteria for this illustration. Only to indicate that `include.self()` ensures we get the $G^*$ variation of the local Getis-Ord test, the second variation we mentioned above.
 
 ```{r}
-neighbors <-  poly2nb(getisgrid)
-weighted_neighbors <- nb2listw(include.self(neighbors), zero.policy=T)
-
+nb_queen_cc <-  poly2nb(grid_cc)
+lw_queen_cc <- nb2listw(include.self(nb_queen_cc), zero.policy=T)
 
 ```
 
@@ -181,15 +180,14 @@ Now that we have the data ready we can, analytically, compute the statistic usin
 ```{r, message=FALSE, warning=FALSe}
 
 # Perform the local G analysis (Getis-Ord GI*)
-getisgrid$HOTSPOT_z <- as.vector(localG(getisgrid$layer, weighted_neighbors))
-
+grid_cc$G_hotspot_z <- as.vector(localG(grid_cc$layer, lw_queen_cc))
 
 ```
 
 We can then see the produced z scores:
 
 ```{r}
-summary(getisgrid$HOTSPOT_z)
+summary(grid_cc$G_hotspot_z)
 
 ```
 
@@ -198,26 +196,26 @@ How do you interpret these? They are z scores. So you expect large absolute valu
 A known problem with this statistic is that of multiple comparisons. As noted by @Pebesma_2021: "although the apparent detection of hotspots from values of local indicators has been quite widely adopted, it remains fraught with difficulty because adjustment of the inferential basis to accommodate multiple comparisons is not often chosen." So we need to ensure the critical values we use adjust for this. We can use `stats::p.adjust()` to count the number of observations that this statistic identifies as hot spots using different solutions for the multiple comparison problem, such as Bonferroni, False Discovery Rate (`fdr`), or the method developed by Benjamini and Yekutielli (`BY`).
 
 ```{r}
-p_values <- 2 * pnorm(abs(c(getisgrid$HOTSPOT_z)), lower.tail = FALSE)
-p_values_mc <- cbind(p_values, 
-              p.adjust(p_values, "bonferroni"), 
-              p.adjust(p_values, "fdr"), 
-              p.adjust(p_values, "BY"))
-colnames(p_values_mc) <- c("None", "Bonferroni", 
+p_values_lg <- 2 * pnorm(abs(c(grid_cc$G_hotspot_z)), lower.tail = FALSE)
+p_values_lgmc <- cbind(p_values_lg, 
+              p.adjust(p_values_lg, "bonferroni"), 
+              p.adjust(p_values_lg, "fdr"), 
+              p.adjust(p_values_lg, "BY"))
+colnames(p_values_lgmc) <- c("None", "Bonferroni", 
                            "False Discovery Rate", "BY (2001)")
-apply(p_values_mc, 2, function(x) sum(x < 0.05))
+apply(p_values_lgmc, 2, function(x) sum(x < 0.05))
 ```
 
 We can now plot this significant clusters in the map. We will just take the areas identified as significant clusters with the Bonferroni adjustment. First we will do some recoding to identify these cells in the spatial polygon object.
 
 ```{r}
 # Creates p values for Bonferroni adjustment
-getisgrid$HOTSPOT_bonf <- p.adjust(p_values, "bonferroni")
+grid_cc$G_hotspot_bonf <- p.adjust(p_values_lg, "bonferroni")
 # Create character vector based on Z score and p values (since this is a spatial polygon tidier functions such as mutate won´t do the job and have to use base R)
-getisgrid$HOTSPOT <- "Not significant"
-getisgrid$HOTSPOT[getisgrid$HOTSPOT_bonf < 0.05 & getisgrid$HOTSPOT_z > 0] <- "Hot spot"
-getisgrid$HOTSPOT[getisgrid$HOTSPOT_bonf < 0.05 & getisgrid$HOTSPOT_z < 0] <- "Cold spot"
-table(getisgrid$HOTSPOT)
+grid_cc$HOTSPOT <- "Not significant"
+grid_cc$HOTSPOT[grid_cc$G_hotspot_bonf < 0.05 & grid_cc$G_hotspot_z > 0] <- "Hot spot"
+grid_cc$HOTSPOT[grid_cc$G_hotspot_bonf < 0.05 & grid_cc$G_hotspot_z < 0] <- "Cold spot"
+table(grid_cc$HOTSPOT)
 
 ```
 
@@ -225,11 +223,11 @@ We can now map these values.
 
 ```{r, message=FALSE, warning=FALSE}
 tmap_mode("view")
-map1 <- tm_shape(st_as_sf(getisgrid)) + 
-  tm_fill(c("HOTSPOT_z"), 
+map1 <- tm_shape(st_as_sf(grid_cc)) + 
+  tm_fill(c("G_hotspot_z"), 
           title="Z scores",
           alpha = 0.5)
-map2 <- tm_shape(st_as_sf(getisgrid)) +
+map2 <- tm_shape(st_as_sf(grid_cc)) +
   tm_fill(c("HOTSPOT"), 
           title="Hot spots",
           alpha = 0.5)
@@ -242,14 +240,16 @@ We can see here that not all the micro grid cells with an elevated count of burg
 
 ## Local Moran´s I and Moran scaterplot
 
+### Computing the local Moran´s I
+
 The Local Gerdis and Ord statistic, as we noted is a type of local indicator of spatial autocorrelation. There is also a local version of Moran´s I, which allow for the  the decomposition of such as Moran's I, into the contribution of each observation. 
 
 Let's first look at the Moran's scatterplot for our data. Remember from last chapter that a Moran´s scatterplot is plotting the values of the variable of interest, in this case the burglary count on each micro grid, against the spatial lagged value. For creating the Moran´s scatterplot we generally use row standardisation in the weight matrix so that the Y and the X axis are more comparable.
 
 ```{r}
-nb_queen <- poly2nb(getisgrid)
-lw_queen_rs <-  nb2listw(nb_queen, style='W')
-m_plot_burglary <- moran.plot(getisgrid$layer, lw_queen_rs,
+
+lw_queen_rs <-  nb2listw(nb_queen_cc, style='W')
+m_plot_burglary <- moran.plot(grid_cc$layer, lw_queen_rs,
            cex=1, 
            pch=".", 
            xlab="burglary count", 
@@ -265,19 +265,20 @@ The slope of the line in the scatterplot gives you a measure of the global spati
 
 ```{r, warning=FALSE, message=FALSE}
 # We extract the influence measure and place it in the sp object
-getisgrid$hat <- m_plot_burglary$hat
+grid_cc$lm_hat <- m_plot_burglary$hat
 # Then we can plot this measure of influence
-tm_shape(getisgrid) + tm_fill("hat")
+tm_shape(grid_cc) + tm_fill("lm_hat")
 
 ```
 
 To compute the local Moran we can use a function from the `spdep` package: `localmoran()`.
 
 ```{r}
-locm_burglary <- localmoran(getisgrid$layer, lw_queen_rs,
+locm_burglary <- localmoran(grid_cc$layer, lw_queen_rs,
                             alternative = "two.sided")
 ```
-As with the local $G*$ it is necessary to adjust for multiple comparisons. The unadjusted p vale for the test is stored in the fith column of the object of class `localmoran` that we generated with the `localmoran` function. As before we can extract this element and pass it as an argument to the `p.adjust()` function in order to obtain p values with some method of adjustment for the probem of multiple comparisons.
+
+As with the local $G*$ it is necessary to adjust for multiple comparisons. The unadjusted p value for the test is stored in the fifth column of the object of class `localmoran` that we generated with the `localmoran` function. As before we can extract this element and pass it as an argument to the `p.adjust()` function in order to obtain p values with some method of adjustment for the problem of multiple comparisons.
 
 ```{r}
 p_values_lm <- locm_burglary[,5]
@@ -291,131 +292,111 @@ bonferroni_lm <- p.adjust(p_values_lm, "bonferroni")
 sum(bonferroni_lm < 0.05)
 ```
 
-These get reduced to 11 once we apply the Bonferroni correction.
+These get reduced to 11 once we apply the Bonferroni correction. It is also possible to use conditional permutation for inference purposes, instead of the analytical methods used above. In this case we would need to invoke `spdep::localmoran_perm()` function. Here we would need an additional argument `nsim` setting the number of simulations. @Bivand_2018 suggest that "increasing the number of draws beyond 999 has no effect" (p. 741). The `iseed` argument ensures we use the same random seed and get reproducible results. As before adjusting for multiple comparisons notably reduces the number of significant clusters.
+
+```{r}
+locm_burglary_perm <- localmoran_perm(grid_cc$layer, 
+                                      lw_queen_rs, 
+                                      nsim=499, 
+                                      alternative="two.sided", 
+                                      iseed=1)
+p_values_lmp <- locm_burglary_perm[,5]
+sum(p_values_lmp < 0.05)
+bonferroni_lmp <- p.adjust(p_values_lmp, "bonferroni")
+sum(bonferroni_lmp < 0.05)
+```
 
 ### Creating a LISA map
 
 In order to produce the LISA map we need to do some previous work. First we are going to create some new variables that we are going to need.
 
-First we scale the variable of interest. When we scale burglary what we are doing is re-scaling the values so that the mean is zero. We use `scale()`, which is a generic function whose default method centers and/or scales the variable. Here centering is done by subtracting the mean (omitting NAs) the corresponding columns, and scaling is done by dividing the (centered) variable by their standard deviations.We've also added `as.vector()` to the end, to make sure that the data type we get out of this is a vector, that maps neatly into our dataframe.
+First we scale the variable of interest. When we scale burglary what we are doing is re-scaling the values so that the mean is zero. We use `scale()`, which is a generic function whose default method centers and/or scales the variable. Here centering is done by subtracting the mean (omitting NAs) the corresponding columns, and scaling is done by dividing the (centered) variable by their standard deviations.We've also added `as.vector()` to the end, to make sure that the data type we get out of this is a vector, that maps neatly into our `sp` object. Then we will also store the adjusted p values into a variable within this object.
 
 ```{r}
+# Scale the count of burglary
+grid_cc$s_burglary <- scale(grid_cc$layer) %>% as.vector()
+# Creates p values for Bonferroni adjustment
+grid_cc$localmp_bonf <- p.adjust(p_values_lmp, "bonferroni")
 
-burglary_m$s_burglary <- scale(burglary_m$burglary) %>% as.vector()
 ```
 
-To produce the LISA maps we also need to generate a **spatial lag**: the average value of the burglary count in the areas that are considered neighbours of each LSOA. 
-
-For this we need our `listw` object, which is the `ww` object created earlier, when we generated the list with weights using row standardisation. We then pass this `listw` object into the `lag.listw()` function, which computes  the spatial lag of a numeric vector using a `listw` sparse representation of a spatial weights matrix. 
+To produce the LISA maps we also need to generate a **spatial lag**: the average value of the burglary count in the areas that are considered neighbours of each LSOA.  For this we need our `listw` object, which is the  object created earlier, when we generated the list with weights using row standardisation. We then pass this `listw` object into the `lag.listw()` function, which computes  the spatial lag of a numeric vector using a `listw` sparse representation of a spatial weights matrix. 
 
 ```{r}
 #create a spatial lag variable and save it to a new column
-burglary_m$lag_s_burglary <- lag.listw(lw_m, burglary_m$s_burglary)
+grid_cc$lag_s_burglary <- lag.listw(lw_queen_rs, grid_cc$s_burglary)
 ```
 
 Make sure to check the summaries to ensure nothing weird is going on
 
-```{r}
+```{r, eval=FALSE}
 
-summary(burglary_m$s_burglary)
-summary(burglary_m$lag_s_burglary)
+summary(grid_cc$s_burglary)
+summary(grid_cc$lag_s_burglary)
 ```
 
 We can create a Moran scatter plot so that you see that nothing has changed apart from the scale in winch we are using the variables. The observations that are influential are highlighted in the plot as you can see.
 
-```{r}
-x <- burglary_m$s_burglary
-y <- burglary_m$lag_s_burglary
-xx <- data_frame(x,y)
-moran.plot(x, lw_m)
+```{r, warning=FALSE}
+x <- grid_cc$s_burglary
+y <- grid_cc$lag_s_burglary
+xx <- tibble(x,y)
+moran.plot(x, lw_queen_rs,
+           cex=1, 
+           pch=".", 
+           xlab="burglary count", 
+           ylab="lagged burglary count")
 ```
 
-We are now going to create a new variable to identify the quadrant in which each observation falls within the Moran Scatter plot, so that we can tell apart the high-high, low-low, high-low, and low-high areas. We will only identify those that are significant according to the p value that was provided by the local moran function.
-
-Before we get started, let's quickly review the tools we will use. 
-
-All our data is in this "burglary_m" dataframe. This has a variable for the LSOA code ("code"), a variable for the number of burglaries ("burglary"), and then also the two variables we created, the scaled measure of burglary ("s_burglary"), and the spatial lag measure ("lag_s_burglary").
-
-We also have our "locm_bm" object, which we created with the "localmoran()" function, that has calculated a variety of measures for each of our observations, which we explored with the `summary()` function. You can see (if you scroll up) that the 5th element in this object is the p-value ("Pr(z > 0)"). To call the nth element of an object, you can use the square brackets after its name. So to return the nth column of thing, you can use `thing[,n]`. Again this should not be new to you, as we've been doing this sort of thing for a while. 
-
-So the data we need for each observation, in order to identify whether it belongs to the high-high, low-low, high-low, or low-high quadrants are the standardised burglary score, the spatial lag score, and the p-value. 
+We are now going to create a new variable to identify the quadrant in which each observation falls within the Moran Scatter plot, so that we can tell apart the high-high, low-low, high-low, and low-high areas. We will only identify those that are significant according to the p value that was provided by the local moran function adjusted for multiple comparisons. The data we need for each observation, in order to identify whether it belongs to the high-high, low-low, high-low, or low-high quadrants are the standardised burglary score, the spatial lag score, and the p-value. 
 
 Essentially all we'll be doing, is assigning a variable values based on where in the plot it is. So for example, if it's in the upper right, it is high-high, and has values larger than 0 for both the burglary and the spatial lag values.  It it's in the upper left, it's low-high, and has a value larger than 0 for the spatial lag value, but lower than 0 on the burglary value. And so on, and so on. Here's an image to illustrate:
 
 ![](img/moran_plot_annotate.png)
 
-
-So let's first initialise this variable. In this instance we are creating a new column in the "burglary_m" dataframe and calling it "quad_sig". 
-
-We are using the `mutate()` function from the `dplyr` package to create our new variable, just as we have in previous labs. 
-
-We also use nested `ifelse()` statements. Nested `ifelse()` just means that it's an `ifelse()` inside another `ifelse()` statement. To help us with these sorts of situations is the `ifelse()` function. We saw this with the previous exercises, but I'll describe it brielfy again. It allows us to conditionally assign some value to some variable. The structure of the function is so that you have to pass it a condition, then a value to assign if the condition is true, and then another value if the condition is false. You are basically using this function to say: "if this condition is true, do first thing, else, do the second thing". It would look something like this:
-
-```{r, eval=FALSE}
-
-dataframe$new_variable <- ifelse(dataframe$some_numeric_var < 100, "smaller than 100", "not smaller than 100")
-
-```
-
-When nesting these, all you do is put another condition to check in the "thing to do if false", so it checks all conditions. So in the first instance we check if the value for burglary is greater than zero, and the value for the lag is greater than zero, and the p-value is smaller than our threshold of 0.05. If it is, then this should belong to the "high-high" group. If any one of these conditions is not met, then we move into the 'thing to do if false' section, where we now check again another set of criteria, and so on and so on. If none of these are met, we assign it the non-significant value: 
+So let's first initialise this variable. In this instance we are creating a new column in the `sp` object and calling it "quad_sig". 
 
 
 ```{r}
-burglary_m <- st_as_sf(burglary_m) %>% 
-  mutate(quad_sig = ifelse(burglary_m$s_burglary > 0 & 
-                              burglary_m$lag_s_burglary > 0 & 
-                              locm_bm[,5] <= 0.05, 
-                     "high-high",
-                     ifelse(burglary_m$s_burglary <= 0 & 
-                              burglary_m$lag_s_burglary <= 0 & 
-                              locm_bm[,5] <= 0.05, 
-                     "low-low", 
-                     ifelse(burglary_m$s_burglary > 0 & 
-                              burglary_m$lag_s_burglary <= 0 & 
-                              locm_bm[,5] <= 0.05, 
-                     "high-low",
-                     ifelse(burglary_m$s_burglary <= 0 & 
-                              burglary_m$lag_s_burglary > 0 & 
-                              locm_bm[,5] <= 0.05,
-                     "low-high", 
-                     "non-significant")))))
+grid_cc$quad_sig[grid_cc$localmp_bonf >= .05] <- "Not significant"
+grid_cc$quad_sig[grid_cc$s_burglary > 0 & 
+                   grid_cc$lag_s_burglary > 0 &  
+                   grid_cc$localmp_bonf < 0.05] <- "high-high"
+grid_cc$quad_sig[grid_cc$s_burglary < 0 & 
+                   grid_cc$lag_s_burglary < 0 & 
+                   grid_cc$localmp_bonf < 0.05] <- "low-low"
+grid_cc$quad_sig[grid_cc$s_burglary < 0 & 
+                   grid_cc$lag_s_burglary > 0 & 
+                   grid_cc$localmp_bonf < 0.05] <- "low-high"
+grid_cc$quad_sig[grid_cc$s_burglary > 0 & 
+                   grid_cc$lag_s_burglary < 0 & 
+                   grid_cc$localmp_bonf < 0.05] <- "high-low"
+
+     
 ```
 
-
-(Note we had to wrap our data in a `st_as_sf()` function, to convert back to `sf` object). 
 
 Now we can have a look at what this returns us: 
 
 ```{r}
 
-table(burglary_m$quad_sig)
+table(grid_cc$quad_sig)
 
 ```
 
-This looks like a lot of non-significant results. We want to be sure this isn't an artefact of our code but is true, we can check how many values are under 0.05:
-
-
-```{r}
-
-nrow(locm_bm[locm_bm[,5] <= 0.05,])
-
-```
-
-We can see that only 23 areas have p-values under 0.05 threshold. So this is in line with our results, and we can rest assured. Well, this is exciting, but where are these regions?
-
-Let's put'em on a map, using the standard colours used in this kind of maps:
+So the 9 significant clusters we found split into 5 high-high and 4 low-high. 
+Let's put them on a map, using the standard colours used in this kind of maps:
 
 ```{r, echo=FALSE}
 tmap_mode("view")
 ```
 
+```{r, warning=FALSE,message=FALSE}
 
-```{r}
-
-tm_shape(burglary_m) + 
+tm_shape(grid_cc) + 
   tm_fill("quad_sig",
           palette= c("red","blue","white"),
-          labels = c("High-High","Low-Low", "non-significant"),
+          labels = c("High-High","Low-High", "non-significant"),
           alpha=0.5) +
   tm_borders(alpha=.5) +
   tm_layout(frame = FALSE,
@@ -427,12 +408,8 @@ tm_shape(burglary_m) +
             main.title.size = 1.2)
 ```
 
-So how do we interpret these results? Well keep in mind: 
+## Local spatial heterokedasticity
 
-- The LISA value for each location is determined from its individual contribution to the global Moran's I calculation.
-- Whether or not this value is statistically significant is assessed by comparing the actual value to the value calculated for the same location by randomly reassigning the data among all the areal units and recalculating the values each time (the Monte Carlo simulation approach discussed earlier).
-
-So essentially this map now tells us that there was statistically significant moderate clustering in burglaries in Manchester. If you were familiar with the city you could see they are located around the city centre, areas of university student residencies, and some pockets of social exclusion.  When reporting your results, report at least the Moran’s I test value and the p value.  So, for this test, you should report Moran’s I = 0.32, p < .001. Including the LISA cluster map is also a great way of showing how the attribute is actually clustering.
 
 
 ## Scan Statistics
@@ -453,25 +430,17 @@ compute rate
 
 ```{r, eval = FALSE}
 
-neighbourhoods <- neighbourhoods %>%
-  mutate(b_e_rate = b_e_count / as.numeric(dwellings))
+burglary_lsoa <- burglary_lsoa %>%
+  mutate(b_rate = (burglary / dwellings)* 100)
 ```
 
-What´s going on? Well, that´s the thing with real life data. There´s always something that may drive you insane. If you use `class()` on the column with the "dwellings" you will see that the data are stored as `character` class. What is more you see commas separating some of the digits. R will coerce this into NAs. So we need to do some tidying beforehand. We will turn the vector into numeric using `as.numeric()` and we will use `gsub()` to replace the commas (`","`) with nothingness (`""`).
-
-```{r}
-neighbourhoods$dwellings <- as.numeric(gsub(",", "", neighbourhoods$dwellings))
-
-```
-
-Now we can compute the rate and do a quick map.
 
 ```{r, message=FALSE}
-neighbourhoods <- neighbourhoods %>%
-  mutate(b_e_rate = (b_e_count / as.numeric(dwellings)) * 1000)
+
 current_style <- tmap_style("col_blind")
-tm_shape(neighbourhoods) + 
-  tm_fill("b_e_rate", style="headtails", title = "Break and Enter per 1000 dwellings (2018-2019") +
+tm_shape(burglary_lsoa) + 
+  tm_fill("b_rate", style="headtails", 
+          title = "Burglary per 100 dwellings") +
   tm_layout(legend.position = c("left", "top"), 
             legend.title.size = 0.7,
             legend.text.size = 0.5)
@@ -480,21 +449,19 @@ tm_shape(neighbourhoods) +
 The package `DCluster` was one of the first to introduce tools to assess spatial clusters. This package, like many that are influenced by the epidemiological literature, take as key inputs the observed cases (in criminology this will be criminal occurrences) and expected cases. In epidemiology expected cases are often standardised to account for population heterogeneity. In crime analysis this is not as common (although in some circumstances it should be!). For this example we will the  expected counts are computed using the overall incidence ratio (i.e., total number of cases divided by the total population).
 
 ```{r}
-neighbourhoods$b_e_expected <- neighbourhoods$dwellings * sum(neighbourhoods$b_e_count) / sum(neighbourhoods$dwellings)
+burglary_lsoa$b_expected <- burglary_lsoa$dwellings * sum(burglary_lsoa$burglary) / sum(burglary_lsoa$dwellings)
 
 ```
 
-This package requires as well the centroids for the polygons we are using. To extract this we can use `sf::st_centroid()` with `sf::st_coordinates()`. All the GEOS functions underlying `sf` need projected coordinates to work properly, so we need to reproject first to an adequate projection:
+This package requires as well the centroids for the polygons we are using. To extract this we can use `sf::st_centroid()` with `sf::st_coordinates()`. All the GEOS functions underlying `sf` need projected coordinates to work properly, so we need to ensure an adequate projection (which we did when we loaded the data at the outset of the chapter):
 
-```{r}
-# Reproject
-neighbourhoods <- st_transform(neighbourhoods, crs = 26717)
+```{r, warning=FALSE}
 # Get coordinates for centroids
-nh_centroid <- st_centroid(neighbourhoods) %>%
+nh_centroid <- st_centroid(burglary_lsoa) %>%
   st_coordinates(nh_centroid)
 # Place the coordinates as vectors in our sf dataframe
-neighbourhoods$x <- nh_centroid[,1]
-neighbourhoods$y <- nh_centroid[,2]
+burglary_lsoa$x <- nh_centroid[,1]
+burglary_lsoa$y <- nh_centroid[,2]
 
 ```
 
@@ -502,25 +469,25 @@ neighbourhoods$y <- nh_centroid[,2]
 bla bla bla
 
 ```{r}
-chtest <- achisq.test(b_e_count~offset(log(b_e_expected)), 
-                      as(as.data.frame(neighbourhoods), "data.frame"), 
+chtest <- achisq.test(burglary~offset(log(b_expected)), 
+                      as(as.data.frame(burglary_lsoa), "data.frame"), 
                       "multinom", 
                       999)
 chtest
 ```
 ```{r}
-pwtest <- pottwhitt.test(b_e_count~offset(log(b_e_expected)),
-                         as(as.data.frame(neighbourhoods), "data.frame"),
+pwtest <- pottwhitt.test(burglary~offset(log(b_expected)),
+                         as(as.data.frame(burglary_lsoa), "data.frame"),
                          "multinom", 999)
-oplus <- sum(neighbourhoods$b_e_count)
+oplus <- sum(burglary_lsoa$burglary)
 1 - pnorm(pwtest$t0, oplus * (oplus - 1), sqrt(2 * 100 * oplus * (oplus - 1)))
 ```
 
 ```{r}
-nh_scans <- data.frame(Observed = neighbourhoods$b_e_count)
-nh_scans <- cbind(nh_scans, Expected = neighbourhoods$b_e_expected)
-nh_scans <- cbind(nh_scans, x = neighbourhoods$x,
-                  y = neighbourhoods$y)
+nh_scans <- data.frame(Observed = burglary_lsoa$burglary)
+nh_scans <- cbind(nh_scans, Expected = burglary_lsoa$b_expected)
+nh_scans <- cbind(nh_scans, x = burglary_lsoa$x,
+                  y = burglary_lsoa$y)
 ```
 
 
@@ -550,3 +517,4 @@ knresults <- opgam(data = as(nh_scans, "data.frame"),
 class(knresults)
 ```
 
+## Further reading
