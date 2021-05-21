@@ -16,7 +16,7 @@ These LISA statistics serve two purposes. On one hand, they may be interpreted a
 "-a) the LISA for each observation gives an indication of the extent of significant spatial clustering of similar values around that observation;
 - b) the sum of LISAs for all observations is proportional to a global indicator of spatial association".
 
-These measures of local spatial dependence are available in tools often used by crime analysts (CrimeStat, GeoDa, ArcGIS, and also R). But it is important to realise that there are some subtle differences in implementation that reflect design decisions by the programmers. These differences in design may result on apparent differences in numerical findings generated with these different programs. The defaults used by different software may give the impression different results are achieved. @Bivand_2018 offers an excellent thorough review of these different implementations (and steps needed for ensuring comparability). Our focus here will be in introducing the functionality of the `spdep` packages, with a cursory overview of `rgeoda` as well.
+These measures of local spatial dependence are available in tools often used by crime analysts (CrimeStat, GeoDa, ArcGIS, and also R). But it is important to realise that there are some subtle differences in implementation that reflect design decisions by the programmers. These differences in design may result on apparent differences in numerical findings generated with these different programs. The defaults used by different software may give the impression different results are achieved. @Bivand_2018 offers an excellent thorough review of these different implementations (and steps needed for ensuring comparability). Our focus here will be in introducing the functionality of the `spdep` packages.
 
 Aside from these LISAS, in spatial epidemiology a number of techniques have been developed for detecting areas with an unusually high risk of disease. Although originally developed in the context of studying disease, the techniques can also be applied to the study of crime. Most of the methods in spatial epidemiology are based on the idea of "moving windows", such as the spatial scan statistic developed by @Kulldorff_1997. Several packages bring this scan statistics to R. There are also other packages that use different algorithms to detect disease clusters, such as AMOEBA, that is based in the Getis-Ord algorithm. As we will see we are spoiled for choice in this regard. Here we will only provide a glimpse into how to perform a few of these tests with R.
 
@@ -30,6 +30,8 @@ library(dplyr)
 # Packages for handling spatial data and for geospatial carpentry
 library(sf)
 library(raster)
+
+library(rgeoda)
 library(spdep)
 # Packages for detecting clusters
 library(DCluster)
@@ -219,6 +221,7 @@ We can now map these values.
 
 ```{r, message=FALSE, warning=FALSE}
 tmap_mode("view")
+tmap_style("col_blind")
 map1 <- tm_shape(st_as_sf(grid_cc)) + 
   tm_fill(c("G_hotspot_z"), 
           title="Z scores",
@@ -370,10 +373,6 @@ table(grid_cc$quad_sig)
 So the 9 significant clusters we found split into 5 high-high and 4 low-high. 
 Let's put them on a map, using the standard colours used in this kind of maps:
 
-```{r, echo=FALSE}
-tmap_mode("view")
-```
-
 ```{r, warning=FALSE,message=FALSE}
 
 tm_shape(grid_cc) + 
@@ -393,11 +392,8 @@ tm_shape(grid_cc) +
 
 ## Local spatial heterokedasticity
 
-## A quick overview of `rgeoda`
 
-## Epidemiological tools for detection of clusters in lattice data
-
-### Oppenshaw´s Geographical Analysis Machine and `DCluster` 
+## Oppenshaw´s GAM and Kulldorf´s Scan Statistic 
 
 The package `DCluster` (@Gomez_2005) was one of the first to introduce tools to assess spatial clusters. This package precedes `sf` and it likes the data to be stored in a data frame with at least four columns: observed number of cases, expected number of cases, and the longitude and latitude. `DCluster`, like many packages that are influenced by the epidemiological literature, take as key inputs the observed cases (in criminology this will be criminal occurrences) and expected cases. In epidemiology expected cases are often standardised to account for population heterogeneity. In crime analysis this is not as common (although in some circumstances it should be!).  
 
@@ -453,33 +449,18 @@ oplus <- sum(lsoas$Observed)
 
 
 ```{r}
-oppenheim_burglary <- opgam(data = as(lsoas, "data.frame"), 
+gam_burglary <- opgam(data = as(lsoas, "data.frame"), 
                    radius = 50, step = 10, alpha = 0.002)
-oppenheim <- st_as_sf(oppenheim_burglary, 
+gam_burglary_sf <- st_as_sf(gam_burglary, 
                       coords = c("x", "y"),
                       crs = 27700)
-oppenheim <- st_transform(oppenheim, crs = 4326)
-mapview(list(oppenheim, burglary_lsoa),
-        layer.name = c("cacadevaca", "Manchester LSOAs"))
+gam_burglary_sf <- st_transform(gam_burglary_sf, crs = 4326)
+tmap_mode("plot")
+map_gam <- tm_shape(burglary_lsoa) + tm_borders(alpha = 0.3) +
+  tm_shape(gam_burglary_sf) + tm_dots(size=0.1, col = "red") +
+  tm_layout(main.title = "Openshaw´s GAM", main.title.size=1.2)
 
 ```
-
-
-```{r}
-## Set Parameters
-pop.upper.bound <- 0.5
-n.simulations <- 999
-alpha.level <- 0.05
-plot <- TRUE
-poisson <- kulldorff(nh_centroid, lsoas$Observed, lsoas$Population, lsoas$Expected,
-          pop.upper.bound, n.simulations, alpha.level, plot)
-cluster <- poisson$most.likely.cluster$location.IDs.included
-cluster_sf <- burglary_lsoa[cluster,]
-mapview(list(cluster_sf, manchester),
-        layer.name = c("Kulldorf", "Manchester"))
-
-```
-
 
 
 
@@ -498,8 +479,12 @@ kulldorff_scan <- st_as_sf(knresults,
                       coords = c("x", "y"),
                       crs = 27700)
 kulldorff_scan <- st_transform(kulldorff_scan, crs = 4326)
-mapview(list(kulldorff_scan, burglary_lsoa),
-        layer.name = c("r", "Manchester LSOAs"))
+map_scan <- tm_shape(burglary_lsoa) + tm_borders(alpha = 0.3) +
+  tm_shape(kulldorff_scan) + tm_dots(size=0.1, col = "red") +
+  tm_layout(main.title = "Kulldorf Scan", main.title.size=1.2)
+tmap_arrange(map_gam, map_scan)
+
+
 ```
 
 ## Assessing clusters with point pattern data
