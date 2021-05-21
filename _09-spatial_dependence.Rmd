@@ -15,18 +15,14 @@ We will be making use of the following packages:
 library(readr)
 library(dplyr)
 library(lubridate)
-
 # Packages for handling spatial data and for geospatial carpentry
 library(sf)
 library(sp)
-
 # Specific packages for spatial point pattern analysis
 library(spatstat)
-
 # Packages to generate spatial weight matrix and compute measures of dependence
 library(spdep)
 library(rgeoda)
-
 # Packages for mapping and visualisation
 library(tmap)
 library(ggplot2)
@@ -161,14 +157,13 @@ We will use a GeoJSON file that has the LSOAs for Manchester and a column identi
 
 ```{r, message=FALSE, warning=FALSE}
 # Read into R
-burglary <- st_read("data/burglary_manchester_lsoa.geojson")
-
+burglary <- st_read("data/burglary_manchester_lsoa.geojson",
+                    quiet=TRUE)
 ```
 
 We now have the burglary data as shown below:
 
 ```{r, message=FALSE, warning=FALSE, echo=FALSE}
-
 # Plot with tmap
 tm_shape(burglary) +
   tm_bubbles("burglary", border.lwd=NA, perceptual = TRUE) +            
@@ -176,7 +171,6 @@ tm_shape(burglary) +
   tm_layout(legend.position = c("right", "bottom"),
             legend.title.size = 0.8,
             legend.text.size = 0.5)
-
 ```
 
 Do you see any patterns? Are burglaries randomly spread around the map? Or would you say that areas that are closer to each other tend to be more alike? Is there evidence of clustering? Do burglaries seem to appear in certain pockets of the map? 
@@ -239,7 +233,6 @@ We have already discussed how the `sf` package is the new kid in town and althou
 ```{r, warning=FALSE}
 #We coerce the sf object into a new sp object
 cc_burglary_sp <- as(cc_burglary, "Spatial")
-
 ```
 
 In order to identify neighbours we will use the `poly2nb()` function from the `spdep` package that we loaded at the beginning of our session. The `spdep` package provides basic functions for building neighbour lists and spatial weights and tests for spatial autocorrelation for areal data like Moran's I (more on this below). 
@@ -257,15 +250,7 @@ This has created a `nb`, neighbour list object. We can get some idea of what's t
 summary(nb_queen)
 ```
 
-This is basically telling us that using this criteria each LSOA polygon has an average of 4.3 neighbours (when we just focus on the city centre) and that all areas have some neighbours (there is no islands). The link number distribution gives you the number of links (neighbours) per area. So here we have 3 polygons with 2 neighbours, 3 with 3, 6 with 4, and so on. The summary function here also identifies the areas sitting at both extreme of the distribution.
-
-For more details we could look at the structure of "nb_bur".
-
-```{r, eval = FALSE}
-str(nb_queen)
-```
-
-We can graphically represent the links using the following code:
+This is basically telling us that using this criteria each LSOA polygon has an average of 4.3 neighbours (when we just focus on the city centre) and that all areas have some neighbours (there is no islands). The link number distribution gives you the number of links (neighbours) per area. So here we have 3 polygons with 2 neighbours, 3 with 3, 6 with 4, and so on. The summary function here also identifies the areas sitting at both extreme of the distribution. We can graphically represent the links using the following code:
 
 ```{r}
 # We first plot the boundaries
@@ -284,7 +269,6 @@ We can transform "nb_queen", the list of neighbours, into a spatial weights matr
 
 ```{r}
 wm_queen <- nb2mat(nb_queen, style='B')
-
 ```
 
 You can view this matrix autoprinting the object:
@@ -315,18 +299,14 @@ The simplest spatial distanced-based weights matrix is obtained defining a given
 Previous to this we need the centroids for the polygons. We already showed above how to obtain this using `sp::coordinates()`, so we don´t really need to run this again.
 
 ```{r, eval=FALSE}
-
-xy <- coordinates(bur_ccsp)
-
+xy <- coordinates(cc_burglary_sp)
 ```
 
 Then we use the `spdep::knearneigh()` function to find the nearest neighbour to each centroid. This function will just do that, look for the centroid closest to each of the other centroids. Then we turn the created object with this information into a `nb` object as defined earlier using `spdep::knn2nb`:
 
 ```{r}
-
 nearest_n <- knearneigh(xy)
 nb_nearest_n <- knn2nb(nearest_n)
-
 ```
 
 Now we have a `nb` list that for each area define its nearest neighbour. What we need to do is to compute the distance from each centroid to its nearest neighbour (`spdep::nbdists()` will do this for us) and then find out what is the maximum distance (we can use `base::max()`), so that we use this as the critical threshold to define the radius we will use (to avoid the appearance of isolates in our matrix).
@@ -383,31 +363,24 @@ distances <- nbdists(nb_distance, xy)
 Now that we have an object with all the distances we need to compute the inverse distances. Taking the inverse simply involves dividing 1 by each of the distances. We can easily do that with the following code:
 
 ```{r}
-
 inv_distances <- lapply(distances, function(x) (1/x))
-
 ```
 
 if you look inside the generated object you will see all the inverse distances:
 
 ```{r, eval = FALSE}
-
 View(inv_distances)
-
 ```
 
 You will notice that the values are rather small. The projection we use measures distance in meters. Considering our polygons are census geographies "close" to the ideas of neighbourhoods you will have distances between their centroids that are large. If we take the inverse, as we did, we will unavoidably produce small values very close to zero. We could rescale this to obtain values that are not this small:
 
 ```{r}
-
 inv_distances_r <- lapply(distances, function(x) (1/(x/100)))
-
 ```
 
 Once we have generated the inverse distance we can move to generate the weights based on these using `nb2mat()`.
 
 ```{r}
-
 wm_inverse_dist <- nb2mat(nb_distance,
                 glist = inv_distances_r,
                 style='B')
@@ -424,7 +397,6 @@ Computing the list of neighbours is pretty straightforward and uses functions we
 ```{r}
 nb_k3 <- knn2nb(knearneigh(xy, k = 3))
 ```
-
 
 As before we can use this list of neighbours to create a matrix and we can visualise the relationships with a plot:
 
@@ -447,7 +419,6 @@ As noted above, contiguity and distance are the two most commonly used methods, 
 In this context, it may make sense to explore various definitions and see if our findings are robust to these specifications. @Aldstat_2006 developed an algorithm (AMOEBA) which is a design for the construction of a spatial weights matrix using empirical data that can also simultaneously identify the geometric form of spatial clusters. @Chi_2020 propose to use this as a possible starting point in the comparisons, though the procedure is not yet fully implemented in R (there is an `AMOEBA` package but it only generates a vector with the spatial clusters, not the matrix). They also suggest using the spatial weight matrix corresponding to high spatial autocorrelation and high statistical significance as more appropriate for exploratory data analysis of a given variable, and for the purpose of regression to use the matrix with the highest correlation and significance when exploring the residuals of the model.
 
 ## Measuring global autocorrelation
-
 
 ### Moran's I
 
@@ -486,7 +457,6 @@ So the Moran's I here is 0.12, which does not look very large. With this statist
 
 ```{r}
 # Adapted from Brunsdon and Comber (2015)
-
 moran_range <- function(lw) {
   wmat <- listw2mat(lw)
   return(range(eigen((wmat + t(wmat))/2)$values))
@@ -510,9 +480,7 @@ moran.mc(cc_burglary_sp$burglary, lw_queen, nsim=99)
 
 ```
 
-So, the probability of observing this Moran's I if the null hypothesis was true is `r I(burg_moranmc_results$p.value)`. This is higher than our alpha level of 0.05. In this case, we can conclude that there isn't a significant global spatial autocorrelation.
-
-We can use this test to check for our various specifications of the spatial weight matrix:
+So, the probability of observing this Moran's I if the null hypothesis was true is `r I(burg_moranmc_results$p.value)`. This is higher than our alpha level of 0.05. In this case, we can conclude that there isn't a significant global spatial autocorrelation. We can use this test to check for our various specifications of the spatial weight matrix:
 
 ```{r}
 moran.test(cc_burglary_sp$burglary, lw_distance)
@@ -520,9 +488,7 @@ moran.test(cc_burglary_sp$burglary, lw_k3)
 moran.test(cc_burglary_sp$burglary, lw_inverse_d)
 ```
 
-As we can see using the different specifications of neighbours produces results that are more suggestive of dependence.
-
-We can also make a “Moran scatterplot” to visualize spatial autocorrelation. Note the row standardisation of the weights matrix.
+As we can see using the different specifications of neighbours produces results that are more suggestive of dependence. We can also make a “Moran scatterplot” to visualize spatial autocorrelation. This type of scatterplot was introduced by @Anselin_1996 as a tool to visualise the relationship between the value of interest and its spatial lag, but also to explore local clusters and areas of non-stationairy (we will discuss this in greater detail in next chapter). Note the row standardisation of the weights matrix.
 
 ```{r}
 wm_queen_rs <- mat2listw(wm_queen, style='W')
@@ -532,14 +498,14 @@ mat <- listw2mat(wm_queen_rs)
 apply(mat, 1, sum)[1:15]
 ```
 
-Now we can plot:
+Now we can plot. @Anselin_1996 propose to center the variables around their mean, which is not the default taken by `moran.plot()`, so we need to specify this ourselves when plotting by virtue of using `scale()`. This simply substract the mean from each value, so that the mean of the resulting variable will be 0.
 
 ```{r}
-moran.plot(cc_burglary_sp$burglary, 
-           wm_queen_rs)
+moran.plot(as.vector(scale(cc_burglary_sp$burglary)),
+                  wm_queen_rs)
 ```
 
-The X axis represents the values of our burglary variable in each unit (each LSOA) and the Y axis represents a spatial lag of this variable. A spatial lag in this context is simply the average value of the burglary count in the areas that are considered neighbours of each LSOA. So we are plotting the value of burglary against the average value of burglary in the neighbours. And you can see the correlation is almost flat here. 
+The X axis represents the values of our burglary variable in each unit (each LSOA) and the Y axis represents a spatial lag of this variable. A spatial lag in this context is simply the average value of the burglary count in the areas that are considered neighbours of each LSOA. So we are plotting the value of burglary against the average value of burglary in the neighbours. The slope of the fitted line represents the Moran´s I. And you can see the correlation is almost flat here. We will further explain this scatterplot in next chapter. @Anselin_1996 suggests that the effective interpretation of this scatterplot should focus on the extent to which the fitted regression line that we see plotted reflects well the overall pattern of association between the variable of interest and its spatial lag: "the indication of observations that do not follow the overall trend represents useful information on local instability or non-stationarity" (p. 116-117).  
 
 As with any correlation measure, you could get **positive spatial autocorrelation**, that would mean that as you move further to the right in the X axis you have higher levels of burglary in the surrounding area. This is what we see here. But the correlation is fairly low and as we saw is not statistically significant. You can also obtain **negative spatial autocorrelation**. That is, that would mean that areas with high level of crime *tend* (it's all about the global average effect!) to be surrounded by areas with low levels of crime. This is clearly not what we see here.
 
