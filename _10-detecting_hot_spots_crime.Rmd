@@ -2,23 +2,23 @@
 
 ## Introduction
 
-There has been a great interest within criminology and crime analysis in the study of local clusters of crime or hot spots over the last 30 years. Hot spots is the term typically used within criminology and crime analysis to refer to small geographical areas with a high concentration of crime. @Weisburd_2015 argues for a law of concentration of crime that postulates that a large proportion of crime events occur at relatively few places (such as specific addresses, street intersections, street blocks, or other small micro places) within larger geographical areas such as cities. In one of the earlier contributions to this field of research, @Sherman_1989 noted how roughly 3% of all addresses in Minneapolis (USA) generated about 50% of all calls to police services. A number of subsequent studies have confirmed this pattern elsewhere. @Steenbeek_2016 argue that, in fact, most of the variability of (58% to 69% in their data from The Hague) can be attributed to micro geographic units, with a very limited contribution from the neighbourhood level. This literature also argues that many crime hot spots are relatively stable over time (@Andresen_2011b; @Andresen_2017; @Andresen_2017b).
+There has been a great interest within criminology and crime analysis in the study of local clusters of crime or hot spots over the last 30 years. Hot spots is the term typically used within criminology and crime analysis to refer to small geographical areas with a high concentration of crime. @Weisburd_2015 argues for a *law of concentration* of crime that postulates that a large proportion of crime events occur at relatively few places (such as specific addresses, street intersections, street blocks, or other small micro places) within larger geographical areas such as cities. In one of the earlier contributions to this field of research, @Sherman_1989 noted how roughly 3% of all addresses in Minneapolis (USA) generated about 50% of all calls to police services. A number of subsequent studies have confirmed this pattern elsewhere. @Steenbeek_2016 argue that, in fact, most of the geographical variability of crime (58% to 69% in their data from The Hague) can be attributed to micro geographic units, with a very limited contribution from the neighbourhood level. This literature also argues that many crime hot spots are relatively stable over time (@Andresen_2011b; @Andresen_2017; @Andresen_2017b).
 
-There is also now a considerable body of research evaluating police interventions that take this insight as key to shape their responses to crime. Hot spots policing , or place based policing, assumes that police can reduce crime by focusing their resources on the small number of places that generate a majority of crime problems. Policing crime hot spots has become a popular strategy in the US and efforts to adopt this approach have also taken place elsewhere. Theoretically one could use all sort of proactive creative approaches to solve crime in these locations (using for example conceptual and tactical tools from @Goldstein_1990 problem oriented policing approach), though too often in practice directed patrol becomes the default response. Recent reviews of the literature (dominated by US experiences) suggest the approach can have a small effect size (@Braga_2019), though some authors contend alternative measures of effect size (which are suggestive of a moderate effect) should be used instead (@Braga_2020). Whether these findings would replicate well in other contexts is still an open question (see, for example, @Collazos_2020)
+There is also now a considerable body of research evaluating police interventions that take this insight as key for articulating responses to crime. **Hot spots policing**, or place based policing, assumes that police can reduce crime by focusing their resources on the small number of places that generate a majority of crime problems (@Braga_2010). Policing crime hot spots has become a popular strategy in the US and efforts to adopt this approach have also taken place elsewhere. Theoretically one could use all sort of proactive creative approaches to solve crime in these locations (using for example conceptual and tactical tools from @Goldstein_1990 problem oriented policing approach), though too often in practice directed patrol becomes the default response. Recent reviews of the literature (dominated by the US experience) suggest the approach can have a small effect size (@Braga_2019), though some authors contend alternative measures of effect size (which are suggestive of a moderate effect) should be used instead (@Braga_2020). Whether these findings would replicate well in other contexts is still an open question (see, for example, @Collazos_2020)
 
-In the previous chapter we explored ways to visualise the concentration of crime incidents in particular location. We used tesselation and kernel density estimation as a way to do this. As noted by @Chainey_2020:
+In the previous chapter we explored ways to visualise the concentration of crime incidents in particular location as a way to explore places with an elevated intensity of crime. We used tesselation and kernel density estimation as a way to do this. As noted by @Chainey_2020:
 
 >"Hot spot maps generated using KDE are useful for showing where crime concentrates but may fail to determine unambiguosly what is hot (in hot spot analysis terms) from what is not hot. That is, a KDE hot spot map may fail to separate the significant spatial concentrations of crime from those spatial distributions of less interest, or from random variation"
 
-There are a number of tools that have been developed to detect local clusters. In crime analysis, for example, is common the use of the local $Gi^*$ statistic, which is a type of a **local indicator of spatial autocorrelation**. Another popular LISA is the local Moran´s $I$, developed by @Anselin_1995. 
+There are a number of tools that have been developed to detect local clusters among random variation. In crime analysis, for example, is common the use of the local $Gi^*$ statistic, which is a type of a **local indicator of spatial autocorrelation**. Another popular LISA is the local Moran´s $I$, developed by @Anselin_1995. 
 
 These LISA statistics serve two purposes. On one hand, they may be interpreted as indicators of local pockets of nonstationarity, or hot spots. On the other hand, they may be used to assess the influence of individual locations on the magnitude of the global statistic and to identify “outliers” (@Anselin_1995). @Anselin_1995 suggests that any LISA satisfies two requirements (p. 94:
 "-a) the LISA for each observation gives an indication of the extent of significant spatial clustering of similar values around that observation;
 - b) the sum of LISAs for all observations is proportional to a global indicator of spatial association".
 
-These measures of local spatial dependence are available in tools often used by crime analysts (CrimeStat, GeoDa, ArcGIS, and also R). But it is important to realise that there are some subtle differences in implementation that reflect design decisions by the programmers. These differences in design may result on apparent differences in numerical findings generated with these different programs. @Bivand_2018 offers an excellent thorough review of these different implementations. Our focus here will be in introducing the functionality of the `spdep` and `rgeoda` packages.
+These measures of local spatial dependence are available in tools often used by crime analysts (CrimeStat, GeoDa, ArcGIS, and also R). But it is important to realise that there are some subtle differences in implementation that reflect design decisions by the programmers. These differences in design may result on apparent differences in numerical findings generated with these different programs. The defaults used by different software may give the impression different results are achieved. @Bivand_2018 offers an excellent thorough review of these different implementations (and steps needed for ensuring comparability). Our focus here will be in introducing the functionality of the `spdep` packages, with a cursory overview of `rgeoda` as well.
 
-Whereas in spatial epidemiology a number of techniques have been developed for detecting areas with an unusually high risk of disease. Although originally developed in the context of studying disease, the techniques can also be applied to the study of crime. Most of the methods in spatial epidemiology are based on the idea of "moving windows", such as the spatial scan statistic developed by @Kulldorff_1997. Several packages bring this scan statistics to R. There are also other packages that use different algorithms to detect disease clusters, such as AMOEBA, that is based in the Getis-Ord algorithm. As we will see we are spoiled for choice in this regard.
+Aside from these LISAS, in spatial epidemiology a number of techniques have been developed for detecting areas with an unusually high risk of disease. Although originally developed in the context of studying disease, the techniques can also be applied to the study of crime. Most of the methods in spatial epidemiology are based on the idea of "moving windows", such as the spatial scan statistic developed by @Kulldorff_1997. Several packages bring this scan statistics to R. There are also other packages that use different algorithms to detect disease clusters, such as AMOEBA, that is based in the Getis-Ord algorithm. As we will see we are spoiled for choice in this regard. Here we will only provide a glimpse into how to perform a few of these tests with R.
 
 [[[In crime analysis is also relevant the study of near repeat victimisation. bla bla bla...]]]
 
@@ -27,17 +27,14 @@ For this section we will need the following packages:
 ```{r, message=FALSE, warning=FALSE}
 
 library(dplyr)
-
 # Packages for handling spatial data and for geospatial carpentry
 library(sf)
 library(raster)
 library(spdep)
-
 # Packages for detecting clusters
-
 library(DCluster)
-library(SpatialEpi)
 
+library(SpatialEpi)
 library(smerc)
 library(surveillance)
 library(DClusterm)
@@ -50,7 +47,6 @@ library(NearRepeat)
 
 # Packages for visualisation and mapping
 library(tmap)
-library(leaflet)
 library(mapview)
 library(RColorBrewer)
 ```
@@ -249,19 +245,19 @@ Let's first look at the Moran's scatterplot for our data. Remember from last cha
 ```{r}
 
 lw_queen_rs <-  nb2listw(nb_queen_cc, style='W')
-m_plot_burglary <- moran.plot(grid_cc$layer, lw_queen_rs,
-           cex=1, 
-           pch=".", 
-           xlab="burglary count", 
-           ylab="lagged burglary count")
+m_plot_burglary <- moran.plot(as.vector(scale(grid_cc$layer)),
+                              lw_queen_rs,
+                              cex=1, pch=".",
+                              xlab="burglary count",
+                              ylab="lagged burglary count")
 
 ```
 
-Notice how the plot is split in 4 quadrants. The top right corner belongs to areas that have high level of burglary and are surrounded by other areas that have above the average level of burglary. These are **high-high** locations. The bottom left corner belongs to the **low-low areas**. These are areas with low level of burglary and surrounded by areas with below average levels of burglary. Both the high-high and low-low represent clusters. A high-high cluster is what you may refer to as a *hot spot*. And the low-low clusters represent *cold spots*. 
+Notice how the plot is split in 4 quadrants structured around the centered mean for the value of burglary and its spatial lag. The top right corner belongs to areas that have high level of burglary and are surrounded by other areas that have above the average level of burglary. These are **high-high** locations. The bottom left corner belongs to the **low-low areas**. These are areas with low level of burglary and surrounded by areas with below average levels of burglary. Both the high-high and low-low represent clusters. A high-high cluster is what you may refer to as a *hot spot*. And the low-low clusters represent *cold spots*. 
 
-In the opposite diagonal we have **spatial outliers**. They are not outliers in the standard statistical sense, extreme observations, they are outliers in that they are surrounded by areas that are very unlike them. So you could have *high-low spatial outliers*, areas with high levels of burglary and low levels of surrounding burglary, or *low-high spatial outliers*, areas that have themselves low levels of burglary (or whatever else we are mapping) and that are surrounded by areas with above average levels of burglary.
+In the opposite diagonal we have **spatial outliers**. They are not outliers in the standard statistical sense, extreme observations, they are outliers in that they are surrounded by areas that are very unlike them. So you could have *high-low spatial outliers*, areas with high levels of burglary and low levels of surrounding burglary, or *low-high spatial outliers*, areas that have themselves low levels of burglary (or whatever else we are mapping) and that are surrounded by areas with above average levels of burglary. This would suggest pockets of non-stationarity. @Anselin_1996 warns these can sometimes surface as a consequence of problems with the specification of the weight matrix.
 
-The slope of the line in the scatterplot gives you a measure of the global spatial autocorrelation. As we noted earlier, the local Moran´s I  help you to identify what are the locations that weigh more heavily in the computation of the global Moran´s I. The object generated by the `moran.plot()` function includes a measure of this influence, a hat value, for each location in your study area and we can plot these values if we want to geographically visualise those locations:
+The slope of the line in the scatterplot gives you a measure of the global spatial autocorrelation. As we noted earlier, the local Moran´s I  help you to identify what are the locations that weigh more heavily in the computation of the global Moran´s I. The object generated by the `moran.plot()` function includes a measure of this leverage, a hat value, for each location in your study area and we can plot these values if we want to geographically visualise those locations:
 
 ```{r, warning=FALSE, message=FALSE}
 # We extract the influence measure and place it in the sp object
@@ -310,7 +306,7 @@ sum(bonferroni_lmp < 0.05)
 
 In order to produce the LISA map we need to do some previous work. First we are going to create some new variables that we are going to need.
 
-First we scale the variable of interest. When we scale burglary what we are doing is re-scaling the values so that the mean is zero. We use `scale()`, which is a generic function whose default method centers and/or scales the variable. Here centering is done by subtracting the mean (omitting NAs) the corresponding columns, and scaling is done by dividing the (centered) variable by their standard deviations.We've also added `as.vector()` to the end, to make sure that the data type we get out of this is a vector, that maps neatly into our `sp` object. Then we will also store the adjusted p values into a variable within this object.
+First we scale the variable of interest. As noted earlier, when we scale burglary what we are doing is re-scaling the values so that the mean is zero. We use `scale()`, which is a generic function whose default method centers and/or scales the variable. We've also added `as.vector()` to the end, to make sure that the data type we get out of this is a vector, that maps neatly into our `sp` object. Then we will also store the adjusted p values into a variable within this object.
 
 ```{r}
 # Scale the count of burglary
@@ -333,19 +329,6 @@ Make sure to check the summaries to ensure nothing weird is going on
 
 summary(grid_cc$s_burglary)
 summary(grid_cc$lag_s_burglary)
-```
-
-We can create a Moran scatter plot so that you see that nothing has changed apart from the scale in winch we are using the variables. The observations that are influential are highlighted in the plot as you can see.
-
-```{r, warning=FALSE}
-x <- grid_cc$s_burglary
-y <- grid_cc$lag_s_burglary
-xx <- tibble(x,y)
-moran.plot(x, lw_queen_rs,
-           cex=1, 
-           pch=".", 
-           xlab="burglary count", 
-           ylab="lagged burglary count")
 ```
 
 We are now going to create a new variable to identify the quadrant in which each observation falls within the Moran Scatter plot, so that we can tell apart the high-high, low-low, high-low, and low-high areas. We will only identify those that are significant according to the p value that was provided by the local moran function adjusted for multiple comparisons. The data we need for each observation, in order to identify whether it belongs to the high-high, low-low, high-low, or low-high quadrants are the standardised burglary score, the spatial lag score, and the p-value. 
@@ -410,11 +393,13 @@ tm_shape(grid_cc) +
 
 ## Local spatial heterokedasticity
 
+## A quick overview of `rgeoda`
 
+## Epidemiological tools for detection of clusters in lattice data
 
-## Scan Statistics
+### Oppenshaw´s Geographical Analysis Machine and `DCluster` 
 
-The package `DCluster` (@Gomez_2005) was one of the first to introduce tools to assess spatial clusters. This package preceds `sf` and it likes the data to be stored in a data frame with at least four columns: observed number of cases, expected number of cases, and the longitude and latitude. `DCluster`, like many packages that are influenced by the epidemiological literature, take as key inputs the observed cases (in criminology this will be criminal occurrences) and expected cases. In epidemiology expected cases are often standardised to account for population heterogeneity. In crime analysis this is not as common (although in some circumstances it should be!).  
+The package `DCluster` (@Gomez_2005) was one of the first to introduce tools to assess spatial clusters. This package precedes `sf` and it likes the data to be stored in a data frame with at least four columns: observed number of cases, expected number of cases, and the longitude and latitude. `DCluster`, like many packages that are influenced by the epidemiological literature, take as key inputs the observed cases (in criminology this will be criminal occurrences) and expected cases. In epidemiology expected cases are often standardised to account for population heterogeneity. In crime analysis this is not as common (although in some circumstances it should be!).  
 
 Straight away we see the problem we encounter here. The criminology of place emphasises small places, but for this level of aggregation (street segments or micro grid cells) we won´t have census variables indexing the population. This means we need to (1) either compromise and look for clusters at a level of aggregation for which we have some population measure or (2) get creative an try to find other ways of solving this problem. Increasingly environmental criminologists are trying to find ways of taking this second route (see @Andresen_2021). For this illustration, we will take the first one. Although it is important to warn we should try to stick whenever possible to the level of the spatial process.
 
@@ -450,7 +435,7 @@ lsoas <- data.frame(Observed = burglary_lsoa$burglary,
 `DCluster` includes several tests for assessing the heterogeneity of the relative risks. A chi square test can be run to assess global differences between observed and expected cases.
 
 ```{r}
-chtest <- achisq.test(observed~offset(log(expected)), 
+chtest <- achisq.test(Observed~offset(log(Expected)), 
                       as(lsoas, "data.frame"), 
                       "multinom", 
                       999)
@@ -459,10 +444,10 @@ chtest
 It also includes the Pottoff and Withinghill test of homogeneity. The alternative hypothesis of this test is that the observed cases are distributed following a negative binomial distribution (Bivand_2013).
 
 ```{r}
-pwtest <- pottwhitt.test(observed~offset(log(expected)),
+pwtest <- pottwhitt.test(Observed~offset(log(Expected)),
                          as(lsoas, "data.frame"),
                          "multinom", 999)
-oplus <- sum(lsoas$observed)
+oplus <- sum(lsoas$Observed)
 1 - pnorm(pwtest$t0, oplus * (oplus - 1), sqrt(2 * 100 * oplus * (oplus - 1)))
 ```
 
@@ -475,9 +460,28 @@ oppenheim <- st_as_sf(oppenheim_burglary,
                       crs = 27700)
 oppenheim <- st_transform(oppenheim, crs = 4326)
 mapview(list(oppenheim, burglary_lsoa),
-        layer.name = c("Franconian districts", "Franconian breweries"))
+        layer.name = c("cacadevaca", "Manchester LSOAs"))
 
 ```
+
+
+```{r}
+## Set Parameters
+pop.upper.bound <- 0.5
+n.simulations <- 999
+alpha.level <- 0.05
+plot <- TRUE
+poisson <- kulldorff(nh_centroid, lsoas$Observed, lsoas$Population, lsoas$Expected,
+          pop.upper.bound, n.simulations, alpha.level, plot)
+cluster <- poisson$most.likely.cluster$location.IDs.included
+cluster_sf <- burglary_lsoa[cluster,]
+mapview(list(cluster_sf, manchester),
+        layer.name = c("Kulldorf", "Manchester"))
+
+```
+
+
+
 
 
 ```{r}
@@ -487,15 +491,17 @@ mle <- calculate.mle(as(lsoas, "data.frame"), model = "negbin")
 
 thegrid <- as(lsoas, "data.frame")[, c("x", "y")]
 knresults <- opgam(data = as(lsoas, "data.frame"),
-                   thegrid = thegrid, alpha = 0.05, iscluster = kn.iscluster,
-                   fractpop = 0.15, R = 99, model = "negbin",
+                   thegrid = thegrid, alpha = 0.02, iscluster = kn.iscluster,
+                   fractpop = 0.05, R = 99, model = "negbin",
                    mle = mle)
 kulldorff_scan <- st_as_sf(knresults, 
                       coords = c("x", "y"),
                       crs = 27700)
 kulldorff_scan <- st_transform(kulldorff_scan, crs = 4326)
 mapview(list(kulldorff_scan, burglary_lsoa),
-        layer.name = c("Franconian districts", "Franconian breweries"))
+        layer.name = c("r", "Manchester LSOAs"))
 ```
+
+## Assessing clusters with point pattern data
 
 ## Further reading
