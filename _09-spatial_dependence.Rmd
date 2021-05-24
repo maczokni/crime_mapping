@@ -410,7 +410,7 @@ plot(nb_k3, xy, lwd=2, col="red", add=TRUE)
 
 ```
 
-### Choosing the correct matrix
+## Choosing the correct matrix
 
 As we will see later, the spatial weight matrix not only is used for exploring spatial autocorrelation. It also plays a key role in the context of spatial regression. How we specify the matrix is important.
 
@@ -418,9 +418,9 @@ As noted above, contiguity and distance are the two most commonly used methods, 
 
 In this context, it may make sense to explore various definitions and see if our findings are robust to these specifications. @Aldstat_2006 developed an algorithm (AMOEBA) which is a design for the construction of a spatial weights matrix using empirical data that can also simultaneously identify the geometric form of spatial clusters. @Chi_2020 propose to use this as a possible starting point in the comparisons, though the procedure is not yet fully implemented in R (there is an `AMOEBA` package but it only generates a vector with the spatial clusters, not the matrix). They also suggest using the spatial weight matrix corresponding to high spatial autocorrelation and high statistical significance as more appropriate for exploratory data analysis of a given variable, and for the purpose of regression to use the matrix with the highest correlation and significance when exploring the residuals of the model.
 
-## Measuring global autocorrelation
+### Measuring global autocorrelation
 
-### Moran's I
+#### Moran's I
 
 The most well known measure of spatial autocorrelation is the Moran's I. It was developed by Patrick Alfred Pierce Moran, an Australian statistician. Like the more familiar Pearson´s correlation coefficient, which is used to measure the dependency between a pair of variables, Moran´s I aims to measure dependency. This statistic measures how one area is similar to others surrounding it in a given attribute or variable. When the value of an attribute in  areas defined as neighbours in our spatial weight matrix are similar Moran's I will be large and positive (closer to 1). When the value of an attribute in neighbouring areas are dissimilar Moran's I will be negative, tending to -1. In the first case, when there is positive spatial dependence, we speak of clustering. In the latter, what we observe is spatial dispersion (areas alike, in an attribute, "repel" each other). In social science applications, positive spatial autocorrelation is more likely to be expected. There are fewer social processes that would lead us to expect negative spatial autocorrelation. When Moran´s I is close to zero, we fail to find evidence for either dispersion or clustering. The null hypothesis in a test of spatial autocorrelation is that the values of the attribute in question are randomly distributed across space.
 
@@ -511,7 +511,7 @@ As with any correlation measure, you could get **positive spatial autocorrelatio
 
 It is very important to understand that global statistics like the spatial autocorrelation (Global Moran's I) tool assess the overall pattern and trend of your data. They are most effective when the spatial pattern is consistent across the study area. In other words, you may have clusters (local pockets of autocorrelation), without having clustering (global autocorrelation). This may happen if the sign of the clusters negate each other.
 
-### Geary´s C
+#### Geary´s C
 
 Another measure of global autocorrelation is Geary´s C.
 [[[wikepedia]]]
@@ -522,7 +522,7 @@ For obtaining this statistic we can use `spdep::geary.test()`:
 geary.test(cc_burglary_sp$burglary, lw_queen)
 ```
 
-## The `rgeoda` package
+### The `rgeoda` package
 
 Traditionally the generation of a weight matrix was done with functions included in the `spdep` program. More recently the functionality of **GeoDa**, a very well known point and click interface for spatial statistics originally developed by Luc Anselin (a key figure in the field of spatial statistics), has been brought to R via the `rgeoda` package. This package is fast, though "less flexible when modifications or enhancements are desired" (@Pebesma_2021). The nomenclature of the functions is slightly more intuitive and there are subtle variations in some of the formulas. Also, it works with `sf` objects.
 
