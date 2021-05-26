@@ -27,28 +27,20 @@ Aside from these LISAS, in spatial epidemiology a number of techniques have been
 For this section we will need the following packages:
 
 ```{r, message=FALSE, warning=FALSE}
-
+# Packages for handling data and for geospatial carpentry
 library(dplyr)
-# Packages for handling spatial data and for geospatial carpentry
 library(sf)
 library(raster)
-
-library(rgeoda)
-library(spdep)
 # Packages for detecting clusters
+library(spdep)
+library(rgeoda)
 library(DCluster)
-
-library(SpatialEpi)
-library(smerc)
-library(surveillance)
-library(DClusterm)
-
+library(spatstat)
 # Packages for detecting near repeat victimisation
 ## You will need to install the following package from github
 ## You can use the following code for it: 
 ## remotes::install_github("wsteenbeek/NearRepeat", build_vignettes = TRUE)
 library(NearRepeat)
-
 # Packages for visualisation and mapping
 library(tmap)
 library(mapview)
@@ -489,6 +481,43 @@ tmap_arrange(map_gam, map_scan)
 ```
 
 ## Assessing clusters with point pattern data
+
+```{r}
+# Read data and ensure they are in same CRS
+toronto <- st_read("data/toronto_c.geojson", quiet=TRUE)
+toronto <- st_transform(toronto, 2019)
+ksi_collisions <- st_read("data/Motor Vehicle Collisions with KSI Data.geojson", quiet=TRUE)
+# Get rid of rows with same id (due to multiple victims, each row, per event)
+# Then select last 2011 to 2020
+ksi_collisions <- ksi_collisions %>% 
+  distinct(ACCNUM, .keep_all = T) %>%
+  filter(YEAR > 2010)
+
+```
+
+```{r, warning=FALSE}
+window <- spatstat.geom::as.owin(sf::st_geometry(toronto))
+sf_ksi_coords <- matrix(unlist(ksi_collisions$geometry), ncol = 2, byrow = T)
+ksi_ppp <- ppp(x = sf_ksi_coords[,1], y = sf_ksi_coords[,2],
+                   window = window, check = T)
+jitter_ksi <- rjitter(ksi_ppp, retry=TRUE, nsim=1, 
+                      radius = 1.5, drop=TRUE)
+den_ksi <- density(jitter_ksi, bw.ppl, ns=20)
+plot(den_ksi)
+```
+```{r}
+lr_ksi <- scanLRTS(jitter_ksi, r = 2 * bw.ppl(jitter_ksi))
+plot(lr_ksi)
+```
+```{r}
+p_values_LR <- eval.im(pchisq(lr_ksi, df = 1, lower.tail = FALSE))
+plot(p_values_LR < 0.01)
+```
+```{r}
+scan_ksi <- scan.test(jitter_ksi, method="poisson",
+                      nsim = 20)
+```
+
 
 ## Exploring repeat victimisation
 
