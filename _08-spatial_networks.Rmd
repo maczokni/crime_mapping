@@ -86,7 +86,7 @@ ggplot()+
 
 ```
 
-### Selecting the relevant crimes for our micro-places
+### Selecting relevant crimes for micro-places
 
 We will also need to select only those crimes which we can consider to have happened on or near the Bakerloo Line. When carrying out your analysis you might have some flag or other variable in the data which indicates whether or not a crime occurred on or near a specific location. 
 
@@ -280,7 +280,7 @@ bakerloo_sections$crime_per_m <- bakerloo_sections$Freq / bakerloo_sections$leng
 
 We now have our crimes per meter score! On to mapping!
 
-## Hot Routes: a way to present crime along a network. 
+## Hot Routes 
 
 In order to map hot spots along a network, we can use a technique called *hot routes*. It was used as early as 2003 by [Andrew Newton](https://www.ntu.ac.uk/staff-profiles/social-sciences/andy-newton) to map [crime and disorder on the bus network in Merseyside](https://ethos.bl.uk/OrderDetails.do?uin=uk.bl.ethos.400407). A useful how-to guide was later produced by [Henry Partridge](https://www.trafforddatalab.io/about.html) and [Lisa Tompson](https://twitter.com/Lisa_Tompson) and can be accessed in the associated [JDI brief](https://www.ucl.ac.uk/jdibrief/documents/hot-routes/Hot-Routes-All) or [journal article](https://discovery.ucl.ac.uk/id/eprint/20057/1/Hot_Routes_Tompson_Partridge_Shepherd.pdf).  
 
@@ -395,7 +395,7 @@ In their paper, Spicer and colleagues demonstrate this using the example of King
 In this section I will go through how we can apply street profile analysis in R. 
 
 
-### Linking the data to the nodes
+### Linking data to nodes
 
 For street profile analysis (or let's call it network profile analysis here, as we are applying this to the Bakerloo Line example), instead of linking the crimes to the nearest line segment, we actually want to link to the nearest station. To do this, we can go back to the stage where we had our line, our stops, and our relevant crimes: 
 
@@ -448,7 +448,7 @@ bakerloo_stops <- left_join(bakerloo_stops %>% mutate(stopid = rownames(.)),
 
 Great now we have a dataframe of each stop and the number of crimes that happened closest possibly to it. We could make a street profile of it with this count (in fact we will in a moment) but first let's discuss about rates!
 
-### Calculate a rate for nodes
+### Calculating a rate for nodes
 
 In order to calculate a crime rate for each station, we need to think about what is an acceptable denominator. How can we best estimate the number of opportunities present for the particular crime type we are interested in, and how might that be captured in some available data set? For our line segments, we could use length as a denominator, and we had an outcome of the crimes per meter length of the line segment. However, there is no such value for our stations (and for other nodes, such as street junctions). 
 
