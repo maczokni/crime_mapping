@@ -2,7 +2,7 @@
 
 ## Introduction
 
-### Clusters, hot spots of crime, and repeat victimisation
+### Clusters, hot spots of crime, and near repeat victimisation
 
 There has been a great interest within criminology and crime analysis in the study of local clusters of crime or hot spots over the last 30 years. Hot spots is the term typically used within criminology and crime analysis to refer to small geographical areas with a high concentration of crime. @Weisburd_2015 argues for a *law of concentration* of crime that postulates that a large proportion of crime events occur at relatively few places (such as specific addresses, street intersections, street blocks, or other small micro places) within larger geographical areas such as cities. In one of the earlier contributions to this field of research, @Sherman_1989 noted how roughly 3% of all addresses in Minneapolis (USA) generated about 50% of all calls to police services. A number of subsequent studies have confirmed this pattern elsewhere. @Steenbeek_2016 argue that, in fact, most of the geographical variability of crime (58% to 69% in their data from The Hague) can be attributed to micro geographic units, with a very limited contribution from the neighbourhood level. This literature also argues that many crime hot spots are relatively stable over time (@Andresen_2011b; @Andresen_2017; @Andresen_2017b).
 
@@ -22,13 +22,21 @@ These measures of local spatial dependence are available in tools often used by 
 
 Aside from these LISAS, in spatial epidemiology a number of techniques have been developed for detecting areas with an unusually high risk of disease (@Marshall_1991b). Although originally developed in the context of clusters of disease ("a set of neighbouring areas where far more cases than expected appear during a concrete period of time" @Gomez_2005: p. 190), these techniques can also be applied to the study of crime. Most of the methods in spatial epidemiology are based on the idea of "moving windows", such as the spatial scan statistic developed by @Kulldorff_1997. Several packages bring this scan statistics to R. There are also other packages that use different algorithms to detect disease clusters, such as AMOEBA, that is based in the Getis-Ord algorithm. As we will see we are spoiled for choice in this regard. Here we will only provide a glimpse into how to perform a few of these tests with R.
 
-[[[In crime analysis is also relevant the study of near repeat victimisation. bla bla bla...]]]
+In crime analysis is also relevant the study of **repeat victimisation**. This refers to the observed pattern of repeated criminal victimisation against the same person or target. The idea that victimisation presages further victimisation was first observed in studies of burglary, where the single best predictor of new victimisation was past victimisation. This opened up an avenue of research led by British scholars Ken Pease and Graham Farrell, that also noticed that the risk of revictimisation is much higher in the days immediate to the first offence and that repeat victimisation accounts for a non trivial proportion of crime (@Pease_1998). There continues to be some debate as to whether this is to do with underlying stable vulnerabilities (the *flag* hypothesis) or to increased risk resulting form the first victimisation (the *boost* hypothesis), although likely both play a role. Subsequent research has extended the foci of application well beyond the study of burglary and the UK (for a review see @Pease_2017; @Pease_2018). From the very beginning this literature emphasised the importance for crime prevention policy, for this helps to identify potential targets for it. The advocates of this concept argue that using insights from repeat victimisation is a successful approach to crime reduction (@Grove_2014; @Farrell_2017).
+
+A related phenomenon is that of **near repeat victimisation**. @Townsley_2003, building in the epidemiological notion of contagion, proposed and tested the idea that "proximity to a burgled dwelling increases burglary risk for those areas that have a high degree of housing homogeneity and that this risk is similar in nature to the temporarily heightened risk of becoming a repeat victim after an initial victimisation" (p. 615). Or as, in a subsequent paper, @Bowers_2004 put it "following a burglary at one home the risk of burglary at nearby homes is amplified" (p. 12). So if we combine the ideas of repeat victimisation and near repeats we would observe: (1) a heightened but short lived risk of victimisation for the original victim following a first attack and (2) a heightened but also short lived risk for those "targets" located nearby. Although most studies on near repeats have focused on studying burglary there are some that have also successfully applied this concept to other forms of criminal victimisation. In 2006 and with funds from the US National Institute of Justice, Jerry Ratcliffe developed a free point and click interface to perform near repeat analysis (@Ratcliffe_2020). This software can be accessed from his personal home page. But out focus in this chapter will be in a package (`NearRepeat`) developed by Wouter Steenbeek in 2019 to bring this functionality into R. This package is not yet available from CRAN but needs to be installed from its GitHub repo;
+
+```{r, eval=FALSE}
+remotes::install_github("wsteenbeek/NearRepeat")
+```
+
 
 For this section we will need the following packages:
 
 ```{r, message=FALSE, warning=FALSE}
 # Packages for handling data and for geospatial carpentry
 library(dplyr)
+library(readr)
 library(sf)
 library(raster)
 # Packages for detecting clusters
@@ -42,6 +50,8 @@ library(NearRepeat) # Available at https://github.com/wsteenbeek/NearRepeat
 library(tmap)
 library(mapview)
 library(RColorBrewer)
+# Packages with relevant data for the chapter
+library(crimedata)
 ```
 
 ### Burglaries in Manchester
@@ -374,7 +384,7 @@ tm_shape(grid_cc) +
             main.title.size = 1.2)
 ```
 
-## Oppenshaw´s GAM and Kulldorf´s Scan Statistic 
+## Scan satistics in `DCluster`
 
 ### The `DCluster` package
 
@@ -476,7 +486,7 @@ The test statistic then compares the relative risk within the circle to the rela
 
 The scan statistic was implemented by Kulldorff in the SatScan^TM software, freely available from www.satscan.org. This software extends the basic idea to various problems, including spatio temporal clustering. A number of R packages use this scan statistic (`smerc`, `spatstat`, `SpatialEpi` are some of the best known), although the implementation is different across these packages. There is also a package (`rsatscan`) that can allow us to interface with SatScan^TM via R. Here we will continue focusing on `DCluster` for parsimony reasons. The vignettes for the other packages provide a useful platform for exploring those other solutions.
 
-For this we return to the `opgam()` function...
+For this we return to the `opgam()` function. There are some key differences in the arguments. The `icluster` argument, which we didn´t specify previously, needs to make clear now we are using the clustering function for Kulldorff and Nagarwalla scan statistic. `R` is the number of bootstrap permutations to compute. The `model` argument allow us to specify the model to generate the random observations. @Bivand suggests the use of a negative binomial model (`"negbin"`) to account for over dispersion which may result from unaccounted spatial autocorrelation. And `mle` specifies parameters that are needed for the bootstrap calculation. These can be computed with the `DCluster::calculate.mle()` function, which simply takes as arguments the data and the type of model. -when illustrating `opgam` earlier we used the `step` method to draw the grid, in this case we will explicitly provide a grid based on our data points.
 
 ```{r}
 
@@ -484,11 +494,17 @@ For this we return to the `opgam()` function...
 mle <- calculate.mle(as(lsoas, "data.frame"), model = "negbin")
 
 thegrid <- as(lsoas, "data.frame")[, c("x", "y")]
-knresults <- opgam(data = as(lsoas, "data.frame"),
+kns_results <- opgam(data = as(lsoas, "data.frame"),
                    thegrid = thegrid, alpha = 0.02, iscluster = kn.iscluster,
                    fractpop = 0.05, R = 99, model = "negbin",
                    mle = mle)
-kulldorff_scan <- st_as_sf(knresults, 
+
+```
+
+Once the computation is complete we are ready to plot the data and to compare the result to those obtained with the GAM.
+
+```{r}
+kulldorff_scan <- st_as_sf(kns_results, 
                       coords = c("x", "y"),
                       crs = 27700)
 kulldorff_scan <- st_transform(kulldorff_scan, crs = 4326)
@@ -496,52 +512,65 @@ map_scan <- tm_shape(burglary_lsoa) + tm_borders(alpha = 0.3) +
   tm_shape(kulldorff_scan) + tm_dots(size=0.1, col = "red") +
   tm_layout(main.title = "Kulldorf Scan", main.title.size=1.2)
 tmap_arrange(map_gam, map_scan)
-
-
 ```
 
-## Assessing clusters with point pattern data
+Whereas the GAM picks up a series of location in East and North Manchester known by their high level of concentrated disadvantage, the Kulldorff scan only identifies the clusters around the city centre, an area of student accommodation, and...[[[]]]
+
+## Exploring near repeat victimisation
+
+Although a good deal of the near repeat victimisation literature focuses on burglary, our Manchester data is not good for illustrating the analysis of near repeat victimisation. For this we need data with more granular time information, than the month in which it took place (the only available from UK open data police portals). So we will return to the burglary data we explored in Chapter 7 when introducing spatial point pattern analysis. Remember, though, that there is a good deal of artificial "revictimisation" in those files for the way that geomasking is introduced. So although we can use that data for illustration purposes beware the results we will report cannot be trusted as genuine.
+
+```{r, cache=FALSE}
+# Large dataset, so it will take a while
+nyc_burg <- get_crime_data(
+  cities = "New York", #specifies the city for which you want the data
+  years = 2010,        #reads the appropriate year of data
+  type = "extended",   #you can select core fields, extended (a fuller set of                          fields), or sample
+  output = "sf"        #Specified whether you want a sf objet with WGS84 or a                          tibble
+) %>%
+  dplyr::filter(offense_type == "residential burglary/breaking & entering" &
+           nyc_boro_nm == "MANHATTAN")
+manhattan <- st_read("https://services5.arcgis.com/GfwWNkhOj9bNBqoJ/arcgis/rest/services/NYC_Borough_Boundary/FeatureServer/0/query?where=1=1&outFields=*&outSR=4326&f=pgeojson", quiet=TRUE) %>%
+  filter(BoroName == "Manhattan")
+manhattan <- st_transform(manhattan, 32118)
+nyc_burg <- st_transform(nyc_burg, 32118)
+```
+The `NearRepeat` package uses the Knox test for space time clustering, which has been around since 1964. This test whether there is a significant cluster within a defined distance and time period. The Knox algorithm counts the pair of points within a specified space and time interval and compares this to the expected number of points. "If many of the cases that are 'close' in time are also 'close' in space or viceversa, then there is space-time interaction" (@Kulldorff_1999). The package is quite straightforward with just a couple of functions, as we will see.
+
+The key function is `NearRepeat()` that takes as inputs the data (a vector with the x coordinates, a vector with the y coordinates, and a vector with the time information -which can be an integer, numeric or date). You then need to specify the time and the spatial intervals. Ratcliffe (2020) indicates that:
+
+>"The number of spatial bands is dependent on how far you expect a pattern of near repeats to extend. For example, most environmental criminology research suggests that near repeat patterns occur for only a few blocks or a few hundred meters at most. Any effects appear to peter out beyond this distance. Adding additional bands beyond any identified effects rarely adds much value; however the program is often most effective when you experiment with various settings. For fairly large data sets, ten spatial bands is often a good starting point, though experimentation is encouraged... Be advised that selecting too many bands or too narrow a bandwidth can reduce the number of observations in each category and potentially limit the findings by creating too many categories with low (or zero) values in the observed or expected matrices"
+
+And likewise for the temporal bands:
+
+>"The number of temporal bands is dependent on how long you expect a pattern of near repeats to extend. For example, the research on repeat victimization suggests that a risk of repeat burglary increases rapidly after an initial burglary, but that this risk dissipates in the months after the incident and the risk returns to the background (normal level for the area) after a few months. Settings of a 30 day temporal bandwidth with 12 temporal bands, or 14 days with 13 temporal bands (to cover a six month period) are common, but experimentation is encouraged."
+
+Let´s first prepare the data. We will extract the key vectors to a data frame.
 
 ```{r}
-# Read data and ensure they are in same CRS
-toronto <- st_read("data/toronto_c.geojson", quiet=TRUE)
-toronto <- st_transform(toronto, 2019)
-ksi_collisions <- st_read("data/Motor Vehicle Collisions with KSI Data.geojson", quiet=TRUE)
-# Get rid of rows with same id (due to multiple victims, each row, per event)
-# Then select last 2011 to 2020
-ksi_collisions <- ksi_collisions %>% 
-  distinct(ACCNUM, .keep_all = T) %>%
-  filter(YEAR > 2010)
+nyc_burg_df <- sf_nyc_burg_coords <- matrix(unlist(nyc_burg$geometry), ncol = 2, byrow = T)
+nyc_burg_df <- as.data.frame(nyc_burg_df)
+nyc_burg_df$time <- as.Date(nyc_burg$date_single)
+nyc_burg_df <- rename(nyc_burg_df, x = V1, y = V2)
 
 ```
 
-```{r, warning=FALSE}
-window <- spatstat.geom::as.owin(sf::st_geometry(toronto))
-sf_ksi_coords <- matrix(unlist(ksi_collisions$geometry), ncol = 2, byrow = T)
-ksi_ppp <- ppp(x = sf_ksi_coords[,1], y = sf_ksi_coords[,2],
-                   window = window, check = T)
-jitter_ksi <- rjitter(ksi_ppp, retry=TRUE, nsim=1, 
-                      radius = 1.5, drop=TRUE)
-den_ksi <- density(jitter_ksi, bw.ppl, ns=20)
-plot(den_ksi)
-```
+We can then try the test. We look at [[[change intervals]]]
+
 ```{r}
-lr_ksi <- scanLRTS(jitter_ksi, r = 2 * bw.ppl(jitter_ksi))
-plot(lr_ksi)
+
+set.seed(123)
+result <- NearRepeat(x = nyc_burg_df$x, 
+                     y = nyc_burg_df$y, 
+                     time = nyc_burg_df$time,
+                     sds = c(0, 0.1, 100, 200, 400), 
+                     tds = c(0, 7, 14, 21),
+                     nrep = 99)
+plot(result)
 ```
-```{r}
-p_values_LR <- eval.im(pchisq(lr_ksi, df = 1, lower.tail = FALSE))
-plot(p_values_LR < 0.01)
-```
-```{r}
-scan_ksi <- scan.test(jitter_ksi, method="poisson",
-                      nsim = 20)
-```
 
+[[[[interpretation]]]]
 
-## Exploring repeat victimisation
-
-
-
+This test was commonly used in epidemiology for preliminary analysis where an infectious origin is suspected before criminologists started to use it. It is worthwhile noticing that within the epidemiological literature there are known concerns with this test (see Kulldorff_1999 and @Townsley_2003). One is bias introduced by shifts in the population, that considering the temporal scale typically considered in criminological issues is not the greatest concern. We also need to worry about arbitrary cut offs and the related problem of multiple comparisons. The near repeat calculator manual suggestion for experimentation around these cut offs likely exacerbates this problem in the practice of crime analysis. @Townsley_2003 suggest using past findings reported in the literature to establish the time and space intervals. Finally, the literature also discusses edge effects. Within the epidemiological literature several modifications to the Knox test have been proposed and presumably we will see more of this used by criminologists in the future.
 
 ## Further reading
