@@ -6,9 +6,12 @@ https://luukvdmeer.github.io/sfnetworks/index.html
 
 ## Introduction
 
-In the previous chapter we explored how the techniques for spatial pattern analysis can be used to study the varying intensity of crime across space. We introduce the key idea of spatial randomness. These methods were developed to study locations in a continuous plane and are also referred to as **planar spatial analysis**. We have also seen how whenever calculating distances we often used the Euclidean distance. For convenience, we have seen how these techniques have been extended to study network events, that is, events that only appear along a spatial network. Point crime data almost always appears alongside a spatial network. Typically we have these events positioned along the street network of cities. They won´t appear randomly in our 2 dimensional representation of the city, they will only appear along the street network covering this city. And if we want to measure distance between any two points it makes more sense to measure the shortest distance along this street network than to compute an Euclidean distance. This, of course, it is a bit more tricky, which is way practice has often simply relied on planar spatial analysis when exploring the location of crime events.
+In the previous chapter we explored how the techniques for spatial pattern analysis can be used to study the varying intensity of crime across space. We introduce the key idea of spatial randomness. These methods were developed to study locations in a continuous plane and are also referred to as **planar spatial analysis**.  Point crime data, however, has an inherent structure to it. There are parts of our study region where it cannot appear. Since typically the data will be geocoded at the street level address, crime data almost always will appear alongside the spatial network of roads and streets. Crime won´t appear randomly anywhere in our 2 dimensional representation of the city, they will only appear along the street network covering this city. 
 
-Spatial analysis along networks is a growing field of research of clear significance to the crime analyst. Several authors have argued that crime is best represented and predicted if we focus in the street network rather than other kind of level of aggregation and that this has clear implications for operational policing (@Singleton_2014; @Rosser_2017). It is clear that if our crime occurrences are collected and represented along a spatial network we need to ensure we use techniques of analysis and visualisation that respect this existing underlying structure in our data. The infrastructure for spatial analysis along networks in R is still not as developed as other form of analysis, although the recent development of `sfnetworks` suggests the topic is starting to receive the attention it deserves.   
+The spatial analysis of events along networks is a growing field of research with applications in many fields including, for example, logistics, transportation, routing, or epidemiology. Typical uses in other fields include route optimisation, closest facility analysis, shortest path calculation, etc. Spatial networks for the reasons exposed above are also of clear significance to the crime analyst.
+Several authors have argued that crime is best represented and predicted if we focus in the street network rather than other kind of level of aggregation and that this has clear implications for operational policing (@Singleton_2014; @Rosser_2017). It is clear that if our crime occurrences are collected and represented along a spatial network we need to ensure we use techniques of analysis and visualisation that respect this existing underlying structure in our data. 
+
+The software infrastructure for spatial analysis along networks, however, is still not as developed consolidated such as SANET (http://sanet.csis.u-tokyo.ac.jp/) that was originally conceived as a toolbox for ArGIS but with a beta standalone version already available (@Okabe_2012). R users and developers are working to expand the functionality of R in this regard. It was only in 2020 that Lucas van der Meer, a Dutch spatial data scientist, published the first release of the `sfnetworks` package. Two other useful packages (`SpNetPrep` and `DRHotNet`) developed by Briz-Redón and colleagues are also only a couple of years old (@Briz-Redón_2019a; @Briz_Redón_2019b). The package `spatstat`, that we covered in the last chapter, also provides functionality for the analysis of events along spatial networks.
 
 In this chapter we will provide an introduction to the study of crime along networks by exploring the following:
 
@@ -16,6 +19,8 @@ In this chapter we will provide an introduction to the study of crime along netw
 - introducing the idea of **hot routes**
 - evaluating crime concentration in these types of micro places using **Gini coefficient** and **Lorenz curve**
 - **street profile analysis** - an alternative (non-spatial) way to visualise crime along a network 
+- providing a quick overview of `sfnetwork`
+- introducing the functionallity of `spatstat` for the analysis of events along networks
 
 ```{r, message=FALSE, warning=FALSE}
 # Packages for reading data and data carpentry
@@ -24,67 +29,83 @@ library(readxl)
 library(janitor)
 library(tidyr)
 library(dplyr)
-
 # Packages for handling spatial data
 library(sf)
 library(lwgeom)
-
+library(sfnetworks)
+library(spatstat)
 # Packages for visualisation and mapping
 library(ggplot2)
 library(leaflet)
-
 # Packages providing accesss to spatial data
 library(rnaturalearth)
+library(osmdata)
 
 ```
 
-For this chapter we use data from British Transport Police for crimes along the underground network in London. 
+It is not only in the case of street networks that understanding spatial point patterns along a network might be more meaningful, there are other networks we might want to consider. Transport networks are a good example of this and are receiving an increasing interest in criminology and crime analysis (@Newton_2008; @Tompson_2009; Ceccato_2013). For this chapter we use data from British Transport Police for crimes along the underground network in London. 
 
 ```{r, message=FALSE, warning=FALSE}
 
 btp_crimes <- read_csv("data/btp_crimes_2019.csv") %>% clean_names()
-
 btp_crimes <- st_as_sf(btp_crimes, coords = c("longitude", "latitude"), 
                  crs = 4326, agr = "constant")
-
 ldn <- ne_states(country = "united kingdom", returnclass = "sf") %>% filter(grepl("London", type_en) & name != "Derry") %>% st_transform(4326)
-
 plot(st_geometry(btp_crimes))
 plot(st_geometry(ldn),  add = TRUE)
 
-
 ```
 
-## Spatial point patterns along networks
+## Constructing a spatial network
 
-Another approach is to assign the crimes to some meaningful micro-place, such as a street segment, or street junction. This is recommended by @Chainey_2021. It is not only in the case of street networks that understanding spatial point patterns along a network might be more meaningful, there are other networks we might want to consider. For example, with the British Transport Police data we are working, we can actually understand our crimes to have happened on or around the London Underground network. That is what we will illustrate these processes with here, using specifically the Bakerloo line as an illustrative example.
+The first difficulty one encounters when wanting to do analysis along spatial networks is to get the data for such geographical element in the proper shape. It is fairly straightforward to get files with the administrative boundaries for census geographies. This kind of geographical data is widely available. Getting data for spatial networks used to be a little bit trickier, although it is getting better. One could, for example, use the `osmdata` package to access Open Street Map data for a road network. 
+
+Below we show hot to obtain this data for Kensington, a popular neighbourhood in Toronto city centre. First we draw a bounding box around this area, then select "highways" as the feature to extract. The `osmdata` package turns streets that form loops into polygons, to ensure we end up with lines we use `osm_poly2line`. We can then plot the data.
+
+```{r}
+kensington_osm <- opq(bbox =  c(-79.40772, 43.64726, -79.38672, 43.65986 )) %>%
+  add_osm_feature(key = 'highway') %>%
+  osmdata_sf() %>%
+  osm_poly2line()
+kensington_lines <- kensington_osm$osm_lines %>%
+  dplyr::select(highway)
+ggplot(data = kensington_lines) + geom_sf()
+```
+So what we have is a `sf` object containing linestrings. But getting the data in this form is only the first step. For us to be able to do analysis on this network we need a clear topology. We need to move from linestrings to a network, with nodes and edges. This can be done by virtue of manual editing, which in large networks may be prohibitive, fully automatized, or automatized with manual edits just to correct errors. Explaining how to do this in detail with R would require space we do not have. Fortunately, there are some good tutorials out there that you can consult for this data pre-processing work.
+
+- @Abad_2019 explain how to use the packages `rgrass7` and `link2GI` for this purpose. These packages bridge R to GRASS GIS software. So for this approach to work you would require this software also installed in your machine. Fortunately, GRASS GIS is freely available. 
+- The vignettes for `sfnetwork` also cover how to turn a linestring `sf` object into a network. The function `as_sfnetwork()` provides the key functionality for this. It also includes several additional functions for cleaning the resulting network and there is a specific vignette documenting these.
+- @Briz-Redón_2019a developed the `SpNetPrep` (Spatial Network Preprocessing). This package will open a Shiny application in RStudio that will allows for network creation and edition, network direction endowment and point pattern revision and modiﬁcation. The key driver of this package is to allow for manual edits of the constructed network to correct for errors.
+
+We quickly below show the `as_sfnetwork()` function so that you get a sense for the look of a spatial network, but for further details on network construction and pre-processing it is important you see the documentation, as well as the other materials cited above.
+
+```{r}
+kensigton_ntwk <- as_sfnetwork(kensington_lines)
+plot(kensigton_ntwk)
+```
+Once you have a spatial network that has been properly cleaned and prepared, there are a number of things you can do with it. You can apply geospatial operations, such as blending points into the edges, segmenting the edges, running spatial filters, etc. You can also apply standard social network analysis techniques and measures (such as centrality, measuring shortest path). Illustration of these applications are available in the vignettes for `sfnetworks` and in @Abad_2019. Critically, you can also start using this for running statistical analysis of events along these networks. Later in this chapter we will, for example, explain how to perform density estimation along networks. Until we get to that final section we will introduce applications of interest to crime analysis using, for convenience, slightly more standard and familiar data structures. Also for clarity purposes, we will focus for our demonstration just in the Bakerloo line, within the London underground.
+
+## Spatial point patterns along networks
 
 London Underground is made up of 11 lines and 380 stops along its network. We can acquire data from the TfL Open API, whereby you can query for each individual line. If you are interested, see the [TfL API](). For simplicity sake we provide these data here, the stops in a .csv file, and the line in .GeoJSON format. 
 
 ```{r, message=FALSE, warning=FALSE}
-
 bakerloo_stops <- read_csv("data/bakerloo_stops.csv")
 bakerloo_stops <- st_as_sf(bakerloo_stops, coords = c("stn_lon", "stn_lat"), crs = 4326)
-bakerloo_line <- st_read("data/bakerloo_line.geojson")
-
-
+bakerloo_line <- st_read("data/bakerloo_line.geojson", quiet=TRUE)
 ```
 
 You can visualise the Bakerloo line here using `ggplot2`.
 
-
 ```{r plotlinestops}
-
-
-
 ggplot()+ 
   geom_sf(data = bakerloo_stops) + 
   geom_sf(data = bakerloo_line) + 
   geom_sf(data = ldn, fill = NA) + 
   theme_void() + 
   theme(panel.grid.major = element_line(colour = "white")) 
-
 ```
+We can clearly see the nodes and the edges in this simplified network, all along this route.
 
 ### Selecting relevant crimes for micro-places
 
@@ -93,9 +114,7 @@ We will also need to select only those crimes which we can consider to have happ
 In the case of the police.uk data we have a column that we consider them to have happened on or near a specific location. This is the `location` column. If we have a glance we can see the sort of information it contains: 
 
 ```{r}
-
 btp_crimes %>% dplyr::select(location) %>% head()
-
 ```
 
 We can see that these crimes occurred on or near `r btp_crimes %>% pull(location) %>% head() %>% unique() %>% gsub("On or near ", "", .)`. We can use this information to include only those stations which are on the Bakerloo line. 
@@ -103,49 +122,36 @@ We can see that these crimes occurred on or near `r btp_crimes %>% pull(location
 We fist need a list of all the station names. We can get this from our `bakerloo_stops` object which contains the names of the stations in the `stn_name` variable. In order to search for *any* of these station names, we can collapse them into an *or* string (separated by the `|` operator, which means *or*): 
 
 ```{r}
-
 bk_sntns_list <- paste(bakerloo_stops$stn_name, collapse = "|")
-
-
 ```
-
 
 We can then use the `grepl()` function, which is a pattern matching function, which returns `TRUE` when a particular string is contained within another string. In other words, if the station name is in the location column. For example, if we are looking for crimes which occurred on or near Baker Street *or* Embankment we can paste them together with the or operator like this: `Baker Street|Embankment`, and then use this to find cases where either of these appear. 
 
 If for example the location text said "On or near Oxford Circus", we would not select this crime: 
 
 ```{r}
-
 grepl("Baker Street|Embankment", "On or near Oxford Circus")
-
 ```
 
 But if the crime occurred "On or near Baker Street" then we would: 
 
 ```{r}
-
 grepl("Baker Street|Embankment", "On or near Baker Street")
 
 ```
 
 Using the `bk_sntns_list` object we created above, which has all the stops along the Bakerloo Line, we can filter the whole `btp_crimes` object to include only those which ocurred on or near them.
 
-
 ```{r}
-
 bakerloo_crimes <- btp_crimes %>% 
   filter(grepl(bk_sntns_list, location))
-
-
 ```
-
 
 We can see a total of `r nrow(bakerloo_crimes)` crimes can be attributed to having occurred on or near the stops of the Bakerloo Line. 
 
-
 However, not all data sets will have such a handly `location` variable in the data set, and then we need to consider other ways of filtering only those crimes which are relevant to our specific micro places. 
 
-One way is to use the spatial information available with our data, and perform spatial operations such as building a buffer and subsetting only those points which fall within a buffer. See [Chapter 2: Geospatial Operations]() for more detail on the relevant functions and explanations for what is going on with each line.  
+One way is to use the spatial information available with our data, and perform spatial operations such as building a buffer and subsetting only those points which fall within a buffer. See @Lovelace_2019 for more detail on the relevant functions and explanations for what is going on with each line.  
 
 ```{r getbufferedcrimes}
 
@@ -160,17 +166,11 @@ You may see with this approach we have ended up with total of `r nrow(bakerloo_c
 
 ### Assigning (joining) crimes to micro-places
 
-Now that we have our relevant crimes, we want to join them to the appropriate micro-places. We will focus on line segments here. 
-
-
-First, if we have a look at our line object, we have only one observation for the entire line. What we want is to break our line into sections. How you do this depends really much on what you want to show. In this case, it might be meaningful to consider each segment of the line between stops. In this case, we can use the shapefile of the stops (`bakerloo_stops`) to break up our line (`bakerloo_line`). However, as Henry and Lisa note, network layers typically contain streets of unequal length. This means that longer segments might show up as hot simply because they have more space to contain more crimes. Therefore in such cases it is advisable in this analysis to use equal length street segments, where possible. 
+Now that we have our relevant crimes, we want to join them to the appropriate micro-places. We will focus on line segments here. First, if we have a look at our line object, we have only one observation for the entire line. What we want is to break our line into sections. How you do this depends really much on what you want to show. In this case, it might be meaningful to consider each segment of the line between stops. In this case, we can use the shapefile of the stops (`bakerloo_stops`) to break up our line (`bakerloo_line`). However, as @Tompson_2009 note, network layers typically contain streets of unequal length. This means that longer segments might show up as hot simply because they have more space to contain more crimes. Therefore in such cases it is advisable in this analysis to use equal length street segments, where possible. 
 In this case however, let's stick to the stops. To split our linestring (`bakerloo_line`) into many linestrings using the stops (`bakerloo_stops`) we can use the `st_split()` function from the `lwgeom` package and `st_collection_extract()` function from `sf`. Furter, as the `st_split()` function is expecting a blade argument of length 1, we can use the `st_combine()` (from sf) function to group our tube stations alltogether: 
 
 ```{r splitlinetopts}
-library(lwgeom)
-
 parts <- st_split(bakerloo_line, st_combine(bakerloo_stops$geometry)) %>% st_collection_extract("LINESTRING")
-
 parts
 ```
 
@@ -181,12 +181,10 @@ You can see we now have a new object called `parts` which is a linestring contai
 
 datalist = list()
 for (i in 1:nrow(parts)) {
-  
   datalist[[i]] <- st_as_sf(data.frame(section = i), 
                             geometry = st_geometry(parts)[i])
   
 }
-
 bakerloo_sections <- do.call(rbind, datalist)
 
 ```
@@ -214,7 +212,6 @@ To do this, we can use the `st_nearest_feature()` function. This will return, fo
 ```{r getnearest}
 
 bline_segments <- st_nearest_feature(bakerloo_crimes, bakerloo_sections)
-
 bline_segments
 
 ```
@@ -223,7 +220,6 @@ It is simply a list of the ID numbers of matched line segments for each of the `
 
 ```{r joinfreqdf}
 
-library(tidyr)
 
 #make list of nearest into df of frequency
 sections_freq <- as.data.frame(table(bline_segments))
