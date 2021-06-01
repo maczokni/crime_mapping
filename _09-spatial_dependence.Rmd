@@ -161,7 +161,7 @@ We already warned in Chapter 8 about the dangers of using planar point pattern a
 
 -@Lu_2007 recommend to use a network K function that examines distance along the network, by street distance, and they think that it should be "more relevant for crime control policing and police man-power dispatching purpose, considering that police patrol and many other crime management activities are commonly conducted following street networks" (p. 627). This recommendation is being followed in recent studies (see, for example, -@Khalid_2018), although it is still much more common in the professional practice of crime analysis to continue using, incorrectly, the planar K function.
 
-The network K function was developed by -@Okabe_2001 and was first implemented in SANET. We can use functionality implemented in the `spatstat` package to use the network constrained K. For that we need a `lpp` object, that we discussed in Chapter 8. For convenience we will return to the Chicago data set we explored then. We could get the standard K as above.
+The network K function was developed by -@Okabe_2001 and was first implemented in SANET. Chapter 7of -@Okabe_2012 also provides a thorough discussion of this adaptation and its computation. We can use functionality implemented in the `spatstat` package to use the network constrained K. For that we need a `lpp` object, that we discussed in Chapter 8. For convenience we will return to the Chicago data set we explored then. We could get the standard K as above.
 
 ```{r}
 set.seed(200)
@@ -177,8 +177,19 @@ set.seed(200)
 E_4 <- envelope(chicago, linearK, correction = "none", nsim= 99, verbose = FALSE)
 plot(E_4)
 ```
+As noted by -@Baddeley_2016 there is a difference between what we get with ... and with ...
 
+A limitation of the Okabe-Yamada network-K function is that, unlike the general Ripley´s K which is normalised, you cannot use it for "comparison between different point processes, with different intensities, observed in different windows... because it depends on the network geometry" (p. 739). This is a problem that was approached by -@Ang_2012 who proposed a "geometrically corrected" K function. You can see the mathematical details for this function in either -@Baddeley_2016 or in greater depth in _@Ang_2012. This geometrically corrected k function is implented as well in the `linearK()` function. If we want to obtain this solution we need to specify as an argument `correction="Ang"` or simply not include this argument, for this is the default in `linearK()`:
 
+```{r}
+set.seed(200)
+E_5 <- envelope(chicago, linearK, correction = "Ang", nsim= 99, verbose = FALSE)
+plot(E_5)
+```
+
+Finally, there is also an equivalent to the geometrically corrected K function that allows for an inhomogeneous point process.
+
+[[[]]]
 
 ## Exploring spatial autocorrelation in lattice data
 
