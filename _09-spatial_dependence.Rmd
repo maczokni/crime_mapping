@@ -22,6 +22,7 @@ library(sf)
 library(sp)
 # Specific packages for spatial point pattern analysis
 library(spatstat)
+library(spatstat.Knet)
 # Packages to generate spatial weight matrix and compute measures of dependence
 library(spdep)
 library(rgeoda)
@@ -119,15 +120,16 @@ It is possible to use Nonte Carlo simulations to draw the confidence interval ar
 For this we use the `spatstat::envelop` function. As arguments we use the data input, the function we are using for generating K (`Kest`), the number of simulations, and the parameters needed to obtain the global envelope.
 
 ```{r, message=FALSE}
-E <- envelope(delitos_jit, Kest, nsim=39, rank = 1, global = TRUE,
+set.seed(200)
+E_1 <- envelope(delitos_jit, Kest, nsim=39, rank = 1, global = TRUE,
               verbose = FALSE) # We set verbose to false for sparser reporting
-plot(E)
+plot(E_1)
 ```
 
 This envelope suggest significant clustering above the 200 meter mark. The problem, though, is that this test only work if we have a homogeneous process. The envelope will also fail to overlap with the observed K function if there are variations in intensity. We also saw the reverse, that it is hard to assess homogeneity without assuming independence. In Chapter 7 we saw how if we suspect the process is not homogeneous, we can estimate it with nonparametric techniques such as kernel density estimation.
 
 ```{r}
-
+set.seed(200)
 plot(density.ppp(delitos_jit, sigma = bw.scott(delitos_jit),edge=T),
      main=paste("Density estimate of homicides in Buenos Aires"))
 
@@ -136,6 +138,7 @@ plot(density.ppp(delitos_jit, sigma = bw.scott(delitos_jit),edge=T),
 @Baddeley_2016 discuss how we can adjust our test for independence when we suspect inhomogeneity, if we are willing to make other assumptions (e.g., the correlation between any two given points only depend on their relative location). This adjusted K-function is implemented in `spatstat:Kinhom()`. This function requires as necessary inputs the `ppp` object with the point pattern we are analysing and a second argument "lambda" with the values of the estimated intensity function. The function provides flexibility in how lambda can be entered. It could be a vector with the values, an object of class `im` like the ones we generate with `density.ppp()`, etc (see the help files for further details). We could, for example, use input lambda as below:
 
 ```{r}
+set.seed(200)
 inhk_hom <- Kinhom(delitos_jit,
                    correction = c("isotropic", "translate"),
                    sigma = bw.scott)
@@ -144,18 +147,38 @@ plot(inhk_hom)
 And then build the envelope:
 
 ```{r}
-E_i <- envelope(delitos_jit, Kinhom, nsim=39, rank = 1, global = TRUE,
+set.seed(200)
+E_2 <- envelope(delitos_jit, Kinhom, nsim=39, rank = 1, global = TRUE,
               verbose = FALSE) # We use this for sparser reporting
-plot(E_i)
+plot(E_2)
 ```
 
 In this example once we allow for varying intensity, the spatial dependence no longer holds for a range of distances.
 
-### Crimes, street networks, and the limitations of the planar K function
+### Network constrained K function
 
-We already warned in Chapter 8 about the dangers of using planar point pattern analysis to data that lies along a network. Not recognising this network structure can lead to errors. -@Lu_2007, for example, have shown how the standard K functions are problematic when studying crime in an urban environment. They discuss how the planar K-function to analyze the spatial autocorrelation patterns of crimes (that are typically distributed along street networks) can result in false alarm problems, which depending on the nature of the street network and the particular point pattern, could be positive or negative.
+We already warned in Chapter 8 about the dangers of using planar point pattern analysis to data that lies along a network. Not recognising this network structure can lead to errors. -@Lu_2007, for example, have shown how the standard K functions are problematic when studying crime in an urban environment. They discuss how the planar K-function to analyze the spatial autocorrelation patterns of crimes (that are typically distributed along street networks) can result in false alarm problems, which depending on the nature of the street network and the particular point pattern, could be positive or negative. As -@Baddeley_2016 also indicates when the point locations are constrained to only exist in a network we are likely to find "spurious evidence of short-range clustering (due to concentrations of points in a road) and long-range regularity (due to spatial separation of different roads)" (p. 736).
 
--@Lu_2007 recommend to use a network K function that examines distance along the network, by street distance, and they think that it should be "more relevant for crime control policing and police man-power dispatching purpose, considering that police patrol and many other crime management activities are commonly conducted following street networks" (p. 627). The network K function was developed by 
+-@Lu_2007 recommend to use a network K function that examines distance along the network, by street distance, and they think that it should be "more relevant for crime control policing and police man-power dispatching purpose, considering that police patrol and many other crime management activities are commonly conducted following street networks" (p. 627). This recommendation is being followed in recent studies (see, for example, -@Khalid_2018), although it is still much more common in the professional practice of crime analysis to continue using, incorrectly, the planar K function.
+
+The network K function was developed by -@Okabe_2001 and was first implemented in SANET. We can use functionality implemented in the `spatstat` package to use the network constrained K. For that we need a `lpp` object, that we discussed in Chapter 8. For convenience we will return to the Chicago data set we explored then. We could get the standard K as above.
+
+```{r}
+set.seed(200)
+data(chicago)
+E_3 <- envelope(as.ppp(chicago), Kest, nsim=99, rank = 1, global = TRUE,
+              verbose = FALSE)
+plot(E_3)
+```
+We can use the methods introduced by -@Okabe_2001 with the function `linearK()`. For this we need to specify that `correction="none"`. We can wrap this within the `envelope()` function for inference purposes.
+
+```{r}
+set.seed(200)
+E_4 <- envelope(chicago, linearK, correction = "none", nsim= 99, verbose = FALSE)
+plot(E_4)
+```
+
+
 
 ## Exploring spatial autocorrelation in lattice data
 
