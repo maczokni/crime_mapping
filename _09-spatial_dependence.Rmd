@@ -5,7 +5,9 @@
 
 This session we begin to explore the analysis of spatial autocorrelation statistics. Spatial autocorrelation is the correlation among data values, strictly due to the relative location proximity of the objects that the data refer to. It has been long known that values attribute values that are close together in space are unlikely to be independent. This is often referred to as Tobler's first law of geography : "everything is related to everything else, but near things are more related than distant things". For example, if area $n_i$ has a high level of violence, we often observe that the areas geographically close to $n_i$ tend to also exhibit high levels of violence. Spatial autocorrelation is the measure of this *correlation* between near things.
 
-In this chapter we are going to discuss ways in which you can quantify the answer to this question. We will start introducing methods to assess spatial clustering with point pattern data. Then, we will discuss measures of **global spatial autocorrelation** for lattice data, which essentially aim to answer the degree to which areas that are near each other tend to be more alike. We say global because we are interested in the degree of clustering not on the location of the clusters, this we will cover in the next chapter. 
+The analysis of spatial dependence and global clustering is general a first step before we explore the location of clusters. In spatial statistics we generally distinguish global clustering from the detection of local clusters. Some techniques, the focus of this chapter, are based on the global view and is appropriate for assessing the existence of hot spots in the whole distribution, or *clustering*. It is important to first evaluate the presence of clustering before one explores the location of clusters -which we will cover in the next chapter.
+
+In this chapter we are going to discuss ways in which you can quantify the answer to this question. We will start introducing methods to assess spatial clustering with point pattern data, which typically start from exploring continuous distance between the location of the points. Then, we will discuss measures of **global spatial autocorrelation** for lattice data, which essentially aim to answer the degree to which areas that are near each other tend to be more alike. We say global because we are interested in the degree of clustering not on the location of the clusters, this we will cover in the next chapter. 
 
 We will be making use of the following packages:
 
@@ -34,7 +36,7 @@ library(ggspatial)
 
 ### The empirical K function
 
-In Chapter 7 we assessed homogeneity, or lack of, in point pattern data. Another important aspect of point location is whether they show some kind of interpoint dependence. In observing a point pattern one is interested in what are referred to as first order properties (varying intensity across the study surface vs homogeneity) and second order properties (independence vs correlation among the points). As @Bivand_2013 explain:
+ In Chapter 7 we assessed homogeneity, or lack of, in point pattern data. Another important aspect of point location is whether they show some kind of interpoint dependence. In observing a point pattern one is interested in what are referred to as first order properties (varying intensity across the study surface vs homogeneity) and second order properties (independence vs correlation among the points). As @Bivand_2013 explain:
 >" Spatial variation occurs when the risk is not homogeneous in the study region (i.e. all individuals do not have the same risk) but cases appear independently of each other according to this risk surface, whilst clustering occurs when the occurrence of cases is not at random and the presence of a case increases the probability of other cases appearing nearby." (p. 204)
 
 In chapter 7 we covered the Chi Square test and we very briefly discussed how it can only help us to reject the notion of spatial randomness in our point pattern, but it cannot help us to determine whether this is due to varying intensity or to interpoint dependence.
@@ -46,7 +48,9 @@ Both processes may lead to observed clustering:
 This may sound subtle and in practice it may be difficult, nearly impossible, to distinguish "first order inhomogeneity" and "second order clustering due to interactions between points" based on a single point pattern. [^1]
 [^1]: These observations are citing the answer provided by "whuber" and "Ege Rubak" in Stack Exchange about this issue (https://stats.stackexchange.com/questions/411402/spatial-point-process-does-an-inhomogeneous-first-order-intensity-function-affe).
 
-A technique commonly used to assess whether points are independent is Ripley´s K-function. @Baddeley_2016 defines the K function as the "cumulative average number of data points lying within a distance $r$ of a typical data point, corrected for edge effects, and standardised by dividing by the intensity." (p. 204). This is a test that, as we will see, assumes that the process is spatially homogeneous.
+A technique commonly used to assess whether points are independent is Ripley´s K-function. For exploring global clustering in a point pattern we use the K-function. This technique will assess if the point patter has clustering, but it will not reveal the locations of these clusters. @Baddeley_2016 defines the K function as the "cumulative average number of data points lying within a distance $r$ of a typical data point, corrected for edge effects, and standardised by dividing by the intensity." (p. 204). This is a test that, as we will see, assumes that the process is spatially homogeneous. As -@Lu_2007 indicate:
+
+>"The basic idea of K-function is to examine whether the observed point distribution is different from random distributions. In a random distribution, each point event has the equal probability to occur at any location in space; the presence of one point event at a location does not impact the occurrence possibilities of other point events." (p. 613)
 
 Imagine we want to know if the location of crime events are independent. Ripley´s K function evaluates distances across crime events to assess this. In this case, it would count the number of neighboring crime events represented by the points found within a given distance of each individual crime location. The number of observed neighboring crime events is then traditionally compared to the number of crime events one would expect to find based on a completely spatially random point pattern. If the number of crimes found within a given distance of each individual crime is greater than that for a random distribution, the distribution is then considered to be clustered. If the number is smaller, the distribution is considered to be dispersed. 
 
@@ -120,7 +124,7 @@ E <- envelope(delitos_jit, Kest, nsim=39, rank = 1, global = TRUE,
 plot(E)
 ```
 
-The problem, though, is that this test only work if we have a homogeneous process. The envelope will also fail to overlap with the observed K function if there are variations in intensity. We also saw the reverse, that it is hard to assess homogeneity without assuming independence. In Chapter 7 we saw how if we suspect the process is not homogeneous, we can estimate it with nonparametric techniques such as kernel density estimation.
+This envelope suggest significant clustering above the 200 meter mark. The problem, though, is that this test only work if we have a homogeneous process. The envelope will also fail to overlap with the observed K function if there are variations in intensity. We also saw the reverse, that it is hard to assess homogeneity without assuming independence. In Chapter 7 we saw how if we suspect the process is not homogeneous, we can estimate it with nonparametric techniques such as kernel density estimation.
 
 ```{r}
 
@@ -146,6 +150,12 @@ plot(E_i)
 ```
 
 In this example once we allow for varying intensity, the spatial dependence no longer holds for a range of distances.
+
+### Crimes, street networks, and the limitations of the planar K function
+
+We already warned in Chapter 8 about the dangers of using planar point pattern analysis to data that lies along a network. Not recognising this network structure can lead to errors. -@Lu_2007, for example, have shown how the standard K functions are problematic when studying crime in an urban environment. They discuss how the planar K-function to analyze the spatial autocorrelation patterns of crimes (that are typically distributed along street networks) can result in false alarm problems, which depending on the nature of the street network and the particular point pattern, could be positive or negative.
+
+-@Lu_2007 recommend to use a network K function that examines distance along the network, by street distance, and they think that it should be "more relevant for crime control policing and police man-power dispatching purpose, considering that police patrol and many other crime management activities are commonly conducted following street networks" (p. 627). The network K function was developed by 
 
 ## Exploring spatial autocorrelation in lattice data
 
