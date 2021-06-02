@@ -42,10 +42,12 @@ library(spatstat)
 library(ineq)
 # Packages for visualisation and mapping
 library(ggplot2)
+library(ggpubr)
 library(leaflet)
 # Packages providing accesss to spatial data
 library(rnaturalearth)
 library(osmdata)
+library(tigris)
 
 ```
 
@@ -63,22 +65,31 @@ plot(st_geometry(btp_crimes),  add = TRUE)
 
 ```
 
-## Constructing a spatial network
+## Constructing and storing a spatial linear network
 
-The first difficulty one encounters when wanting to do analysis along spatial networks is to get the data for such geographical element in the proper shape. It is fairly straightforward to get files with the administrative boundaries for census geographies, as we have seen in previous chapters. This kind of geographical data is widely available in official and open repositories. Getting data for spatial networks used to be a little bit trickier, although it is getting better. One could, for example, use the `osmdata` package to access Open Street Map data for a road network. 
+The first difficulty one encounters when wanting to do analysis along spatial networks is to get the data for such geographical element in the proper shape. It is fairly straightforward to get files with the administrative boundaries for census geographies, as we have seen in previous chapters. This kind of geographical data is widely available in official and open repositories. Getting data for spatial networks used to be a little bit trickier, although it is getting better. One could, for example, use the `osmdata` package to access Open Street Map data for a road network. Or, if you analyse data from the USA, you could use the `tigris` package to extract the road network.plo
 
-Below we show hot to obtain this data for Kensington, a popular neighbourhood in Toronto city centre. First we draw a bounding box around this area, then select "highways" as the feature to extract. As discussed by @Abad_2019, the `osmdata` package turns streets that form loops into polygons, to ensure we end up with lines we use `osm_poly2line`. We can then plot the data.
+Below we show hot to obtain this data for Kensington, a popular neighbourhood in Toronto city centre trhough `osmdata` and for Manhattan using `tigris` (with the `roads()` function). For Toronto, first we draw a bounding box around this area, then select "highways" as the feature to extract. As discussed by @Abad_2019, the `osmdata` package turns streets that form loops into polygons, to ensure we end up with lines we use `osm_poly2line`. We can then plot the data.
 
 ```{r}
+# using osm data
 kensington_osm <- opq(bbox =  c(-79.40772, 43.64726, -79.38672, 43.65986 )) %>%
   add_osm_feature(key = 'highway') %>%
   osmdata_sf() %>%
   osm_poly2line()
 kensington_lines <- kensington_osm$osm_lines %>%
   dplyr::select(highway)
-ggplot(data = kensington_lines) + geom_sf()
+# using tigris
+manhattan_roads <- roads("NY", "New York")
+# plot results 
+plot_1 <- ggplot(kensington_lines) + geom_sf() + theme_void()
+plot_2 <- ggplot(manhattan_roads) + geom_sf() + theme_void()
+figure_1 <- ggarrange(plot_1, plot_2, labels = c("Kensington", "Manhattan"),
+                    ncol = 2, nrow = 1)
+figure_1
 ```
-So what we have is a `sf` object containing linestrings. Linear networks indeed can be represented in R by simple features wit `sf` as here, or with the class `SpatialLines` of package `sp`. However, for us to be able to do some statistical analysis and some geospatial operations on this network we often will need a clear topology, we will need the data to be stored as a network graph. In other words, We need to move from linestrings to a linear graphical network representation, with edges (for example, representing street segments) and nodes (vertices indicating where they start and end).
+
+So what we have is two `sf` object containing linestrings. Linear networks indeed can be represented in R by simple features wit `sf` as here, or with the class `SpatialLines` of package `sp`. However, for us to be able to do particular kind analysis and some geospatial operations on this network we often will need a clear topology, we will need the data to be stored as a network graph. In other words, We need to move from linestrings to a linear graphical network representation, with edges (for example, representing street segments) and nodes (vertices indicating where they start and end).
 
 This can be done by virtue of manual editing, which in large networks may be prohibitive, fully automatized, or automatized with manual edits just to correct errors. Explaining how to do this in detail with R would require space we do not have. Luckily, there are some good tutorials out there that you can consult for this data pre-processing work.
 
@@ -86,13 +97,15 @@ This can be done by virtue of manual editing, which in large networks may be pro
 - The vignettes for `sfnetwork` also cover how to turn a linestring `sf` object into a network. The function `as_sfnetwork()` provides the basic functionality for this. This package also includes several additional functions for cleaning the resulting network and there is a specific vignette documenting these.
 - @Briz-Redón_2019a developed the `SpNetPrep` ("Spatial Network Preprocessing"). This package will open a Shiny application in RStudio that will allows for network creation and edition, network direction endowment and point pattern revision and modiﬁcation. The key aim of this package is to allow for manual edits of the constructed network to correct for errors.
 
-We quickly below show the `as_sfnetwork()` function (which will generate an object of class `sfnetwork`) so that you get a sense for the look of a spatial network, but for further details on network construction and pre-processing it is important you see the documentation, as well as the other materials cited above.
+We quickly below show the `as_sfnetwork()` function with the road network in Kensington (which will generate an object of class `sfnetwork`) so that you get a sense for the look of a spatial network, but for further details on network construction and pre-processing it is important you see the documentation, as well as the other materials cited above.
 
 ```{r}
 kensigton_ntwk <- as_sfnetwork(kensington_lines)
 plot(kensigton_ntwk)
 ```
-Once you have a spatial network that has been properly cleaned and prepared as discussed in the references above, there are a number of things you can do with it. You can apply geospatial operations, such as blending points into the edges, segmenting the edges, running spatial filters, etc. You can also apply standard social network analysis techniques and measures (such as centrality, measuring shortest path). Illustration of these applications are available in the vignettes for `sfnetworks` and in @Abad_2019. Critically, you can also start using this for running statistical analysis of events along these networks, which will be the key interest for crime analysts. Later in this chapter we will, for example, explain how to perform density estimation along networks. Until we get to that final section we will introduce applications of interest to crime analysis using, for convenience, slightly more standard and familiar data structures. Also for clarity purposes, we will focus for our demonstration just in the Bakerloo line, within the London underground network.
+Once you have a spatial network that has been properly cleaned and prepared as discussed in the references above, there are a number of things you can do with it. You can apply geospatial operations, such as blending points into the edges, segmenting the edges, running spatial filters, etc. You can also apply standard social network analysis techniques and measures (such as centrality, measuring shortest path). Illustration of these applications are available in the vignettes for `sfnetworks` and in @Abad_2019. 
+
+Another format for linear networks in R is `linnet` used by the package `spatstat`. When what we want is to do analysis not of the network itself, but of the location of points (such as crime events) along the network `spatstat` is the way to go and so we would need to ensure we store the data in formats that are required by this package. Statistical analysis of events along these networks is of key interest for crime analysts. Later in this chapter we will, for example, explain how to perform density estimation along networks. Until we get to that final section we will introduce applications of interest to crime analysis using, for convenience, slightly more standard and familiar data structures. Also for clarity purposes, we will focus for most of our demonstration just in the Bakerloo line, within the London underground network.
 
 ## Spatial point patterns along networks
 

@@ -49,7 +49,7 @@ Both processes may lead to observed clustering:
 This may sound subtle and in practice it may be difficult, nearly impossible, to distinguish "first order inhomogeneity" and "second order clustering due to interactions between points" based on a single point pattern. [^1]
 [^1]: These observations are citing the answer provided by "whuber" and "Ege Rubak" in Stack Exchange about this issue (https://stats.stackexchange.com/questions/411402/spatial-point-process-does-an-inhomogeneous-first-order-intensity-function-affe).
 
-A technique commonly used to assess whether points are independent is Ripley´s K-function. For exploring global clustering in a point pattern we use the K-function. This technique will assess if the point patter has clustering, but it will not reveal the locations of these clusters. @Baddeley_2016 defines the K function as the "cumulative average number of data points lying within a distance $r$ of a typical data point, corrected for edge effects, and standardised by dividing by the intensity." (p. 204). This is a test that, as we will see, assumes that the process is spatially homogeneous. As -@Lu_2007 indicate:
+A technique very commonly used to assess whether points are independent is Ripley´s K-function. For exploring global clustering in a point pattern we use the K-function. This technique will assess if the point patter has clustering, but it will not reveal the locations of these clusters. @Baddeley_2016 defines the K function as the "cumulative average number of data points lying within a distance $r$ of a typical data point, corrected for edge effects, and standardised by dividing by the intensity." (p. 204). This is a test that, as we will see, assumes that the process is spatially homogeneous. As -@Lu_2007 indicate:
 
 >"The basic idea of K-function is to examine whether the observed point distribution is different from random distributions. In a random distribution, each point event has the equal probability to occur at any location in space; the presence of one point event at a location does not impact the occurrence possibilities of other point events." (p. 613)
 
@@ -115,9 +115,7 @@ plot(k1)
 
 The graphic shows the K function using each of the corrections and the theoretical expected curve under a Poisson process of independence. When there is clustering we expect the empirical K-function estimated from the observed data to lie above the empirical K-function for a completely random pattern. This indicates that a point has more "neighboring" points than it would be expected under a random process.
 
-It is possible to use Nonte Carlo simulations to draw the confidence interval around the theoretical expectations. This allow us to draw *envelope* plots, that can be interpreted as a statistical significance test. If the homicide data were generated at random we would expect the observed K function to overlap with the envelope of the theoretical expectation. @Baddeley_2016, in particular, suggest the use of global envelopes as a way to avoid data snooping.
-
-For this we use the `spatstat::envelop` function. As arguments we use the data input, the function we are using for generating K (`Kest`), the number of simulations, and the parameters needed to obtain the global envelope.
+It is possible to use Monte Carlo simulations to draw the confidence interval around the theoretical expectations. This allow us to draw *envelope* plots, that can be interpreted as a statistical significance test. If the homicide data were generated at random we would expect the observed K function to overlap with the envelope of the theoretical expectation. @Baddeley_2016, in particular, suggest the use of global envelopes as a way to avoid data snooping. For this we use the `spatstat::envelop` function. As arguments we use the data input, the function we are using for generating K (`Kest`), the number of simulations, and the parameters needed to obtain the global envelope.
 
 ```{r, message=FALSE}
 set.seed(200)
@@ -188,6 +186,13 @@ plot(E_5)
 ```
 
 Finally, there is also an equivalent to the geometrically corrected K function that allows for an inhomogeneous point process.
+
+```{r}
+data(chicago)
+fit_1 <- lppm(chicago)
+fit_1
+```
+
 
 [[[]]]
 
