@@ -10,12 +10,9 @@ data("chicago")
 plot(chicago)
 ```
 
-Clearly the offenses are constrained to only occur along the street network. This has implications. This is not a homogeneous Poisson process,along the whole study surface because there is an underlying structure. If we want to investigate heterogeneity on intensity, for example, we would need to account for that underlying structure, the fact that the points can only be located along the network and not in other parts of the study region.
+Clearly the offenses are constrained to only occur along the street network. This has implications. This is not a homogeneous Poisson process,along the whole study surface because there is an underlying structure. If we want to investigate heterogeneity on intensity, for example, we would need to account for that underlying structure, the fact that the points can only be located along the network and not in other parts of the study region. Several authors have argued that crime is best represented and predicted if we focus in the street network rather than other kind of level of aggregation and that this has clear implications for operational policing (@Singleton_2014; @Rosser_2017). It is clear that if our crime occurrences are collected and represented along a spatial network we need to ensure we use techniques of analysis and visualisation that respect this existing underlying structure in our data. 
 
-The spatial analysis of events along networks is a growing field of research with applications in many fields including, for example, logistics, transportation, routing, or epidemiology. Typical uses in other fields include route optimisation, closest facility analysis, shortest path calculation, etc. Spatial networks for the reasons exposed above are also of clear significance to the crime analyst.
-Several authors have argued that crime is best represented and predicted if we focus in the street network rather than other kind of level of aggregation and that this has clear implications for operational policing (@Singleton_2014; @Rosser_2017). It is clear that if our crime occurrences are collected and represented along a spatial network we need to ensure we use techniques of analysis and visualisation that respect this existing underlying structure in our data. 
-
-The software infrastructure for spatial analysis along networks, however, is still not as developed and consolidated. There is some software such as SANET (http://sanet.csis.u-tokyo.ac.jp/) that was originally conceived as a toolbox for ArGIS but with a beta standalone version already available (@Okabe_2012). R users and developers are working to expand the functionality of R in this regard. It was only in 2020 that Lucas van der Meer, a Dutch spatial data scientist, published the first release of the `sfnetworks` package to facilitate the creation and analysis of spatial networks. Two other useful packages (`SpNetPrep` and `DRHotNet`) developed by Briz-Redón and colleagues are also only a couple of years old (@Briz-Redón_2019a; @Briz_Redón_2019b). Another recent package, released in 2021, is `spNetwork` by Jeremy Gelb and Philippe Apparicio that can be used for kernel density estimation along networks. Finally, the package `spatstat`, that we covered in the last chapter, also provides functionality for the analysis of events along spatial networks.
+The software infrastructure for spatial analysis along networks, however, is still not as developed and consolidated. Partly this is to do with the statistical and computational challenges when we move from planar to linear network analysis. There is some software such as SANET (http://sanet.csis.u-tokyo.ac.jp/) that was originally conceived as a toolbox for ArGIS but with a beta standalone version already available (@Okabe_2012). R users and developers are working to expand the functionality of R in this regard. It was only in 2020 that Lucas van der Meer, a Dutch spatial data scientist, published the first release of the `sfnetworks` package to facilitate the creation and analysis of spatial networks. Two other useful packages (`SpNetPrep` and `DRHotNet`) developed by Briz-Redón and colleagues are also only a couple of years old (@Briz-Redón_2019a; @Briz_Redón_2019b). Another recent package, released in 2021, is `spNetwork` by Jeremy Gelb and Philippe Apparicio that can be used for kernel density estimation along networks. Finally, the package `spatstat`, that we covered in the last chapter, also provides functionality for the analysis of events along spatial networks.
 
 In this chapter we will provide an introduction to the study of crime along networks by exploring the following:
 
@@ -33,6 +30,7 @@ library(readxl)
 library(janitor)
 library(tidyr)
 library(dplyr)
+library(lubridate)
 # Packages for handling spatial data
 library(sf)
 library(lwgeom)
@@ -113,7 +111,7 @@ Another format for linear networks in R is `linnet` used by the package `spatsta
 
 ## Spatial point patterns along networks
 
-London Underground is made up of 11 lines and 380 stops along its network. We can acquire data from the TfL Open API, whereby you can query for each individual line. If you are interested, see the [TfL API](). For simplicity sake we provide these data here, the stops in a .csv file, and the line in .GeoJSON format. 
+London Underground is made up of 11 lines and 380 stops along its network. We can acquire data from the TfL Open API, whereby you can query for each individual line. For simplicity sake we provide these data here, the stops in a .csv file, and the line in .GeoJSON format. 
 
 ```{r, message=FALSE, warning=FALSE}
 bakerloo_stops <- read_csv("data/bakerloo_stops.csv")
@@ -135,25 +133,19 @@ We can clearly see the nodes and the edges in this simplified network, all along
 
 ### Selecting relevant crimes for micro-places
 
-For our demonstration, we will also need to select only those crimes which we can consider to have happened on (or near the Bakerloo Line). When carrying out your analysis you mayt have some flag or other variable in the data which indicates whether or not a crime occurred on or near a specific location. 
-
-In the case of the police.uk data we have a column that we consider them to have happened on or near a specific location. This is the `location` column. If we have a glance you could see the sort of information it contains: 
+For our demonstration, we will also need to select only those crimes which we can consider to have happened on (or near the Bakerloo Line). When carrying out your analysis you mayt have some flag or other variable in the data which indicates whether or not a crime occurred on or near a specific location. In the case of the police.uk data we have a column that we consider them to have happened on or near a specific location. This is the `location` column. If we have a glance you could see the sort of information it contains: 
 
 ```{r, eval=FALSE}
 btp_crimes %>% dplyr::select(location) %>% head()
 ```
 
-We can see that these crimes occurred on or near `r btp_crimes %>% pull(location) %>% head() %>% unique() %>% gsub("On or near ", "", .)`. We can use this information to include only those stations which are on the Bakerloo line. 
-
-We fist need a list of all the station names. We can get this from our `bakerloo_stops` object which contains the names of the stations in the `stn_name` variable. In order to search for *any* of these station names, we can collapse them into an *or* string (separated by the `|` operator, which means *or*): 
+We can see that these crimes occurred on or near `r btp_crimes %>% pull(location) %>% head() %>% unique() %>% gsub("On or near ", "", .)`. We can use this information to include only those stations which are on the Bakerloo line. We fist need a list of all the station names. We can get this from our `bakerloo_stops` object which contains the names of the stations in the `stn_name` variable. In order to search for *any* of these station names, we can collapse them into an *or* string (separated by the `|` operator, which means *or*): 
 
 ```{r}
 bk_sntns_list <- paste(bakerloo_stops$stn_name, collapse = "|")
 ```
 
-We can then use the `grepl()` function, which is a pattern matching function, which returns `TRUE` when a particular string is contained within another string. In other words, if the station name is in the location column. For example, if we are looking for crimes which occurred on or near Baker Street *or* Embankment we can paste them together with the or operator like this: `Baker Street|Embankment`, and then use this to find cases where either of these appear. 
-
-If for example the location text said "On or near Oxford Circus", we would not select this crime: 
+We can then use the `grepl()` function, which is a pattern matching function, which returns `TRUE` when a particular string is contained within another string. In other words, if the station name is in the location column. For example, if we are looking for crimes which occurred on or near Baker Street *or* Embankment we can paste them together with the or operator like this: `Baker Street|Embankment`, and then use this to find cases where either of these appear. If for example the location text said "On or near Oxford Circus", we would not select this crime: 
 
 ```{r}
 grepl("Baker Street|Embankment", "On or near Oxford Circus")
@@ -173,11 +165,7 @@ bakerloo_crimes <- btp_crimes %>%
   filter(grepl(bk_sntns_list, location))
 ```
 
-We can see a total of `r nrow(bakerloo_crimes)` crimes can be attributed to having occurred on or near the stops of the Bakerloo Line. 
-
-However, not all data sets will have such a handly `location` variable in the data set, and then we need to consider other ways of filtering only those crimes which are relevant to our specific micro places. 
-
-One way is to use the spatial information available with our data, and perform spatial operations such as building a buffer and subsetting only those points which fall within a 200 meter buffer. See @Lovelace_2019 for more detail on the relevant functions and explanations for what is going on with each line.  
+We can see a total of `r nrow(bakerloo_crimes)` crimes can be attributed to having occurred on or near the stops of the Bakerloo Line. However, not all data sets will have such a handly `location` variable in the data set, and then we need to consider other ways of filtering only those crimes which are relevant to our specific micro places. One way is to use the spatial information available with our data, and perform spatial operations such as building a buffer and subsetting only those points which fall within a 200 meter buffer. See @Lovelace_2019 for more detail on the relevant functions and explanations for what is going on with each line.  
 
 ```{r getbufferedcrimes}
 
@@ -225,9 +213,7 @@ ggplot()+
 
 ```
 
-Great, we see that we have the Bakerloo Line, its Stations, and only those crimes which we had deemed relevant. Now what we want to do is snap each one of these crime points to the nearest line section (remember we have the 24 sections in the `parts` object). 
-
-To do this, we can use the `st_nearest_feature()` function. This will return, for each point, the ID of the nearest segment. This function is also covered in greater detail in Chapter 2 of @Lovelace_2019 so we won't go into too much detail here. 
+Great, we see that we have the Bakerloo Line, its Stations, and only those crimes which we had deemed relevant. Now what we want to do is snap each one of these crime points to the nearest line section (remember we have the 24 sections in the `parts` object). To do this, we can use the `st_nearest_feature()` function. This will return, for each point, the ID of the nearest segment. This function is also covered in greater detail in Chapter 2 of @Lovelace_2019 so we won't go into too much detail here. 
 
 ```{r getnearest}
 bline_segments <- st_nearest_feature(bakerloo_crimes, bakerloo_sections)
@@ -323,10 +309,7 @@ ggplot() +
 
 In crime and place literature we explore the concentration of crime at micro places. "Perhaps the first and most important empirical observation in the criminology of place is that crime concentrates at very small units of geography" (@Weisburd_2015, p. 135). A significant proportion of crime concentrates around a small proportion of micro places.
 
-One way to measure inequality in the distribution of a quantitative variable is to use  Lorenz curve, and associated Gini coefficient. The Lorenz curve is a probability plot (a P–P plot) comparing the distribution of a variable against a hypothetical uniform distribution of that variable. It can usually be represented by a function $L(F)$, where $F$, the cumulative portion of the population, is represented by the horizontal axis, and $L$, the cumulative portion of the variable of interest (e.g. crime), is represented by the vertical axis. WHile Lorenz curves are used typically to graph inequality of distribution of wealth they can be applied in this case to explore unequal distribution of crimes between micro-places. A perfectly equal distribution would be depicted by the straight line $y = x$ (@lorenz1905methods, @zeileis2012package). 
-
-The corresponding Gini coefficient represents the ratio of the area between the line of perfect equality and the observed Lorenz curve to the area between the line of perfect equality and the line of perfect inequality (@gastwirth1972estimation). The closer the coefficient is to 1, the more unequal the distribution is (@zeileis2012packa9ge).
-
+One way to measure inequality in the distribution of a quantitative variable is to use  Lorenz curve, and associated Gini coefficient. The Lorenz curve is a probability plot (a P–P plot) comparing the distribution of a variable against a hypothetical uniform distribution of that variable. It can usually be represented by a function $L(F)$, where $F$, the cumulative portion of the population, is represented by the horizontal axis, and $L$, the cumulative portion of the variable of interest (e.g. crime), is represented by the vertical axis. WHile Lorenz curves are used typically to graph inequality of distribution of wealth they can be applied in this case to explore unequal distribution of crimes between micro-places. A perfectly equal distribution would be depicted by the straight line $y = x$ (@lorenz1905methods, @zeileis2012package). The corresponding Gini coefficient represents the ratio of the area between the line of perfect equality and the observed Lorenz curve to the area between the line of perfect equality and the line of perfect inequality (@gastwirth1972estimation). The closer the coefficient is to 1, the more unequal the distribution is (@zeileis2012packa9ge).
 
 In R we can implement these tests using the functions in the `ineq` package. To obtain a Lorenz curve, we can use the `Lc()` function. `Lc()` computes the (empirical) ordinary and generalized Lorenz curve of a vector $x$ (in this case, our `crimes_per_m` variable). The function also computes a generalized Lorenz curve ( $= ordinary Lorenz curve * mean(x)$). The result can be interpreted like this: $p*100$ percent account for $L(p)*100$ percent of $x$. Let's illustrate with the segments of the Bakerloo line: 
 
@@ -404,7 +387,7 @@ Here, for simplicity we can use the Rolling Origin Destination Survey (https://d
 
 The entry and exit data sets are two separate sheets in this excel file, so we will have to read them in one sheet at a time, using `read_xls()` function from the `readxl` package. From having seen the data before, I also know that **1)** the variable names are in line 4 so we can skip up to there (the `skip=` argument in the `read_xls()` function), **2) **that the names are messy, so we clean them up using the `clean_names()` function in the `janitor` package, and **3)** that for some reason the 'station' variable is in two columns, so we have to name these as station number and station name using `rename()` function in the `dplyr` library (loaded earlier). It seems like a lot of cleaning of the data, but it could be worse, and some of the data cleaning we have already done for you in terms of the station names... 
 
-```{r getrods2}
+```{r getrods2, message=FALSE, warning=FALSE}
 
 #load entries and exits data
 #first entries
@@ -421,7 +404,7 @@ rods_exits <- read_xls("data/Total entries and exits by borough-time of day 2017
 Then finally we can link the entry and exit data together with `left_join()` from dplyr, and sum them together to get the whole day's worth of entries and exits (because we don't care about time of day for our purposes here) using `group_by()` and `summarise()`, then create a final variable called `total_pax` using the `mutate()` function. The `total_pax` variable that tells us how many trips we can expect to go through that station on a given day, giving us a nice denominator to calculate crime rate! 
 
 
-```{r linkrods}
+```{r linkrods, message=FALSE, warning=FALSE}
 rods <- rods_exits %>%                    
   left_join(., rods_entries) %>%                            # join up the exit and entry data
   group_by(borough, stn_num, stn_name) %>%                  # sum all time periods within the day
@@ -434,7 +417,7 @@ rods <- rods_exits %>%
 
 Now we have our denominator for calculating the crime rate! Let's join it to our Bakerloo Line stations to do so. 
 
-```{r joinrodstobakreloo1}
+```{r joinrodstobakreloo1, message=FALSE, warning=FALSE}
 bakerloo_stops <- left_join(bakerloo_stops, rods)
 
 ```
@@ -483,13 +466,12 @@ bakerloo_order <- data.frame( stop_num = c(1:25),
                                            'Elephant & Castle')
 )
 
-
 ```
 
 
 In other cases you might have some sort of sequence information, or you might need to make a different sequence. For example, if you are plotting your Street Profile Analysis of a major roadway, like @Spicer_2016, you might want to list the streets which intersect it, in order from one end to the other. Once the ordered list exists, we can join this to the original dataframe to have a sequence to order our stops by: 
 
-```{r makeseqnum}
+```{r makeseqnum, message=FALSE, warning=FALSE}
 
 bakerloo_stops <- left_join(bakerloo_stops, bakerloo_order)
 
@@ -555,7 +537,7 @@ We could also visualise different crime types, or different sources of data, the
 Earlier we showed how you can produce the hot route maps, which conceptually are similar to the thematic maps we used in previous chapters. Another way of estimating the intensity of crime along spatial networks is to use kernel density estimation methods. You could, as we did in chapter 7, use standard kernel density estimation methods, but this ignores the underlying structure in the data. As Jeremy Gelb indicates in the vignette for `spNetwork`, there are a number of problems with this cruder approach:
 >" calculating density values for locations outside the network is meaningless and the Euclidean distance underestimates the real distance between two objects on the network. Moreover, networks are not isotropic spaces. In other words, it is not possible to move in every direction, but only along the edges of the network."
 
-Smoothing through kernel density estimation is an area of active development and a number of approaches have been proposed over recent years, some of which provide a pragmatic solution, but "their properties are not well understood, statistical insight is lacking, " and "computational cost is high" (-@McSwiggan_2016: 325). The existing software implementation of the "traditional" algorithms that have been developed can deal with small datasets, but become prohibitive when dealing with larger datasets. More recent algorithms aim to provide faster solutions for larger datasets without seriously compromising performance (see -@Rakshit_2019). You can currently do this in R with at least two separate packages `spatstat` and the newer `spNetwork`. For reasons of space, given that it provides a more general framework for point pattern analysis and a wider selection of (more principled) approaches, we will only cover `spatstat` here.
+Smoothing through kernel density estimation in linear networks is an area of active development and a number of approaches have been proposed over recent years, some of which provide a pragmatic (heuristic) solution, but "their properties are not well understood, statistical insight is lacking, " and "computational cost is high" (-@McSwiggan_2016: 325). The existing software implementation of the "traditional" algorithms that have been developed can deal with small datasets, but may become prohibitive when dealing with larger datasets. More recent algorithms aim to provide faster solutions for larger datasets without seriously compromising performance (see -@Rakshit_2019). You can currently do this in R with at least two separate packages `spatstat` and the newer `spNetwork`. For reasons of space, given that it provides a more general framework for point pattern analysis and a wider selection of (more principled) approaches, we will only cover `spatstat` here.
 
 In `spatstat` a point pattern on a linear network is represented by an object of class `lpp` (stands for point pattern in a linear network). The functions `lpp()` and `as.lpp()` convert raw data into an object of class `lpp`. The two needed arguments are a matrix or data frame with the coordinates of the points (or alternatively a `ppp` object that we discussed in chapter 7) and a liner network of class `linnet`). 
 
@@ -586,36 +568,40 @@ Now we need to put some crime data in this street network. For that we will rely
 ```{r}
 S_englewood_linnet
 ```
-The code for getting the data has been covered before so we don´t  annotate it nor provide a detailed explanation here.
+The code for getting the data has been covered before so we don´t  annotate it nor provide a detailed explanation here. We are extracting the assaults for the summer of 2019 and the Englewood community area. Just to note we are using `as.ppp()` since the standard `ppp` function retains in the created object the points outside the bounding box (even if this only affects the plotting, which will plot all).
 
-```{r}
-chicago_viol <- get_crime_data(cities = "Chicago", years = 2019, 
+```{r getassaults, message=FALSE, warning=FALSE}
+chicago_viol <- get_crime_data(cities = "Chicago", years = 2019, quiet = TRUE,
                                type = "extended", output = "sf") %>%
-  filter(offense_type == "aggravated assault" | 
-           offense_type == "simple assault")
+  filter((offense_type == "aggravated assault" | 
+           offense_type == "simple assault") & chi_community_area == "68")
 chicago_viol <- st_transform(chicago_viol, 6454)
+chicago_viol$month <- month(chicago_viol$date_single)
+chicago_viol <- filter(chicago_viol, month %in% (6:8))
 chi_viol_coord <- matrix(unlist(chicago_viol$geometry), ncol = 2, byrow = T)
 w <- as.owin(c(356456.4, 358379.1,565240.1, 567094.3))
 chi_viol_ppp <- ppp(x = chi_viol_coord[,1], y = chi_viol_coord[,2],
                         window = w, check = T)
-
+chi_viol_ppp <- as.ppp(chi_viol_ppp)
 #we know there is multiplicity so we will add this as a mark
 marks(chi_viol_ppp) <- multiplicity(chi_viol_ppp)
 ```
 
-Now that we have the `ppp` object we can create our `lpp` object (notice that, as noted above, there are other ways to input your points when creating a `lpp` object) and then plot it. 
+Now that we have the `ppp` object we can create our `lpp` object (notice that, as noted above, there are other ways to input your points when creating a `lpp` object) and then plot it. There are a 264 locations, some of which represent up to 6 incidents. Remember that this is likely the result of geomasking due to privacy concerns.
 
 ```{r}
+
+bw.scott.iso(chi_viol_lpp)
 chi_viol_lpp <- lpp(chi_viol_ppp, S_englewood_linnet)
-plot(chi_viol_lpp, meansize = 40, main = "Assaults in South Englewood (2019)")
+plot(chi_viol_lpp, meansize = 50, main = "Assaults in South Englewood (2019)")
 plot(S_englewood_linnet, style = "none", add= TRUE)
 ```
 
 A `lpp` object contains the linear network information, the spatial coordinates of the data points, and any number of columns of *marks* (in this case the mark is telling us the type of crime we are dealing with). It also contains the local coordinates `seg` and `tp` for the data points. The local coordinate `seg` is an integer identifying the particular street segment the data point is located in. A segment is each of the sections of a street between two vertices (marking the intersection with another segment). The local coordinate `tp` is a real number between 0 and 1 indicating the position of the point within the segment: `tp=0` corresponds to the first endpoint and `tp=1` correspond to the second endpoint.
 
-The visual inspection of the map suggest that the intensity of crime along the network is not spatially uniform.  Like we did before we can estimate the density of data points along the networks using Kernel estimation with `density.lpp()`. This is an area of `spatstat` that has seen significant development in the latest release. Depending on the arguments passed to the function a different algorithm will be employed to estimate the density. Alternatively one could use the specific functions for each of these different algorithms: `densityQuick()` (see -@Rakshit_2019), `densityEqualSplit()` (see -@Okabe_2012), or `densityHeat()` (see -@McSwiggan_2016).
+The visual inspection of the map suggest that the intensity of crime along the network is not spatially uniform.  Like we did before, we can estimate the density of data points along the networks using Kernel estimation with `density.lpp()`. This is an area of `spatstat` that has seen significant development in the latest release. Depending on the arguments passed to the function a different algorithm will be employed to estimate the density. Alternatively one could use the new specific functions for each of these different algorithms: `densityQuick()` (see -@Rakshit_2019), `densityEqualSplit()` (see -@Okabe_2012), or `densityHeat()` (see -@McSwiggan_2016).
 
-The Okabe-Suhigara method was the first to be developed for this kind of applications and can be invoked with `densityEqualSplit()`. We can specify the kernel (the default is epanechnikov) and the smoothing bandwidth, sigma (the standard deviation of the kernel). There are two versions of this algorithm, the continuous that is excruciatingly slow (particularly in larger datasets) and the discontinuous that is a bit quicker but has less desirable statistical properties. We are going for 60 meters for illustration. We are using the number of events per point as the weight for computation, and wrapping everything on `system.time()` to provide a notion of computation time.
+The Okabe-Suhigara method was the first to be developed for this kind of applications and can be invoked with `densityEqualSplit()`. We can specify the kernel (the default is `epanechnikov`) and the smoothing bandwidth, sigma (the standard deviation of the kernel). There are two versions of this algorithm, the continuous that is excruciatingly slow (particularly for larger datasets) and the discontinuous that is a bit quicker but has less desirable statistical properties. We are going for 60 meters for illustration. We are using the number of events per point as the weight for computation, and wrapping everything on `system.time()` to provide a notion of computation time. We will only show the discontinuous version.
 
 ```{r}
 system.time(d_okabe <- densityEqualSplit(chi_viol_lpp, 
@@ -623,18 +609,18 @@ system.time(d_okabe <- densityEqualSplit(chi_viol_lpp,
                                          sigma = 60,
                                          continuous = FALSE,
                                          verbose= FALSE))
+
 ```
 
--@McSwiggan_2016 developed an algorithm that is equivalent to the continuous Okabe-Suhigara method using the continuous rule applied to the Gaussian kernel but that runs quicker (than the continuous version).
+-@McSwiggan_2016 subsequently developed an algorithm that is equivalent to the Okabe-Suhigara method using the continuous rule applied to the Gaussian kernel, and therefore has more desirable properties than the equal split discontinuous, but that runs faster (than the Okabe-Suhigara equal split continuous version).
 
 ```{r}
 system.time(d_mcswiggan <- densityHeat.lpp(chi_viol_lpp, 
                                     weights = marks(chi_viol_lpp), 
                                     sigma = 60))
-
 ```
 
-And, as noted above, -@Rakshit_2019 developed a fast algorithm, using a convolution method, that is particularly helpful with large datasets.
+And, as noted above, -@Rakshit_2019 developed a fast algorithm, using a convolution method, that is particularly helpful with large datasets. The analysis of the authors suggest this estimator "is consistent, and its statistical efficiency is only slightly suboptimal."
 
 ```{r}
 system.time(d_rakshit <- densityQuick.lpp(chi_viol_lpp, 
@@ -642,30 +628,21 @@ system.time(d_rakshit <- densityQuick.lpp(chi_viol_lpp,
                                     sigma = 60,
                                     edge2D = TRUE))
 
-
 ```
 
-Arrange the plots:
+We can now plot the data and compare the results:
 
 ```{r}
-plot(d_mcswiggan, style="width", adjust=5)
+par(mfrow=c(1,3))
+plot(d_okabe, style="width", adjust=5, main="EOkabe-Suhigara (disc.)")
+plot(d_mcswiggan, style="width", adjust=5, main="McSwiggan")
+plot(d_rakshit, style="width", adjust=5, main="Rakshit")
+
 ```
-
-references::: -@Rakshit_2019
--@McSwiggan_2019 ??
-
 
 ## Further reading
 
-This is very important for crime research, as offending will be constrained by all sorts of networks. Traditionally, hotspot analysis has been directed at crimes that are assumed to be situated across an infinite homogeneous environment (e.g., theft of motor vehicle), we must develop an increased awareness of perceptible geographical restrictions. There has been increasing recognition in recent years that the spatial existence of many phenomena is constrained by networks.  These networks may be roads or rail networks, but there may be many more:
+The focus in this chapter has been to introduce the issue of crime events along a network. There has been increasing recognition in recent years that the spatial existence of many phenomena is constrained by networks. We have discussed some of the issues associated with the storage, handling, and visualisation of this kind of data. Chapter 1 of -@Okabe_2012 provides a fairly accessible introduction to the relevance of point pattern data along a network, whereas Chapter 3 offers a slighty more technical discussion of the computational issues associated with the statistical analysis of points along a network. The first few sections of Chapter 17 of -@Baddeley_2016 provides background and  very useful detail on the way that `spatstat` handles and stores point pattern data in a network. -@Baddeley_2021 offers an excellent overview of the challenges of analysing this kind of data and the available methods we have. This overview can also offers an excellent framework to understand the issues of clustering and detection of local clusters along networks to which we will return in the next two chapters.
 
-Environmental crimes could exist along waterways such as streams, canals, and rivers; and thefts of metal could occur along utility networks such as pipelines.
+But spatial networks analysis is a more general area, with various other applications that we could not explore in detail here. -@OSullivan_2014 provides an introduction to spatial network analysis, basically a translation of social network metrics and concepts applied to spatial networks. This kind of perspective is particularly helpful within transport, routing, and similar applications. See, for example, the kind of functionality and applications provided by `stplanr`. We are also witnessing cross fertilisation between social network analysis and spatial analysis. In epidemiology, for example, we see how this is done for studying the transmission of disease through personal networks and geographic (see, for example, -@Emch_2010). Along these lines, the package `spnet` facilitates the rendering of social network data into a geographical space. Some of these applications can be relevant for investigative crime analysis and other criminological uses. Finally, another way in which social networks are being used within the context of environmental criminology is in contributing to the alternative specifications of neighbourhoods that aim to move beyond the traditional use of census geographies (see -@Hipp_2012 and -@Hipp_2013). 
 
-`stplanr`
-`spnet`
-
-The focus in this chapter has been to introduce the issue of crime events along a network. We have discussed some of the issues associated with the storage, handling, and visualisation of this kind of data. In the next two chapters we will return to the problem of assessing clustering and the detection of hot spots along street networks. 
-
-Chapter 1 of -@Okabe_2012 provides a fairly accessible introduction to the relevance of point pattern data along a network, whereas Chapter 3 offers a slighty more technical discussion of the computational issues associated with the statistical analysis of points along a network. The first few sections of Chapter 17 of -@Baddeley_2016 also provides a bit background and provides very useful detail on the way that `spatstat` handles and stores point pattern data in a network. -@Baddeley_2021 offers an excellent overview of the challenges of analysing this kind of data and the available methods we have. This overview can also offers an excellent framework to understand the issues of clustering and detection of local clusters along networks to which we will return in the next two chapters.
-
-for a book-length discussion of the issues associated with the statistical analysis of point pattern data along a network, as well as Chapter 
