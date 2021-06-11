@@ -2,6 +2,33 @@
 
 [[Already have an introduction to spatial hetereogeneity in the intro to the next chapter, where we say we will talk about solutions here. It possibly makes sense to move here the business about spatial regimes and data partition as a first way to deal with spatial heterogeneity and then introduce GWR as a more localised solution]]
 
+## Heterogeneity, spatial regimes, and data partition
+
+Before  we  proceed  to  a  more  detailed  description  of  these  two models  it is  important  that  we return to the issue of heterogeneity. We looked at whether the role of how resource deprivation was different in Southern and Northern states. We found that this interaction was indeed significant. Resource deprivation had a more significant effect in Southern than in Northern states. 
+ 
+If you have read the Baller et al. (2001) paper that we are in a way replicating here, you could see they decided that they needed to run separate models for the South and the North....  
+
+This kind of  situation,  where  sub-regions, seem  to  display  different  patterns often  is alluded with  the  name  of  spatial  regimes.  In  the  context of  regression  analysis,  spatial  regimes relates to the possibility that we may need to split our data into two (or more sub-regions) in order to run our models, because we presume that the relationship of the predictors to the outcome may play out differently in these sub-regions (spatial regimes). 
+ 
+So  how  can  we  assess  whether  this  is  an  issue  in  our  data?  As with  many  other  diagnostics  of regression,  you  may  want  to  start  by  looking  at  your  residuals.  Look  at  the  residual  map  we produced earlier. Do you think that the residuals look different in the South and in the North? If the pattern is not clear to you, you may want to run other forms of visualisation. 
+ 
+```{r}
+
+ggplot(ncovr_sf, aes(x = res_fit1, colour = as.factor(SOUTH))) + 
+  geom_density() 
+```
+
+What do you see in this plot? And, critically, what does it mean? What is this telling you about the predicted values that result from our model? (Remember what a residual is: the difference between the observed values and the predicted values). 
+
+There are formal tests that one can use to further explore these issues. The paper by Bollen et al. (2001) mentions them (Chow tests). But those are beyond the scope of this course. Sufficient to say that,  as  Bollen  et  al.  (2001),  we  are  going  to  split  our  analysis  and  run  them  separately  for  the Southern and the Northern states. We have covered the `filter()` function from `dplyr` to split datasets based on values of a variable. But to split `sf` objects it is better to rely on the more generic subset function, since `filter()` doesn't accommodate well the column with the geographic information that `sf` provides.
+
+```{r}
+ncovr_s_sf <- subset(ncovr_sf, SOUTH == 1)
+ncovr_n_sf <- subset(ncovr_sf, SOUTH == 0)
+```
+ `DV90` divorce rate, `MA90` the median age, `PS90` - population structure, and `UE90` unemployment. 
+
+## GWR
 
 The basic idea behind GWR is to explore how the relationship between a dependent variable ($Y$) and one or more independent variables (the $X$s) might vary geographically. Instead of assuming that a single model can be fitted to the entire study region, it looks for geographical differences. GWR evaluates a local model of the variable or process you are trying to understand or predict by fitting a regression equation to every feature in the dataset. GWR constructs these separate equations by incorporating the dependent and explanatory variables of the features falling within the neighborhood of each target feature. 
 

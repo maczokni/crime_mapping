@@ -1,6 +1,5 @@
 # Chapter 9: Spatial dependence and autocorrelation
 
-
 ## Introduction
 
 This session we begin to explore the analysis of spatial autocorrelation statistics. Spatial autocorrelation is the correlation among data values, strictly due to the relative location proximity of the objects that the data refer to. It has been long known that values attribute values that are close together in space are unlikely to be independent. This is often referred to as Tobler's first law of geography : "everything is related to everything else, but near things are more related than distant things". For example, if area $n_i$ has a high level of violence, we often observe that the areas geographically close to $n_i$ tend to also exhibit high levels of violence. Spatial autocorrelation is the measure of this *correlation* between near things.
@@ -372,8 +371,8 @@ For `dnearneigh()` we need to define as parameters the object with the coordinat
 ```{r}
 nb_distance <- dnearneigh(xy, 0, radius)
 summary(nb_distance)
-
 ```
+
 And as earlier we can also plot the results:
 
 ```{r}
@@ -381,13 +380,12 @@ And as earlier we can also plot the results:
 plot(cc_burglary_sp, col='white', border='blue', lwd=2)
 # Then we plot the distance-based neighbours
 plot(nb_distance, xy, lwd=2, col="red", add=TRUE)
-
 ```
+
 We could now use this `nb` object to generate a spatial weight matrix in the same way as earlier:
 
 ```{r}
 wm_distance <- nb2mat(nb_distance, style='B')
-
 ```
 
 If we we autoprint the object we will see this is a matrix with 1 and 0 just as the contiguity-based matrix we generated earlier.
@@ -406,7 +404,6 @@ Let´s go one step at the time. First we use `spdep::nbdists()` to generate all 
 
 ```{r}
 distances <- nbdists(nb_distance, xy)
-
 ```
 
 Now that we have an object with all the distances we need to compute the inverse distances. Taking the inverse simply involves dividing 1 by each of the distances. We can easily do that with the following code:

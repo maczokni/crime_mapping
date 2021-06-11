@@ -22,7 +22,6 @@ library(spdep)
 # Packages for regression and spatial regression
 library(arm)
 library(effects)
-library(modelsummary)
 library(spatialreg)
 # Packages for mapping and visualisation
 library(tmap)
@@ -32,7 +31,7 @@ library(geodaData)
 
 ```
 
-Then we will bring the data for this chapter. We will return to the "ncovr" data we have used in previous chapters:
+Then we will bring the data for this chapter. We will return to the "ncovr" data we have used in previous chapters. This dataset was produced as part of the National Consortium on Violence Research (NCOVR) agenda. The key piece of work that resulted from it was the paper led by Robert Baller (2001) in *Criminology*. This paper co-authored by Luc Anselin, one of the key figures in the field of spatial econometrics, run and describe spatial regression models of the kind we cover in this chapter with this dataset. It would be helpful to read that piece in parallel to this chapter.
 
 ```{r}
 data("ncovr")
@@ -48,26 +47,26 @@ The most important assumption of regression is that of **validity**. The data sh
 
 Although validity is a key assumption for regression, whether spatial or not, it is the case that the features of spatial data make it particularly challenging. 
 
-The second challenge is **spatial dependence**. A key assumption of regression analysis is the independence between the observations. That is, a regression model is formally assuming that what happens in area $Xi$ is not in any way related (it is independent) of what happens in area $Xii$. But if those two areas are adjacent in geographical space we know that there is a good chance that this assumption may be violated. Values that are close together in space are unlikely to be independent. Crime levels tend to be similar in areas that are close to each other. The problem for regression is not so much autocorrelation in the response or dependent variable, but by the remaining autocorrelation in the residuals. When the residuals of your model display spatial autocorrelation you are violating an assumption of the standard regression model, and you need to find a solution for this. 
+The second challenge is **spatial dependence**. A key assumption of regression analysis is the independence between the observations. That is, a regression model is formally assuming that what happens in area $Xi$ is not in any way related (it is independent) of what happens in area $Xii$. But if those two areas are adjacent or proximal in geographical space we know that there is a good chance that this assumption may be violated. Values that are close together in space are unlikely to be independent. Crime levels tend to be similar in areas that are close to each other. The problem for regression is not so much autocorrelation in the response or dependent variable, but the remaining autocorrelation in the residuals. When the residuals of your model display spatial autocorrelation you are violating an assumption of the standard regression model, and you need to find a solution for this. 
 
 When positive spatial autocorrelation is observed, using a regression model that assumes independent errors will lead to an underestimation of the uncertainty around your parameters (or overestimation if the autocorrelation is negative). With positive spatial autocorrelation you will be more likely to engage in a Type I error (concluding the coefficient for a given predictor is not zero when this decision is not justified). As @Haining_2020 notes for positive spatial autocorrelation (the most common case in crime analysis and social science):
 
 > "Underlying the results... is the fact that ´less information´ about the parameter of interest... is contained in a dataset where observations are positively autocorrelated... The term ´effective´ sample size has been coined and used to measure the information content in a set of autocorrelated data. Compared with the case of N independent observations, if we have N autocorrelated data values then the effective sample size is less than N (how much less depends on how strongly autocorrelated values are). The effective sample size can be thought of as the *equivalent number of independent observations available for estimating the parameter*... It is this reduction in the information content of the data that increases the uncertainty of the parameter estimate... This arises because each observation contains what might call ´overlapping´ or ´duplicate´ information about other observations" (p. 7)
 
-In previous weeks we covered formal tests for spatial autocorrelation, which allow us to test whether this is a feature of our dependent variable. So before we fit a regression model with spatial data we need to explore the issue of autocorrelation in our key outcome, but critically what we need to establish is spatial autocorrelation in the residuals. In this session, we will see that there are two basic ways of adjusting for spatial autocorrelation: through a spatial lag model or through a spatial error model. Although there are multiple types of spatial regression models (see -@Anselin_2014, -@Bivand_2021, -@Chi_2020), these are the two basic forms that you probably (particularly if your previous statistical training sits in the frequentist tradition) need to understand before you get into other types.
+In previous weeks we covered formal tests for spatial autocorrelation, which allow us to test whether this is a feature of our dependent (or predictor) variable. So before we fit a regression model with spatial data we need to explore the issue of autocorrelation in the attributes of interest, but critically what we need to establish is whether there is spatial autocorrelation in the residuals. In this session, we will see that there are two basic ways of adjusting for spatial autocorrelation: through a spatial lag model or through a spatial error model. Although there are multiple types of spatial regression models (see -@Anselin_2014, -@Bivand_2021, -@Chi_2020), these are the two basic forms that you probably (particularly if your previous statistical training sits in the frequentist tradition) need to understand before you get into other types.
 
-A third challenge for regression models with spatial data is **spatial heterogeneity** (also referred to as **non-stationarity**). We already discussed the concept of spatial homogeneity when introducing the study of point patterns. In that context we defined spatial homogeneity as the homogeneous intensity of the point pattern across the study surface. But spatial homogeneity is a more general concept that applies to other statistical properties. In the context of lattice or area level data it may refer to the mean value of an attribute (such as crime rate) across areas but it could also refer to how other variables are related to our outcome of interest across the study region. It could be the case that some predictors display spatial structure in how they affect the outcome. It could be, for example, that presence of licensed premises to sell alcohol have a different impact on the level of violent crime in different types of communities in our study region. If there is spatial heterogeneity in these relationships we need to account for it. We could deal with this challenge through some form of data partition, spatial regime, or local regression model (where we allow the regression coefficient to be area specific) such as geographically weighted regression. We will deal with this challenge in the next chapter.
+A third challenge for regression models with spatial data is **spatial heterogeneity** (also referred to as **non-stationarity**). We already discussed the concept of spatial homogeneity when introducing the study of point patterns. In that context we defined spatial homogeneity as the homogeneous intensity of the point pattern across the study surface. But spatial homogeneity is a more general concept that applies to other statistical properties. In the context of lattice or area level data it may refer to the mean value of an attribute (such as crime rate) across areas but it could also refer to how other variables are related to our outcome of interest across the study region. It could be the case that some predictors display spatial structure in how they affect the outcome. It could be, for example, that presence of licensed premises to sell alcohol have a different impact on the level of violent crime in different types of communities in our study region. If there is spatial heterogeneity in these relationships we need to account for it. We could deal with this challenge through some form of data partition, spatial regime, or local regression model (where we allow the regression coefficient to be area specific) such as geographically weighted regression.
 
 ## Fitting a standard regression model with R
 
-In order to fit the model we use the `stats::lm()` function using the formula specification `(Y ~ X)`. Typically you want to store your regression model in a "variable", let's call it "fit_1". Here we model homicide rate in the 1990s (`HR90`) using, to start with, just two variables of interest, `RD90`- Resource Deprivation/Affluence, and `SOUTH` - Counties in the southern region scored 1,
+In order to fit the model we use the `stats::lm()` function using the formula specification `(Y ~ X)`. Typically you want to store your regression model in a "variable", let's call it "fit_1". Here we model homicide rate in the 1990s (`HR90`) using, to start with, just two variables of interest, `RD90`- Resource Deprivation/Affluence, and `SOUTH` - Counties in the southern region scored 1.
 
 ```{r}
 ncovr$SOUTH_f <- as.factor(ncovr$SOUTH) # specify this is a categorical variable
 fit_1 <- lm(HR90 ~ RD90 + SOUTH_f, data=ncovr)
 ```
 
-You will see in your R Studio global environment space that there is a new object called `fit_1` with 12 elements on it. We can get a sense for what this object is and includes using the functions we introduced in previous weeks:
+You will see in your R Studio global environment space that there is a new object called `fit_1` with 13 elements on it. We can get a sense for what this object is and includes using the functions we introduced in previous weeks:
 
 ```{r, eval=FALSE}
 class(fit_1)
@@ -76,10 +75,8 @@ attributes(fit_1)
 
 R is telling us that this is an object of class `lm` and that it includes a number of attributes. One of the beauties of R is that you are producing all the results from running the model, putting them in an object, and then giving you the opportunity for using them later on. If you want to simply see the basic results from running the model you can use the standard `summary()` function. 
 
-```{r, eval=FALSE}
-
+```{r}
 summary(fit_1)
-
 ```
 With more than one input, you need to ask yourself whether all of the regression coefficients are zero. This hypothesis is tested with a F test. Again we are assuming the residuals are normally distributed, though with large samples the F statistics approximates the F distribution. You see the F test printed at the bottom of the summary output and the associated p value, which in this case is way below the conventional .05 that we use to declare statistical significance and reject the null hypothesis. At least one of our inputs must be related to our response variable. Notice that the table printed also reports a t test for each of the predictors. These are testing whether each of these predictors is associated with the response variable when adjusting for the other variables in the model. They report the "partial effect of adding that variable to the model" (James et al. 2014: 77). In this case we can see that all inputs seem to be significantly associated with the output. 
 
@@ -91,7 +88,7 @@ standardize(fit_1)
 
 Notice the main change affects the numerical predictors. The unstandardised coefficients are influenced by the degree of variability in your predictors, which means that typically they will be larger for your binary inputs. With unstandardised coefficients you are comparing complete change in one variable (whether one is a Southern county or not) with one-unit changes in your numerical variable, which may not amount to much change. So, by putting in a comparable scale, you avoid this problem. Standardising in the way described here will help you to make fairer comparisons. This standardised coefficients are comparable in a way that the unstandardised coefficients are not. We can now see what inputs have a comparatively stronger effect. It is very important to realise, though, that one **should not** compare standardised coefficients *across different models*.
 
-In the social sciences there is a great interest in what are called conditional hypothesis or interactions. Many of our theories do not assume simply **additive effects** but **multiplicative effects**.For example, you may think that a particular crime prevention programme may work in some environments but not in others. The interest in this kind of conditional hypothesis is growing. One of the assumptions of the regression model is that the relationship between the response variable and your predictors is additive. That is, if you have two predictors $x1$ and $x2$. Regression assumes that the effect of $x1$ on $y$ is the same at all levels of $x2$. If that is not the case, you are then violating one of the assumptions of regression. This is in fact one of the most important assumptions of regression, even if researchers often overlook it.
+In the social sciences there is a great interest in what are called conditional hypothesis or interactions. Many of our theories do not assume simply **additive effects** but **multiplicative effects**. For example, you may think that a particular crime prevention programme may work in some environments but not in others. The interest in this kind of conditional hypothesis is growing. One of the assumptions of the regression model is that the relationship between the response variable and your predictors is additive. That is, if you have two predictors $x1$ and $x2$. Regression assumes that the effect of $x1$ on $y$ is the same at all levels of $x2$. If that is not the case, you are then violating one of the assumptions of regression. This is in fact one of the most important assumptions of regression, even if researchers often overlook it.
 
 One way of extending our model to accommodate for interaction effects is to add additional terms to our model, a third predictor $x3$, where $x3$ is simply the product of multiplying $x1$ by $x2$. Notice we keep a term for each of the **main effects** (the original predictors) as well as a new term for the interaction effect. "Analysts should include all constitutive terms when specifying multiplicative interaction models except in very rare circumstances" (-@Brambor_2006: 66).
 
@@ -104,13 +101,13 @@ fit_2 <- lm(HR90 ~ RD90 + SOUTH_f + RD90:SOUTH_f , data=ncovr)
 summary(fit_2)
 ```
 
-You see here that essentially you have only two inputs (resource deprivation and south) but several regression coefficients. Gelman and Hill (2007) suggest reserving the term input for the variables encoding the information and to use the term predictor to refer to each of the terms in the model. So here we have two inputs and three predictors (one for SOUTH, another for resource deprivation, and a final one for the interaction effect). In this case the test for the interaction effect is significant, which suggests there is such an interaction.  Let's visualise the results with the `effects` package:
+You see here that essentially you have only two inputs (resource deprivation and south) but several regression coefficients. Gelman and Hill (2007) suggest reserving the term input for the variables encoding the information and to use the term predictor to refer to each of the terms in the model. So here we have two inputs and three predictors (one for SOUTH, another for resource deprivation, and a final one for the interaction effect). In this case the test for the interaction effect is significant, which suggests there may be such an interaction.  Let's visualise the results with the `effects` package:
 
 ```{r}
 plot(allEffects(fit_2), ask=FALSE)
 ```
 
-Notice that essentially what we are doing is running two regression lines and testing whether the slope is different for the two groups. The intercept is different, we know that Southern counties are more violent, but what we are testing here is whether the level of homicide goes up in a steeper fashion (and in the same direction) for one or the other group as the level of resource deprivation goes up. We see that's the case here. The estimated lines are almost parallel, but the slope is a bit steeper in the Southern counties. In southern counties resource deprivation seems to have more of an impact on homicide than in northern counties. This is related to one of the issues we raised earlier regarding spatial regression, that of hetereogeneity. Here what we see is that there some evidence of non-stationarity in the relationship between our predictors and our outcome. 
+Notice that essentially what we are doing is running two regression lines and testing whether the slope is different for the two groups. The intercept is different, we know that Southern counties are more violent, but what we are testing here is whether the level of homicide goes up in a steeper fashion (and in the same direction) for one or the other group as the level of resource deprivation goes up. We see that's the case here. The estimated lines are almost parallel, but the slope is a bit steeper in the Southern counties. In Southern counties resource deprivation seems to have more of an impact on homicide than in Northern counties. This is related to one of the issues we raised earlier regarding spatial regression, that of hetereogeneity. Here what we see is that there some evidence of non-stationarity in the relationship between our predictors and our outcome. 
 
 A word of warning about interactions, the moment you introduce an interaction effect the meaning of the coefficients for the other predictors changes (what it is often referred as to the "main effects" as opposed to the interaction effect). You cannot retain the interpretation we introduced earlier. Now, for example, the coefficient for the `SOUTH` variable relates the marginal effect of this variable when `RD90` equals zero. The typical table of results helps you to understand whether the effects are significant but offers little of interest that will help you to meaningfully interpret what the effects are. For this is better you use some of the graphical displays we have covered.
 
@@ -120,20 +117,24 @@ Essentially what happens is that the regression coefficients that get printed ar
 
 + The coefficient of *SOUTH_f1* now can be thought of as the difference between the predicted score of homicide rate for northern counties *that have a score of 0 in resource deprivation* and northern counties *that have a score of 0 in resource deprivation*.
 
-+ The coefficient of *RD90* now becomes the comparison of mean homicide rate *for southern* counties who differ by one point in resource deprivation.
++ The coefficient of *RD90* now becomes the comparison of mean homicide rate *for Southern* counties who differ by one point in resource deprivation.
 
-+ The coefficient for the interaction term represents the difference in the slope for *RD90* comparing southern and northern counties, the difference in the slope of the two lines that we visualised above.
++ The coefficient for the interaction term represents the difference in the slope for *RD90* comparing Southern and Northern counties, the difference in the slope of the two lines that we visualised above.
 
 Models with interaction terms are too often misinterpreted. We strongly recommend you read -@Brambor_2004  to understand some of the issues involved.
 
 ## Looking at the residuals and testing for spatial autocorrelation in regression
 
-Residuals measure the distance between our observed Y values, $Y$, and the predicted Y values, $\hat{Y}$. So in essence they are deviations of observed reality from your model. Your regression line or hyperplane (in the case of multiple regression) is optimised to be the one that best represent your data if the assumptions of the model are met. Residuals are very helpful to diagnose, then, whether your model is a good representation of reality or not. Most diagnostics of the assumptions for regression rely on exploring the residuals. 
+Residuals measure the distance between our observed Y values, $Y$, and the predicted Y values, $\hat{Y}$. So in essence they are deviations of observed reallity from your model. Your regression line (or hyperplane in the case of multiple regression) is optimised to be the one that best represent your data if the assumptions of the model are met. Residuals are very helpful to diagnose, then, whether your model is a good representation of reality or not. Most diagnostics of the assumptions for regression rely on exploring the residuals. 
 
-Now that we have fitted the model we can extract the residuals. If you look at the "fit_1" object in your RStudio environment or if you run the `str()` function to look inside this object you will see that this object is a list with different elements, one of which is the residuals. An element of this object then includes the residual for each of your observations (the difference between the observed value and the value predicted by your model). We can extract the residuals using the `residuals()` function and add them to our spatial data set.
+Now that we have fitted the model we can extract the residuals. If you look at the "fit_1" object in your RStudio environment or if you run the `str()` function to look inside this object you will see that this object is a list with different elements, one of which is the residuals. An element of this object then includes the residual for each of your observations (the difference between the observed value and the value predicted by your model). We can extract the residuals using the `residuals()` function and add them to our spatial data set. Let´s fit a model with all the key predictors available in the dataset and inspect the residuals.
 
 ```{r}
-ncovr$res_fit1 <- residuals(fit_1)
+# write model into object to save typing later
+equation_1 <- HR90 ~ RD90 + PS90 + MA90 + DV90 + UE90 + SOUTH_f
+fit_3 <- lm(equation_1, data=ncovr)
+summary(fit_3)
+ncovr$res_fit3 <- residuals(fit_3)
 ```
 
 If you now look at the dataset you will see that there is a new variable with the residuals. In those cases where the residual is negative this is telling us that the observed value is lower than the predicted (that is, our model is *overpredicting* the level of homicide for that observation) when the residual is positive the observed value is higher than the predicted (that is, our model is *underpredicting* the level of homicide for that observation).
@@ -141,18 +142,18 @@ If you now look at the dataset you will see that there is a new variable with th
 We could also extract the predicted values if we wanted. We would use the `fitted()` function.
 
 ```{r}
-ncovr$fitted_fit1 <- fitted(fit_1)
+ncovr$fitted_fit3 <- fitted(fit_3)
 
 ```
 
-Now look, for example, at the second county in the dataset: the county of Ferry in Washington. It had a homicide rate in 1990 of 15.88. This is the observed value. If we look at the new column we have created ("fitted_fit1"), our model predicts a homicide rate of 2.41. That is, knowing the level unemployment, whether the county is North or South, the level of resource deprivation, etc., we are predicting a homicide rate of 2.41. Now, this is lower than the observed value, so our model is underpredicting the level of homicide in this case. If you observed the residual you will see that it has a value of 13.46, which is simply the difference between the observed (15.88) and the predicted value (2.41). This is normal. The world is too complex to be encapsulated by our models and their predictions will depart from the observed world.
+Now look, for example, at the second county in the dataset: the county of Ferry in Washington. It had a homicide rate in 1990 of 15.89. This is the observed value. If we look at the new column we have created ("fitted_fit1"), our model predicts a homicide rate of 2.42. That is, knowing the level of resource deprivation and all the other explanatory variables (and assuming they are related in an additive manner to the outcome), we are predicting a homicide rate of 2.42. Now, this is lower than the observed value, so our model is underpredicting the level of homicide in this case. If you observed the residual you will see that it has a value of 11.56, which is simply the difference between the observed (15.89) and the predicted value (2.42). This is normal. The world is too complex to be encapsulated by our models and their predictions will depart from the observed world.
 
 With spatial data one useful thing to do is to look at any spatial patterning in the distribution of the residuals. Notice that the residuals are the difference between the observed values for homicide and the predicted values for homicide, so you want your residual to not display any spatial patterning. If, on  the  other  hand,  your  model  display  a  patterning  in  the  areas of  the  study  region where  it predicts  badly,  then  you  may have  a  problem.  This  is  telling  your  model  is  not  a  good representation  of  the  social  phenomena  you  are studying  across  the full  study  area:  there  is systematically more distortion in some areas than in others. 
 
-We are going to produce a choropleth map for the residuals, but we will use a common classification method we haven't covered yet: standard deviations. Standard deviation is a statistical technique type of map based on how much the data differs from the mean. You measure the mean and standard deviation for your data. Then, each standard deviation becomes a class in your choropleth maps. In order to do that we will compute the mean and the standard deviation for the variable we want to plot and break the variable according to these values. The following code creates a new variable in which we will express the residuals in terms of standard deviations away from the mean. So, for each observation, we substract the mean and divide by the standard deviation. Remember, this is exactly what the `scale` function does, which we have introduced in week 7:
+We are going to produce a choropleth map for the residuals, but we will use a common classification method we haven't covered yet: standard deviations. Standard deviation is a statistical technique type of map based on how much the data differs from the mean. You measure the mean and standard deviation for your data. Then, each standard deviation becomes a class in your choropleth maps. In order to do that we will compute the mean and the standard deviation for the variable we want to plot and break the variable according to these values. The following code creates a new variable in which we will express the residuals in terms of standard deviations away from the mean. So, for each observation, we substract the mean and divide by the standard deviation. Remember, this is exactly what the `scale` function does:
 
 ```{r}
-ncovr$sd_breaks <- scale(ncovr$res_fit1)[,1] # because scale is made for matrices, we just need to get the first column using [,1]
+ncovr$sd_breaks <- scale(ncovr$res_fit3)[,1] # because scale is made for matrices, we just need to get the first column using [,1]
 # this is equal to (ncovr$res_fit1 - mean(ncovr$res_fit1)) / sd(ncovr$res_fit1)
 summary(ncovr$sd_breaks)
 ```
@@ -169,28 +170,25 @@ tm_shape(ncovr) +
             legend.position = c("right", "bottom"), legend.title.size = 0.8)
 ```
 
-Notice  the  spatial  patterning  of  areas  of  over-prediction  (negative residuals,  or  blue  tones)  and under-prediction (positive residuals, or brown tones). This visual inspection of the residuals is suggesting you that spatial autocorrelation in the residuals may be present here. This, however, would require a more formal test.
+Notice  the  spatial  patterning  of  areas  of  over-prediction  (negative residuals,  or  blue  tones)  and under-prediction (positive residuals, or reddish tones). This visual inspection of the residuals is suggesting you that spatial autocorrelation in the residuals may be present here. This, however, would require a more formal test.
 
-Remember from Chapter 9 that in order to do this first we need to turn our `sf` object into a `sp` class object and then create the spatial weight matrix. If the code below and what it does is not clear to you, revise the notes from Chapter 9, when we first introduced it.
+Remember from Chapter 9 that in order to do this first we need to turn our `sf` object into a `sp` class object and then create the spatial weight matrix. If the code below and what it does is not clear to you, revise the notes from Chapter 9, when we first introduced it. We are going to follow -@Baller_2001 and use a 10 nearest neighbors.
 
 ```{r}
 #We coerce the sf object into a new sp object
 ncovr_sp <- as(ncovr, "Spatial")
 #Then we create a list of neighbours using the Queen criteria
-lnb <- poly2nb(ncovr_sp, row.names=ncovr_sp$FIPSNO)
-```
+xy <- coordinates(ncovr_sp)
+nb_k10 <- knn2nb(knearneigh(xy, k = 10))
+rwm <- nb2mat(nb_k10, style='W')
+rwm <- mat2listw(rwm, style='W')
 
-This should give you an idea of the distribution of connectedness across the data, with counties having on average nearly 6 neighbours. Now we can generate the row standardised spatial weight matrix and the Moran Scatterplot.
-
-```{r}
-wm <- nb2mat(lnb, style='B')
-rwm <- mat2listw(wm, style='W')
 ```
 
 We obtain the Moran's test for regression residuals using the function `lm.morantest()` as below. It is important to realize that the Moran's I test statistic for residual spatial autocorrelation takes into account the fact that the variable under consideration is a residual, computed from a regression. The usual Moran's I test statistic does not. It is therefore incorrect to simply apply a Moran's I test to the residuals from the regression without correcting for the fact that these are residuals. 
 
 ```{r}
-lm.morantest(fit_1, rwm, alternative="two.sided")
+lm.morantest(fit_3, rwm, alternative="two.sided")
 ```
 
 You will notice we obtain a statistically significant value for Moran's I. If we diagnose that spatial autocorrelation is an issue, that is, that the errors (the residuals) are related systematically among themselves, then we have a problem and need to use a more appropriate approach: a spatial regression model.
@@ -199,108 +197,98 @@ You will notice we obtain a statistically significant value for Moran's I. If we
 
 If the test is significant (as in this case), then we possibly need to think of a more suitable model to represent our data: a spatial regression model. Remember spatial dependence means that (more typically) there will be areas of spatial clustering for the residuals in our regression model. So our predicted line (or hyperplane) will systematically under-predict or over-predict in areas that are close to each other. That's not good. We want a better model that does not display any spatial clustering in the residuals.
  
-There are  two  general  ways  of  incorporating  spatial  dependence in  a regression model, through what we called a **spatial error model** or by means of a **spatially lagged model**. There are `spdep` functions that provides us with some tools to help us make a decision as to which of these two is most appropriate: the **Lagrange Multiplier tests**.  
- 
+There are  two  general  ways  of  incorporating  spatial  dependence in  a regression model, through what we called a **spatial error model** or by means of a **spatially lagged model**. The Moran test doesn´t provide information to help us choose, which is why -@Anselin_1998 introduced the **Lagrange Multiplier tests**, which we will examine shortly.
+
 The difference between these two models is both technical and conceptual. The **spatial error model** treats the spatial autocorrelation as a nuisance that needs to be dealt with. A spatial error model basically implies that the: 
  
 *"spatial  dependence  observed  in  our  data  does  not  reflect  a  truly spatial  process,  but  merely  the geographical clustering of the sources of the behaviour of interest. For example, citizens in adjoining neighbohoods may favour the same (political) candidate not because they talk to their neighbors, but because citizens  with  similar  incomes  tend to  cluster  geographically,  and  income  also  predicts  vote  choice. Such spatial dependence can be termed attributional dependence"* (@Darmofal_2015 p: 4)
+
+In the example we are using the spatial error model "evaluates the extent to which the clustering of homicide rates not explained by measured independent variables can be accounted for with reference to the clustering of error terms. In this sense, it captures the spatial influence of unmeasured independent variables" (-@Baller_2001: 567).
  
 The **spatially lagged model**, on the other hand, incorporates spatial dependence explicitly by adding a  "spatially  lagged"  variable  $y$ on  the  right  hand  side  of  our  regression  equation.  Its  distinctive characteristic  is  that  it includes a spatially  lagged  variable  among  the  explanatory factors (a variable that measures the value of our outcome of interest, say crime rate, in the neighbouring areas, as defined by our spatial weight matrix). It is basically explicitly saying that the values of $y$ in the neighbouring areas of observation $n_i$ is an important predictor of $y_i$ on each individual area $n_i$ . This is one way of saying that the spatial dependence  may  be  produced  by  a  spatial  process  such as  the  diffusion  of  behaviour  between neighboring units:  
  
 *"If so the behaviour is likely to be highly social in nature, and understanding the interactions between interdependent units is critical to understanding the behaviour in question. For example, citizens may discuss politics across adjoining neighbours such that an increase in support for a candidate in one neighbourhood  directly  leads  to  an  increase  in  support  for  the  candidate  in    adjoining neighbourhoods"* (@Darmofal_2015 p: 4).
 
-## Heterogeneity and data partition
-
-Before  we  proceed  to  a  more  detailed  description  of  these  two models  it is  important  that  we return to the issue of hetereogeneity. We looked at whether the role of how resource deprivation was different in Southern and Northern states. We found that this interaction was indeed significant. Resource deprivation had a more significant effect in Southern than in Northern states. 
- 
-If you have read the Baller et al. (2001) paper that we are replicating in the lab last week and this week, you will have noticed that they decided that they needed to run separate models for the South and the  North.  This kind of  situation,  where  sub-regions, seem  to  display  different  patterns often  is alludedwith  the  name  of  spatial  regimes.  In  the  context of  regression  analysis,  spatial  regimes relates to the possibility that we may need to split our data into two (or more sub-regions) in order to run our models, because we presume that the relationship of the predictors to the outcome may play out differently in these sub-regions (spatial regimes). 
- 
-So  how  can  we  assess  whether  this  is  an  issue  in  our  data?  As with  many  other  diagnostics  of regression,  you  may  want  to  start  by  looking  at  your  residuals.  Look  at  the  residual  map  we produced earlier. Do you think that the residuals look different in the South and in the North? If the pattern is not clear to you, you may want to run other forms of visualisation. 
- 
-```{r}
-
-ggplot(ncovr_sf, aes(x = res_fit1, colour = as.factor(SOUTH))) + 
-  geom_density() 
-```
-
-What do you see in this plot? And, critically, what does it mean? What is this telling you about the predicted values that result from our model? (Remember what a residual is: the difference between the observed values and the predicted values). 
-
-There are formal tests that one can use to further explore these issues. The paper by Bollen et al. (2001) mentions them (Chow tests). But those are beyond the scope of this course. Sufficient to say that,  as  Bollen  et  al.  (2001),  we  are  going  to  split  our  analysis  and  run  them  separately  for  the Southern and the Northern states. We have covered the `filter()` function from `dplyr` to split datasets based on values of a variable. But to split `sf` objects it is better to rely on the more generic subset function, since `filter()` doesn't accommodate well the column with the geographic information that `sf` provides.
-
-```{r}
-ncovr_s_sf <- subset(ncovr_sf, SOUTH == 1)
-ncovr_n_sf <- subset(ncovr_sf, SOUTH == 0)
-```
- `DV90` divorce rate, `MA90` the median age, `PS90` - population structure, and `UE90` unemployment. 
+So, in our example, what we are saying is that homicide rates in one county may be affecting the level of homicide in nearby (however we define "nearby") counties.
 
 ## Lagrange multipliers
 
 The Moran's I test statistic has high power against a range of spatial alternatives. However, it does not provide much help in terms of which alternative model would be most appropriate. The Lagrange Multiplier test statistics do allow a distinction between spatial error models and spatial lag models. 
 
-In order to practice their computation and interpretation, let's run two separate OLS regression models (one for the South and one for the North), using the same predictors as we used last week and, first, focusing on homicide in the northern counties in the 1990s. We have split the data in two, so that means that before we do this we need to create new files for the spatial weight matrix: in particular we will create one using first order queen criteria. 
-
-```{r}
-#We coerce the sf object into a new sp object
-ncovr_n_sp <- as(ncovr_n_sf, "Spatial")
-#Then we create a list of neighbours using the Queen criteria
-w_n <- poly2nb(ncovr_n_sp, row.names=ncovr_n_sp$FIPSNO)
-wm_n <- nb2mat(w_n, style='B')
-rwm_n <- mat2listw(wm_n, style='W')
-
-fit_2 <- lm(HR60 ~ RD60 + DV60 + MA60 + PS60 +UE60, data=ncovr_n_sf)
-```
-
-First  look  at  the  Moran's  I. 
-
-```{r}
-lm.morantest(fit_2, rwm_n, alternative="two.sided")
-```
-
-The  p  (probability)  value  associated  with  this  Moran's  I  is below our standard threshold. So we will say that we have an issue with spatial autocorrelation that we need to deal with. OLS regression won't do. In order to decide whether to fit a spatial error or a spatially lagged model we need to run the Lagrange Multipliers. 
-
 Both Lagrange multiplier tests (for the error and the lagged models, `LMerr` and `LMlag` respectively), as well as their robust forms (`RLMerr` and `RLMLag`, also respectively) are included in the `lm.LMtests` function. Again, a regression object and a spatial `listw` object must be passed as arguments. In addition, the tests must be specified as a character vector (the default is only `LMerror`), using the `c( )` operator (concatenate), as illustrated below. 
 
 ```{r}
-lm.LMtests(fit_2, rwm_n, test = c("LMerr","LMlag","RLMerr","RLMlag","SARMA"))
+eq_70 <- HR70 ~ RD70 + PS70 + MA70 + DV70 + UE70
+fit_3_70 <- lm(eq_70, data=ncovr)
+lm.LMtests(fit_3_70, rwm, test = c("LMerr","LMlag","RLMerr","RLMlag"))
 ```
 
-How do we interpret  the  Lagrange  Multipliers?  First  we  look  at the standard  ones (`LMerr` and `LMlag`).  **If  both**  are  below the .05 level this means we need to have a look at the robust version of these tests (Robust LM). 
+How do we interpret  the  Lagrange  Multipliers?  First  we  look  at the standardones (`LMerr` and `LMlag`).  **If  both**  are  below the .05 level, like here, this means we need to have a look at the robust version of these tests (Robust LM). 
 
 If the non-robust version is not significant, the mathematical properties of the robust tests may not hold, so we don't look at them in those scenarios. It is fairly common to find that both the lag (`LMlag`) and the error (`LMerr`) non-robust LM are significant. If only one of them were: problem solved. We would choose a spatial lag or a spatial error model according to this (i.e., if the lag LM was significant and the error LM was not we would run a spatial lag model or viceversa). Here we see that both are significant, thus, we need to inspect their robust versions.
 
-Yet we look at the robust Lagrange multipliers (`RLMlag` and `RLMerr`) and encounter that both are significant again. What do we do? Luc Anselin (2008: 199-200) proposes the following criteria: 
+When we look at the robust Lagrange multipliers (`RLMlag` and `RLMerr`) here we can see only the Lagrange for the error model is significant, which suggest we need to fit a spatial error model. But there may be occassions when both are as well significant. What do we do then? Luc Anselin (2008: 199-200) proposes the following criteria: 
 
-*"When both LM test statistics reject the null hypothesis, proceed to the bottom part of the graph and consider the Robust forms of the test statistics. Typically, only one of them will be significant, or one will be orders of magnitude more significant than the other (e.g., p < 0.00000 compared to p < 0.03). In  that  case  the  decision  is  simple:  estimate  the  spatial  regression  model  matching  the  (most) significant" robust "statistic. In the rare instance that both would be highly significant, go with the model with the largest value for the test statistic. However, in this situation, some caution is needed, since there may be other sources of misspecification. One obvious action to take is to consider the results for different spatial weight and/or change the basic (i.e., not the spatial part) specification of the model. there are also rare instances where neither of the Robust LM test statistics are significant. In those cases, more serious specification problems are likely present and those should be addressed first".*
+*"When both LM test statistics reject the null hypothesis, proceed to the bottom part of the graph and consider the Robust forms of the test statistics. Typically, only one of them will be significant, or one will be orders of magnitude more significant than the other (e.g., p < 0.00000 compared to p < 0.03). In  that  case  the  decision  is  simple:  estimate  the  spatial  regression  model  matching  the  (most) significant" robust "statistic. In the rare instance that both would be highly significant, go with the model with the largest value for the test statistic. However, in this situation, some caution is needed, since there may be other sources of misspecification. One obvious action to take is to consider the results for different spatial weight and/or change the basic (i.e., not the spatial part) specification of the model. There are also rare instances where neither of the Robust LM test statistics are significant. In those cases, more serious specification problems are likely present and those should be addressed first".*
 
-By other specification errors Prof. Anselin refers to problems with some of the other assumptions of regression that we covered last week. 
- 
-Ok, so let's go back to our results and keep this criteria in mind. Both Robust LM are significant, but we can see that the test for the lag model is several orders more significant than for the error model (p < 0.0000251 vs p < 0.004). Notice as well that the test value is higher for the lag model (18 versus 8). In this case we would say that the Lagrange Multiplier tests suggest we estimate a spatial lag model rather than a spatial error model.
+By other specification errors Prof. Anselin refers to problems with some of the other assumptions of regression that you should be familiar with. 
 
-**HOMEWORK 9.2**
-*Run  a  OLS regression  model  for  homicide  rate  in  1980  for  the  Southern  states  using  the covariates we have been using so far and make sure that you ask for the spatial dependence tests and the Lagrange Multipliers (attach the results). What model do you think need to be estimated in this case? The spatial lag or the spatial error model*
+## Fitting an interpreting a spatial error model
+
+We just saw that for the case of homicide in the 90s  the spatial error model was more appropriate when using the 1st  order contiguity queen criteria. In this case then, we need to run a spatial error model.
+
+Maximum likelihood estimation of the spatial error model is implemented in the `spatialreg::errorsarlm()` function. The formula, data set and a `listw` spatial weights object must be specified, as illustrated below.
+
+```{r}
+fit_3_err <- errorsarlm(equation_1, data=ncovr, rwm)
+summary(fit_3_err)
+```
+
+The  spatial  lag  model  is  probably  the  most  common  specification  and  maybe  the  most  generally useful way to think about spatial dependence. But we can also enter the spatial dependence as, we mentioned trough the error term in our regression equation. Whereas the spatial lag model sees the spatial dependence as substantively meaningful (in that y, say homicide, in county i is influenced by homicide  in  its  neighbours), the  spatial  error  model  simply  treats  the  spatial  dependence  as  a nuisance. 
+
+This model focuses on estimating the regression parameters for the explanatory variables of interest and disregards the possibility that the spatial clustering, the spatial autocorrelation, may reflect something meaningful (other than attributional dependence as explained earlier). So instead of assuming that a spatial lag influences the dependent variable we estimate a model that relaxes the standard  regression model  assumption  about  the  need  for the  errors  to  be  independent.  It's beyond the scope of this introductory course to cover the mathematical details of this procedure, though you can use the suggested reading (particularly the highly accessible Ward and Gleditsch,2008, book or the more recent Darmofal, 2015) or some of the other materials we discussed at the end of the chapter.
+
+How  do  you  interpret  these  results?  First  you  need  to  look at the  general measures  of  fit  of  the model. I know what you are thinking. Look at the R Square and compare them, right? Well, don't. This R Square is not a real R Square, but a pseudo-R Square and therefore is not comparable to the one  we  obtain  from  the  OLS  regression  model. Instead  we  can look at the Akaike Information Criterion (AIC). We can see the AIC is better for the spatial model (18571) than for the non spatial model (18683). 
+
+In this case, you can compare the regression coefficients with those from the OLS model, since we don't have a spatial lag capturing some of their effect. Notice how one of the most notable differences is the fact that median age is no longer significant in the new model. We are using here the first order queen criteria, but in real practice you would need to explore whether this is the best definition and one that makes theoretical sense. Typically you would want to run the models with several specifications of the spatial weight matrix and find out how robust the findings are to various specifications.
 
 ## Fitting and interpreting a spatially lagged model
 
-Maximum Likelihood (ML) estimation of the spatial lag model is carried out with the `lagsarlm()` function. The required arguments are a regression "formula", a data set and a `listw` spatial weights object. The default method uses Ord's eigenvalue decomposition of the spatial weights matrix. 
+We saw that in this case a spatial error model was more appropriate, but we also saw earlier in one of the simpler models that there was an interaction between the variable indicating the county is in the South and one of the explanatory variables. This is suggestive of the kind of spatial heterogeneity we were discussing a the outset of the chapter. When the relationship of the explanatory variables is not constant across the study area we need to take this into account. A fairly crude approach is to partition the data. We could, in this example, partition the data into Southern and Northern counties and run separate models for this two subsets of the data. We are going to focus on the Southern countries and in a different decade, in which the lag model (as we will see) is more appropriate.
 
 ```{r}
-fit_2_lag <- lagsarlm(HR60 ~ RD60 + DV60 + MA60 + PS60 + UE60, data=ncovr_n_sf, rwm_n)
-summary(fit_2_lag)
+# Let´s look at southern counties
+ncovr_s_sf <- subset(ncovr, SOUTH == 1)
+#We coerce the sf object into a new sp object
+ncovr_s_sp <- as(ncovr_s_sf, "Spatial")
+#Then we create a list of neighbours using the Queen criteria
+xy_s <- coordinates(ncovr_s_sp)
+nb_s_k10 <- knn2nb(knearneigh(xy_s, k = 10))
+rwm_s <- nb2mat(nb_s_k10, style='W')
+rwm_s <- mat2listw(rwm_s, style='W')
+# we create new equation, this time excluding the southern dummy
+equation_2 <- HR70 ~ RD70 + PS70 + MA70 + DV70 + UE70
+fit_4 <- lm(equation_2, data=ncovr_s_sf)
+lm.morantest(fit_4, rwm_s, alternative="two.sided")
+lm.LMtests(fit_4, rwm_s, test = c("LMerr","LMlag","RLMerr","RLMlag"))
 ```
 
-As expected, the spatial autoregressive parameter (Rho) is highly significant, as indicated by the p-value of 0.000114 on an asymptotic t-test (based on the asymptotic variance matrix). The Likelihood Ratio test (LR) on this parameter is also highly significant (p value 9.9874e-05).
+Maximum Likelihood (ML) estimation of the spatial lag model is carried out with the `spatreg::lagsarlm()` function. The required arguments are again a regression "formula", a data set and a `listw` spatial weights object. The default method uses Ord's eigenvalue decomposition of the spatial weights matrix. 
 
-Just to reiterate, we run the spatial lag model not only because the Lagrange Multiplier suggests this may be appropriate, but also because in this case we believe that the values of y in one county, i, are directly influenced by the values of y that exist in the "neighbors" of i. This is an influence that goes beyond  other  explanatory  variables  that  are specific  to  i.  Remember  what  we  said  earlier  in  the spatial lag model we are simply adding as an additional explanatory variable the values of y in the surrounding area. What we mean by "surrounding" will be defined by our spatial weight matrix. It's important to emphasise that one has to think very carefully and explore appropriate definitions of "surrounding" (as we discussed, though just superficially, in the section on spatial clustering a few weeks ago). We are using here the first order queen criteria, but in real practice you would need to explore whether this is the best definition and one that makes theoretical sense. 
- 
-How  do  you  interpret  these  results?  First  you  need  to  look at the  general measures  of  fit  of  the model. I know what you are thinking. Look at the R Square and compare them, right? Well, don't. This R Square is not a real R Square, but a pseudo-R Square and therefore is not comparable to the one  we  obtain  from  the  OLS  regression  model. Instead  we  can look at the Akaike Information Criterion (AIC). We see that the lag model has a AIC of 8562.9 whereas the linear model with no lags has a AIC of 8576, so this is telling us there is a better fit when we include the spatial lag.
+```{r}
+fit_3_lag <- lagsarlm(equation_2, data=ncovr_s_sf, rwm_s)
+summary(fit_3_lag)
+```
 
-In our spatial lag model you will notice that there is a new term Rho. What is this? This is our spatial lag. It is a variable that measures the homicide rate in the counties that are defined as surrounding each county in our spatial weight matrix. We are simply using this variable as an additional explanatory variable to our model, so that we can appropriately take into account  the  spatial  clustering  detected  by our  Moran's  I  test.  You will  notice  that  the  estimated coefficient  for  this  term is  both  positive and  statistically  significant.  In  other  words, when  the homicide rate in surrounding areas increases, so does the homicide rate in each country, even when we adjust for the other explanatory variables in our model. The fact the lag is significant adds further evidence that this is a better model than the OLS regression specification.
+Remember  what  we  said  earlier  in  the spatial lag model we are simply adding as an additional explanatory variable the values of y in the surrounding area. What we mean by "surrounding" will be defined by our spatial weight matrix. It's important to emphasise that one has to think very carefully and explore appropriate definitions of "surrounding". 
+
+In our spatial lag model you will notice that there is a new term Rho. What is this? This is our spatial lag. It is a variable that measures the homicide rate in the counties that are defined as surrounding each county in our spatial weight matrix. We are simply using this variable as an additional explanatory variable to our model, so that we can appropriately take into account  the  spatial  clustering detected  by our  Moran's  I  test.  You will  notice  that  the  estimated coefficient  for  this  term is  both  positive and  statistically  significant.  In  other  words, when  the homicide rate in surrounding areas increases, so does the homicide rate in each country, even when we adjust for the other explanatory variables in our model. 
 
 You also see at the bottom further tests for spatial dependence, a likelihood ratio test. This is not a test for residual spatial autocorrelation after we introduce our spatial lag. What you want is for this test to be significant because in essence is further evidence that the spatial lag model is a good fit. 
  
-How about the coefficients? It may be tempting to look at the regression coefficients for the other explanatory variables for the original OLS model and compare them to those in the spatial lag model. But  you  should  be  careful  when  doing  this.  Their  meaning  now  has  changed:
+How about the coefficients? It may be tempting to look at the regression coefficients for the other explanatory variables for the original OLS model and compare them to those in the spatial lag model. But  you  should  be  careful  when doing  this.  Their  meaning  now  has  changed:
 
-*"Interpreting  the substantive  effects  of  each  predictor  in  a spatial lag  model  is  much  more  complex  than  in  a nonspatial model (or in a spatial error model) because of the presence of the spatial multiplier that links  the  independent  variables  to  the  dependent.  In  the nonspatial model,  it  does  not  matter which unit is experiencing the change on the independent variable. The effect" in the dependent variable "of a change" in the value of an independent variable "is constant across all observations"* (Darmofal, 2015: 107). 
+*"Interpreting  the substantive  effects  of  each  predictor  in  a spatial lag  model  is  much  more  complex  than  in  a nonspatial model (or in a spatial error model) because of the presence of the spatial multiplier that links  the  independent  variables  to  the  dependent.  In  the nonspatial model, it  does  not  matter which unit is experiencing the change on the independent variable. The effect" in the dependent variable "of a change" in the value of an independent variable "is constant across all observations"* (Darmofal, 2015: 107). 
 
 Remember we say, when interpreting a regression coefficient for variable X~i,  that they indicate how much Y goes up or down for every one unit increase in X~i  when holding all other variables in the model constant. In our example, for the nonspatial model this effect is the same  for  every  county  in  our  dataset.  But  in  the  spatial  lag  model  things  are  not  the  same.  We cannot interpret the regression coefficients for the substantive predictors in the same way because the "substantive effects of the independent variables vary by observation as a result of the different neighbors for each unit in the data" (Darmofal, 2015: 107).
 
@@ -337,36 +325,22 @@ fit_1_OLS <- lm(HR60 ~ RD60 + DV60 + MA60 + PS60 +UE60, data=ncovr_n_sf)
 summary(fit_1_OLS)
 ```
 
-## Fitting an interpreting a spatial error model
+## Further reading
 
-We saw (well you should have seen!) that for the case of homicide in the 80s for Southern states the spatial error model was more appropriate when using the 1 st  order contiguity queen criteria. In this case then, we need to run a spatial error model.
-
-Maximum likelihood estimation of the spatial error model is similar to the lag procedure and implemented in the `errorsarlm()` function. Again, the formula, data set and a `listw` spatial weights object must be specified, as illustrated below.
-
-```{r}
-#We coerce the sf object into a new sp object
-ncovr_s_sp <- as(ncovr_s_sf, "Spatial")
-#Then we create a list of neighbours using the Queen criteria
-w_s <- poly2nb(ncovr_s_sp, row.names=ncovr_s_sp$FIPSNO)
-wm_s <- nb2mat(w_s, style='B')
-rwm_s <- mat2listw(wm_s, style='W')
-
-fit_3_err <- errorsarlm(HR80 ~ RD80 + DV80 + MA80 + PS80 + UE80, data=ncovr_s_sf, rwm_s)
-summary(fit_3_err)
-```
-
-The  spatial  lag  model  is  probably  the  most  common  specification  and  maybe  the  most  generally useful way to think about spatial dependence. But we can also enter the spatial dependence as, we mentioned trough the error term in our regression equation. Whereas the spatial lag model sees the spatial dependence as substantively meaningful (in that y, say homicide, in county i is influenced by homicide  in  its  neighbours), the  spatial  error  model  simply  treats  the  spatial  dependence  as  a nuisance. 
-
-This model focuses on estimating the regression parameters for the explanatory variables of interest and disregards the possibility that the spatial clustering, the spatial autocorrelation, may reflect something meaningful (other than attributional dependence as explained earlier). So instead of assuming that a spatial lag influences the dependent variable we estimate a model that relaxes the  standard  regression model  assumption  about  the  need  for the  errors  to  be  independent.  It's beyond the scope of this introductory course to cover the mathematical details of this procedure, though you can use the suggested reading (particularly the highly accessible Ward and Gleditsch,2008, book or the more recent Darmofal, 2015) or some of the video lectures in the matter that are available in the GeoDa website.
-
-As before the AIC is better for the spatial model (8786) than for the non spatial model (8845). In this case, you can compare the regression coefficients with those from the OLS model, since we don't have a spatial lag capturing some of their effect. Notice how one of the most notable differences is the fact that unemployment nearly halves its impact in the new model. You will see the table includes a new parameter  (lambda)  but  you  don't  need  to  worry about  this for  the  purpose  of  the  course.  It  is something you would understand if you get into the mathematical estimation details.
-
-**HOMEWORK 9.3**
-
-*Estimate an appropriate regression model for the homicide rate for the 1970s for the Northern States. Justify and interpret the model that you have selected.*
-
-
+The area
 -@Tita_2010
 -@Bernasco_2010
+"It is important to recognize that these models for spatial lag and spatial 
+error processes are designed to yield indirect evidence of diffusion in 
+cross-sectional data. However, any diffusion process ultimately requires 
+“vectors of transmission,” i.e., identifiable mechanisms through which 
+events in a given place at a given time influence events in another place at 
+a later time. The spatial lag model, as such, is not able to discover these 
+mechanisms.“ Rather, it depicts a spatial imprint at a given instant of time 
+that would be expected to emerge if the phenomenon under investigation 
+were to be characterized by a diffusion process. The observation of spatial 
+effects thus indicates that further inquiry into diffusion is warranted, 
+whereas the failure to observe such effects implies that such inquiry is 
+likely to be unfruitful." (-@Baller_2001: 567)
 
-
+-@Arbia_2014
