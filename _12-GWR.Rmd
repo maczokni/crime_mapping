@@ -24,7 +24,7 @@ GWR works by moving a search window from one point in a data set to the next, wo
 library(sf)
 
 toronto <- st_read("data/toronto_c.geojson")
-crimes <- st_read("data/neighbourhood-crime-rates.geojson")
+# crimes <- st_read("data/neighbourhood-crime-rates.geojson")
 ksi_collisions <- st_read("data/Motor Vehicle Collisions with KSI Data.geojson")
 wellbeing <- readxl::read_xlsx("data/wellbeing-toronto-environment.xlsx")
 
@@ -77,6 +77,58 @@ ggplot() +
   scale_color_gradient2()
 
 ```
+
+
+
+
+```{r}
+
+thing <- ksi_collisions %>% 
+  filter(YEAR == 2018) %>% 
+  st_drop_geometry() %>% 
+  group_by(INVTYPE, INJURY) %>% count()
+
+length(unique(ksi_collisions$ACCNUM))
+
+library(tidyr)
+
+thing <- ksi_collisions %>% 
+  st_drop_geometry() %>% 
+  group_by(ACCNUM, INVTYPE) %>% 
+  count() %>% 
+  pivot_wider(id_cols = ACCNUM, names_from = INVTYPE, values_from = n) %>% 
+  replace_na()
+
+
+df <- tibble(x = c(1, 2, NA), y = c("a", NA, "b"))
+
+
+```
+
+
+
+```{r}
+
+accs_2019 <- ksi_collisions %>% 
+  filter(YEAR == 2019) %>% 
+  st_drop_geometry() 
+
+  group_by(ACCNUM, LIGHT, VISIBILITY, RDSFCOND) %>% 
+  # summarise(prop_ksi = mean(ksi))
+  summarise(prop_ksi = sum(ksi),
+            speed = ifelse(sum(speed, na.rm = T)> 0, 1, 0),
+            agg_driv = ifelse(sum(agg_driv, na.rm = T)> 0, 1, 0),
+            red_light = ifelse(sum(red_light, na.rm = T)> 0, 1, 0),
+            alcohol = ifelse(sum(alcohol, na.rm = T)> 0, 1, 0), 
+         visibility = ifelse(VISIBILITY == "Clear", 0, 1), 
+         daylight = ifelse(LIGHT == "Daylight", 0, 1), 
+         rd_dry = ifelse(RDSFCOND == "Dry", 0, 1)
+         ) 
+
+num_ksi <- num_ksi %>% unique()
+
+```
+
 
 
 ## Recommended reading
