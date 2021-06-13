@@ -126,9 +126,10 @@ In `tmap` you can use `tm_symbols` for this. As noted, with `tmap` you can produ
 
 ```{r, message=FALSE}
 tmap_mode("plot")
+
 tm_shape(manchester) + 
   tm_bubbles("count")
-  
+
 ```
 
 Each bubble represents the number of crimes in each LSOA within the city of Manchester. We can add the borders of the census areas for better representation. The `border.lwd` argument set to NA in the `tm_bubbles()` is asking R not to draw a border to the circles. Whereas `tm_borders()` brings back a layer with the borders of the polygons representing the different LSOAs in Manchester city. Notice how we are modifying the transparency of the borders with the alpha parameter. In addition, we are adding a `tm_layout()` function that makes explicit where and how we want the legend.
@@ -146,8 +147,7 @@ tm_shape(manchester) +
   tm_borders(alpha=0.1) +      
   #use tm_layout to make the legend look nice
   tm_layout(legend.position = c("right", "bottom"), 
-            legend.title.size = 0.8,
-            legend.text.size = 0.5)
+            legend.title.size = 0.8, legend.text.size = 0.5)
 ```
 
 
@@ -161,8 +161,7 @@ tm_shape(manchester) +
   tm_bubbles("count", border.lwd=NA, perceptual = TRUE) + 
   tm_borders(alpha=0.1) +                           
   tm_layout(legend.position = c("right", "bottom"), 
-            legend.title.size = 0.8,
-            legend.text.size = 0.5)
+            legend.title.size = 0.8, legend.text.size = 0.5)
 ```
 
 ## Mapping rates rather than counts
@@ -336,8 +335,7 @@ map1 <- tm_shape(manchester) +
   # and give the map a title
   tm_fill("crimr1", style="equal", title = "Equal") + 
   tm_layout(legend.position = c("left", "top"),   
-            legend.title.size = 0.7,
-            legend.text.size = 0.5)
+            legend.title.size = 0.7, legend.text.size = 0.5)
 
 ```
 
@@ -348,8 +346,7 @@ Now create *map2*, with the jenks method often preferred by geographers:
 map2 <- tm_shape(manchester) + 
   tm_fill("crimr1", style="jenks", title = "Jenks") +
   tm_layout(legend.position = c("left", "top"), 
-            legend.title.size = 0.7,
-            legend.text.size = 0.5)
+            legend.title.size = 0.7, legend.text.size = 0.5)
 
 ```
 
@@ -360,8 +357,7 @@ Now create *map3*, with the quantile method often preferred by epidemiologists:
 map3 <- tm_shape(manchester) + 
   tm_fill("crimr1", style="quantile", title = "Quantile") +
   tm_layout(legend.position = c("left", "top"), 
-            legend.title.size = 0.7,
-            legend.text.size = 0.5)
+            legend.title.size = 0.7, legend.text.size = 0.5)
 
 ```
 
@@ -372,8 +368,7 @@ Let´s make *map4*, standard deviation map, which maps the values of our variabl
 map4 <- tm_shape(manchester) + 
   tm_fill("crimr1", style="sd", title = "Standard Deviation") +
   tm_layout(legend.position = c("left", "top"), 
-            legend.title.size = 0.7,
-            legend.text.size = 0.5)
+            legend.title.size = 0.7, legend.text.size = 0.5)
 
 ```
 
@@ -383,8 +378,7 @@ And finally let´s make *map5*, which is handy with skewed distributions.
 map5 <- tm_shape(manchester) + 
   tm_fill("crimr1", style="headtails", title = "Headtails") +
   tm_layout(legend.position = c("left", "top"), 
-            legend.title.size = 0.7,
-            legend.text.size = 0.5)
+            legend.title.size = 0.7, legend.text.size = 0.5)
 ```
 
 Notice that we are not plotting the maps, we are storing them into R objects (map1 to map5). This way they are saved, and you can call them later, which is what we need in order to plot them together using the `tmap_arrange()` function. 
@@ -429,14 +423,13 @@ tmap_mode("view")
 
 When you use `tmap`, R will remember the mode you want to use. So once you specify `tmap_mode("view")`, all the subsequent maps will be interactive. It is only when you want to change this behaviour that you would need another `tmap_mode()` call. When using the interactive view we can also add a basemap with the `tm_basemap()` function and passing as an argument a particular source for the basemap. Here we specify OpenStreetMap, but there are many other choices (for a complete listing and preview see http://leaflet-extras.github.io/leaflet-providers/preview ).
 
-Let´s explore the distribution of the two alternative definitions of crime rates with in an interactive way. 
+Let´s explore the distribution of the two alternative definitions of crime rates in an interactive way. 
 
 ```{r, cache=FALSE}
 
 tm_shape(manchester) + 
   tm_fill("crimr1", style="jenks", palette= "Reds", 
-          title = "Crime per residential pop", alpha = 0.6,
-          ) +
+          title = "Crime per residential pop", alpha = 0.6) +
   tm_basemap(leaflet::providers$OpenStreetMap)
 
 ```
@@ -563,24 +556,21 @@ map1<- tm_shape(ncovr) +
           title = "Raw rate", 
           palette = "Reds") +
   tm_layout(legend.position = c("left", "bottom"), 
-            legend.title.size = 0.8,
-            legend.text.size = 0.5)
+            legend.title.size = 0.8, legend.text.size = 0.5)
 
 map2<- tm_shape(ncovr) + 
   tm_fill("HR60EBS", style="quantile", 
           title = "EB Smooth", 
           palette = "Reds") +
   tm_layout(legend.position = c("left", "bottom"), 
-            legend.title.size = 0.8,
-            legend.text.size = 0.5)
+            legend.title.size = 0.8, legend.text.size = 0.5)
 
 map3<- tm_shape(ncovr) + 
   tm_fill("HR60EBSL", style="quantile", 
           title = "Local Smooth", 
           palette = "Reds") +
   tm_layout(legend.position = c("left", "bottom"), 
-            legend.title.size = 0.8,
-            legend.text.size = 0.5)
+            legend.title.size = 0.8, legend.text.size = 0.5)
 
 tmap_arrange(map1, map2, map3) 
 ```

@@ -1885,15 +1885,12 @@ Let's have a look at the bar called ``Night \& Day.'' We can select this from th
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{nd }\OtherTok{\textless{}{-}}\NormalTok{ cc\_bars }\SpecialCharTok{\%\textgreater{}\%} 
-  \FunctionTok{filter}\NormalTok{(name }\SpecialCharTok{==} \StringTok{"Night \& Day"}\NormalTok{) }
+\NormalTok{nd }\OtherTok{\textless{}{-}}\NormalTok{ cc\_bars }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(name }\SpecialCharTok{==} \StringTok{"Night \& Day"}\NormalTok{) }
 
-\NormalTok{nd\_buffer }\OtherTok{\textless{}{-}}\NormalTok{ bar\_buffer\_100 }\SpecialCharTok{\%\textgreater{}\%} 
-  \FunctionTok{filter}\NormalTok{(name }\SpecialCharTok{==} \StringTok{"Night \& Day"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} 
-  \FunctionTok{st\_transform}\NormalTok{(}\DecValTok{4326}\NormalTok{)}
+\NormalTok{nd\_buffer }\OtherTok{\textless{}{-}}\NormalTok{ bar\_buffer\_100 }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(name }\SpecialCharTok{==} \StringTok{"Night \& Day"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{st\_transform}\NormalTok{(}\DecValTok{4326}\NormalTok{) }\CommentTok{\# transform CRS}
 
-\NormalTok{nd\_crimes }\OtherTok{\textless{}{-}}\NormalTok{ crime\_w\_bars }\SpecialCharTok{\%\textgreater{}\%} 
-  \FunctionTok{filter}\NormalTok{(nearest\_bar}\SpecialCharTok{$}\NormalTok{name  }\SpecialCharTok{==} \StringTok{"Night \& Day"}\NormalTok{)  }
+\NormalTok{nd\_crimes }\OtherTok{\textless{}{-}}\NormalTok{ crime\_w\_bars }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(nearest\_bar}\SpecialCharTok{$}\NormalTok{name  }\SpecialCharTok{==} \StringTok{"Night \& Day"}\NormalTok{)  }
 \end{Highlighting}
 \end{Shaded}
 
@@ -1958,8 +1955,7 @@ Once you have them installed, load them up with the \texttt{library()} function.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{m }\OtherTok{\textless{}{-}} \FunctionTok{leaflet}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
-  \FunctionTok{addTiles}\NormalTok{()  }
+\NormalTok{m }\OtherTok{\textless{}{-}} \FunctionTok{leaflet}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{addTiles}\NormalTok{()  }
 \end{Highlighting}
 \end{Shaded}
 
@@ -1979,8 +1975,7 @@ You can add a point manually:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{m }\OtherTok{\textless{}{-}} \FunctionTok{leaflet}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
-  \FunctionTok{addTiles}\NormalTok{()  }\SpecialCharTok{\%\textgreater{}\%} 
+\NormalTok{m }\OtherTok{\textless{}{-}} \FunctionTok{leaflet}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{addTiles}\NormalTok{()  }\SpecialCharTok{\%\textgreater{}\%} 
   \FunctionTok{addMarkers}\NormalTok{(}\AttributeTok{lng=}\SpecialCharTok{{-}}\FloatTok{2.230899}\NormalTok{,  }\CommentTok{\# longitude}
              \AttributeTok{lat=}\FloatTok{53.464987}\NormalTok{,  }\CommentTok{\# latitude}
              \AttributeTok{popup=}\StringTok{"University of Manchester"}\NormalTok{) }\CommentTok{\# text for popup}
@@ -1999,14 +1994,11 @@ You can add many points manually, with some popup text as well:
 \CommentTok{\# create dataframe of latitude, longitude, and popups}
 \NormalTok{latitudes }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\FloatTok{53.464987}\NormalTok{, }\FloatTok{53.472726}\NormalTok{, }\FloatTok{53.466649}\NormalTok{) }
 \NormalTok{longitudes }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\FloatTok{2.230899}\NormalTok{, }\SpecialCharTok{{-}}\FloatTok{2.245481}\NormalTok{, }\SpecialCharTok{{-}}\FloatTok{2.243421}\NormalTok{) }
-\NormalTok{popups }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"You are here"}\NormalTok{, }
-           \StringTok{"Here is another point"}\NormalTok{, }
-           \StringTok{"Here is another point"}\NormalTok{) }
+\NormalTok{popups }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"You are here"}\NormalTok{, }\StringTok{"Here is another point"}\NormalTok{, }\StringTok{"Here is another point"}\NormalTok{) }
 \NormalTok{df }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(latitudes, longitudes, popups)      }
 
 \CommentTok{\# create leaflet map}
-\NormalTok{m }\OtherTok{\textless{}{-}} \FunctionTok{leaflet}\NormalTok{(}\AttributeTok{data =}\NormalTok{ df) }\SpecialCharTok{\%\textgreater{}\%}
-  \FunctionTok{addTiles}\NormalTok{()  }\SpecialCharTok{\%\textgreater{}\%}  
+\NormalTok{m }\OtherTok{\textless{}{-}} \FunctionTok{leaflet}\NormalTok{(}\AttributeTok{data =}\NormalTok{ df) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{addTiles}\NormalTok{()  }\SpecialCharTok{\%\textgreater{}\%}  
   \FunctionTok{addMarkers}\NormalTok{(}\AttributeTok{lng=}\SpecialCharTok{\textasciitilde{}}\NormalTok{longitudes, }\AttributeTok{lat=}\SpecialCharTok{\textasciitilde{}}\NormalTok{latitudes, }\AttributeTok{popup=}\SpecialCharTok{\textasciitilde{}}\NormalTok{popups)}
 
 \CommentTok{\#print leaflet map}
@@ -2024,10 +2016,7 @@ Let's create this palette and save in an object called \texttt{pal} for palette:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{pal }\OtherTok{\textless{}{-}} \FunctionTok{colorBin}\NormalTok{(}\StringTok{"RdPu"}\NormalTok{, }
-                \AttributeTok{domain =}\NormalTok{ crimes\_per\_prem}\SpecialCharTok{$}\NormalTok{n, }
-                \AttributeTok{bins =} \DecValTok{5}\NormalTok{, }
-                \AttributeTok{pretty =} \ConstantTok{TRUE}\NormalTok{)}
+\NormalTok{pal }\OtherTok{\textless{}{-}} \FunctionTok{colorBin}\NormalTok{(}\StringTok{"RdPu"}\NormalTok{, }\AttributeTok{domain =}\NormalTok{ crimes\_per\_prem}\SpecialCharTok{$}\NormalTok{n, }\AttributeTok{bins =} \DecValTok{5}\NormalTok{, }\AttributeTok{pretty =} \ConstantTok{TRUE}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -2073,8 +2062,7 @@ We can then use the \texttt{geocode()} function to get coordinates for this addr
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{addresses }\SpecialCharTok{\%\textgreater{}\%} 
-  \FunctionTok{geocode}\NormalTok{(address, }\AttributeTok{method =} \StringTok{\textquotesingle{}osm\textquotesingle{}}\NormalTok{)}
+\NormalTok{addresses }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{geocode}\NormalTok{(address, }\AttributeTok{method =} \StringTok{\textquotesingle{}osm\textquotesingle{}}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -2097,8 +2085,7 @@ So without dragging this on any further, let's read in the licensed premises dat
 \begin{Highlighting}[]
 \NormalTok{data\_url }\OtherTok{\textless{}{-}} \StringTok{"http://www.manchester.gov.uk/open/download/downloads/id/169/licensed\_premises.csv"}
 
-\NormalTok{lic\_prem }\OtherTok{\textless{}{-}} \FunctionTok{read\_csv}\NormalTok{(data\_url) }\SpecialCharTok{\%\textgreater{}\%} 
-  \FunctionTok{clean\_names}\NormalTok{()}
+\NormalTok{lic\_prem }\OtherTok{\textless{}{-}} \FunctionTok{read\_csv}\NormalTok{(data\_url) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{clean\_names}\NormalTok{()}
 \end{Highlighting}
 \end{Shaded}
 
@@ -2146,12 +2133,6 @@ Now we have these licenced premises geocoded, with brand new latitude and longit
 \end{Highlighting}
 \end{Shaded}
 
-\begin{verbatim}
-## Warning in validateCoords(lng, lat, funcName): Data
-## contains 4 rows with either missing or invalid lat/lon
-## values and will be ignored
-\end{verbatim}
-
 \includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-58-1.png}
 
 Geocoding may come in handy when we have address data, or something similar but no geometry to use to map it.
@@ -2195,8 +2176,7 @@ We went through a lot of steps there, so it's worth to check in and plot our dat
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\FunctionTok{leaflet}\NormalTok{(comisarias\_sf) }\SpecialCharTok{\%\textgreater{}\%} 
-  \FunctionTok{addTiles}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+\FunctionTok{leaflet}\NormalTok{(comisarias\_sf) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{addTiles}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
   \FunctionTok{addMarkers}\NormalTok{(}\AttributeTok{data =}\NormalTok{ comisarias\_sf) }\SpecialCharTok{\%\textgreater{}\%}
   \FunctionTok{addPolygons}\NormalTok{(}\AttributeTok{data =}\NormalTok{ madrid)}
 \end{Highlighting}
@@ -2418,11 +2398,8 @@ Now we are ready to use this data to plot a map. We can get creative, and use th
 \CommentTok{\# Bin ranges for a nicer color scale}
 \NormalTok{bins }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\FloatTok{0.02}\NormalTok{,}\FloatTok{1.74}\NormalTok{,}\FloatTok{3.82}\NormalTok{,}\FloatTok{7.95}\NormalTok{,}\FloatTok{18.18}\NormalTok{)}
 \CommentTok{\# Create a binned color palette}
-\NormalTok{pal }\OtherTok{\textless{}{-}} \FunctionTok{colorBin}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\StringTok{"\#0868AC"}\NormalTok{, }\StringTok{"\#43A2CA"}\NormalTok{, }\StringTok{"\#7BCCC4"}\NormalTok{, }
-                  \StringTok{"\#BAE4BC"}\NormalTok{, }\StringTok{"\#F0F9E8"}\NormalTok{), }
-                \AttributeTok{domain =}\NormalTok{ police\_distances}\SpecialCharTok{$}\NormalTok{distance\_km, }
-                \AttributeTok{bins =}\NormalTok{ bins, }
-                \AttributeTok{reverse =} \ConstantTok{TRUE}\NormalTok{)}
+\NormalTok{pal }\OtherTok{\textless{}{-}} \FunctionTok{colorBin}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\StringTok{"\#0868AC"}\NormalTok{, }\StringTok{"\#43A2CA"}\NormalTok{, }\StringTok{"\#7BCCC4"}\NormalTok{, }\StringTok{"\#BAE4BC"}\NormalTok{, }\StringTok{"\#F0F9E8"}\NormalTok{), }
+                \AttributeTok{domain =}\NormalTok{ police\_distances}\SpecialCharTok{$}\NormalTok{distance\_km, }\AttributeTok{bins =}\NormalTok{ bins, }\AttributeTok{reverse =} \ConstantTok{TRUE}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -2432,26 +2409,15 @@ Now let's create the map.
 \begin{Highlighting}[]
 \NormalTok{full\_map }\OtherTok{\textless{}{-}} \FunctionTok{leaflet}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%} 
   \FunctionTok{addTiles}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%} 
-  \FunctionTok{addMarkers}\NormalTok{(}\AttributeTok{data =}\NormalTok{ comisarias\_sf, }\AttributeTok{icon =} \SpecialCharTok{\textasciitilde{}}\NormalTok{police\_icon, }
-             \AttributeTok{group =} \StringTok{"Police stations"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} 
-  \FunctionTok{addPolygons}\NormalTok{(}\AttributeTok{data =}\NormalTok{ police\_distances[[}\DecValTok{1}\NormalTok{]], }
-              \AttributeTok{fillColor =} \FunctionTok{pal}\NormalTok{(police\_distances}\SpecialCharTok{$}\NormalTok{distance\_km), }
-              \AttributeTok{fillOpacity =} \FloatTok{0.8}\NormalTok{, }\AttributeTok{weight =}\DecValTok{0}\NormalTok{,}
-              \AttributeTok{opacity =} \DecValTok{1}\NormalTok{, }
-              \AttributeTok{color =} \StringTok{"transparent"}\NormalTok{, }
-              \AttributeTok{group =} \StringTok{"Distances"}\NormalTok{,}
-              \AttributeTok{highlight =} \FunctionTok{highlightOptions}\NormalTok{(}\AttributeTok{weight =} \FloatTok{2.5}\NormalTok{, }
-                                           \AttributeTok{color =} \StringTok{"\#666"}\NormalTok{, }
-                                           \AttributeTok{bringToFront =} \ConstantTok{TRUE}\NormalTok{, }
-                                           \AttributeTok{opacity=} \DecValTok{1}\NormalTok{), }
-              \AttributeTok{popupOptions =} \FunctionTok{popupOptions}\NormalTok{(}\AttributeTok{autoPan =} \ConstantTok{FALSE}\NormalTok{,}
-                                          \AttributeTok{closeOnClick =} \ConstantTok{TRUE}\NormalTok{, }
+  \FunctionTok{addMarkers}\NormalTok{(}\AttributeTok{data =}\NormalTok{ comisarias\_sf, }\AttributeTok{icon =} \SpecialCharTok{\textasciitilde{}}\NormalTok{police\_icon, }\AttributeTok{group =} \StringTok{"Police stations"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{addPolygons}\NormalTok{(}\AttributeTok{data =}\NormalTok{ police\_distances[[}\DecValTok{1}\NormalTok{]], }\AttributeTok{fillColor =} \FunctionTok{pal}\NormalTok{(police\_distances}\SpecialCharTok{$}\NormalTok{distance\_km), }
+              \AttributeTok{fillOpacity =} \FloatTok{0.8}\NormalTok{, }\AttributeTok{weight =}\DecValTok{0}\NormalTok{, }\AttributeTok{opacity =} \DecValTok{1}\NormalTok{, }\AttributeTok{color =} \StringTok{"transparent"}\NormalTok{, }\AttributeTok{group =} \StringTok{"Distances"}\NormalTok{,}
+              \AttributeTok{highlight =} \FunctionTok{highlightOptions}\NormalTok{(}\AttributeTok{weight =} \FloatTok{2.5}\NormalTok{, }\AttributeTok{color =} \StringTok{"\#666"}\NormalTok{, }
+                                           \AttributeTok{bringToFront =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{opacity=} \DecValTok{1}\NormalTok{), }
+              \AttributeTok{popupOptions =} \FunctionTok{popupOptions}\NormalTok{(}\AttributeTok{autoPan =} \ConstantTok{FALSE}\NormalTok{, }\AttributeTok{closeOnClick =} \ConstantTok{TRUE}\NormalTok{,}
                                           \AttributeTok{textOnly =}\NormalTok{ T)) }\SpecialCharTok{\%\textgreater{}\%} 
-   \FunctionTok{addLegend}\NormalTok{(}\AttributeTok{pal =}\NormalTok{ pal, }
-             \AttributeTok{values =}\NormalTok{ (police\_distances}\SpecialCharTok{$}\NormalTok{distance\_km), }
-             \AttributeTok{opacity =} \FloatTok{0.8}\NormalTok{,}
-             \AttributeTok{title =} \StringTok{"Distance (Km)"}\NormalTok{, }
-             \AttributeTok{position=} \StringTok{"bottomright"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} 
+   \FunctionTok{addLegend}\NormalTok{(}\AttributeTok{pal =}\NormalTok{ pal, }\AttributeTok{values =}\NormalTok{ (police\_distances}\SpecialCharTok{$}\NormalTok{distance\_km), }
+             \AttributeTok{opacity =} \FloatTok{0.8}\NormalTok{, }\AttributeTok{title =} \StringTok{"Distance (Km)"}\NormalTok{, }\AttributeTok{position=} \StringTok{"bottomright"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} 
   \FunctionTok{addLayersControl}\NormalTok{(}\AttributeTok{overlayGroups =} \FunctionTok{c}\NormalTok{(}\StringTok{"Police Stations"}\NormalTok{, }\StringTok{"Distances"}\NormalTok{),}
                    \AttributeTok{options =} \FunctionTok{layersControlOptions}\NormalTok{(}\AttributeTok{collapsed =} \ConstantTok{FALSE}\NormalTok{))}
 
@@ -2538,7 +2504,7 @@ Most choropleth maps you encounter are classified choropleth maps. They group th
 \hypertarget{crime-rates}{%
 \subsubsection{Crime rates}\label{crime-rates}}
 
-In a choropleth map you ``can'' show raw totals (absolute values), for example number of crimes, or derived values (ratios), crime per 100,000 inhabitants. But as a general rule, you should restrict choropleth maps to show derived variables such as rates or percentages (\protect\hyperlink{ref-Monmonier_1993}{Monmonier} (\protect\hyperlink{ref-Monmonier_1993}{1993}), \protect\hyperlink{ref-Field_2018}{Field} (\protect\hyperlink{ref-Field_2018}{2018})). This is because the areas we often use are of different size and this may introduce an element of confusion in the interpretation of choropleth maps. The size of say, a province or a county, ``has a big effect on the amount of color shown on the map, but unit area may have little relationship, or even an inverse relationship, to base populations and related counts.'' (\protect\hyperlink{ref-Brewer_2006}{C. Brewer} (\protect\hyperlink{ref-Brewer_2006}{2006}): S30)
+In a choropleth map you ``can'' show raw totals (absolute values), for example number of crimes, or derived values (ratios), crime per 100,000 inhabitants. But as a general rule, you should restrict choropleth maps to show derived variables such as rates or percentages (\protect\hyperlink{ref-Monmonier_1993}{Monmonier} (\protect\hyperlink{ref-Monmonier_1993}{1993}), \protect\hyperlink{ref-Field_2018}{Field} (\protect\hyperlink{ref-Field_2018}{2018})). This is because the areas we often use are of different size and this may introduce an element of confusion in the interpretation of choropleth maps. The size of say, a province or a county, ``has a big effect on the amount of color shown on the map, but unit area may have little relationship, or even an inverse relationship, to base populations and related counts.'' (\protect\hyperlink{ref-Brewer_2006}{Brewer} (\protect\hyperlink{ref-Brewer_2006}{2006}): S30)
 
 Mapping counts, mapping where a lot of the crime incidents concentrate is helpful, but we may want to understand as well if this is simply a function of the spatial distribution of the population at risk. As \protect\hyperlink{ref-Ratcliffe_2010}{Ratcliffe} (\protect\hyperlink{ref-Ratcliffe_2010}{2010}) suggests ``practitioners often recognize that a substantial density of crime in a location is sufficient information to initiate a more detailed analysis of the problem,'' but equally we may want to know if ``this clustering of crime is meaningfully non-random, and if the patterns observed are still present once the analysis has controlled for the population at risk.'' (p.~11-12).
 
@@ -2574,7 +2540,7 @@ Confusingly, though, you will find authors and practitioners that consider incid
 \hypertarget{proportional-and-graduate-symbol-maps-mapping-crime-counts}{%
 \subsection{Proportional and graduate symbol maps: mapping crime counts}\label{proportional-and-graduate-symbol-maps-mapping-crime-counts}}
 
-Proportional symbol maps, on the other hand, are used to represent quantitative variables for either areas or point locations. Each area get a symbol and the size represents the intensity of the variable. It is expected with this type of map that the reader could estimate the different quantities mapped out and to be able to detecting patterns across the map (\protect\hyperlink{ref-Field_2018}{Field} (\protect\hyperlink{ref-Field_2018}{2018})). The symbols typically will be squares or circles that are scaled ``in proportion to the square root of each data value so that symbol areas visually represent the data values'' (\protect\hyperlink{ref-Brewer_2006}{C. Brewer} (\protect\hyperlink{ref-Brewer_2006}{2006}): S29). Circles are generally used since they are considered to perform better in facilitating visual interpretation.
+Proportional symbol maps, on the other hand, are used to represent quantitative variables for either areas or point locations. Each area get a symbol and the size represents the intensity of the variable. It is expected with this type of map that the reader could estimate the different quantities mapped out and to be able to detecting patterns across the map (\protect\hyperlink{ref-Field_2018}{Field} (\protect\hyperlink{ref-Field_2018}{2018})). The symbols typically will be squares or circles that are scaled ``in proportion to the square root of each data value so that symbol areas visually represent the data values'' (\protect\hyperlink{ref-Brewer_2006}{Brewer} (\protect\hyperlink{ref-Brewer_2006}{2006}): S29). Circles are generally used since they are considered to perform better in facilitating visual interpretation.
 
 We often use proportional symbol maps to represent count data (e.g., number of crimes reported in a given area). A common problem with proportional symbol maps is symbol congestion/overlap, especially if there are large variations in the size of symbols or if numerous data locations are close together.
 
@@ -2612,6 +2578,7 @@ In \texttt{tmap} you can use \texttt{tm\_symbols} for this. As noted, with \text
 \begin{Shaded}
 \begin{Highlighting}[]
 \FunctionTok{tmap\_mode}\NormalTok{(}\StringTok{"plot"}\NormalTok{)}
+
 \FunctionTok{tm\_shape}\NormalTok{(manchester) }\SpecialCharTok{+} 
   \FunctionTok{tm\_bubbles}\NormalTok{(}\StringTok{"count"}\NormalTok{)}
 \end{Highlighting}
@@ -2635,8 +2602,7 @@ Each bubble represents the number of crimes in each LSOA within the city of Manc
   \FunctionTok{tm\_borders}\NormalTok{(}\AttributeTok{alpha=}\FloatTok{0.1}\NormalTok{) }\SpecialCharTok{+}      
   \CommentTok{\#use tm\_layout to make the legend look nice}
   \FunctionTok{tm\_layout}\NormalTok{(}\AttributeTok{legend.position =} \FunctionTok{c}\NormalTok{(}\StringTok{"right"}\NormalTok{, }\StringTok{"bottom"}\NormalTok{), }
-            \AttributeTok{legend.title.size =} \FloatTok{0.8}\NormalTok{,}
-            \AttributeTok{legend.text.size =} \FloatTok{0.5}\NormalTok{)}
+            \AttributeTok{legend.title.size =} \FloatTok{0.8}\NormalTok{, }\AttributeTok{legend.text.size =} \FloatTok{0.5}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -2653,8 +2619,7 @@ By default, the symbol area sizes are scaled proportionally to the data variable
   \FunctionTok{tm\_bubbles}\NormalTok{(}\StringTok{"count"}\NormalTok{, }\AttributeTok{border.lwd=}\ConstantTok{NA}\NormalTok{, }\AttributeTok{perceptual =} \ConstantTok{TRUE}\NormalTok{) }\SpecialCharTok{+} 
   \FunctionTok{tm\_borders}\NormalTok{(}\AttributeTok{alpha=}\FloatTok{0.1}\NormalTok{) }\SpecialCharTok{+}                           
   \FunctionTok{tm\_layout}\NormalTok{(}\AttributeTok{legend.position =} \FunctionTok{c}\NormalTok{(}\StringTok{"right"}\NormalTok{, }\StringTok{"bottom"}\NormalTok{), }
-            \AttributeTok{legend.title.size =} \FloatTok{0.8}\NormalTok{,}
-            \AttributeTok{legend.text.size =} \FloatTok{0.5}\NormalTok{)}
+            \AttributeTok{legend.title.size =} \FloatTok{0.8}\NormalTok{, }\AttributeTok{legend.text.size =} \FloatTok{0.5}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -2833,8 +2798,7 @@ So let's make \emph{map1}. This will create a thematic map using equal intervals
   \CommentTok{\# and give the map a title}
   \FunctionTok{tm\_fill}\NormalTok{(}\StringTok{"crimr1"}\NormalTok{, }\AttributeTok{style=}\StringTok{"equal"}\NormalTok{, }\AttributeTok{title =} \StringTok{"Equal"}\NormalTok{) }\SpecialCharTok{+} 
   \FunctionTok{tm\_layout}\NormalTok{(}\AttributeTok{legend.position =} \FunctionTok{c}\NormalTok{(}\StringTok{"left"}\NormalTok{, }\StringTok{"top"}\NormalTok{),   }
-            \AttributeTok{legend.title.size =} \FloatTok{0.7}\NormalTok{,}
-            \AttributeTok{legend.text.size =} \FloatTok{0.5}\NormalTok{)}
+            \AttributeTok{legend.title.size =} \FloatTok{0.7}\NormalTok{, }\AttributeTok{legend.text.size =} \FloatTok{0.5}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -2845,8 +2809,7 @@ Now create \emph{map2}, with the jenks method often preferred by geographers:
 \NormalTok{map2 }\OtherTok{\textless{}{-}} \FunctionTok{tm\_shape}\NormalTok{(manchester) }\SpecialCharTok{+} 
   \FunctionTok{tm\_fill}\NormalTok{(}\StringTok{"crimr1"}\NormalTok{, }\AttributeTok{style=}\StringTok{"jenks"}\NormalTok{, }\AttributeTok{title =} \StringTok{"Jenks"}\NormalTok{) }\SpecialCharTok{+}
   \FunctionTok{tm\_layout}\NormalTok{(}\AttributeTok{legend.position =} \FunctionTok{c}\NormalTok{(}\StringTok{"left"}\NormalTok{, }\StringTok{"top"}\NormalTok{), }
-            \AttributeTok{legend.title.size =} \FloatTok{0.7}\NormalTok{,}
-            \AttributeTok{legend.text.size =} \FloatTok{0.5}\NormalTok{)}
+            \AttributeTok{legend.title.size =} \FloatTok{0.7}\NormalTok{, }\AttributeTok{legend.text.size =} \FloatTok{0.5}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -2857,8 +2820,7 @@ Now create \emph{map3}, with the quantile method often preferred by epidemiologi
 \NormalTok{map3 }\OtherTok{\textless{}{-}} \FunctionTok{tm\_shape}\NormalTok{(manchester) }\SpecialCharTok{+} 
   \FunctionTok{tm\_fill}\NormalTok{(}\StringTok{"crimr1"}\NormalTok{, }\AttributeTok{style=}\StringTok{"quantile"}\NormalTok{, }\AttributeTok{title =} \StringTok{"Quantile"}\NormalTok{) }\SpecialCharTok{+}
   \FunctionTok{tm\_layout}\NormalTok{(}\AttributeTok{legend.position =} \FunctionTok{c}\NormalTok{(}\StringTok{"left"}\NormalTok{, }\StringTok{"top"}\NormalTok{), }
-            \AttributeTok{legend.title.size =} \FloatTok{0.7}\NormalTok{,}
-            \AttributeTok{legend.text.size =} \FloatTok{0.5}\NormalTok{)}
+            \AttributeTok{legend.title.size =} \FloatTok{0.7}\NormalTok{, }\AttributeTok{legend.text.size =} \FloatTok{0.5}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -2869,8 +2831,7 @@ Let´s make \emph{map4}, standard deviation map, which maps the values of our va
 \NormalTok{map4 }\OtherTok{\textless{}{-}} \FunctionTok{tm\_shape}\NormalTok{(manchester) }\SpecialCharTok{+} 
   \FunctionTok{tm\_fill}\NormalTok{(}\StringTok{"crimr1"}\NormalTok{, }\AttributeTok{style=}\StringTok{"sd"}\NormalTok{, }\AttributeTok{title =} \StringTok{"Standard Deviation"}\NormalTok{) }\SpecialCharTok{+}
   \FunctionTok{tm\_layout}\NormalTok{(}\AttributeTok{legend.position =} \FunctionTok{c}\NormalTok{(}\StringTok{"left"}\NormalTok{, }\StringTok{"top"}\NormalTok{), }
-            \AttributeTok{legend.title.size =} \FloatTok{0.7}\NormalTok{,}
-            \AttributeTok{legend.text.size =} \FloatTok{0.5}\NormalTok{)}
+            \AttributeTok{legend.title.size =} \FloatTok{0.7}\NormalTok{, }\AttributeTok{legend.text.size =} \FloatTok{0.5}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -2881,8 +2842,7 @@ And finally let´s make \emph{map5}, which is handy with skewed distributions.
 \NormalTok{map5 }\OtherTok{\textless{}{-}} \FunctionTok{tm\_shape}\NormalTok{(manchester) }\SpecialCharTok{+} 
   \FunctionTok{tm\_fill}\NormalTok{(}\StringTok{"crimr1"}\NormalTok{, }\AttributeTok{style=}\StringTok{"headtails"}\NormalTok{, }\AttributeTok{title =} \StringTok{"Headtails"}\NormalTok{) }\SpecialCharTok{+}
   \FunctionTok{tm\_layout}\NormalTok{(}\AttributeTok{legend.position =} \FunctionTok{c}\NormalTok{(}\StringTok{"left"}\NormalTok{, }\StringTok{"top"}\NormalTok{), }
-            \AttributeTok{legend.title.size =} \FloatTok{0.7}\NormalTok{,}
-            \AttributeTok{legend.text.size =} \FloatTok{0.5}\NormalTok{)}
+            \AttributeTok{legend.title.size =} \FloatTok{0.7}\NormalTok{, }\AttributeTok{legend.text.size =} \FloatTok{0.5}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -2942,14 +2902,13 @@ So far we have been producing static maps with \texttt{tmap}. But this package a
 
 When you use \texttt{tmap}, R will remember the mode you want to use. So once you specify \texttt{tmap\_mode("view")}, all the subsequent maps will be interactive. It is only when you want to change this behaviour that you would need another \texttt{tmap\_mode()} call. When using the interactive view we can also add a basemap with the \texttt{tm\_basemap()} function and passing as an argument a particular source for the basemap. Here we specify OpenStreetMap, but there are many other choices (for a complete listing and preview see \url{http://leaflet-extras.github.io/leaflet-providers/preview} ).
 
-Let´s explore the distribution of the two alternative definitions of crime rates with in an interactive way.
+Let´s explore the distribution of the two alternative definitions of crime rates in an interactive way.
 
 \begin{Shaded}
 \begin{Highlighting}[]
 \FunctionTok{tm\_shape}\NormalTok{(manchester) }\SpecialCharTok{+} 
   \FunctionTok{tm\_fill}\NormalTok{(}\StringTok{"crimr1"}\NormalTok{, }\AttributeTok{style=}\StringTok{"jenks"}\NormalTok{, }\AttributeTok{palette=} \StringTok{"Reds"}\NormalTok{, }
-          \AttributeTok{title =} \StringTok{"Crime per residential pop"}\NormalTok{, }\AttributeTok{alpha =} \FloatTok{0.6}\NormalTok{,}
-\NormalTok{          ) }\SpecialCharTok{+}
+          \AttributeTok{title =} \StringTok{"Crime per residential pop"}\NormalTok{, }\AttributeTok{alpha =} \FloatTok{0.6}\NormalTok{) }\SpecialCharTok{+}
   \FunctionTok{tm\_basemap}\NormalTok{(leaflet}\SpecialCharTok{::}\NormalTok{providers}\SpecialCharTok{$}\NormalTok{OpenStreetMap)}
 \end{Highlighting}
 \end{Shaded}
@@ -3184,24 +3143,21 @@ We can now plot the maps and compare them:
           \AttributeTok{title =} \StringTok{"Raw rate"}\NormalTok{, }
           \AttributeTok{palette =} \StringTok{"Reds"}\NormalTok{) }\SpecialCharTok{+}
   \FunctionTok{tm\_layout}\NormalTok{(}\AttributeTok{legend.position =} \FunctionTok{c}\NormalTok{(}\StringTok{"left"}\NormalTok{, }\StringTok{"bottom"}\NormalTok{), }
-            \AttributeTok{legend.title.size =} \FloatTok{0.8}\NormalTok{,}
-            \AttributeTok{legend.text.size =} \FloatTok{0.5}\NormalTok{)}
+            \AttributeTok{legend.title.size =} \FloatTok{0.8}\NormalTok{, }\AttributeTok{legend.text.size =} \FloatTok{0.5}\NormalTok{)}
 
 \NormalTok{map2}\OtherTok{\textless{}{-}} \FunctionTok{tm\_shape}\NormalTok{(ncovr) }\SpecialCharTok{+} 
   \FunctionTok{tm\_fill}\NormalTok{(}\StringTok{"HR60EBS"}\NormalTok{, }\AttributeTok{style=}\StringTok{"quantile"}\NormalTok{, }
           \AttributeTok{title =} \StringTok{"EB Smooth"}\NormalTok{, }
           \AttributeTok{palette =} \StringTok{"Reds"}\NormalTok{) }\SpecialCharTok{+}
   \FunctionTok{tm\_layout}\NormalTok{(}\AttributeTok{legend.position =} \FunctionTok{c}\NormalTok{(}\StringTok{"left"}\NormalTok{, }\StringTok{"bottom"}\NormalTok{), }
-            \AttributeTok{legend.title.size =} \FloatTok{0.8}\NormalTok{,}
-            \AttributeTok{legend.text.size =} \FloatTok{0.5}\NormalTok{)}
+            \AttributeTok{legend.title.size =} \FloatTok{0.8}\NormalTok{, }\AttributeTok{legend.text.size =} \FloatTok{0.5}\NormalTok{)}
 
 \NormalTok{map3}\OtherTok{\textless{}{-}} \FunctionTok{tm\_shape}\NormalTok{(ncovr) }\SpecialCharTok{+} 
   \FunctionTok{tm\_fill}\NormalTok{(}\StringTok{"HR60EBSL"}\NormalTok{, }\AttributeTok{style=}\StringTok{"quantile"}\NormalTok{, }
           \AttributeTok{title =} \StringTok{"Local Smooth"}\NormalTok{, }
           \AttributeTok{palette =} \StringTok{"Reds"}\NormalTok{) }\SpecialCharTok{+}
   \FunctionTok{tm\_layout}\NormalTok{(}\AttributeTok{legend.position =} \FunctionTok{c}\NormalTok{(}\StringTok{"left"}\NormalTok{, }\StringTok{"bottom"}\NormalTok{), }
-            \AttributeTok{legend.title.size =} \FloatTok{0.8}\NormalTok{,}
-            \AttributeTok{legend.text.size =} \FloatTok{0.5}\NormalTok{)}
+            \AttributeTok{legend.title.size =} \FloatTok{0.8}\NormalTok{, }\AttributeTok{legend.text.size =} \FloatTok{0.5}\NormalTok{)}
 
 \FunctionTok{tmap\_arrange}\NormalTok{(map1, map2, map3) }
 \end{Highlighting}
@@ -3232,7 +3188,7 @@ So to smooth or not too smooth? Clearly we can see how smoothing stabilises the 
 \hypertarget{summary-and-further-reading-2}{%
 \section{Summary and further reading}\label{summary-and-further-reading-2}}
 
-This chapter introduced some basic principles of thematic maps. We learned how to make them using the \texttt{tmap} package, we learned about the importance of classification schemes, and how each one may produce a different looking map, which may tell a different story. For further reading, \protect\hyperlink{ref-Brewer_2006}{C. Brewer} (\protect\hyperlink{ref-Brewer_2006}{2006}) provides a brief condensed introduction to thematic mapping for epidemiologists but that can be generally extrapolated for crime mapping purposes. We have talked about the potential to develop misleading maps and \protect\hyperlink{ref-Monmonier_1996}{Monmonier} (\protect\hyperlink{ref-Monmonier_1996}{1996}) ``How to lie with maps'' provides good guidance to avoid that our negligent choices when producing a map confuse the readers. \protect\hyperlink{ref-Carr_2010}{Carr and Pickle} (\protect\hyperlink{ref-Carr_2010}{2010}) offers a more detailed treatment of small multiples and micromaps.
+This chapter introduced some basic principles of thematic maps. We learned how to make them using the \texttt{tmap} package, we learned about the importance of classification schemes, and how each one may produce a different looking map, which may tell a different story. For further reading, \protect\hyperlink{ref-Brewer_2006}{Brewer} (\protect\hyperlink{ref-Brewer_2006}{2006}) provides a brief condensed introduction to thematic mapping for epidemiologists but that can be generally extrapolated for crime mapping purposes. We have talked about the potential to develop misleading maps and \protect\hyperlink{ref-Monmonier_1996}{Monmonier} (\protect\hyperlink{ref-Monmonier_1996}{1996}) ``How to lie with maps'' provides good guidance to avoid that our negligent choices when producing a map confuse the readers. \protect\hyperlink{ref-Carr_2010}{Carr and Pickle} (\protect\hyperlink{ref-Carr_2010}{2010}) offers a more detailed treatment of small multiples and micromaps.
 
 Mapping rates has been more thoroughly discussed within spatial epidemiology than in criminology. There is ample literature on disease mapping that address in more sophisticated ways some of the issues we introduce here (see \protect\hyperlink{ref-Waller_2004}{Waller and Gotway} (\protect\hyperlink{ref-Waller_2004}{2004}), \protect\hyperlink{ref-Lawson_2006}{Lawson} (\protect\hyperlink{ref-Lawson_2006}{2021b}), \protect\hyperlink{ref-Lawson_2021a}{Lawson} (\protect\hyperlink{ref-Lawson_2021a}{2021a}), or \protect\hyperlink{ref-Lawson_2021b}{Lawson} (\protect\hyperlink{ref-Lawson_2021b}{2021c})). Much of this work on spatial epidemiology adopts a Bayesian framework. We will talk a bit more about this later on, but if you want a friendly introduction to Bayesian data analysis there is no better introduction than \protect\hyperlink{ref-McElreath_2018}{McElreath} (\protect\hyperlink{ref-McElreath_2018}{2018}).
 
@@ -4300,7 +4256,7 @@ Of course, perceptual uniformity matters for your qualitative scales for your un
 
 The main message here is that you should generally not put together your color palettes in an ad hoc way. It is too easy to go astray. In addition to the considerations we have been discussing, there we might also want to avoid producing plots that confuse people who are colour blind, for example, and color blindness comes in a variety of forms. Fortunately for us, almost all of the work has been done for us already. Different color spaces have been defined and standardized in ways that account for these uneven or nonlinear aspects of human color perception.
 
-A good resource is \href{http://colorbrewer2.org/}{colorbrewer}. We have come across \protect\hyperlink{ref-Brewer_2006}{C. Brewer} (\protect\hyperlink{ref-Brewer_2006}{2006}) in Chapter 3. Colorbrewer is a resource developed by Cynthia Brewer and colleagues in order to help implement good colour practice in data visualisation and cartography \protect\hyperlink{ref-Brewer_1994}{C. A. Brewer} (\protect\hyperlink{ref-Brewer_1994}{1994}). This site offers many colour schemes we can make use of for our maps, which are easily integrated into R using the \texttt{Rcolorbrewer} package.
+A good resource is \href{http://colorbrewer2.org/}{colorbrewer}. We have come across \protect\hyperlink{ref-Brewer_2006}{Brewer} (\protect\hyperlink{ref-Brewer_2006}{2006}) in Chapter 3. Colorbrewer is a resource developed by Cynthia Brewer and colleagues in order to help implement good colour practice in data visualisation and cartography \protect\hyperlink{ref-Brewer_1994}{Brewer} (\protect\hyperlink{ref-Brewer_1994}{1994}). This site offers many colour schemes we can make use of for our maps, which are easily integrated into R using the \texttt{Rcolorbrewer} package.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -5495,11 +5451,11 @@ Brantingham, Patricia L, and Paul J Brantingham. 1982. {``Mobility, Notoriety an
 \leavevmode\hypertarget{ref-Brantingham_1995}{}%
 ---------. 1995. {``Criminality of Place: Crime Generators and Crime Attractors.''} \emph{European Journal on Criminal Policy and Research} 3: 5--26.
 
-\leavevmode\hypertarget{ref-Brewer_2006}{}%
-Brewer, Cynthia. 2006. {``Basic Mapping Principles for Visualizing Cancer Data Using Geographic Information Systems (GIS).''} \emph{American Journal of Preventive Medicine} 30 (2S): S25--36.
-
 \leavevmode\hypertarget{ref-Brewer_1994}{}%
 Brewer, Cynthia A. 1994. {``Color Use Guidelines for Mapping.''} \emph{Visualization in Modern Cartography} 1994: 123--48.
+
+\leavevmode\hypertarget{ref-Brewer_2006}{}%
+---------. 2006. {``Basic Mapping Principles for Visualizing Cancer Data Using Geographic Information Systems (GIS).''} \emph{American Journal of Preventive Medicine} 30 (2S): S25--36.
 
 \leavevmode\hypertarget{ref-Briggs_2017}{}%
 Briggs, Daniel, and Rubén Monge Gamero. 2017. \emph{Dead-End Lives: Drugs and Violence in the City Shadows}. Bristol, UK: Policy Press.
