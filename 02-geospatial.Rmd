@@ -582,15 +582,12 @@ Let's have a look at the bar called "Night & Day". We can select this from the `
 
 ```{r}
 
-nd <- cc_bars %>% 
-  filter(name == "Night & Day") 
+nd <- cc_bars %>% filter(name == "Night & Day") 
 
-nd_buffer <- bar_buffer_100 %>% 
-  filter(name == "Night & Day") %>% 
-  st_transform(4326)
+nd_buffer <- bar_buffer_100 %>% filter(name == "Night & Day") %>% 
+  st_transform(4326) # transform CRS
 
-nd_crimes <- crime_w_bars %>% 
-  filter(nearest_bar$name  == "Night & Day")  
+nd_crimes <- crime_w_bars %>% filter(nearest_bar$name  == "Night & Day")  
 
 ```
 
@@ -651,8 +648,7 @@ install.packages("RColorBrewer") #for getting nice colours for your maps
 Once you have them installed, load them up with the `library()` function. To make a map, just load the leaflet library. You then create a map with this simple bit of code:
 
 ```{r, cache=FALSE}
-m <- leaflet() %>%
-  addTiles()  
+m <- leaflet() %>% addTiles()  
 ```
 
 
@@ -666,8 +662,7 @@ Not a super useful map, but it was really easy to make! You might of course want
 You can add a point manually:
 
 ```{r, cache=FALSE}
-m <- leaflet() %>%
-  addTiles()  %>% 
+m <- leaflet() %>% addTiles()  %>% 
   addMarkers(lng=-2.230899,  # longitude
              lat=53.464987,  # latitude
              popup="University of Manchester") # text for popup
@@ -682,14 +677,11 @@ You can add many points manually, with some popup text as well:
 # create dataframe of latitude, longitude, and popups
 latitudes <- c(53.464987, 53.472726, 53.466649) 
 longitudes <- c(-2.230899, -2.245481, -2.243421) 
-popups <- c("You are here", 
-           "Here is another point", 
-           "Here is another point") 
+popups <- c("You are here", "Here is another point", "Here is another point") 
 df <- data.frame(latitudes, longitudes, popups)      
 
 # create leaflet map
-m <- leaflet(data = df) %>%
-  addTiles()  %>%  
+m <- leaflet(data = df) %>% addTiles()  %>%  
   addMarkers(lng=~longitudes, lat=~latitudes, popup=~popups)
 
 #print leaflet map
@@ -703,10 +695,7 @@ First, let's pick a colour palette. We do this with the `colorBin()` function. W
 Let's create this palette and save in an object called `pal` for palette: 
 
 ```{r, cache=FALSE}
-pal <- colorBin("RdPu", 
-                domain = crimes_per_prem$n, 
-                bins = 5, 
-                pretty = TRUE)
+pal <- colorBin("RdPu", domain = crimes_per_prem$n, bins = 5, pretty = TRUE)
 ```
 
 Now we can make a leaflet map, where we add these polygons (the buffers) with the `addPolygons()` function, and call our palette, specifying again the variable to use for shading, as well as some other parameters. One to highlight specifically is the `label` parameter. This allows us to use a variable as a label for when a user clicks on our polygon (buffer). Here we specify the name of the bar with `label = ~as.character(name)`.This way we not only shade each buffer with the number of crimes which fall inside it, but also include a little popup label with the name of the establishment: 
@@ -747,8 +736,7 @@ We can then use the `geocode()` function to get coordinates for this address. We
 
 ```{r}
 
-addresses %>% 
-  geocode(address, method = 'osm')
+addresses %>% geocode(address, method = 'osm')
 
 ```
 
@@ -764,8 +752,7 @@ So without dragging this on any further, let's read in the licensed premises dat
 
 data_url <- "http://www.manchester.gov.uk/open/download/downloads/id/169/licensed_premises.csv"
 
-lic_prem <- read_csv(data_url) %>% 
-  clean_names()
+lic_prem <- read_csv(data_url) %>% clean_names()
 ```
 
 You will likely get some warnings when reading this data, but you can safely ignore those. You can always check if this worked by looking to your global environment on the righ hand side and seeing if this *lic_prem* object has appeared. If it has, you should see it has `r I(nrow(lic_prem))` observations (rows), and `r I(ncol(lic_prem))` variables (columns).
@@ -794,7 +781,7 @@ lic_prem <- lic_prem %>%
 
 Now we have these licenced premises geocoded, with brand new latitude and longitude information! We can use this to make a leaflet map of our venues!
 
-```{r, cache=FALSE}
+```{r, cache=FALSE, message=FALSE, warning=FALSE}
 # make sure coordinates are numeric values
 lic_prem$latitude <- as.numeric(lic_prem$lat)
 lic_prem$longitude <- as.numeric(lic_prem$long)
@@ -838,8 +825,7 @@ We went through a lot of steps there, so it's worth to check in and plot our dat
 
 ```{r, cache=FALSE}
 
-leaflet(comisarias_sf) %>% 
-  addTiles() %>%
+leaflet(comisarias_sf) %>% addTiles() %>%
   addMarkers(data = comisarias_sf) %>%
   addPolygons(data = madrid)
 
@@ -985,11 +971,8 @@ police_icon <- makeIcon(icon_url,
 # Bin ranges for a nicer color scale
 bins <- c(0,0.02,1.74,3.82,7.95,18.18)
 # Create a binned color palette
-pal <- colorBin(c("#0868AC", "#43A2CA", "#7BCCC4", 
-                  "#BAE4BC", "#F0F9E8"), 
-                domain = police_distances$distance_km, 
-                bins = bins, 
-                reverse = TRUE)
+pal <- colorBin(c("#0868AC", "#43A2CA", "#7BCCC4", "#BAE4BC", "#F0F9E8"), 
+                domain = police_distances$distance_km, bins = bins, reverse = TRUE)
 ```
 
 Now let's create the map. 
@@ -998,26 +981,15 @@ Now let's create the map.
 
 full_map <- leaflet() %>% 
   addTiles() %>% 
-  addMarkers(data = comisarias_sf, icon = ~police_icon, 
-             group = "Police stations") %>% 
-  addPolygons(data = police_distances[[1]], 
-              fillColor = pal(police_distances$distance_km), 
-              fillOpacity = 0.8, weight =0,
-              opacity = 1, 
-              color = "transparent", 
-              group = "Distances",
-              highlight = highlightOptions(weight = 2.5, 
-                                           color = "#666", 
-                                           bringToFront = TRUE, 
-                                           opacity= 1), 
-              popupOptions = popupOptions(autoPan = FALSE,
-                                          closeOnClick = TRUE, 
+  addMarkers(data = comisarias_sf, icon = ~police_icon, group = "Police stations") %>% 
+  addPolygons(data = police_distances[[1]], fillColor = pal(police_distances$distance_km), 
+              fillOpacity = 0.8, weight =0, opacity = 1, color = "transparent", group = "Distances",
+              highlight = highlightOptions(weight = 2.5, color = "#666", 
+                                           bringToFront = TRUE, opacity= 1), 
+              popupOptions = popupOptions(autoPan = FALSE, closeOnClick = TRUE,
                                           textOnly = T)) %>% 
-   addLegend(pal = pal, 
-             values = (police_distances$distance_km), 
-             opacity = 0.8,
-             title = "Distance (Km)", 
-             position= "bottomright") %>% 
+   addLegend(pal = pal, values = (police_distances$distance_km), 
+             opacity = 0.8, title = "Distance (Km)", position= "bottomright") %>% 
   addLayersControl(overlayGroups = c("Police Stations", "Distances"),
                    options = layersControlOptions(collapsed = FALSE))
 

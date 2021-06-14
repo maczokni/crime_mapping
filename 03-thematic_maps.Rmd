@@ -66,7 +66,7 @@ A map of rates essentially aims to provide information into geographic variation
 
 In social science the denominator on mapped ratios is typically some form of population size, which typically we will want as current as possible. In other fields some measure of area size may be a preferred choice for the denominator. 
 
-However, a great deal of discussion in crime analysis has focused on the choice of the right denominator. Authors relate to this as the **denominator dilemma**: "the problem associated with identifying an appropriate target availability control that can overcome issues of spatial inequality in the areal units used to study crime" (Ratcliffe_2010). The best measure for your denominator is one which captures opportunities. If for example you are interested in residential burglary, it makes sense to use number of inhabited households as your denominator (rather than population size). Whatever denominator you choose, you will usually want to make a case as to why that is the best representation of the opportunities for the crime type you're interested in. 
+However, a great deal of discussion in crime analysis has focused on the choice of the right denominator. Authors relate to this as the **denominator dilemma**: "the problem associated with identifying an appropriate target availability control that can overcome issues of spatial inequality in the areal units used to study crime" (@Ratcliffe_2010). The best measure for your denominator is one which captures opportunities. If for example you are interested in residential burglary, it makes sense to use number of inhabited households as your denominator (rather than population size). Whatever denominator you choose, you will usually want to make a case as to why that is the best representation of the opportunities for the crime type you're interested in. 
 
 As noted, population is a common choice, but it is not always the one that best captures crime opportunities. Population, on the other hand, is also highly mobile during the day. People do not stay in the areas where they live, they go to work, they go to school, they travel for tourism purposes, and in doing so they alter the population structure of any given area. As @Ratcliffe_2010 highlights with an example "the residential population (as is usually available from the census) tells the researcher little about the real number of people outside nightclubs at 2 a.m" Geographers and criminologists, thus, distinguish between the standard measures of population (that relate to people that live in an area) provided by the census and government statistical authorities; and the so called **ambient population**, that relates to people that occupy an area at a given time, and which typically are a bit more difficult to source (see for example: @Andresen_2011).
 
@@ -92,7 +92,7 @@ Confusingly, though, you will find authors and practitioners that consider incid
 
 ### Proportional and graduate symbol maps: mapping crime counts
 
-Proportional symbol maps, on the other hand, are used to represent quantitative variables for either areas or point locations. Each area get a symbol and the size represents the intensity of the variable. It is expected with this type of map that the reader could estimate the different quantities mapped out and to be able to detecting patterns across the map (@Field_2018). The symbols typically will be squares or circles that are scaled "in proportion to the square root of each data value so that symbol areas visually represent the data values" (@Brewer: S29). Circles are generally used since they are considered to perform better in facilitating visual interpretation. 
+Proportional symbol maps, on the other hand, are used to represent quantitative variables for either areas or point locations. Each area get a symbol and the size represents the intensity of the variable. It is expected with this type of map that the reader could estimate the different quantities mapped out and to be able to detecting patterns across the map (@Field_2018). The symbols typically will be squares or circles that are scaled "in proportion to the square root of each data value so that symbol areas visually represent the data values" (@Brewer_2006: S29). Circles are generally used since they are considered to perform better in facilitating visual interpretation. 
 
 We often use proportional symbol maps to represent count data (e.g., number of crimes reported in a given area). A common problem with proportional symbol maps is symbol congestion/overlap, especially if there are large variations in the size of symbols or if numerous data locations are close together.
 
@@ -126,9 +126,10 @@ In `tmap` you can use `tm_symbols` for this. As noted, with `tmap` you can produ
 
 ```{r, message=FALSE}
 tmap_mode("plot")
+
 tm_shape(manchester) + 
   tm_bubbles("count")
-  
+
 ```
 
 Each bubble represents the number of crimes in each LSOA within the city of Manchester. We can add the borders of the census areas for better representation. The `border.lwd` argument set to NA in the `tm_bubbles()` is asking R not to draw a border to the circles. Whereas `tm_borders()` brings back a layer with the borders of the polygons representing the different LSOAs in Manchester city. Notice how we are modifying the transparency of the borders with the alpha parameter. In addition, we are adding a `tm_layout()` function that makes explicit where and how we want the legend.
@@ -146,8 +147,7 @@ tm_shape(manchester) +
   tm_borders(alpha=0.1) +      
   #use tm_layout to make the legend look nice
   tm_layout(legend.position = c("right", "bottom"), 
-            legend.title.size = 0.8,
-            legend.text.size = 0.5)
+            legend.title.size = 0.8, legend.text.size = 0.5)
 ```
 
 
@@ -161,8 +161,7 @@ tm_shape(manchester) +
   tm_bubbles("count", border.lwd=NA, perceptual = TRUE) + 
   tm_borders(alpha=0.1) +                           
   tm_layout(legend.position = c("right", "bottom"), 
-            legend.title.size = 0.8,
-            legend.text.size = 0.5)
+            legend.title.size = 0.8, legend.text.size = 0.5)
 ```
 
 ## Mapping rates rather than counts
@@ -336,8 +335,7 @@ map1 <- tm_shape(manchester) +
   # and give the map a title
   tm_fill("crimr1", style="equal", title = "Equal") + 
   tm_layout(legend.position = c("left", "top"),   
-            legend.title.size = 0.7,
-            legend.text.size = 0.5)
+            legend.title.size = 0.7, legend.text.size = 0.5)
 
 ```
 
@@ -348,8 +346,7 @@ Now create *map2*, with the jenks method often preferred by geographers:
 map2 <- tm_shape(manchester) + 
   tm_fill("crimr1", style="jenks", title = "Jenks") +
   tm_layout(legend.position = c("left", "top"), 
-            legend.title.size = 0.7,
-            legend.text.size = 0.5)
+            legend.title.size = 0.7, legend.text.size = 0.5)
 
 ```
 
@@ -360,8 +357,7 @@ Now create *map3*, with the quantile method often preferred by epidemiologists:
 map3 <- tm_shape(manchester) + 
   tm_fill("crimr1", style="quantile", title = "Quantile") +
   tm_layout(legend.position = c("left", "top"), 
-            legend.title.size = 0.7,
-            legend.text.size = 0.5)
+            legend.title.size = 0.7, legend.text.size = 0.5)
 
 ```
 
@@ -372,8 +368,7 @@ Let´s make *map4*, standard deviation map, which maps the values of our variabl
 map4 <- tm_shape(manchester) + 
   tm_fill("crimr1", style="sd", title = "Standard Deviation") +
   tm_layout(legend.position = c("left", "top"), 
-            legend.title.size = 0.7,
-            legend.text.size = 0.5)
+            legend.title.size = 0.7, legend.text.size = 0.5)
 
 ```
 
@@ -383,8 +378,7 @@ And finally let´s make *map5*, which is handy with skewed distributions.
 map5 <- tm_shape(manchester) + 
   tm_fill("crimr1", style="headtails", title = "Headtails") +
   tm_layout(legend.position = c("left", "top"), 
-            legend.title.size = 0.7,
-            legend.text.size = 0.5)
+            legend.title.size = 0.7, legend.text.size = 0.5)
 ```
 
 Notice that we are not plotting the maps, we are storing them into R objects (map1 to map5). This way they are saved, and you can call them later, which is what we need in order to plot them together using the `tmap_arrange()` function. 
@@ -429,14 +423,13 @@ tmap_mode("view")
 
 When you use `tmap`, R will remember the mode you want to use. So once you specify `tmap_mode("view")`, all the subsequent maps will be interactive. It is only when you want to change this behaviour that you would need another `tmap_mode()` call. When using the interactive view we can also add a basemap with the `tm_basemap()` function and passing as an argument a particular source for the basemap. Here we specify OpenStreetMap, but there are many other choices (for a complete listing and preview see http://leaflet-extras.github.io/leaflet-providers/preview ).
 
-Let´s explore the distribution of the two alternative definitions of crime rates with in an interactive way. 
+Let´s explore the distribution of the two alternative definitions of crime rates in an interactive way. 
 
 ```{r, cache=FALSE}
 
 tm_shape(manchester) + 
   tm_fill("crimr1", style="jenks", palette= "Reds", 
-          title = "Crime per residential pop", alpha = 0.6,
-          ) +
+          title = "Crime per residential pop", alpha = 0.6) +
   tm_basemap(leaflet::providers$OpenStreetMap)
 
 ```
@@ -563,24 +556,21 @@ map1<- tm_shape(ncovr) +
           title = "Raw rate", 
           palette = "Reds") +
   tm_layout(legend.position = c("left", "bottom"), 
-            legend.title.size = 0.8,
-            legend.text.size = 0.5)
+            legend.title.size = 0.8, legend.text.size = 0.5)
 
 map2<- tm_shape(ncovr) + 
   tm_fill("HR60EBS", style="quantile", 
           title = "EB Smooth", 
           palette = "Reds") +
   tm_layout(legend.position = c("left", "bottom"), 
-            legend.title.size = 0.8,
-            legend.text.size = 0.5)
+            legend.title.size = 0.8, legend.text.size = 0.5)
 
 map3<- tm_shape(ncovr) + 
   tm_fill("HR60EBSL", style="quantile", 
           title = "Local Smooth", 
           palette = "Reds") +
   tm_layout(legend.position = c("left", "bottom"), 
-            legend.title.size = 0.8,
-            legend.text.size = 0.5)
+            legend.title.size = 0.8, legend.text.size = 0.5)
 
 tmap_arrange(map1, map2, map3) 
 ```

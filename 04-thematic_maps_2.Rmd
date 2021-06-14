@@ -121,7 +121,7 @@ ma_spatial <- ma_spatial %>%
 
 As a first step, we can plot asb in the borough of Manchester using simple ggplot, as demonstrated in Chapter 1. We can plot our points first:
 
-```{r}
+```{r, fig.height= 3}
 
 ggplot(ma_spatial, aes(x = longitude, y = latitude)) +
   geom_sf() + 
@@ -131,7 +131,7 @@ ggplot(ma_spatial, aes(x = longitude, y = latitude)) +
 
 We see our nice map of Manchester, as outlined by ASB across the Local Authority. To create a bin of this map, what we do, is generate a grid of tessellating map of our desired shape, and then count the number of points which fall into each one of these shapes. We can use ``ggplot` for this. It is such a great tool for building visualisations, because you can apply whatever geometry best suits your data. So for us to just have a look at the hexbinned version of our point data of antisocial behaviour, we can use the `stat_binhex()` function as a layer on our ggplot object. We can also recreate the thematic map element, as we can use the frequency of points in each hex to shade each hexbin from white (least number of incidents) to red (most number of incidents). So let's have a go: 
 
-```{r}
+```{r, fig.height= 3}
 
 #define data and variables for x and y axes
 ggplot(ma_spatial, aes(longitude, latitude)) + 
@@ -148,7 +148,7 @@ ggplot(ma_spatial, aes(longitude, latitude)) +
 
 Neat, but doesn't quite tell us *where* that really dark hexbon actually is. So it would be much better if we could do this with a basemap as the background. For this we use the function `annotation_map_tile()` from the `ggspatial` package. We can also set the opacity of the binhex layer, so we can see our basemap, with the `alpha` parameter. 
 
-```{r}
+```{r, fig.height= 3}
 
 ggplot(ma_spatial, aes(x = longitude, y = latitude)) +
   annotation_map_tile() + 
@@ -170,7 +170,7 @@ Adding this basemap provides us with a bit more context. And combined with the h
 - Finding neighbors is more straightforward with a hexagon grid. Since the edge or length of contact is the same on each side, the centroid of each neighbor is equidistant. However, with a fishnet grid, the Queen's Case (above/below/right/left) neighbor's centroids are N units away, while the centroids of the diagonal (Rook) neighbors are farther away (exactly the square root of 2 times N units away).
 - Since the distance between centroids is the same in all six directions with hexagons, if you are using a distance band to find neighbors or are using the Optimized Hot Spot Analysis, Optimized Outlier Analysis or Create Space Time Cube By Aggregating Points tools, you will have more neighbors included in the calculations for each feature if you are using hexagonal grid as opposed to a fishnet grid.
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height= 1}
 
 
 df <- data.frame(x_coords = c(rep(0.5:4.5, 5), rep(2.5,10), rep(1.5,4), rep(3.5,4), rep(2.5,8)), 
@@ -523,7 +523,7 @@ legend <- ggplot() +
 
 This code returns the legend as a chart itself. Have a look what it looks like: 
 
-```{r}
+```{r, fig.height=1}
 
 legend
 
