@@ -83,9 +83,11 @@ R is telling us that this is an object of class `lm` and that it includes a numb
 ```{r}
 summary(fit1_90)
 ```
+The coefficients suggest that, according to our fitted model, when comparing two counties with the same level of resource deprivation, the homicide rate on average will be about 3 points higher in the Southern counties than in the Northern counties. And when comparing counties "adjusting" for their location, the homicide rate will be also around 3 points higher for every one unit increase in the measure of resource deprivation. Although it is tempting to talk of the "effect" of these variables in the outcome (homicide rate), this can mislead yourself and your reader about the capacity of your analysis to establish causality, so it is safer to interpret regression coefficients as comparisons (-@Gelman_2020).
+
 With more than one input, you need to ask yourself whether all of the regression coefficients are zero. This hypothesis is tested with a F test. Again we are assuming the residuals are normally distributed, though with large samples the F statistics approximates the F distribution. You see the F test printed at the bottom of the summary output and the associated p value, which in this case is way below the conventional .05 that we use to declare statistical significance and reject the null hypothesis. At least one of our inputs must be related to our response variable. Notice that the table printed also reports a t test for each of the predictors. These are testing whether each of these predictors is associated with the response variable when adjusting for the other variables in the model. They report the "partial effect of adding that variable to the model" (-@James_2013: 77). In this case we can see that all inputs seem to be significantly associated with the output. 
 
-The interpretation or regression coefficients is sensitive to the scale of measurement of the predictors. This means one cannot compare the magnitude of the coefficients to compare the relevance of variables to predict the response variable. One way of dealing with this is by rescaling the input variables. A common method involves subtracting the mean and dividing by the standard deviation of each numerical input. The coefficients in these models is the expected difference in the response variable, comparing units that differ by one standard deviation in the predictor while adjusting for other predictors in the model. Instead, [Gelman (2008)](http://www.stat.columbia.edu/~gelman/research/published/standardizing7.pdf) has proposed dividing each numeric variables *by two times its standard deviation*, so that the generic comparison is with inputs equal to plus/minus one standard deviation. As Gelman explains the resulting coefficients are then comparable to untransformed binary predictors. The implementation of this approach in the `arm` package subtract the mean of each binary input while it subtract the mean and divide by two standard deviations for every numeric input. The way we would obtain these rescaled inputs uses the `standardize()` function of the `arm` package, that takes as an argument the name of the stored fit model.
+The interpretation or regression coefficients is sensitive to the scale of measurement of the predictors. This means one cannot compare the magnitude of the coefficients to compare the relevance of variables to predict the response variable. One way of dealing with this is by rescaling the input variables. A common method involves subtracting the mean and dividing by the standard deviation of each numerical input. The coefficients in these models is the expected difference in the response variable, comparing units that differ by one standard deviation in the predictor while adjusting for other predictors in the model. Instead, -@Gelman_2008 has proposed dividing each numeric variables *by two times its standard deviation*, so that the generic comparison is with inputs equal to plus/minus one standard deviation. As Gelman explains the resulting coefficients are then comparable to untransformed binary predictors. The implementation of this approach in the `arm` package subtract the mean of each binary input while it subtract the mean and divide by two standard deviations for every numeric input. The way we would obtain these rescaled inputs uses the `standardize()` function of the `arm` package, that takes as an argument the name of the stored fit model.
 
 ```{r}
 standardize(fit1_90)
@@ -197,7 +199,6 @@ lm.morantest(fit3_90, rwm, alternative="two.sided")
 
 You will notice we obtain a statistically significant value for Moran's I. If we diagnose that spatial autocorrelation is an issue, that is, that the errors (the residuals) are related systematically among themselves, then we likely have a problem and we may need to use a more appropriate approach: a spatial regression model. Before going down that road it is important to check this autocorrelation is not the result of an incorrectly specified model. It may appear when estimating a non-linear relationship with a linear model. In this scenario, -@Kopczewska_2021 suggests checking the remainders from the OLS estimated model on variable logarithms. It is also worth considering it may be the result of other forms of model mis-specification, such as omission of covariates or wongful inclusion of predictors.
 
-
 ## Choosing a spatial regression model
 
 ### The basic spatial models
@@ -264,7 +265,7 @@ In practice, issues with overspecification mean you rarely find applications tha
 
 ### Lagrange multipliers: the bottom-up approach to select a model
 
-The Moran's I test statistic has high power against a range of spatial alternatives. However, it does not provide much help in terms of which alternative model would be most appropriate. Until a few years ago, the solution was to look at a series of tests that were developed by -@Anselin_1998 for this purpose: the Lagrange multipliers. The Lagrange multiplier test statistics do allow a distinction between spatial error models and spatial lag models, which was the key concern before interest developed in models with more than one type of spatial effect. The Lagrange multipliers also allow to evaluate if the Kelejian/Prucha (SAC) model is appropriate, as we will explore later. This approach, starting with a baseline OLS model, test residuals, run Lagrange multipliers, and then select the SAC or SEM model is what is referred to as the *bottoms-up* or *specific to general* approach and was the dominant workflow until recently.
+The Moran's I test statistic has high power against a range of spatial alternatives. However, it does not provide much help in terms of which alternative model would be most appropriate. Until a few years ago, the main solution was to look at a series of tests that were developed by -@Anselin_1998 for this purpose: the Lagrange multipliers. The Lagrange multiplier test statistics do allow a distinction between spatial error models and spatial lag models, which was the key concern before interest developed in models with more than one type of spatial effect. The Lagrange multipliers also allow to evaluate if the Kelejian/Prucha (SAC) model is appropriate. This approach, starting with a baseline OLS model, test residuals, run Lagrange multipliers, and then select the SAC or SEM model is what is referred to as the *bottoms-up* or *specific to general* approach and was the dominant workflow until recently.
 
 Both Lagrange multiplier tests (for the error and the lagged models, `LMerr` and `LMlag` respectively), as well as their robust forms (`RLMerr` and `RLMLag`, also respectively) are included in the `lm.LMtests()` function. Again, a regression object and a spatial `listw` object must be passed as arguments. In addition, the tests must be specified as a character vector (the default is only `LMerror`), using the `c( )` operator (concatenate), as illustrated below. Alternatively one could ask to display all tests with `test="all"`. For sparser reporting we may wrap this function within a `summary()` function.
 
@@ -286,7 +287,7 @@ As noted, this way of selecting the "correct" model (the *bottoms-up approach*),
 
 ## Fitting and interpreting a spatial error model
 
-We just saw that for the case of homicide in the 90s the bottoms up approach suggested that the spatial error model was more appropriate when using our particular definition of the spatial weight matrix. In this case then, we can run a spatial error model. Maximum likelihood estimation of the spatial error model is implemented in the `spatialreg::errorsarlm()` function. The formula, data set and a `listw` spatial weights object must be specified, as illustrated below. We are still using the 10 nearest neighbours defintion. When thinking about the spatial weight matrix to use in spatial regression analysis, it is worth considering -@Smith_2009 suggestions. His work showed that highly connected matrices may result in downward bias for the coefficients when using maximum likelhood. 
+We just saw that for the case of homicide in the 90s the bottoms up approach suggested that the spatial error model was more appropriate when using our particular definition of the spatial weight matrix. In this case then, we can run a spatial error model. Maximum likelihood estimation of the spatial error model is implemented in the `spatialreg::errorsarlm()` function. The formula, data set and a `listw` spatial weights object must be specified, as illustrated below. We are still using the 10 nearest neighbours definition. When thinking about the spatial weight matrix to use in spatial regression analysis, it is worth considering -@Smith_2009 suggestions. His work showed that highly connected matrices may result in downward bias for the coefficients when using maximum likelihood. 
 
 ```{r}
 fit3_90_sem <- errorsarlm(eq1_90, data=ncovr, rwm)
@@ -299,11 +300,11 @@ How  do  you  interpret  these  results?  First  you  need  to  look at the  gen
 
 In this case, you can compare the regression coefficients with those from the OLS model, since we don't have a spatial lag capturing some of their effect. Notice how one of the most notable differences is the fact that median age is no longer significant in the new model. 
 
-We are using here the 10 nearest neighbours (following the original analysis of this data), but in real practice you would need to explore whether this is the best definition and one that makes theoretical sense. Various authors, such as -@Chi_2020, suggest that you would want to run the models with several specifications of the spatial weight matrix and find out how robust the findings are to various specifications. They even propose a particular method to pick up the "best" specification of the weight matrix.
+We are using here the 10 nearest neighbours (following the original analysis of this data), but in real practice you would need to explore whether this is the best definition and one that makes theoretical sense. Various authors, such as -@Chi_2020, suggest that you would want to run the models with several specifications of the spatial weight matrix and find out how robust the findings are to various specifications. They even propose a particular method to pick up the "best" specification of the weight matrix. -@Kopczewska_2021 provides R code and an example of checking for sensitivity of results to various specifications of the matrix.
 
 ## Fitting and interpreting a spatially lagged model
 
-We saw that in this case a spatial error model was perhaps more appropriate, but we also saw earlier in one of the simpler models that there was an interaction between the variable indicating the county is in the South and one of the explanatory variables. This is suggestive of the kind of spatial heterogeneity we were discussing a the outset of the chapter. When the relationship of the explanatory variables is not constant across the study area we need to take this into account. Fitting the same model for the whole country may not be appropriate and there are so many interaction terms you can include before things get a difficult to interpret. A fairly crude approach, instead of adding multiple interaction terms, is to partition the data. We could, in this example, partition the data into Southern and Northern counties and run separate models for this two subsets of the data. We are going to focus on the Southern countries and in a different decade, in which the lag model (as we will see) is more appropriate.
+We saw that in the previous case a spatial error model was perhaps more appropriate, but we also saw earlier in one of the simpler models that there was an interaction between the variable indicating whether the county is in the South and one of the explanatory variables. This is suggestive of the kind of spatial heterogeneity we were discussing a the outset of the chapter. When the relationship of the explanatory variables is not constant across the study area we need to take this into account. Fitting the same model for the whole country may not be appropriate and there are so many interaction terms you can include before things get a difficult to interpret. A fairly crude approach, instead of adding multiple interaction terms, is to partition the data. We could, in this example, partition the data into Southern and Northern counties and run separate models for this two subsets of the data. For the next illustration, we are going to focus on the Southern countries and in a different decade, in which the lag model (as we will see) is more appropriate.
 
 ```{r}
 # Let´s look at southern counties
@@ -328,7 +329,7 @@ fit4_70_sar <- lagsarlm(eq2_70_S, data=ncovr_s_sf, rwm_s)
 summary(fit4_70_sar)
 ```
 
-Remember  what  we  said  earlier  in  the spatial lag model we are simply adding as an additional explanatory variable the values of $y$ in the surrounding area. What we mean by "surrounding" will be defined by our spatial weight matrix. It's important to emphasise that one has to think very carefully and explore appropriate definitions of "surrounding". 
+Remember  what  we  said  earlier  in  the spatial lag model we are simply adding as an additional explanatory variable the values of $y$ in the surrounding area. What we mean by "surrounding" will be defined by our spatial weight matrix. It's important to emphasise again that one has to think very carefully and explore appropriate definitions of "surrounding". 
 
 In our spatial lag model you will notice that there is a new term $Rho$. What is this? This is our spatial lag. It is a variable that measures the homicide rate in the counties that are defined as surrounding each county in our spatial weight matrix. We are simply using this variable as an additional explanatory variable to our model, so that we can appropriately take into account  the  spatial  clustering detected  by our  Moran's  I  test.  You will  notice  that  the  estimated coefficient  for  this  term is  both  positive and  statistically  significant.  In  other  words, when  the homicide rate in surrounding areas increases, so does the homicide rate in each country, even when we adjust for the other explanatory variables in our model. 
 
@@ -338,13 +339,11 @@ How about the coefficients? It may be tempting to look at the regression coeffic
 
 *"Interpreting  the substantive  effects  of  each  predictor  in  a spatial lag  model  is  much  more  complex  than  in  a nonspatial model (or in a spatial error model) because of the presence of the spatial multiplier that links  the  independent  variables  to  the  dependent.  In  the nonspatial model, it  does  not  matter which unit is experiencing the change on the independent variable. The effect" in the dependent variable "of a change" in the value of an independent variable "is constant across all observations"* (Darmofal, 2015: 107). 
 
-Remember we say, when interpreting a regression coefficient for variable $x_i$,  that they indicate how much $Y$ goes up or down for every one unit increase in $X_i$  when holding all other variables in the model constant. [[[[]]]]] 
+Remember we say, when interpreting a regression coefficient for variable $x_i$,  that they indicate how much $y$ goes up or down for every one unit increase in $x_i$  when holding all other variables in the model constant. In our example, for the nonspatial model this "effect" is the same  for  every  county  in  our  dataset.  But  in  the  spatial  lag  model  things  are  not  the same.  We cannot interpret the regression coefficients for the substantive predictors in the same way because the "substantive effects of the independent variables vary by observation as a result of the different neighbors for each unit in the data" (-@Darmofal_2015: 107).
 
-In our example, for the nonspatial model this effect is the same  for  every  county  in  our  dataset.  But  in  the  spatial  lag  model  things  are  not  the same.  We cannot interpret the regression coefficients for the substantive predictors in the same way because the "substantive effects of the independent variables vary by observation as a result of the different neighbors for each unit in the data" (-@Darmofal_2015: 107).
+In  the  standard OLS  regression  model,  the  coefficients  for  any  of  the  explanatory  variables  measure  the absolute "impact" of these variables. It is a simpler scenario. We look at the "effect" of $x$ in $y$ within each county. So $x$ in county A affects $y$ in count A. In the spatial lag model there are two components to how  $x$  affect  $y$.  The predictor $x$  affects  $y$  within  each  county  directly  but  remember  we  are  also  including  the spatial lag, the measure of $y$ in the surrounding counties (call them B, C, and D).  By virtues of including the spatial lag (a measure of $y$ in county B, C and D) we are indirectly incorporating as well the "effects" that $x$ has on $y$ in  counties  B,  C,  and  D. So  the  "effect"  of  a  covariate  (independent  variable)  is  the  sum  of  two particular "effects": a direct, local effect of the covariate in that unit, and an indirect, spillover "effect" due to the spatial lag.
 
-In  the  standard OLS  regression  model,  the  coefficients  for  any  of  the  explanatory  variables  measure  the absolute impact of these variables. It is a simpler scenario. We look at the effect of $x$ in $y$ within each county. So $x$ in county A affects $y$ in count A. In the spatial lag model there are two components to how  $x$  affect  $y$.  The predictor $x$  affects  $y$  within  each  county  directly  but  remember  we  are  also  including  the spatial lag, the measure of $y$ in the surrounding counties (call them B, C, and D).  By virtues of including the spatial lag (a measure of $y$ in county B, C and D) we are indirectly incorporating as well the effects that $x$ has on $y$ in  counties  B,  C,  and  D. So  the  effect  of  a  covariate  (independent  variable)  is  the  sum  of  two particular effects: a direct, local effect of the covariate in that unit, and an indirect, spillover effect due to the spatial lag.
-
-In, other words, in the spatial lag model, the coefficients only focus on the "short-run impact" of $x_i$ on $y_i$ , rather than the net effect. As -@Ward_2008 explain "Since the value of  $y_i$  will influence the level of" homicide "in other" counties $y_j$  and these $y_j$ , in turn, feedback on to $y_i$ , we need to take into account the additional effects that the short impact of $x_i$  exerts on $y_i$  through its impact on the level of" homicide "in other" counties. You can still read the coefficients in the same way but need to keep in mind that they are not measuring the net effect. Part of their effect will be captured  by  the  spatial  lag.  Yet,  you  may  still  want  to  have  a  look  at  whether  things change dramatically, particularly in terms of their significance (which is not the case in this example).
+In, other words, in the spatial lag model, the coefficients only focus on the "short-run impact" of $x_i$ on $y_i$ , rather than the net "effect". As -@Ward_2008 explain "Since the value of  $y_i$  will influence the level of" homicide "in other" counties $y_j$  and these $y_j$ , in turn, feedback on to $y_i$ , we need to take into account the additional effects that the short impact of $x_i$  exerts on $y_i$  through its impact on the level of" homicide "in other" counties. You can still read the coefficients in the same way but need to keep in mind that they are not measuring the net "effect". Part of their "effect" will be captured  by  the  spatial  lag.  Yet,  you  may  still  want  to  have  a  look  at  whether  things change dramatically, particularly in terms of their significance (which is not the case in this example).
 
 In sum, this implies that a change in the $ith$ region’s predictor can affect the $jth$ region’s outcome. We have 2 situations: (a) the direct impact of an observation’s predictor on its own outcome, and (b) the indirect impact of an observation’s neighbor’s predictor on its outcome. This leads to three quantities that we want to know:
 
@@ -352,33 +351,22 @@ In sum, this implies that a change in the $ith$ region’s predictor can affect 
 - Average Total impact, which would be the total of direct and indirect impacts of a predictor on one’s outcome
 - Average Indirect impact, which would be the average impact of one’s neighbors on one’s outcome
 
-These quantities can be found using the `impacts()` function in the `spdep` library. We follow the example that converts the spatial weight matrix into a “sparse” matrix, and power it up using the `trW()` function. This follows the approximation methods described in Lesage and Pace, 2009. Here, we use Monte Carlo simulation to obtain simulated distributions of the various impacts. 
+These quantities can be found using the `impacts()` function in the `spdep` library. We follow the example that converts the spatial weight matrix into a “sparse” matrix, and power it up using the `trW()` function. This follows the approximation methods described in -@LeSage_2009. Here, we use Monte Carlo simulation to obtain simulated distributions of the various impacts. 
 
 ```{r}
 W <- as(rwm_s, "CsparseMatrix")
 trMC <- trW(W, type="MC")
-im<-impacts(fit4_70_lag, tr=trMC, R=100)
-sums<-summary(im,  zstats=T)
-#To print the coefficients
-data.frame(sums$res)
-```
-
-```{r}
-#To print the p values
-data.frame(sums$pzmat)
+fit4_70_sar.im <- impacts(fit4_70_sar, tr=trMC, R=100)
+summary(fit4_70_sar.im, zstats=TRUE, short=TRUE)
 ```
 
 We see that all the variables have significant direct, indirect and total effects. You may want to have a look at how things differ when you just run a non spatial model.
 
-```{r}
-summary(fit4_70)
-```
-
 ## Beyond the SAR and SEM models
 
-Given the "galaxy" of spatial models, newer approaches to select the one to run have been proposed. -@LeSage_2009 proposes a *top-down* approach that involved starting with the spatial Durbin model (SDM) and based on likelihood ratio tests to select the best model. -@Elhorst_2010, on the other hand, proposes to start with the OLS model, run the Lagrange multipliers, and then run a likelihood ratio test to see if the spatial Durbin model would be more appropriate.
+Given the "galaxy" of spatial models, newer approaches to select the one to run have been proposed. -@LeSage_2009 proposes a *top-down* approach that involved starting with the spatial Durbin model (SDM) and based on likelihood ratio tests to select the best model. -@Elhorst_2010, on the other hand, proposes to start with the OLS model, run the Lagrange multipliers, and then run a likelihood ratio test to see if the spatial Durbin model would be more appropriate. Why the Durbin model? Why not Manski or the SAR model? -@Elhorst_2010 corroborates that the Manski model can be estimated but the parameters cannot be interpreted in a meaningful way (the endogenous and exogenous effects cannot be distinguished from each other) and the SAR or Kelejian/Prucha model "will suffer from omitted variables bias if the true data-generation process is a spatial Durbin or a spatial Durbin error model" and that similarly the same happens for the spatial Durbin error model" (p. 14).
 
-If you paid attention the summary of the lag model we ran in the previous seciont included at the bottom a test for remaining residual spatial autocorrelation. This means our model is still not filtering all the spatial dependency that is present here. Perhaps here, we need to consider if the spatial Durbin model (SDM) would be more appropriate. We can run this model and then contrast it with the SAR model.
+If you paid attention the summary of the lag model we ran in the previous section included at the bottom a test for remaining residual spatial autocorrelation. This means our model is still not filtering all the spatial dependency that is present here. Perhaps here, and following the workflow proposed by -@Elhorst, we need to consider if the spatial Durbin model (SDM) would be more appropriate. We can run this model and then contrast it with the SAR model.
 
 ```{r}
 fit4_70_sdm <- lagsarlm(eq2_70_S, data=ncovr_s_sf, rwm_s, Durbin = TRUE,
@@ -386,38 +374,62 @@ fit4_70_sdm <- lagsarlm(eq2_70_S, data=ncovr_s_sf, rwm_s, Durbin = TRUE,
 summary(fit4_70_sdm)
 ```
 
-We can then compare the nested models with AIC and BIC. Using this information criteria, we choose the model with the lowest AIC and BIC.
+We can then compare the nested models using information criteria with ``AIC()` and `BIC()`. Using this information criteria, we choose the model with the lowest AIC and BIC.
 
 ```{r}
-class(fit4_70_sar)
 output_1 <- AIC(fit4_70, fit4_70_sar, fit4_70_sdm)
 output_2 <- BIC(fit4_70, fit4_70_sar, fit4_70_sdm)
 table_1 <- cbind(output_1, output_2)
 table_1
 ```
 
-Our results indicate that AIC favours the SDM model whereas the BIC favours the simpler SAR model. We can also run a likelihood ratio test to compare the two spatial nested models using `spatialreg::LR.Sarlm()` (that deprecates `spded::LR.sarlm()` you may still see mentioned in other textbooks):
+Our results indicate that AIC favours the SDM model whereas the BIC favours the simpler SAR model. We can also run a likelihood ratio test to compare the two spatial nested models using `spatialreg::LR.Sarlm()` (that deprecates `spded::LR.sarlm()` you may still see mentioned in other textbooks). Here we look for the model with the highest log likelihood:
 
 ```{r}
-LR.Sarlm(fit4_70_sar, fit4_70_sdm)
+LR.Sarlm(fit4_70_sdm, fit4_70_sar)
 
 ```
 
 The LR test is significant suggesting we should favour the spatial Durbin model. If it had been insignificant we would have had to choose the more parsimonious model.
 
-As with the spatial lag model, here we need to be careful when interpreting the regression coefficients. We also need to estimate the "impacts" in a similar manner we illustrated above.```+++
+As with the spatial lag model, here we need to be careful when interpreting the regression coefficients. We also need to estimate the "impacts" in a similar manner we illustrated above.
+
+```{r}
+fit4_70_sdm.im <- impacts(fit4_70_sdm, tr=trMC, R=100)
+summary(fit4_70_sdm.im, zstats=TRUE, short=TRUE)
+```
+
+Notice how in this model only three inputs remain significant, resource deprivation, population structure, and unemployment. The sign of the coefficients remain the same for all the inputs. In most circunstances we see that when the direct effect is positive the indirect effect is also positive, and when the direct is negative the indirect is negative. Only for the insignificant effect of divorce we see a positive direct effect and a negative indirect effect.
+
+As suggested by -@Kopczewska_2021, we can also examine the proportion of the direct effect in the total effect:
+
+```{r}
+direct <- fit4_70_sdm.im$res$direct	 
+indirect <- fit4_70_sdm.im$res$indirect	
+total <- fit4_70_sdm.im$res$total	 
+direct/total		 	 	 	 
+```
+
+The proportion of the (significant) direct effect ranges from 14% (for unemployment), fairly marginal, to 54% (for resource deprivation), about half of it. Another way of looking at it is by relation of the direct to the indirect effect by looking at its ratio in absolute values:
+
+```{r}
+abs(direct)/abs(indirect)
+```
+When the ratio is greater than 1 this suggest that the direct effect prevails, as we see for resource deprivation. With a score lower than 1 this indicates that the spillover effect is greater than that of internalisation as we see for population structure and unemployment.
 
 ## Further reading
 
-Bla bla bla only superficial, havent covered details about estimation, bla bla bla... other approaches other packages...
+This chapter has introduced some of the issues associated with spatial regression. We have deliberately avoided mathematical detail and focused instead on providing a general and more superficial introduction of some of the issues associated with fitting, choosing, and interpreting basic spatial regression models in R. We have also favoured the kind of models that have been previously discussed in the criminological literature, those relying on the frequentist tradition, use of maximum likelihood, simultaneous autoregressive models, and the incorporation of the spatial structure through a neighbourhood matrix. These are not the only ways of fitting spatial regression, though.  The functions of `spatialreg`, for example, allow for newer generalized method of moments (GMM) estimators. On the other hand, other scientific fields have emphasised conditional autoregressive models (see -@Wall_2004 for the difference between CAR and SAR) and there is too a greater reliance, for example in spatial epidemiology, on Bayesian approaches. Equally we have only focused on cross sectional models, without any panel or spatio-temporal dimension to them. As Ralph Sockman was attributed to say "the larger the island of knowledge, the longer the shoreline of wonder". Learning more about spatial analysis only leads to discovering there is much more to learn. This chapter mostly aims to make you realise this about spatial regression and hopefully tempt you into wanting to continue this journey. In what follows we offer suggestions for this path.
 
-There are a number of accessible, if somehow dated, introductory discussions of spatial regression for criminologists: -@Tita_2010 and -@Bernasco_2010. The books by -@Ward_2008, -@Darmofal_2015, and -@Chi_2020 expand this treatment with the social student in mind. Pitched at a similar level is -@Anselin_2014. More mathematically detailed treatment and a wider diversity of models, including those appropriate for panel data, is provided in several spatial econometric books such as -@LeSage_2009, -@Elhorst_2014 or -@Kelejian_2017.
+There are a number of accessible, if somehow dated, introductory discussions of spatial regression for criminologists: -@Tita_2010 and -@Bernasco_2010. The books by -@Ward_2008, -@Darmofal_2015, and -@Chi_2020 expand this treatment with the social student in mind. Pitched at a similar level is -@Anselin_2014. More mathematically detailed treatment and a wider diversity of models, including those appropriate for panel data, is provided in several spatial econometric books such as -@LeSage_2009, -@Elhorst_2014 or -@Kelejian_2017. In this econometric books you will also find more details about a newer approaches to estimation, such as GMM. If you are interested in exploring the Bayesian approach to modeling spatial lattice data, we suggest you start with -@Haining_2020. For bayesian disease mapping you may be well advise to focus on -
+
+There are also a number of resources that focus on R capabilities for spatial regression. It is important to highlight that many of these, even the more recent ones, do not account properly for how `spatialreg` has deprecated the regression functionality of `spdep`, even if they still provide useful instruction (for the basic architecture of the functions that have migrated to `spatialreg` has not being started from scratch). 
 
 -@Kopczewska_2021
 
 -@Arbia_2014
+
 https://openjournals.wu-wien.ac.at/ojs/index.php/region/article/view/254
-https://crd230.github.io/lab8.html#Spatial_error_model
-https://spatialanalysisonline.com/An%20Introduction%20to%20Spatial%20Data%20Analysis%20in%20R.pdf
-https://www.jstatsoft.org/article/view/v063i18
+
 https://rpubs.com/quarcs-lab/tutorial-spatial-regression
+
