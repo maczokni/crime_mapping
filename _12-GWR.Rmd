@@ -4,37 +4,157 @@
 
 One of the challenges of spatial data is that we may encounter exceptions to stationary processes. There may be, for example, parameter variability across the study area. When we have homogeneity everything is the same everywhere, in terms of our regression equation, the parameters are constant. But as we illustrated via an interaction term in the last chapter, that may not be the case. We can encounter situations where a particular input has a different effect in parts of our study area. In this chapter we explore this issue and a number of solutions that have been proposed to deal with it. It goes without saying that having extreme heterogeneity creates technical problems for estimation. If everything is different everywhere we may have to estimate more parameters that we have data for.
 
-One way of dealing with this is by imposing some form of structure, which we did last week, for example when we partition the data and fitted a separate model for the Southern counties. Unlike data partition, **full spatial regimes** also imply using different coefficients for each subset of the data but you fit everything in one go, but essentially is the same as running as many models as subsets you have. As Luc Anselin highlights in his lectures, this corrects for heterogeneity but does not explain it. We can then test whether this was necessary, using a *Chow test* comparing the simpler model with the one where we allow variability. Of course, we can also include spatial dependence in these models.
+One way of dealing with this is by imposing some form of structure, which we did last week, for example when we partition the data and fitted a separate model for the Southern counties. Unlike data partition, **full spatial regimes** also imply using different coefficients for each subset of the data but you fit everything in one go, essentially is the same as running as many models as subsets you have. As Luc Anselin highlights in his lectures, this corrects for heterogeneity but does not explain it. We can then test whether this was necessary, using a *Chow test* comparing the simpler model with the one where we allow variability. Of course, we can also include spatial dependence in these models.
+
+Another way of dealing with heterogeneity is by allowing continuous variation, rather than discrete (as when we subset the data), of the parameters. A popular method for doing this is **geographically weighted regression (GWR)**. This is a case of a local regression where you try to estimate a different set of parameters for each location and these parameters are obtained from a subset of observation using kernel regression. In traditional local regression we select the subset in the attribute space (observations with similar attributes), in GWR the local subset is defined in a geographical sense using a kernel (remember how we used kernels for density estimation to define a set of "neighbors"). We are estimating regression equations based on nearby locations as specified by our kernel and this produces a different coefficient for each location. As with kernel density estimation you can distinguish between fixed bandwidth and adaptive bandwidth.
+
+For this session we will need to load the following packages:
+
+```{r libraryload, message=FALSE, warning=FALSE}
+
+library(tidyr)
+library(dplyr)
+# Packages for handling spatial data and for geospatial carpentry
+library(sf)
+library(sp)
+library(spdep)
+# Packages for regression and spatial regression
+library(spatialreg)
+# Packages for mapping and visualisation
+library(tmap)
+library(ggplot2)
+# Packages with spatial datasets
+library(geodaData)
+```
 
 
+## Spatial regimes
 
-[[Already have an introduction to spatial hetereogeneity in the intro to the next chapter, where we say we will talk about solutions here. It possibly makes sense to move here the business about spatial regimes and data partition as a first way to deal with spatial heterogeneity and then introduce GWR as a more localised solution]]
+### Fitting the constrained and the unconstrained models
 
-## Heterogeneity, spatial regimes, and data partition
+To illustrate this solution we will go back to the "ncovr" data we explored last week and use the same spatial weight matrix as in the previous chapter. If you have read the -@Baller_2001 paper that we are in a way replicating here, you could see they decided that they needed to run separate models for the South and the North. Let´s explore this here.
 
-Before  we  proceed  to  a  more  detailed  description  of  these  two models  it is  important  that  we return to the issue of heterogeneity. We looked at whether the role of how resource deprivation was different in Southern and Northern states. We found that this interaction was indeed significant. Resource deprivation had a more significant effect in Southern than in Northern states. 
- 
-If you have read the Baller et al. (2001) paper that we are in a way replicating here, you could see they decided that they needed to run separate models for the South and the North....  
-
-This kind of  situation,  where  sub-regions, seem  to  display  different  patterns often  is alluded with  the  name  of  spatial  regimes.  In  the  context of  regression  analysis,  spatial  regimes relates to the possibility that we may need to split our data into two (or more sub-regions) in order to run our models, because we presume that the relationship of the predictors to the outcome may play out differently in these sub-regions (spatial regimes). 
- 
-So  how  can  we  assess  whether  this  is  an  issue  in  our  data?  As with  many  other  diagnostics  of regression,  you  may  want  to  start  by  looking  at  your  residuals.  Look  at  the  residual  map  we produced earlier. Do you think that the residuals look different in the South and in the North? If the pattern is not clear to you, you may want to run other forms of visualisation. 
- 
 ```{r}
+data("ncovr")
+# We coerce the sf object into a new sp object
+ncovr_sp <- as(ncovr, "Spatial")
+# Then we create a list of neighbours using 10 nearest neighbours criteria
+xy <- coordinates(ncovr_sp)
+nb_k10 <- knn2nb(knearneigh(xy, k = 10))
+rwm <- nb2mat(nb_k10, style='W')
+rwm <- mat2listw(rwm, style='W')
+# remove redundant objects
+rm(list = c("ncovr_sp", "xy", "nb_k10"))
+```
 
-ggplot(ncovr_sf, aes(x = res_fit1, colour = as.factor(SOUTH))) + 
+We can start by running a model for the whole country to use as a baseline model:
+
+```{r}
+fit1_70 <- lm(HR70 ~ RD70 + PS70 + MA70 + DV70 + UE70, data = ncovr)
+summary(fit1_70)
+```
+
+A simple visualisation of the residuals suggest the model may not be optimal for the entire study region:
+
+```{r}
+ncovr$res_fit1 <- fit1_70$residuals
+ggplot(ncovr, aes(x = res_fit1, colour = as.factor(SOUTH))) + 
   geom_density() 
 ```
 
-What do you see in this plot? And, critically, what does it mean? What is this telling you about the predicted values that result from our model? (Remember what a residual is: the difference between the observed values and the predicted values). 
-
-There are formal tests that one can use to further explore these issues. The paper by Bollen et al. (2001) mentions them (Chow tests). But those are beyond the scope of this course. Sufficient to say that,  as  Bollen  et  al.  (2001),  we  are  going  to  split  our  analysis  and  run  them  separately  for  the Southern and the Northern states. We have covered the `filter()` function from `dplyr` to split datasets based on values of a variable. But to split `sf` objects it is better to rely on the more generic subset function, since `filter()` doesn't accommodate well the column with the geographic information that `sf` provides.
+To be able to fit these spatial regimes, that will allow for separate coefficients for counties in the North and those in the South, first we need to define a dummy for the Northern counties, and we create a vector of 1.
 
 ```{r}
-ncovr_s_sf <- subset(ncovr_sf, SOUTH == 1)
-ncovr_n_sf <- subset(ncovr_sf, SOUTH == 0)
+ncovr$NORTH <- recode(ncovr$SOUTH, `1` = 0, `0` = 1)
+ncovr$ONE <- 1
 ```
- `DV90` divorce rate, `MA90` the median age, `PS90` - population structure, and `UE90` unemployment. 
+
+Having created these new columns we can fit a standard OLS model interacting the inputs with our dummies and setting the intercept to 0, so that each regime is allowed its own intercept:
+
+```{r}
+fit2_70_sr <- lm(HR70 ~ 0 + (ONE + RD70 + PS70 + MA70 + DV70 + UE70):(SOUTH + NORTH), data = ncovr)
+summary(fit2_70_sr)
+```
+
+We can see a higher intercept for the South, reflecting the higher level of homicide in these counties. Aside from this, the two more notable differences are, on the one hand, the insignificant effect of unemployment in the North, and the higher impact of the divorce rate in the North.
+
+### Running the Chow test
+
+The Chow Test is often used in econometrics to determine whether the independent variables have different impacts on different subgroups of the population. -@Anselin_2007 provides an implementation for this test, that extracts the residuals and the degrees of freedom from the constrained (the simpler oLS model) and the unconstrained models (the less parsimonious spatial regime), and then computes the test based on the F distribution.
+
+```{r}
+chow.test <- function(rest,unrest)
+{
+er <- residuals(rest)
+eu <- residuals(unrest)
+er2 <- sum(er^2)
+eu2 <- sum(eu^2)
+k <- rest$rank
+n2k <- rest$df.residual - k
+c <- ((er2 - eu2)/k) / (eu2 / n2k)
+pc <- pf(c,k,n2k,lower.tail=FALSE)
+list(c,pc,k,n2k)
+}
+
+```
+
+With the function in our environment we can then run the test, which will yield the test statistic, the p value, and two degrees of freedom.
+
+```{r}
+ chow.test(fit1_70,fit2_70_sr)
+
+```
+
+How we interpret this test? When the Chow test is significant, as here, this provides evidence of spatial heterogeneity and in favour of fitting a spatial regime model, allowing for non-constant coefficients across the discrete subsets of data that we have specified.
+
+### Spatial dependence with spatial heterogeneity
+
+So far we have only adjusted for a form of spatial heterogeneity in our model, but we may still have to deal with spatial dependence. Here what we covered in the previous chapter, still applies. We can run the various specification tests and then select a model that adjust for spatial dependence.
+
+```{r}
+summary(lm.LMtests(fit2_70_sr, rwm, test = c("LMerr","LMlag","RLMerr","RLMlag")))
+```
+
+The Lagrange multiplier tests, according to Anselin suggestions for how to interpret these, point to a spatial lag model (since RLMlag is several orders more significant than the error alternative).
+
+We could then fit this model using `sp
+
+```{r}
+fit3_70_sr_sar <- lagsarlm(HR70 ~ 0 + (ONE + RD70 + PS70 + MA70 + DV70 + UE70):(SOUTH + NORTH), data = ncovr, rwm)
+summary(fit3_70_sr_sar)
+```
+
+We see that the AIC is better than for the non-spatial model and that there is no more residual autocorrelation. We could explore other specifications (ie spatial Durbin model) and the same caveats about interpreting coefficients in a spatial lag model we raised in the previous chapter would apply here. If the Lagrange multiplier tests had suggested a spatial error model, we could also have fitted the model in the way we have also already covered simply adjusting the regression formula as in this section.
+
+We can now also run a Chow test, only in this case, we need to adjust the previous one to account for spatial dependence. -@Anselin_2007 also providesfor an implementation of this test in R with the following ad hoc function:
+
+```{r}
+spatialchow.test <- function(rest,unrest)
+{
+lrest <- rest$LL
+lunrest <- unrest$LL
+k <- rest$parameters - 2
+spchow <- - 2.0 * (lrest - lunrest)
+pchow <- pchisq(spchow,k,lower.tail=FALSE)
+list(spchow,pchow,k)
+}
+```
+
+This function will test a spatial lag model for the whole country as a whole with the spatial lag model with our data partitions. So first we need to estimate the appropriate lag model to be our constrained model:
+
+```{r}
+fit4_70_sar <- lagsarlm(HR70 ~ RD70 + PS70 + MA70 + DV70 + UE70, data = ncovr,
+                    rwm)
+
+```
+
+Which we can then use in the newly created function:
+
+```{r}
+spatialchow.test(fit4_70_sar, fit3_70_sr_sar)
+```
+
+The test is again highly significant providing evidence for the spatial lag model with the spatial regimes.
 
 ## GWR
 
@@ -51,20 +171,19 @@ Geographically Weighted Regression can be used for a variety of applications, in
 
 GWR provides three types of regression models: Continuous, Binary, and Count. These types of regression are known in statistical literature as Gaussian, Logistic, and Poisson, respectively. The Model Type for your analysis should be chosen based on how your Dependent Variable was measured or summarized as well as the range of values it contains. 
 
-GWR works by moving a search window from one point in a data set to the next, working through them all in sequence. As the search window rests on asamplepoint, all other points that are around it and within the search window are identified. A regression model is then fitted to that subset of the data, giving most weight to the points that are closest to the one at the centre. For a data set of 2536 observations GWRwill, then, fit 2536 weighted regression models, the results of which are compared to look for geographical variation.This immediately raises a question –whatarea should the search window cover each time? The answer is provided by a process of calibration, to select an “optimal” bandwidth (an optimal search window size).Note that the distance from one point to another can be defined in two ways: either by actual geographic distance or by whether it’s the first nearest neighbour, the second, the third and so forth. If the number of neighbours within the search window is fixed then it willvaryin areafrom point to point: where the sample points are close together thewindow will have less area;where the points are sparse it will fill a greater area. This is called an adaptive window and is usually better for analysing census data (because census zones are of a variable size: smaller where population density ishigher and vice versa). 
+GWR works by moving a search window (defined by our kernel) from one point in a data set to the next, working through them all in sequence. As the search window rests on asamplepoint, all other points that are around it and within the search window are identified. A regression model is then fitted to that subset of the data, giving most weight to the points that are closest to the one at the centre. For a data set of 2536 observations GWRwill, then, fit 2536 weighted regression models, the results of which are compared to look for geographical variation.This immediately raises a question –whatarea should the search window cover each time? The answer is provided by a process of calibration, to select an “optimal” bandwidth (an optimal search window size).Note that the distance from one point to another can be defined in two ways: either by actual geographic distance or by whether it’s the first nearest neighbour, the second, the third and so forth. If the number of neighbours within the search window is fixed then it willvaryin areafrom point to point: where the sample points are close together thewindow will have less area;where the points are sparse it will fill a greater area. This is called an adaptive window and is usually better for analysing census data (because census zones are of a variable size: smaller where population density ishigher and vice versa). 
 
 
 ```{r getdataforgwr}
 
-library(sf)
+
 
 toronto <- st_read("data/toronto_c.geojson")
 # crimes <- st_read("data/neighbourhood-crime-rates.geojson")
 ksi_collisions <- st_read("data/Motor Vehicle Collisions with KSI Data.geojson")
 wellbeing <- readxl::read_xlsx("data/wellbeing-toronto-environment.xlsx")
 
-library(ggplot2)
-library(dplyr)
+
 
 num_ksi <- ksi_collisions %>% 
   filter(YEAR == 2019) %>% 
@@ -125,7 +244,7 @@ thing <- ksi_collisions %>%
 
 length(unique(ksi_collisions$ACCNUM))
 
-library(tidyr)
+
 
 thing <- ksi_collisions %>% 
   st_drop_geometry() %>% 
@@ -164,8 +283,17 @@ num_ksi <- num_ksi %>% unique()
 
 ```
 
+GWR is a good **exploratory** tool but there are some issues. 
+Practical issues with GWR (see Anselin lecturem 1.03):
+- choice of bandwidth
+- parameter inference
+
 
 
 ## Recommended reading
 
+Luc Anselin lecture on specification of spatial heterogeneity is particularly helpful as an introduction to the issues and solutions we have discussed in this chapter.
+
 Fotheringham et al.(2002) Geographically Weighted Regression: The Analysis of Spatially Varying Relationship, published by Wiley
+
+Spatial random effects... (CAR and Bayesian models)
