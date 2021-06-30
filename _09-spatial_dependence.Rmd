@@ -2,11 +2,11 @@
 
 ## Introduction
 
-This session we begin to explore the analysis of spatial autocorrelation statistics. Spatial autocorrelation is the correlation among data values, strictly due to the relative location proximity of the objects that the data refer to. It has been long known that values attribute values that are close together in space are unlikely to be independent. This is often referred to as Tobler's first law of geography : "everything is related to everything else, but near things are more related than distant things". For example, if area $n_i$ has a high level of violence, we often observe that the areas geographically close to $n_i$ tend to also exhibit high levels of violence. Spatial autocorrelation is the measure of this *correlation* between near things.
+This session we begin to explore the analysis of spatial autocorrelation statistics. It has been long known that attribute values that are close together in space are unlikely to be independent. This is often referred to as Tobler's first law of geography : "everything is related to everything else, but near things are more related than distant things". For example, if area $n_i$ has a high level of violence, we often observe that the areas geographically close to $n_i$ tend to also exhibit high levels of violence. Spatial autocorrelation is the measure of this *correlation* between near things.
 
-The analysis of spatial dependence and global clustering is general a first step before we explore the location of clusters. In spatial statistics we generally distinguish global clustering from the detection of local clusters. Some techniques, the focus of this chapter, are based on the global view and is appropriate for assessing the existence of hot spots in the whole distribution, or *clustering*. It is important to first evaluate the presence of clustering before one explores the location of clusters -which we will cover in the next chapter.
+The analysis of spatial dependence and global clustering is generally a first step before we explore the location of clusters. In spatial statistics we generally distinguish global clustering from the detection of local clusters. Some techniques, the focus of this chapter, are based on the global view and is appropriate for assessing the existence of dependence in the whole distribution, or *clustering*. It is important to first evaluate the presence of clustering before one explores the location of *clusters* -which we will cover in the next chapter.
 
-In this chapter we are going to discuss ways in which you can quantify the answer to this question. We will start introducing methods to assess spatial clustering with point pattern data, which typically start from exploring continuous distance between the location of the points. Then, we will discuss measures of **global spatial autocorrelation** for lattice data, which essentially aim to answer the degree to which areas that are near each other tend to be more alike. We say global because we are interested in the degree of clustering not on the location of the clusters, this we will cover in the next chapter. 
+In this chapter we are going to discuss ways in which you can quantify the answer to this question. We will start introducing methods to assess spatial clustering with point pattern data, which typically start from exploring continuous distance between the location of the points. Then, we will discuss measures of global spatial autocorrelation for lattice data, which essentially aim to answer the degree to which areas (census tracts, police precincts, etc) that are near each other tend to be more alike. 
 
 We will be making use of the following packages:
 
@@ -29,7 +29,6 @@ library(rgeoda)
 library(tmap)
 library(ggplot2)
 library(ggspatial)
-
 ```
 
 ## Exploring spatial dependence in point pattern data
@@ -41,24 +40,24 @@ In Chapter 7 we assessed homogeneity, or lack of, in point pattern data. Another
 
 In chapter 7 we covered the Chi Square test and we very briefly discussed how it can only help us to reject the notion of spatial randomness in our point pattern, but it cannot help us to determine whether this is due to varying intensity or to interpoint dependence.
 
-Both processes may lead to observed clustering:
+Both processes may lead to apparent observed clustering:
 -First order clustering near particular locations in the region of study takes place when we observe more points in certain neighborhoods or street segments or whatever our unit of interest is.
 -Second order clustering means that we observe more points around a given location in a way that is associated with the appearance of points around this given location.
 
 This may sound subtle and in practice it may be difficult, nearly impossible, to distinguish "first order inhomogeneity" and "second order clustering due to interactions between points" based on a single point pattern. [^1]
 [^1]: These observations are citing the answer provided by "whuber" and "Ege Rubak" in Stack Exchange about this issue (https://stats.stackexchange.com/questions/411402/spatial-point-process-does-an-inhomogeneous-first-order-intensity-function-affe).
 
-A technique very commonly used to assess whether points are independent is Ripley´s K-function. For exploring global clustering in a point pattern we use the K-function. This technique will assess if the point pattern has clustering, but it will not reveal the locations of these clusters. -@Baddeley_2016 defines the K function as the "cumulative average number of data points lying within a distance $r$ of a typical data point, corrected for edge effects, and standardised by dividing by the intensity." (p. 204). This is a test that, as we will see, assumes that the process is spatially homogeneous. As -@Lu_2007 indicate:
+A technique very commonly used to assess whether points are independent is Ripley´s K-function. For exploring global clustering in a point pattern we use the K-function. -@Baddeley_2016 defines the K function as the "cumulative average number of data points lying within a distance $r$ of a typical data point, corrected for edge effects, and standardised by dividing by the intensity." (p. 204). This is a test that, as we will see, assumes that the process is spatially homogeneous. As -@Lu_2007 indicate:
 
 >"The basic idea of K-function is to examine whether the observed point distribution is different from random distributions. In a random distribution, each point event has the equal probability to occur at any location in space; the presence of one point event at a location does not impact the occurrence possibilities of other point events." (p. 613)
 
-Imagine we want to know if the location of crime events are independent. Ripley´s K function evaluates distances across crime events to assess this. In this case, it would count the number of neighboring crime events represented by the points found within a given distance of each individual crime location. The number of observed neighboring crime events is then traditionally compared to the number of crime events one would expect to find based on a completely spatially random point pattern. If the number of crimes found within a given distance of each individual crime is greater than that for a random distribution, the distribution is then considered to be clustered. If the number is smaller, the distribution is considered to be dispersed. 
+Imagine we want to know if the location of crime events are independent. Ripley´s K function evaluates distances across crime events to assess this. In this case, it would count the number of neighboring crime events represented by the points found within a given distance of each individual crime location. The number of observed neighboring crime events is then traditionally compared to the number of crime events one would expect to find based on a completely spatially random point pattern. If the number of crimes found within a given distance of each individual crime is greater than that for a random distribution, the distribution is then considered to be clustered. If the number is smaller, the distribution is considered not to be clustered. 
 
-Typically, what we do to study correlation in a point pattern data is to plot the empirical K function estimated from the data and compare this with the theoretical K-function of the homogeneous Poisson process. For this to work, we need to assume that the process is spatially homogeneous. If we suspect this is not the case, then we cannot use the standard Ripley´s K methods. Let´s illustrate how all this works.
+Typically, what we do to study correlation in a point pattern data is to plot the empirical K function estimated from the data and compare this with the theoretical K-function of the homogeneous Poisson process. So, for this to work, we need to assume that the process is spatially homogeneous. If we suspect this is not the case, then we cannot use the standard Ripley´s K methods. Let´s illustrate how all this works.
 
 ### Homicide in Buenos Aires
 
-For this exercise we travel to Buenos Aires, the capital and largest city in Argentina.  The government of Buenos Aires provides open geocoded crime data from 2016 onwards. The data is freely available from the official source (http://mapa.seguridadciudad.gob.ar/). But we have added it already as supplementary material available from our OSF account. We will filter on "homicidios dolosos", intentional homicides and we are using all homicides from 2016 and 2017. After reading the .csv file we turn it into a `sf` object and plot it. We are also reading a GeoJSON file with the administrative boundary of Buenos Aires. The code below uses functions in ways we have demonstrated in earlier chapters.
+For this exercise we travel to Buenos Aires, the capital and largest city in Argentina.  The government of Buenos Aires provides open geocoded crime data from 2016 onwards. The data is freely available from the official source (http://mapa.seguridadciudad.gob.ar/). But we have added it already as supplementary material available from our OSF account. We will filter on "homicidios dolosos" (intentional homicides) and we are using all homicides from 2016 and 2017. After reading the .csv file we turn it into a `sf` object and plot it. We are also reading a GeoJSON file with the administrative boundary of Buenos Aires. The code below uses functions in ways we have demonstrated in earlier chapters.
 
 ```{r, message=FALSE, warning=FALSE}
 
@@ -123,7 +122,7 @@ E_1 <- envelope(delitos_jit, Kest, nsim=39, rank = 1, global = TRUE,
 plot(E_1)
 ```
 
-This envelope suggest significant clustering above the 200 meter mark. The problem, though, is that this test only work if we have a homogeneous process. The envelope will also fail to overlap with the observed K function if there are variations in intensity. We also saw the reverse, that it is hard to assess homogeneity without assuming independence. In Chapter 7 we saw how if we suspect the process is not homogeneous, we can estimate it with nonparametric techniques such as kernel density estimation.
+This envelope suggest significant clustering above the 200 meter mark. The problem, though, is that (as noted above) this test only works if we have a homogeneous process. The envelope will also fail to overlap with the observed K function if there are variations in intensity. We also saw previously the reverse, that it is hard to assess homogeneity without assuming independence. In Chapter 7 we saw how if we suspect the process is not homogeneous, we can estimate it with nonparametric techniques such as kernel density estimation.
 
 ```{r}
 set.seed(200)
@@ -132,7 +131,7 @@ plot(density.ppp(delitos_jit, sigma = bw.scott(delitos_jit),edge=T),
 
 ```
 
--@Baddeley_2016 discuss how we can adjust our test for independence when we suspect inhomogeneity, if we are willing to make other assumptions (e.g., the correlation between any two given points only depend on their relative location). This adjusted K-function is implemented in `spatstat:Kinhom()`. This function requires as necessary inputs the `ppp` object with the point pattern we are analysing and a second argument "lambda" with the values of the estimated intensity function. The function provides flexibility in how lambda can be entered. It could be a vector with the values, an object of class `im` like the ones we generate with `density.ppp()`, etc (see the help files for further details). We could, for example, use input lambda as below:
+-@Baddeley_2016 discuss how we can adjust our test for independence when we suspect inhomogeneity, as long as we are willing to make other assumptions (e.g., the correlation between any two given points only depend on their relative location). This adjusted K-function is implemented in `spatstat:Kinhom()`. This function requires as necessary inputs the `ppp` object with the point pattern we are analysing and a second argument with the values of the estimated intensity function. The function provides flexibility in how lambda can be entered. It could be a vector with the values, an object of class `im` like the ones we generate with `density.ppp()`, etc (see the help files for further details). We could, for example, input this parameter as below:
 
 ```{r}
 set.seed(200)
@@ -156,9 +155,9 @@ In this example once we allow for varying intensity, the spatial dependence no l
 
 We already warned in Chapter 8 about the dangers of using planar point pattern analysis to data that lies along a network. Not recognising this network structure can lead to errors. -@Lu_2007, for example, have shown how the standard K functions are problematic when studying crime in an urban environment. They discuss how the planar K-function to analyze the spatial autocorrelation patterns of crimes (that are typically distributed along street networks) can result in false alarm problems, which depending on the nature of the street network and the particular point pattern, could be positive or negative. As -@Baddeley_2016 also indicates when the point locations are constrained to only exist in a network we are likely to find "spurious evidence of short-range clustering (due to concentrations of points in a road) and long-range regularity (due to spatial separation of different roads)" (p. 736).
 
--@Lu_2007 recommend to use a network K function that examines distance along the network, by street distance, and they think that it should be "more relevant for crime control policing and police man-power dispatching purpose, considering that police patrol and many other crime management activities are commonly conducted following street networks" (p. 627). This recommendation is being followed in recent studies (see, for example, -@Khalid_2018), although it is still much more common in the professional practice of crime analysis to continue using, incorrectly, the planar K function.
+-@Lu_2007 recommend to use a network K function that examines distance along the network, by street distance. They argued this should be "more relevant for crime control policing and police man-power dispatching purpose, considering that police patrol and many other crime management activities are commonly conducted following street networks" (p. 627). This recommendation is being followed in recent studies (see, for example, -@Khalid_2018), although it is still much more common in the professional practice of crime analysis to continue using, incorrectly, the planar K function.
 
-The network K function was developed by -@Okabe_2001 and was first implemented in SANET. Chapter 7of -@Okabe_2012 also provides a thorough discussion of this adaptation and its computation. We can use functionality implemented in the `spatstat` package to use the network constrained K. For that we need a `lpp` object, that we discussed in Chapter 8. For convenience we will use a `lpp` data set about crime around University of Chicago that ships with the `spatstat` package. We could get the standard K as above.
+The network K function was developed by -@Okabe_2001 and was first implemented in SANET. Chapter 7 of -@Okabe_2012 also provides a thorough discussion of this adaptation and its computation. We can use functionality implemented in the `spatstat` package to use the network constrained K. For that we need a `lpp` object, that we discussed in Chapter 8. For convenience we will use a `lpp` data set about crime around University of Chicago that ships with the `spatstat` package. We could get the standard K as above.
 
 ```{r}
 set.seed(200)
@@ -167,14 +166,14 @@ E_3 <- envelope(as.ppp(chicago), Kest, nsim=99, rank = 1, global = TRUE,
               verbose = FALSE)
 plot(E_3)
 ```
-We can use the methods introduced by -@Okabe_2001 with the function `linearK()`. For this we need to specify that `correction="none"`. We can wrap this within the `envelope()` function for inference purposes.
+We can use the methods introduced by -@Okabe_2001 with the function `linearK()`. For this we need to specify that `correction="none"`. We can wrap this within the `envelope()` function for inference purposes. This will generate an envelope assuming a homogeneous Poisson process.
 
 ```{r}
 set.seed(200)
 E_4 <- envelope(chicago, linearK, correction = "none", nsim= 99, verbose = FALSE)
 plot(E_4)
 ```
-As noted by -@Baddeley_2016 there is a difference between what we get with ... and with ...
+As noted by -@Baddeley_2016 in page 739 there is a difference between what we get with `Kest` and with `linearK`. Whereas the two planar "K function is a *theoretical expectation* for the point process that is assumed to have generated our data... the empirical K-function of point pattern data" (that we get with `linearK`) "is an *empirical estimator* of the K-function of the point process" (the emphasis is ours).
 
 A limitation of the Okabe-Yamada network-K function is that, unlike the general Ripley´s K which is normalised, you cannot use it for "comparison between different point processes, with different intensities, observed in different windows... because it depends on the network geometry" (p. 739). This is a problem that was approached by -@Ang_2012 who proposed a "geometrically corrected" K function. You can see the mathematical details for this function in either -@Baddeley_2016 or in greater depth in -@Ang_2012. This geometrically corrected k function is implemented as well in the `linearK()` function. If we want to obtain this solution we need to specify as an argument `correction="Ang"` or simply not include this argument, for this is the default in `linearK()`:
 
@@ -184,24 +183,13 @@ E_5 <- envelope(chicago, linearK, correction = "Ang", nsim= 99, verbose = FALSE)
 plot(E_5)
 ```
 
-Finally, there is also an equivalent to the geometrically corrected K function that allows for an inhomogeneous point process.
-
-```{r}
-data(chicago)
-fit_1 <- lppm(chicago)
-fit_1
-```
-
-
-[[[]]]
+Finally, there is also an equivalent to the geometrically corrected K function that allows for an inhomogeneous point process that can be obtained using `linearKinhom` (see help files for details).
 
 ## Exploring spatial autocorrelation in lattice data
 
 ### Burglary in Manchester
 
-We are going to take some of the data from past weeks. In getting the data ready you will have one more opportunity to practice how to read data into R but also how to perform some basic spatial checks, transformations and operations. 
-
-We will use a GeoJSON file that has the LSOAs for Manchester and a column identifying the count of burglary occurrences within them.
+We are going to take some of the data from past weeks. In getting the data ready you will have one more opportunity to practice how to read data into R but also how to perform some basic spatial checks, transformations and operations. We will use a GeoJSON file that has the LSOAs for Manchester and a column identifying the count of burglary occurrences within them.
 
 ```{r, message=FALSE, warning=FALSE}
 # Read into R
@@ -225,7 +213,7 @@ Do you see any patterns? Are burglaries randomly spread around the map? Or would
 
 ### What is a neighbour?
 
-Previously we asked whether areas are alike their neighbours or to areas that are close. But what is a neighbour? Or what do we mean by close? How can one define a set of neighbours for each area? If we want to know if what we measure in a particular area is similar to what happens on its neighbouring areas, we need to establish what we mean by a neighbour. 
+Previously we asked whether areas are alike their neighbours or to areas that are close. But what is a neighbour? Or what do we mean by close? How can one define a set of neighbours for each area? If we want to know if what we measure in a particular area is similar to what happens on its neighbouring areas, we first need to establish what we mean by a neighbour. 
 
 There are various ways of defining a neighbour. Most rely on topological or geometrical relationships among the areas. First, we can say that two areas are neighbours if they share boundaries, if they are next to each other. In this case we talk of neighbours by **contiguity**. By contiguous you can, at the same time, mean all areas that share common boundaries (what we call contiguity using the **rook** criteria, like in chess) or areas that share common boundaries and common *corners*, that is, that have any point in common (and we call this contiguity using the **queen** criteria). When we use this criteria we can refine our definition by defining the intensity of neighbourliness "as a function of the lenght of the common border as a proportion of the total border" (@Haining_2020) (p. 89). Given that in criminology we mostly work with irregular lattice data (such as police districts or census geographies), the queen criteria makes more sense. There is little theoretical justification for why, say, a police district would only exhibit dependence according to the roook criteria.
 
@@ -239,7 +227,7 @@ Secondly, we may define neighbours **by geographical distance**. You can conside
 
 Other approaches to define neighbours are graph-based, attribute-based, or interaction-based (eg., flow of goods or people between areas). Contiguity and distance are the two most commonly used methods, though. 
 
-You will come across the term **spatial weight matrix** at some point or, using mathematical notation, "W". Essentially the spatial weight matrix is a n by n matrix with, often, ones and zeroes (in the case of contiguity based definitions) identifying if any two observations are neighbours. So you can think of the spatial weight matrix as the new data table that we are constructing with our definition of neighbours (whichever definition that is).
+You will come across the term **spatial weight matrix** at some point or, using mathematical notation, $W$. Essentially the spatial weight matrix is a $n$ by $n$ matrix with, often, ones and zeroes (in the case of contiguity based definitions) identifying if any two observations are neighbours. So you can think of the spatial weight matrix as the new data table that we are constructing with our definition of neighbours (whichever definition that is).
 
 When working with contiguity measures the problem of "islands" sometimes arise. The spatial weight matrix in this case would have zeroes for the row representing this "island". This is not permitted in the subsequent statistical use of this kind of matrix. A common solution is to "join" islands to the spatial units in the "mainland" that are closer.
 
@@ -597,5 +585,5 @@ It is also worth mentioning `sfweight`. The `sfweight` package, still only avail
 
 ## Further Reading
 
-For a deeper understanding of the study of spatial dependence on point patterns we recommend @Baddeley_2016. @Haining_2020 and @Darmofal_2015 both contain useful chapters on the spatial weight matrix that provide a bit more detail than we do here, whilst maintaining an accessible level. We highly recommend too the series of videolectures provided by Luc Anselin in the YouTube channel of the Center for Spatial Data Science (University of Chicago). Prof. Anselin has been one of the key authors in the field of spatial econometrics during the last 25 years. His lectures are both high quality and accessible for someone starting in the field of spatial statistics. You will find lectures on the spatial weight matrix, global autocorrelation, and local indicators of spatial autocorrelationc(which we cover in the next chapter). The link for the relevant playlists is https://www.youtube.com/user/GeoDaCenter/playlists. In this Center website (spatial.uchicago.edu) you will also find R tutorials that provide instructions in how to specify the spatial weight matrix using other approaches we have not covered here.
+For a deeper understanding of the study of spatial dependence on point patterns we recommend -@Baddeley_2016. -@Haining_2020 and -@Darmofal_2015 both contain useful chapters on the spatial weight matrix that provide a bit more detail than we do here, whilst maintaining an accessible level. We highly recommend too the series of videolectures provided by Luc Anselin in the YouTube channel of the Center for Spatial Data Science (University of Chicago). Prof. Anselin has been one of the key authors in the field of spatial econometrics during the last 25 years. His lectures are both high quality and accessible for someone starting in the field of spatial statistics. You will find lectures on the spatial weight matrix, global autocorrelation, and local indicators of spatial autocorrelationc(which we cover in the next chapter). The link for the relevant playlists is https://www.youtube.com/user/GeoDaCenter/playlists. In this Center website (spatial.uchicago.edu) you will also find R tutorials that provide instructions in how to specify the spatial weight matrix using other approaches we have not covered here.
 
