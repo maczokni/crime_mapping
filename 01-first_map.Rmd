@@ -17,10 +17,8 @@ library(readr)
 library(tibble)
 library(janitor)
 library(dplyr)
-
 # Packages for handling spatial data
 library(sf)
-
 # Packages for visualisation and mapping
 library(ggplot2)
 library(ggspatial)
@@ -216,13 +214,9 @@ There are 181,408 OAs, 34,753 lower layer super output areas (LSOA) and 7,201 mi
 
 Looking back to our crime data, we find two columns that reference LSOAs, `lsoa_name` and `lsoa_code`. We can use these to *link* our crime data to a file containing the geometries needed to put the crime data on the map. In the next section we will illustrate how. 
 
-
 ### Choosing the ideal unit of analysis
 
 The unit of analysis at which to consider approaching our research and analytical questions will depend most largely on what is the appropriate level at which addressing the question makes sense, and at what level can we get reliable data for the variables we wish to analyse. There is no simple answer to this. Questions around levels of measurement have formed a central part of discourse in the area of crime mapping (@Weisburd_2009). It is important that careful thought and consideration is given to this decision.
-
-
-
 
 ## The simple features framework
 
@@ -241,7 +235,6 @@ To do so, we can use the `st_as_sf()` function from `sf`, into which we need to 
 Latitude longitude coordinates specify location on the **WGS 84** CRS. We can tell R that this is our CRS of choice by including its EPSG identifier as a parameter in our function. It is handy to know the more common EPSG identifiers. For example, for WGS84 the EPSG identifier is *4326*. For British National Grid, the identifier is *27700*. 
 
 Putting it all together in practice, we can create a simple features object from our dataframe using the latitude and longitude columns: 
-
 
 ```{r makepointsf}
 
@@ -299,7 +292,6 @@ df <- crimes %>%
 knitr::kable(df)
 ```
 
-
 You then want to plot this. To do so, you want to create a plot that combines the following layers: 
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.width=6}
@@ -326,8 +318,6 @@ gridExtra::grid.arrange(p1, p2, p3, nrow = 1)
 
 ```
 
-
-
 This will result in a final plot: 
 
 ```{r, echo = FALSE, message=FALSE, warning=FALSE}
@@ -344,9 +334,7 @@ ggplot(df, aes(x = gsub(" from the person", "",crime_type), y = n)) +
 
 ```
 
-Taking our crime data as an example, we would build up our plot as follows. 
-
-First let's create a small illustrative data set of only the crimes of "Robbery", "Shoplifting", and "Theft from the person". 
+Taking our crime data as an example, we would build up our plot as follows. First let's create a small illustrative data set of only the crimes of "Robbery", "Shoplifting", and "Theft from the person". 
 
 ```{r, message = FALSE, warning=FALSE}
 
@@ -362,9 +350,7 @@ df <- crimes %>%
 df
 ```
 
-Now let us add the layers to our ggplot object. 
-
-First, the data layer: 
+Now let us add the layers to our ggplot object. First, the data layer: 
 
 ```{r}
 library(ggplot2)
@@ -393,7 +379,6 @@ ggplot(df, aes(x = crime_type, y = n)) +
   
 ```
 
-
 We can also specify our themes, by using a custom theme such as `theme_minimal()`, and by adding our own specifications within an additional `theme()` function: 
 
 ```{r}
@@ -411,7 +396,6 @@ ggplot(df, aes(x = crime_type, y = n)) +
 
 We can add further specifications within the `aes()` (aesthetics) function, where we add additional layers from our data, to represent even more information in our charts, for example the outcomes for each crime. 
 
-
 ```{r}
 
 # create new dataframe (df) including last_outcome_category variable
@@ -423,8 +407,6 @@ df <- crimes %>%
          ) %>% 
   group_by(crime_type, last_outcome_category) %>% 
   count() 
-  
-
 
 # plot including new variable with fill= parameter in aes() function
 
@@ -441,8 +423,6 @@ ggplot(df, aes(x = crime_type,
         panel.border = element_rect(colour = "black", 
                                     fill=NA, 
                                     size=1))
-
-
 ```
 
 We can be explicit about the colours we want to use with the function `scale_fill_brewer()`, which we can also use to rename our legend. Don't worry too much at this point about where the palette comes from, in the chapter on cargography we will discuss colour in more detail. 
@@ -465,7 +445,6 @@ ggplot(df, aes(x = crime_type,
         ) + 
   scale_fill_brewer(type = "qual", palette = 3, name = "Outcome")
 
-
 ```
 
 There are many many more options. While this here is not the greatest graph you'll ever see, it illustrates the process of building up your graphics the ggplot way. Do read up on `ggplot2` for example in @Wickham_2017. In later chapters, we will talk more about visualisation, colour choice, and more!
@@ -481,9 +460,7 @@ ggplot() +
 
 ```
 
-And here we have a map of each point in our data set, each recorded crime in June 2019 in Greater Manchester. 
-
-Would you call this a map though? While it is presenting spatial data, there is not a lot of meaning being communicated. Point maps generally can be messy and their uses are specific to certain situations and cases, usually when you have fewer points, but here, these points are especially devoid of any meaning, as they are floating in a graph grid. So let's give it a **basemap**. 
+And here we have a map of each point in our data set, each recorded crime in June 2019 in Greater Manchester. Would you call this a map though? While it is presenting spatial data, there is not a lot of meaning being communicated. Point maps generally can be messy and their uses are specific to certain situations and cases, usually when you have fewer points, but here, these points are especially devoid of any meaning, as they are floating in a graph grid. So let's give it a **basemap**. 
 
 We can do this by adding a layer to our graph object. Specifically we will use the `annotation_map_tile()` from the `ggspatial` package. This provides us with a static Open Street Map layer behind our data, giving it (some) more context. Remember to load the package (and install if you haven't already). And then use the `annotation_map_tile()` function, making sure to place it before the `geom_sf` points layer, so the background map is placed first, and the points on top of that:  
 
@@ -542,16 +519,11 @@ gridExtra::grid.arrange(p1, p2, p3, nrow = 1)
 
 ```
 
-
-
 Here we will get some boundaries for Manchester. We know that our crime data has a column for LSOA, so we can proceed with this as our appropriate unit of analysis. 
 
 To get some boundary data, you can use the UK Data Service website. There is a simple [Boundary Data Selector](https://borders.ukdataservice.ac.uk/bds.html) tool which you could use. Other countries also have such repositories, and in some cases where they do not, other resources, such as Open Street Map, or natural earth (and associated R package `rnaturalearth`) can be handy resources. In Appendix C "Sourcing geographical data for crime analysis" we elaborate more on these, with some examples. 
 
-
-For now, you can turn to the data folder which you have downloaded from this book's repository. (If unsure, refer to the Preamble section!). 
-
-Specifically, we're looking for a folder called `BoundaryData`. When we download a shapefile, we usually get many files, and a folder which contains them all. It is important for these files to be kept together, in the same folder. If you have a look inside thie BoundaryData folder, you will  notice that there are 4 files with the same name "england_lsoa_2011". 
+For now, you can turn to the data folder which you have downloaded from this book's repository. (If unsure, refer to the Preamble section!). Specifically, we're looking for a folder called `BoundaryData`. When we download a shapefile, we usually get many files, and a folder which contains them all. It is important for these files to be kept together, in the same folder. If you have a look inside thie BoundaryData folder, you will  notice that there are 4 files with the same name "england_lsoa_2011". 
 
 **NOTE: It is important that you keep all these files in the same location as each other!** 
 
@@ -564,7 +536,6 @@ They all contain different bits of information about your shapefile (and they ar
 
 Sometimes there might be more files associated with your shapefile as well, but we will not cover them here. So unlike when you work with spreadsheets and data in tabular form, which typically is just all included in one file; when you work with shapefiles, you have to live with the required information living in separate files that need to be stored together. So, being tidy and organised is even more important when you carry out projects that involve spatial data. 
 
-
 ### Reading shapefiles into R
 
 To read in your data into R, you will need to know the path to where you have saved it. Ideally this will be in your data folder in your project directory. 
@@ -575,7 +546,6 @@ Let's create an object and assign it our shapefile's name:
 # Remember to use the appropriate pathfile in your case
 shp_name <- "data/BoundaryData/england_lsoa_2011.shp"
 ```
-
 
 Make sure that this is saved in your working directory, and you have set your working directory. 
 
@@ -780,8 +750,10 @@ In subsequent chapters we will play around with other packages in R that you can
 
 ## Summary and further reading
 
-In this chapter we had a play around with some regular old crime data and discovered how we can use the `sf` package in R to assign it a geometry (both at point and polygon level), and how that can help us visualise our results. We covered some very important concepts such as projections and coordinate reference systems, and we had a play at acquiring shapefiles which can help us visualise our data. We had a think about units of analysis, and how that will affect how we visualise our data. In the next chapter we will spend a bit of more time discussing how to make good choices when producing maps.
+In this chapter we had a play around with some regular old crime data and discovered how we can use the `sf` package in R to assign it a geometry (both at point and polygon level), and how that can help us visualise our results. If you want to explore other spatial data, you can explore "https://rspatialdata.github.io/index.html" for short tutorials in how to get different kind of spatial data.
+
+We covered some very important concepts such as projections and coordinate reference systems, and we had a play at acquiring shapefiles which can help us visualise our data. We had a think about units of analysis, and how that will affect how we visualise our data. In the next chapter we will spend a bit of more time discussing how to make good choices when producing maps.
 
 There are a number of introductory texts to geographic information systems and analysis that provide adequate background to some of the key concepts we introduce in this chapter (-@OSullivan_2010, -@Bolstad_2019). The report by -@Harries_1999 produced for the National Institute of Justice still provides a good general introduction for basic ideas around crime mapping and can be accessed for free online. Chapter 3 of -@Haining_2020 offers invaluable observations on the nature of spatial and spatial-temporal attribute data, often using examples from crime research. -@Radil_2016 chapter on the spatial analysis of crime offers a very succint review of what will be the focus of most of this book. From a more domain-knowledge point of view, the early chapters of -@Boba_2013 and -@Chainey_2005 set the stage for the use of GIS as part of the crime analysis process, whereas -@Bruinsma_2018 edited handbook provides an excellent introduction to environmental criminology (that provides the theoretical and empirical backbone to spatial analysis of crime). Finally, -@Healy_2019 provides a general introduction to data visualisation with R using the `ggplot2` package. Although Healy´s text is not just about mapping, it offers a very practical and helpful introduction to using `ggplot2` where you can learn how to further customise your maps and other charts.
 
-This is a book about maps and spatial analysis, but clearly one of the first questions you need to ask yourself is whether producing a map is the right answer to your question. Just because your data is spatial doesn't mean you need a map for every question you pose to this data. There may be other forms of data visualisation that are more appropriate for exploring and summarising the story you want to tell with your data. If you are uncertain about whether you need a map or other kind of plot books such as @Cairo_2016, @Camoes_2016, or @Schwabish_2021 provide useful guidance. For specifics of ggplot2 refer to @Wickham_2010
+This is a book about maps and spatial analysis, but clearly one of the first questions you need to ask yourself is whether producing a map is the right answer to your question. Just because your data is spatial doesn't mean you need a map for every question you pose to this data. There may be other forms of data visualisation that are more appropriate for exploring and summarising the story you want to tell with your data. If you are uncertain about whether you need a map or other kind of plot books such as -@Cairo_2016, -@Camoes_2016, or -@Schwabish_2021 provide useful guidance. For specifics of ggplot2 refer to -@Wickham_2010.
