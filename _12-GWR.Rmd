@@ -4,7 +4,7 @@
 
 One of the challenges of spatial data is that we may encounter exceptions to stationary processes. There may be, for example, parameter variability across the study area. When we have homogeneity everything is the same everywhere, in terms of our regression equation, the parameters are constant. But as we illustrated via an interaction term in the last chapter, that may not be the case. We can encounter situations where a particular input has a different effect in parts of our study area. In this chapter we explore this issue and a number of solutions that have been proposed to deal with it. It goes without saying that having extreme heterogeneity creates technical problems for estimation. If everything is different everywhere we may have to estimate more parameters that we have data for.
 
-One way of dealing with this is by imposing some form of structure, which we did last week, for example when we partition the data and fitted a separate model for the Southern counties. Unlike data partition, **full spatial regimes** also imply using different coefficients for each subset of the data but you fit everything in one go, essentially is the same as running as many models as subsets you have. As Luc Anselin highlights in his lectures, this corrects for heterogeneity but does not explain it. We can then test whether this was necessary, using a *Chow test* comparing the simpler model with the one where we allow variability. Of course, we can also include spatial dependence in these models.
+One way of dealing with this is by imposing some form of structure, for example partitioning data for the United States to fit a separate model for Southern and Northern counties. Unlike data partition, **full spatial regimes** also imply using different coefficients for each subset of the data but you fit everything in one go. This is essentially the same as running as many models as subsets you have. As Luc Anselin highlights (@Anselin_2007), this corrects for heterogeneity but does not explain it. We can then test whether this was necessary, using a *Chow test* comparing the simpler model with the one where we allow variability. Of course, we can also include spatial dependence in these models.
 
 Another way of dealing with heterogeneity is by allowing continuous variation, rather than discrete (as when we subset the data), of the parameters. A popular method for doing this is **geographically weighted regression (GWR)**. This is a case of a local regression where you try to estimate a different set of parameters for each location and these parameters are obtained from a subset of observation using kernel regression. In traditional local regression we select the subset in the attribute space (observations with similar attributes), in GWR the local subset is defined in a geographical sense using a kernel (remember how we used kernels for density estimation to define a set of "neighbors"). We are estimating regression equations based on nearby locations as specified by our kernel and this produces a different coefficient for each location. As with kernel density estimation you can distinguish between fixed bandwidth and adaptive bandwidth.
 
@@ -25,6 +25,8 @@ library(tmap)
 library(ggplot2)
 # Packages with spatial datasets
 library(geodaData)
+# For geographicaly weighted regression
+library(spgwr)
 ```
 
 
@@ -117,7 +119,7 @@ summary(lm.LMtests(fit2_70_sr, rwm, test = c("LMerr","LMlag","RLMerr","RLMlag"))
 
 The Lagrange multiplier tests, according to Anselin suggestions for how to interpret these, point to a spatial lag model (since RLMlag is several orders more significant than the error alternative).
 
-We could then fit this model using `sp
+We could then fit this model using `sp`
 
 ```{r}
 fit3_70_sr_sar <- lagsarlm(HR70 ~ 0 + (ONE + RD70 + PS70 + MA70 + DV70 + UE70):(SOUTH + NORTH), data = ncovr, rwm)
@@ -156,9 +158,9 @@ spatialchow.test(fit4_70_sar, fit3_70_sr_sar)
 
 The test is again highly significant providing evidence for the spatial lag model with the spatial regimes.
 
-## GWR
+## Geographically Weighted Regression
 
-The basic idea behind GWR is to explore how the relationship between a dependent variable ($Y$) and one or more independent variables (the $X$s) might vary geographically. Instead of assuming that a single model can be fitted to the entire study region, it looks for geographical differences. GWR evaluates a local model of the variable or process you are trying to understand or predict by fitting a regression equation to every feature in the dataset. GWR constructs these separate equations by incorporating the dependent and explanatory variables of the features falling within the neighborhood of each target feature. 
+The basic idea behind Geographically Weighted Regression (GWR) is to explore how the relationship between a dependent variable ($Y$) and one or more independent variables (the $X$s) might vary geographically. Instead of assuming that a single model can be fitted to the entire study region, it looks for geographical differences in the relationship. This is achieved by fitting a regression equation to every feature in the dataset. We construct these separate equations by incorporating the dependent and explanatory variables of the features falling within the neighborhood of each target feature. 
 
 Geographically Weighted Regression can be used for a variety of applications, including the following:
 
@@ -169,130 +171,156 @@ Geographically Weighted Regression can be used for a variety of applications, in
 - Where are the districts in which children are achieving high test scores? What characteristics seem to be associated? Where is each characteristic most important?
 - Are the factors influencing higher cancer rates consistent across the study area?
 
-GWR provides three types of regression models: Continuous, Binary, and Count. These types of regression are known in statistical literature as Gaussian, Logistic, and Poisson, respectively. The Model Type for your analysis should be chosen based on how your Dependent Variable was measured or summarized as well as the range of values it contains. 
-
-GWR works by moving a search window (defined by our kernel) from one point in a data set to the next, working through them all in sequence. As the search window rests on asamplepoint, all other points that are around it and within the search window are identified. A regression model is then fitted to that subset of the data, giving most weight to the points that are closest to the one at the centre. For a data set of 2536 observations GWRwill, then, fit 2536 weighted regression models, the results of which are compared to look for geographical variation.This immediately raises a question –whatarea should the search window cover each time? The answer is provided by a process of calibration, to select an “optimal” bandwidth (an optimal search window size).Note that the distance from one point to another can be defined in two ways: either by actual geographic distance or by whether it’s the first nearest neighbour, the second, the third and so forth. If the number of neighbours within the search window is fixed then it willvaryin areafrom point to point: where the sample points are close together thewindow will have less area;where the points are sparse it will fill a greater area. This is called an adaptive window and is usually better for analysing census data (because census zones are of a variable size: smaller where population density ishigher and vice versa). 
+GWR provides three types of regression models: Continuous, Binary, and Count. These types of regression are known in statistical literature as Gaussian, Logistic, and Poisson, respectively. The Model Type for your analysis should be chosen based on the level of measurement of the Dependent Variable $Y$. 
 
 
-```{r getdataforgwr}
-
-
-
-toronto <- st_read("data/toronto_c.geojson")
-# crimes <- st_read("data/neighbourhood-crime-rates.geojson")
-ksi_collisions <- st_read("data/Motor Vehicle Collisions with KSI Data.geojson")
-wellbeing <- readxl::read_xlsx("data/wellbeing-toronto-environment.xlsx")
-
-
-
-num_ksi <- ksi_collisions %>% 
-  filter(YEAR == 2019) %>% 
-  st_drop_geometry() %>% 
-  mutate(ksi = ifelse(INJURY %in% c("Fatal","Major"), 1, 0), 
-         speed = ifelse(SPEEDING == "Yes", 1, 0), 
-         agg_driv = ifelse(AG_DRIV == "Yes", 1, 0), 
-         red_light = ifelse(REDLIGHT == "Yes", 1, 0), 
-         alcohol = ifelse(ALCOHOL == "Yes", 1, 0)) %>% 
-  group_by(ACCNUM, LIGHT, VISIBILITY, RDSFCOND) %>% 
-  # summarise(prop_ksi = mean(ksi))
-  summarise(prop_ksi = sum(ksi),
-            speed = ifelse(sum(speed, na.rm = T)> 0, 1, 0),
-            agg_driv = ifelse(sum(agg_driv, na.rm = T)> 0, 1, 0),
-            red_light = ifelse(sum(red_light, na.rm = T)> 0, 1, 0),
-            alcohol = ifelse(sum(alcohol, na.rm = T)> 0, 1, 0), 
-         visibility = ifelse(VISIBILITY == "Clear", 0, 1), 
-         daylight = ifelse(LIGHT == "Daylight", 0, 1), 
-         rd_dry = ifelse(RDSFCOND == "Dry", 0, 1)
-         ) 
-
-num_ksi <- num_ksi %>% unique()
-  
-ggplot(num_ksi, aes(x = prop_ksi)) + 
-  geom_histogram()
-
-
-
-fit.ols<-glm(prop_ksi ~ speed + agg_driv + red_light + alcohol, data = num_ksi) 
-summary(fit.ols)
-
-num_ksi$resids<-residuals(fit.ols)
-num_ksi$res_quantiles = cut(num_ksi$resids, breaks = c(quantile(num_ksi$resids)[1:3],quantile(num_ksi$resids)[4]+0.00000001,quantile(num_ksi$resids)[5]) , include.lowest = TRUE, dig.lab=10)
-colours <- c("dark blue", "blue", "red", "dark red")
-
-ggplot(num_ksi, aes(x = resids)) + 
-  geom_histogram()
-
-
-num_ksi <- left_join(ksi_collisions %>% filter(YEAR == "2019") %>% select(ACCNUM) %>% unique(), num_ksi, by = c("ACCNUM" = "ACCNUM"))
-
-ggplot() + 
-  ggspatial::annotation_map_tile() + 
-  geom_sf(data = num_ksi, aes(col = resids), alpha = .9) + 
-  scale_color_gradient2()
-
-```
-
-
-
+So to illustrate, let us first build our linear model once again, regressing homicide rate in the 1970s for each county against resource deprivation (RD70), population structure (PS70), median age (MA70), divorce rate (DV70), and unemployment rate (UE70). 
 
 ```{r}
 
-thing <- ksi_collisions %>% 
-  filter(YEAR == 2018) %>% 
-  st_drop_geometry() %>% 
-  group_by(INVTYPE, INJURY) %>% count()
-
-length(unique(ksi_collisions$ACCNUM))
-
-
-
-thing <- ksi_collisions %>% 
-  st_drop_geometry() %>% 
-  group_by(ACCNUM, INVTYPE) %>% 
-  count() %>% 
-  pivot_wider(id_cols = ACCNUM, names_from = INVTYPE, values_from = n) %>% 
-  replace_na()
-
-
-df <- tibble(x = c(1, 2, NA), y = c("a", NA, "b"))
-
-
+# make linear model
+model <- lm(HR70 ~ RD70 + PS70 + MA70 + DV70 + UE70, data = ncovr)
+summary(model)
 ```
 
-
+And now, to get an idea of how our model might perform differently in different area, we can map the residuals across each county: 
 
 ```{r}
 
-accs_2019 <- ksi_collisions %>% 
-  filter(YEAR == 2019) %>% 
-  st_drop_geometry() 
+# map residuals
+ncovr$resids <- residuals(model)
+qtm(ncovr, fill = "resids")
+```
 
-  group_by(ACCNUM, LIGHT, VISIBILITY, RDSFCOND) %>% 
-  # summarise(prop_ksi = mean(ksi))
-  summarise(prop_ksi = sum(ksi),
-            speed = ifelse(sum(speed, na.rm = T)> 0, 1, 0),
-            agg_driv = ifelse(sum(agg_driv, na.rm = T)> 0, 1, 0),
-            red_light = ifelse(sum(red_light, na.rm = T)> 0, 1, 0),
-            alcohol = ifelse(sum(alcohol, na.rm = T)> 0, 1, 0), 
-         visibility = ifelse(VISIBILITY == "Clear", 0, 1), 
-         daylight = ifelse(LIGHT == "Daylight", 0, 1), 
-         rd_dry = ifelse(RDSFCOND == "Dry", 0, 1)
-         ) 
 
-num_ksi <- num_ksi %>% unique()
+If we see that there is a geographic pattern in the residuals, it is possible that an unobserved variable may be influencing the dependent variable, and there might be some sort of spatial variation in our model's performance. This is what GWR allows us to explore, whether the relationship between our variables is stable over space.
+
+### Calculate kernel bandwidth
+
+The big assumption on which the GWR model is based is the kernel bandwitdh. As mentioned earlier, in order to calculate local coefficients for our study regions, GWR takes into account the data points within our specified bandwith, weighting them appropriately. The bendwidth we choose will determine our results. If we choose something too large, we might mask variation, and get resuls similar to the global results. If we choose something too small, we might get spikes, and lots of small scale variation, but also possibly large standard errors and unreliable estimates. Therefore, the process of choosing an appropriate bandwidth is paramount to GWR. 
+
+ 
+It is possible that we choose bandwidth manually, based on some prior knowledge, or theoretically based argument. However, if we do not have such ideas to start, we can use data-driven processes to inform our selection. The most frequently used approach is to use cross validation. Other approaches include Akaike Information Criteria, and maximum likelihood. 
+
+
+Here we use `gwr.sel()` which uses cross validation method for selecting optimal method for GWR. The function finds a bandwidth for a given geographically weighted regression by optimizing a selected function. For cross-validation, this scores the root mean square prediction error for the geographically weighted regressions, choosing the bandwidth minimizing this quantity. 
+ 
+With adapt function you can choose whether you want the bandwidth to adapt (i.e. find the proportion between 0 and 1 of observations to include in weighting scheme (k-nearest neighbours)) or whether you want to find a global bandwidth. A global bandwidth might make sense where the areas of interest are of equal size, and equally spaced, however if we have variation, for example like in the case of the counties of the United States, it makes sense to adjust the bandwidth for each observation. Here we set to adapt. 
+ 
+Another important consideration is the function for the geographical weighting. We mentioned this above. In the `gwr.sel()` function you can set this with the `gweight=` parameter. By default, this is set to a Gaussian function. We will keep it that way here.
+
+
+
+With an sf object (whcih our data are in), one of the parameters required is a coordinate point for each one of our observations. In this case, what we can do is grab the centroid of each one of our polygons. To do this, we can use the `st_coordinates()` function: 
+ 
+```{r getcentroid, warning=FALSE, message=FALSE}
+
+ncovr <- ncovr %>% 
+  mutate(cent_coords = st_coordinates(st_centroid(.)))
+ 
+ 
+```
+ 
+ 
+Now that we have our centroids, we can calculate our optimal bandwith, and save this into an object called `gwr_bandwidth`. 
+ 
+```{r}
+gwr_bandwidth <- gwr.sel(HR70 ~ RD70 + PS70 + MA70 + DV70 + UE70, 
+                         data = ncovr, 
+                         coords = ncovr$cent_coords, 
+                         adapt = T)
+
+```
+ 
+So we now have our bandwidth. It is: 
+
+```{r bandwidthresult}
+gwr_bandwidth
 
 ```
 
-GWR is a good **exploratory** tool but there are some issues. 
-Practical issues with GWR (see Anselin lecturem 1.03):
-- choice of bandwidth
-- parameter inference
+As our data are in WGS84 this value is in degrees. 
 
+### Building the geographically weighted model
+
+Now we can build our model. The `gwr()` function implements the basic geographically weighted regression approach to exploring spatial non-stationarity for given bandwidth and chosen weighting scheme. We specify the formula and our data soucre, as with the linear and spatial regressions, and the coords of the centroids, as we did in the bandwidth calculation above, but now we also specify our bandwith, which we created earlier, but we do this with the `adapt=` parameter. This is because, by default, the function takes a global bandwidth with the `bandwidth=` parameter, and we have created an adaptive bandwidth, so we shall use this `adapt=` parameter to include our `GWRbandwidth` object. We also set the `hatmatrix =` parameter to `TRUE`, to return the hatmatrix as a component of the result, and the `se.fit=` parameter to `TRUE` to return local coefficient standard errors - as we set hatmatrix to `TRUE`, two effective degrees of freedom sigmas will be used to generate alternative coefficient standard errors. 
+
+
+```{r buildgwrmodel}
+
+gwr_model = gwr(HR70 ~ RD70 + PS70 + MA70 + DV70 + UE70, data = ncovr,
+                coords = ncovr$cent_coords,
+                adapt=gwr_bandwidth,
+                hatmatrix=TRUE,
+                se.fit=TRUE) 
+
+gwr_model
+
+```
+This output tells us the 5-number summary for the coefficients ($Y$) for each predictor variable $X$. We can see for all predictor variables, some counties have negative values, while other counties have positive values. Evidently there is some variation locally in the relationships between these independent variables and our dependent variable. 
+
+For this to be informative however, we should map this variation - this is where we can gain insight into how the relationships may change over our study area. In our `gwr_model` object we have a *S*patial *D*ata *F*rame. This is a *SpatialPointsDataFrame* or *SpatialPolygonsDataFrame* object which contains fit.points, weights, GWR coefficient estimates, R-squared, and coefficient standard errors in its "data" slot. Let's extract this into another object called `gwr_results`: 
+
+```{r extractgwrresults}
+
+gwr_results <- as.data.frame(gwr_model$SDF)
+
+```
+
+To map this, we can join these results back to our original data frame. 
+
+
+```{r joingwrresults}
+
+gwr_results <- cbind(ncovr, gwr_results)
+
+```
+
+
+Now we can begin to map our results. First, let's see how well the model performs across the different counties of the United States. To do this, we can map the `localR2` value which contains the local $R^2$ value for each observation. 
+
+```{r}
+
+qtm(gwr_results, fill =  "localR2" )
+
+```
+
+We can see some really neat spatial patterns in how well our model performs in various regions of the United States. Our model performs really well in the North East for example, but not so well in the South. 
+
+We can also map the coefficients for specific variables. Let's say we're interested in how the relationship between Resource deprivation (RD70) and homicide rate. 
+
+>**NOTE:** In our `gwr_results` data frame we have a varaible called `RD70`, this contains the observed resource deprivation value for the county. We then have `RD70.1` this is the coefficient value for each county. In the results contained in the SDF element of our model (`gwr_model$SDF`) it was named `RD70` but when we joined the two object, the `.1` was appended to allow us to differentiate between the two. 
+
+
+```{r, message=FALSE, warning=FALSE}
+
+qtm(gwr_results, fill =  "RD70.1" )
+
+```
+
+We can see in this map again some regional patterns in the coefficient of Resource deprivation. There are even counties, in Texas, and in Florida, where the direction of this relationship flips, that is we have negative coefficients - so resource deprivation is associated with *lower* homicide rates in these counties. 
+
+This may be interesting and raise questions, however, it is important to consider not only the coefficients, but also the *standard errors* associated with them, so we can get some ideas behind the reliability of these estimates. So let us have a look by mapping the standard errors for these coefficients, which are contained in the `RD70_se` variable. 
+
+```{r, message=FALSE, warning=FALSE}
+
+qtm(gwr_results, fill =  "RD70_se" )
+
+```
+
+
+Higher standard errors mean that our estimates may be less reliable. So it is important to keep in mind both maps, the one with the coefficients, and the one showing the standard errors, when drawing conclusions from our GWR results. 
+
+### Using GWR
+
+Overall, GWR is a good **exploratory** tool which can help illustrate how a particular model might apply differently in different regions of your study area, or how relationships between variables may vary spatially. This technique can be extended, for example to count models, or logit models, but (following the lead of Luc Anselin) we stop here, and pause to highlight some issues. Specifically, our *results are very sensitive to our choice of bandwidth*. The results we achieve with this approach might not show up when we use other bandwiths. Additionally, GWR does not really *explain* anything. What we do, is demonstrate that the relationship between our variables is not stable over space. But we cannot with this technique explain *why* it is not stable over space. 
+
+Nevertheless it is a great technique to identify spatial variation, which, unlike spatial regimes, does not rely on our apriory segmentation of our study region, but instead allows for the variation to emerge from the data themselves. 
 
 
 ## Recommended reading
 
-Luc Anselin lecture on specification of spatial heterogeneity is particularly helpful as an introduction to the issues and solutions we have discussed in this chapter.
+Chapters 8 and 9 in @Anselin_2007 discuss specification of spatial heterogeneity. This is particularly helpful as an introduction to the issues and solutions we have discussed in this chapter.
 
 Fotheringham et al.(2002) Geographically Weighted Regression: The Analysis of Spatially Varying Relationship, published by Wiley
 
