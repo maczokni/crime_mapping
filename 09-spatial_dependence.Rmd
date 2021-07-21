@@ -439,7 +439,7 @@ wm_queen <- nb2mat(nb_queen, style='B')
 
 You can view this matrix autoprinting the object:
 
-```{r, eval = FALSE)}
+```{r, eval = FALSE}
 wm_queen
 ```
 
@@ -590,11 +590,8 @@ The most well known measure of spatial autocorrelation is the Moran's I. It was 
 
 Moran's I is a weighted product-moment correlation coefficient, where the weights reflect geographic proximity. Unlike autocorrelation in timeseries (which is unidimensional: the future cannot affect the past), spatial autocorrelation is multidimensional, the dependence between an area and its neighbors is either simultaneous or reciprocal. Moran´s I is defined as:
 
-$$
+$$I = \frac{N}{W}* \frac{\sum_{i} \sum_{j} w_{ij}   (x_{i}-\overline{x})(x_{j}-\overline{x})}{\sum_{i}(x_{i}-\overline{x})^2}$$
 
-I = \frac{N}{W}\ \frac{\sum_{i} \sum_{j} w_{ij}   (x_{i}-\overline{x})(x_{j}-\overline{x})}{\sum_{i}(x_{i}-\overline{x})^2} 
-
-$$
 where $N$ is the number of spatial areas indexed by $i$ and $j$; $x$ is our variable of interest; $\overline{x}$ is the mean of $x$; $w_{ij}$ is the spatial weight matrix with zeroes in the diagonal; and $W$ is the sum of all of $w_{ij}$.
 
 We can easily compute this statistic with the `spdep::moran.test()` function. This function does not take as an input the spatial weight matrix that we create using `nb2mat()`. Instead it prefers to read this information from a `listw` class object. This kind of object includes the same information than the matrix, but it does it in a more efficient way that helps with the computation (see @Brunsdon_2015, p. 230 for details). So the first step to use `moran.test()` is to turn our matrix into a `listw` class object.
@@ -639,8 +636,11 @@ We use the function `moran.mc()` to run a permutation test for Moran's I statist
 In `moran.mc()` we need to specify our variable of interest (*burglary*), the `listw` object we created earlier (*ww*), and the number of permutations we want to run (here we choose 99).
 
 ```{r}
-set.seed(1234) # The seed number you choose is the starting point used in the generation of a sequence of random numbers, which is why (provided you use the same pseudo-random number generator) you'll obtain the same results given the same seed number. 
-moran.mc(cc_burglary_sp$burglary, lw_queen, nsim=99)
+set.seed(1234) 
+
+burg_moranmc_results <- moran.mc(cc_burglary_sp$burglary, lw_queen, nsim=99)
+
+burg_moranmc_results
 
 ```
 
@@ -658,7 +658,9 @@ As we can see using the different specifications of neighbours produces results 
 wm_queen_rs <- mat2listw(wm_queen, style='W')
 # Checking if rows add up to 1 (they should)
 mat <- listw2mat(wm_queen_rs)
-#This code is simply adding each row to see if we get one when we add their values up, we are only displaying the first 15 rows in the matrix
+
+#This code simply sums each row to see if they sum to 1
+# we are only displaying the first 15 rows in the matrix
 apply(mat, 1, sum)[1:15]
 ```
 
@@ -678,11 +680,7 @@ It is very important to understand that global statistics like the spatial autoc
 
 Another measure of global autocorrelation is Geary´s C. Unlike Moran's I, which measures similarity, Geary's C measures *dissimilarity*. The value is achieved fro considering the squared difference for attribute similarity. In the equation 
 
-$$
-
-C = \frac{(N-1)*\sum_i\sum_j w_{ij}*(x_i - x_j)^2}{2* \sum_i\sum_j w_{ij}* \sum_i(x_i - \bar{x})^2}
-
-$$
+$$C = \frac{(N-1)*\sum_i\sum_j w_{ij}*(x_i - x_j)^2}{2* \sum_i\sum_j w_{ij}* \sum_i(x_i - \bar{x})^2}$$
 
 the $(x_i - x_j)^2$ measures the *dissimilarity* between observations $x_i$ and neighbours $x_j$. 
 
