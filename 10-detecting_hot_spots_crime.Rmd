@@ -24,14 +24,14 @@ Aside from these LISAS, in spatial epidemiology a number of techniques have been
 
 In crime analysis is also relevant the study of **repeat victimisation**. This refers to the observed pattern of repeated criminal victimisation against the same person or target. The idea that victimisation presages further victimisation was first observed in studies of burglary, where the single best predictor of new victimisation was past victimisation. This opened up an avenue of research led by British scholars Ken Pease and Graham Farrell, that also noticed that the risk of revictimisation is much higher in the days immediate to the first offence and that repeat victimisation accounts for a non trivial proportion of crime (@Pease_1998). There continues to be some debate as to whether this is to do with underlying stable vulnerabilities (the *flag* hypothesis) or to increased risk resulting form the first victimisation (the *boost* hypothesis), although likely both play a role. Subsequent research has extended the foci of application well beyond the study of burglary and the UK (for a review see -@Pease_2017; -@Pease_2018). From the very beginning this literature emphasised the importance for crime prevention policy, for this helps to identify potential targets for it. The advocates of this concept argue that using insights from repeat victimisation is a successful approach to crime reduction (-@Grove_2014; -@Farrell_2017).
 
-A related phenomenon is that of **near repeat victimisation**. -@Townsley_2003, building in the epidemiological notion of contagion, proposed and tested the idea that "proximity to a burgled dwelling increases burglary risk for those areas that have a high degree of housing homogeneity and that this risk is similar in nature to the temporarily heightened risk of becoming a repeat victim after an initial victimisation" (p. 615). Or as, in a subsequent paper, -@Bowers_2004 put it "following a burglary at one home the risk of burglary at nearby homes is amplified" (p. 12). So if we combine the ideas of repeat victimisation and near repeats we would observe: (1) a heightened but short lived risk of victimisation for the original victim following a first attack and (2) a heightened but also short lived risk for those "targets" located nearby. Although most studies on near repeats have focused on studying burglary there are some that have also successfully applied this concept to other forms of criminal victimisation. In 2006 and with funds from the US National Institute of Justice, Jerry Ratcliffe developed a free point and click interface to perform near repeat analysis (-@Ratcliffe_2020). This software can be accessed from his personal home page. But out focus in this chapter will be in a package (`NearRepeat`) developed by Wouter Steenbeek in 2019 to bring this functionality into R. This package is not yet available from CRAN but needs to be installed from its GitHub repo;
+A related phenomenon is that of **near repeat victimisation**. -@Townsley_2003, building in the epidemiological notion of contagion, proposed and tested the idea that "proximity to a burgled dwelling increases burglary risk for those areas that have a high degree of housing homogeneity and that this risk is similar in nature to the temporarily heightened risk of becoming a repeat victim after an initial victimisation" (p. 615). Or as, in a subsequent paper, -@Bowers_2004 put it "following a burglary at one home the risk of burglary at nearby homes is amplified" (p. 12). So if we combine the ideas of repeat victimisation and near repeats we would observe: (1) a heightened but short lived risk of victimisation for the original victim following a first attack and (2) a heightened but also short lived risk for those "targets" located nearby. Although most studies on near repeats have focused on studying burglary there are some that have also successfully applied this concept to other forms of criminal victimisation. In 2006 and with funds from the US National Institute of Justice, Jerry Ratcliffe developed a free point and click interface to perform near repeat analysis (-@Ratcliffe_2020). This software can be accessed from his personal home page. But out focus in this chapter will be in a package (`NearRepeat`) developed by Wouter Steenbeek in 2019 to bring this functionality into R @Steenbeek_2021. At the time of writing, this package is not yet available from CRAN but needs to be installed from its GitHub repo;
 
 ```{r, eval=FALSE}
 remotes::install_github("wsteenbeek/NearRepeat")
 ```
 
 
-For this section we will need the following packages:
+Additionally, for this section we will need the following packages:
 
 ```{r, message=FALSE, warning=FALSE}
 # Packages for handling data and for geospatial carpentry
@@ -56,7 +56,7 @@ library(crimedata)
 
 ### Burglaries in Manchester
 
-We return to burglaries in Manchester for most of this chapter. The files we are loading include the geomasked locations of burglary occurrences in 2017, for the whole of Manchester city and separately for its city centre. Later in this chapter we will look at the whole of Manchester and we will use counts of burglary per LSOA, so we will also load this aggregated data now.
+We return to burglaries in Manchester for most of this chapter. The files we are loading include the geomasked locations of burglary occurrences in 2017, for the whole of Manchester city and separately for its city centre. Later in this chapter we will look at the whole of Manchester and we will use counts of burglary per Lower Super Output Area (LSOA), so we will also load this aggregated data now.
 
 ```{r, message=FALSE, warning=FALSE}
 
@@ -85,29 +85,51 @@ burglary_lsoa <- st_transform(burglary_lsoa, 27700)
 
 ```
 
+Now that we have all the data we need in our environment, let's get started. 
+
+
 ## Using ´raster` micro grid cells to spot hot spots
 
-As indicated the literature on hot spots focuses on understanding small places or micro geographical units. There are different ways in which one could define this. A number of studies, recognising the nature of police data, look at this from the perspective of street segments. Another way of approaching the problem would be to define-micro grid cells. -@Chainey_2021 argues that if street segments are available this should be the preferred level of analysis "because they act as a behavioral setting along which social activities are organized" (p. 42). Yet, as we will see through this chapter, most of the more traditional techniques that have been developed for detecting local clusters, and that are available in standard software for hot spot detection, were designed for points and polygons rather than lines. The focus on this chapter is in these more traditional techniques and therefore we will use micro grid cells as the vector object to work with through this chapter.
+Analysis which produces "hot spots" generally focuses on understanding small places or micro geographical units where crime (or other topic of interest) may concentrate. There are different ways in which one could define this "micro unit". A number of studies, recognising the nature of police data, look at this from the perspective of street segments. Another way of approaching the problem would be to define-micro grid cells. -@Chainey_2021 argues that if street segments are available this should be the preferred level of analysis "because they act as a behavioral setting along which social activities are organized" (p. 42). Yet, as we will see through this chapter, most of the more traditional techniques that have been developed for detecting local clusters, and that are available in standard software for hot spot detection, were designed for points and polygons rather than lines. The focus on this chapter is in these more traditional techniques and therefore we will use micro grid cells as the vector object to work with through this chapter.
 
-In chapter 4 we discussed alternatives to our choropleth maps, and one of these was to use a grid map. This is a process whereby a tessalating grid of a shape such as squares or hexagons is overlaid on top of our area of interest, and our points are aggregated to such a grid. We explored this using `ggplot2` package. We also used this approach when discussing quadrat counting with `ppp` objects and using the functionality provided by the `spatstat` package.
+In Chapter 4 we discussed alternatives to choropleth maps, and one of these was to use a grid map. This is a process whereby a tessellating grid of a shape such as squares or hexagons is overlaid on top of our area of interest, and our points are aggregated to such a grid. We explored this using `ggplot2` package. We also used this approach when discussing quadrat counting with `ppp` objects and using the functionality provided by the `spatstat` package in Chapter 7.
 
-Here we can revisit this with another approach, using the `raster` package. First we need to create the grid for the raster using the `raster()` function. The first argument defines the extent for the grid. By using our "manchester" `sf` object we ensure it includes all of it. Then the `resolution` argument simply defines how large we want the cells in this grid to be. You can play around with this argument and see how the results will vary. Then we will use the `rasterize()` function to count the number of points that fall within each cell. This is just a form of quadrant counting as the one we introduced in Chapter 6. The `rasterize()` function takes as the first argument the coordinates of the points. The second argument provides the grid we just created. The `field` argument in this case is assigned a value of `1`  so that each point is counted a unit. Then we use the `fun` argument to specify we want to `"count"` the points within each cell. The `rasterize()` function by default will set at NA all the values where there are no points. We don´t want this to be the case. So that the raster include those cells as zero we use the `background` argument and set it to zero: 
+Here we can revisit this with another approach, using the `raster` package. First we need to create the grid by using the `raster()` function. The first argument defines the extent for the grid. By using our "manchester" `sf` object we ensure it includes all of our study area. Then the `resolution` argument defines how large we want the cells in this grid to be. You can play around with this argument and see how the results will vary. 
 
 ```{r}
 # Create empty raster grid
 manchester_r <- raster(manchester, resolution = 0.004)
+```
+
+
+We can then use the `rasterize()` function to count the number of points that fall within each cell. This is just a form of quadrat counting as the one we introduced in Chapter 7. The `rasterize()` function takes as the first argument the coordinates of the points. The second argument provides the grid we just created (`manchester_r`). The `field` argument in this case is assigned a value of `1`  so that each point is counted a unit. Then we use the `fun` argument to specify what we want to do with the points. In this case, we want to `"count"` the points within each cell. The `rasterize()` function by default will set at NA all the values where there are no points. We don´t want this to be the case, as no points is meaningful in our case (means 0 crimes in that grid). So that the raster include those cells as zero we use the `background` argument and set it to zero: 
+
+```{r}
+
 # Fill the grid with the count of incidents within each cell
 m_burglary_raster <- rasterize(manc_burglary,
                                 manchester_r,
                                 field = 1,
                                 fun = "count",
                                 background = 0)
+
+```
+
+
+We can now plot our results: 
+
+```{r}
 # Use base R functionality to plot the raster
 plot(m_burglary_raster)
 plot(st_geometry(manchester), border='#00000040', add=T)
 ```
 
-This kind of map is helpful if you want to get a sense of the distribution over the whole city, but oftenwise from a crime analyst operational point of view the interest is at a larger scale of resolution. We want to deep in and observe the micro-places that may be attracting crime within certain parts of the city. We can do this by focusing on particular neighbourhoods. Let´s look at the city centre, the ward with one of the highest counts of burglaries.
+This kind of map is helpful if you want to get a sense of the distribution of crime over the whole city. However, from a crime analyst's operational point of view the interest may be at a more granular scale. We want to dive in and observe the micro-places that may be areas of high crime within certain parts of the city. We can do this by focusing on particular neighbourhoods. In Manchester, City Centre ward has one of the highest counts of burglaries - so let's zoom in on here.
+
+
+When we read in our files at the start of the chapter, we created the `city_centre` object, which contains the LSOAs in this ward, and also `cc_burglary` which contains only those burglaries which occurred in the city centre. 
+
+Let's repeat the steps of creating a raster, and then the grid which we demonstrated above for all Manchester Local Authority, but now for the City Centre only. 
 
 ```{r, warning = FALSE, message = FALSE}
 # Create empty grid for the City Centre
@@ -123,17 +145,21 @@ plot(burglary_raster_cc)
 plot(st_geometry(city_centre), border='#00000040', add=T)
 ```
 
-We don´t have in this raster object incidents outside the boundaries of the neighborhoud, so we could prefer to declare those cells as NAs. We can do that with the `raster::mask()` function.
+You can see in the above map where hotspots might occur. However you also see that we have created cells of 0 burglaries outside of the boundary of our City Centre ward. This is not quite true, as we didn't include burglaries which occurred outside of here. Therefore, we should not have in this raster object incidents outside the boundaries of the neighborhoud. Instead, we want to declare those cells as NAs. We can do that with the `raster::mask()` function.
 
 ```{r}
 burglary_raster_cc <- mask(burglary_raster_cc, city_centre)
 plot(burglary_raster_cc)
 ```
 
-Let´s add some context. We will use `mapview` for it. This is another great package if you want to give your audience some interactivity. It does what is says in the tin: 
+
+Now you can see we indicate more clearly where we have cells which contain no burglaries at all in our data, versus where we do not have data to be able to talk about burglaries. 
+
+To better understand what might be going on in out grids with higher burglary count, let's add some context. We will use `mapview` for this. This is another great package if you want to give your audience some interactivity. It does what is says in the tin: 
+
 >it "provides functions to very quickly and conveniently create interactive visualisations of spatial data. Its main goal is to fill the gap of quick (not presentation grade) interactive plotting to examine and visually investigate both aspects of spatial data, the geometries and their attributes. It can also be considered a data-driven API for the leaflet package as it will automatically render correct map types, depending on the type of the data (points, lines, polygons, raster)." 
 
-With very few lines of code you can get an interactive plot. Here we first will use `RColorBrewer::brewer.pal()` to define a convenient palette and then use `mapview::mapview()` to plot our raster. Below you see how we increase the transparency with the `alpha.region` argument and how we use `col.regions` to change from the default palette to the one we created.
+With very few lines of code you can get an interactive plot. Here we first will use `brewer.pal()` from the `RColorBrewer` package to define a convenient palette (see CHapter 5 for details on this) and then use the `mapview()` function from the `mapview` package to plot our raster layes we created above. Below you see how we increase the transparency with the `alpha.region` argument and how we use `col.regions` to change from the default palette to the one we created.
 
 ```{r, message=FALSE, warning=FALSE, cache=FALSE}
 
@@ -143,19 +169,23 @@ mapview(burglary_raster_cc,
         col.regions = my.palette)
 ```
 
+We can now explore the underlying environmental backcloth behind the areas with high burglary count, and build hypotheses and research questions about what might be going on there, for example whether these are crime attractors, crime generators, or other types of crime places. However keep in mind that these are illustrations of the counts of observed burglaries, and there is nothing here which declares something a "hot spot". For that, keep reading!
+
 ## Local Getis-Ord
 
-The maps above and the ones we introduced in chapter 6 (produced through kernel density estimation) are helpful for visualising the varying intensity of crime across the study region of interest. However, as we noted above, it may be hard to discern random variation from clustering of crime incidents simply using these techniques. There are a number of statistical tools that have been developed to extract the signal from the noise, to determine what is "hot" from random variation. Many of these techniques were originally designed to detect clusters of disease.
+The maps above and the ones we introduced in Chapter 7 (produced through kernel density estimation) are helpful for visualising the varying intensity of crime across the study region of interest. However, as we noted above, it may be hard to discern random variation from clustering of crime incidents simply using these techniques. There are a number of statistical tools that have been developed to extract the signal from the noise, to determine what is "hot" from random variation. Many of these techniques were originally designed to detect clusters of disease.
 
-In crime analysis is common to use a technique developed by Arthur Getis and JK Ord in the early 1990s (-@Getis_1992 and -@Ord_1995), partly because it was implemented in the widely successful ArcGIS as part of their hot spot analysis tool. This statistic provides a measure of spatial dependence at the local level. They are not testing homogeneity, they are testing dependence of a given attribute around neighbouring areas (which could be operationalised as micro cells in a grid, as above, or could be some form of administrative areas). 
+In crime analysis is common to use a technique developed by Arthur Getis and JK Ord in the early 1990s (see -@Getis_1992 and -@Ord_1995), partly because it was implemented in the widely successful ArcGIS software tool as part of their hot spot analysis tool. This statistic provides a measure of spatial dependence at the local level. They are not testing homogeneity, they are testing dependence of a given attribute around neighbouring areas (which could be operationalised as micro cells in a grid, as above, or could be some form of administrative areas, like wards, or census boundaries like LSOAs or census blocks). 
 
-Whereas the tests we covered in the previous chapter measure dependence at the global level (whereas areas are surrounded by alike areas), these measures of local clustering try to identify pockets of dependence. They are also called **local indicators of spatial autocorrelation**. It is indeed useful for us to be able to assess quantitatively whether crime events cluster in a non-random manner. in the words of Jerry -@Ratcliffe_2010, however, "while a global Moran’s I test can show that crime events cluster in a non-random manner, this simply explains what most criminal justice students learn in their earliest classes." (p. 13). For a crime analyst and practitioner, whereas clustering is of interest, learning about the existence and location of local clusters is of paramount importance.
+Whereas the tests we covered in the previous chapter measure dependence at the global level (whereas areas are surrounded by alike areas), these measures of local clustering try to identify pockets of dependence. They are also called **local indicators of spatial autocorrelation**. It is indeed useful for us to be able to assess quantitatively whether crime events cluster in a non-random manner. In the words of Jerry -@Ratcliffe_2010, however, "while a global Moran’s I test can show that crime events cluster in a non-random manner, this simply explains what most criminal justice students learn in their earliest classes." (p. 13). For a crime analyst and practitioner, while clustering is of interest, learning about the existence and location of local clusters is of paramount importance.
 
-There are two variants of the local Getis-Ord statistic. The local $G$ is computed as a ratio of the weighted average of the values of the attribute of interest in the neighboring locations, not including the value at the location. It is generally used for spread and diffusion studies. The local $G^*$,on the other hand, includes the value at the location in both numerator and denominator. It is more generally used for clustering studies (for formula details see -@Getis_1992 and -@Ord_1995). High positive values indicate the possibility of a local cluster of high values of the variable being analysed ("hot spot"), very low relative values a similar cluster of low values ("cold spot"). "A value larger than the mean (or, a positive value for a standardized z-value) suggests a High-High cluster or hot spot, a value smaller than the mean (or, negative for a z-value) indicates a Low-Low cluster or cold spot." (-@Anselin_2020a) 
+There are two variants of the local Getis-Ord statistic. The local $G$ is computed as a ratio of the weighted average of the values of the attribute of interest in the neighboring locations, not including the value at the location. It is generally used for spread and diffusion studies. The local $G^*$,on the other hand, includes the value at the location in both numerator and denominator. It is more generally used for clustering studies (for formula details see -@Getis_1992 and -@Ord_1995). High positive values indicate the possibility of a local cluster of high values of the variable being analysed ("hot spot"), very low relative values a similar cluster of low values ("cold spot"). 
+
+>"A value larger than the mean (or, a positive value for a standardized z-value) suggests a High-High cluster or hot spot, a value smaller than the mean (or, negative for a z-value) indicates a Low-Low cluster or cold spot." (-@Anselin_2020a) 
 
 For statistical inference, a Bonferroni-type test is suggested in the the papers by Getis and Ord, where tables of critical values are included. The critical values for the 95th percentile under the assumptions discussed by -@Ord_1995 are for $n$=30: 2.93, $n$=50: 3.08, $n$=100: 3.29, $n$=500: 3.71, and for $n$=1000: 3.89. @Anselin_2020a suggest that this analytical approximation may not be reliable in practice and that conditional permutation is advisable. Inference with these local measures are also complicated by problems of multiple comparisons, so it is typically advisable to use some form of adjustment to this problem.
 
-The first step in computing the Getis and Ord statistics involves defining the neighbours of each area. And to do that first we have to turn each cell in our grid into a polygon, so we basically move from the raster to the vector model by virtue of using `raster::rasterToPolygons`. 
+The first step in computing the Getis and Ord statistics involves defining the neighbours of each area. And to do that first we have to turn each cell in our grid into a polygon, so we basically move from the raster to the vector model. This way we can use the methods discussed in Chapter 9 to operationalise neighbouringness in our data. To transform our raster grid cells into polygons we can use the `rasterToPolygons()` function from the `raster` package. 
 
 ```{r}
 # Move to vector model
@@ -163,7 +193,7 @@ grid_cc <-  rasterToPolygons(burglary_raster_cc)
 
 ```
 
-What is a neighbour and the code related to defining neighbours is a topic we covered in the previous chapter. For brevity, we will only use the queen criteria for this illustration. Only to indicate that `include.self()` ensures we get the $G^*$ variation of the local Getis-Ord test, the second variation we mentioned above.
+What is a neighbour and the code related to defining neighbours is a topic we covered in Chapter 9. For brevity, we will only use the queen criteria for this illustration. Only to indicate that `include.self()` ensures we get the $G^*$ variation of the local Getis-Ord test, the second variation we mentioned above.
 
 ```{r}
 nb_queen_cc <-  poly2nb(grid_cc)
@@ -171,9 +201,9 @@ lw_queen_cc <- nb2listw(include.self(nb_queen_cc), zero.policy=T)
 
 ```
 
-Now that we have the data ready we can, analytically, compute the statistic using the `localG()` function. We can then add the computed local $Gi^*$ to each cell. And we can then see the produced z scores:
+Now that we have the data ready we can, analytically, compute the statistic using the `localG()` function from the `spdep` package. We can then add the computed local $Gi^*$ to each cell. And we can then see the produced z scores:
 
-```{r, message=FALSE, warning=FALSe}
+```{r, message=FALSE, warning=FALSE}
 
 # Perform the local G analysis (Getis-Ord GI*)
 grid_cc$G_hotspot_z <- as.vector(localG(grid_cc$layer, lw_queen_cc))
@@ -196,32 +226,51 @@ colnames(p_values_lgmc) <- c("None", "Bonferroni",
 apply(p_values_lgmc, 2, function(x) sum(x < 0.05))
 ```
 
-We can now plot this significant clusters in the map. We will just take the areas identified as significant clusters with the Bonferroni adjustment. First we will do some recoding to identify these cells in the spatial polygon object.
+We can see that we get fewer significant hot (or cold) spots once we adjust for the problem of multiple comparisons. In general, Bonferroni correction is the more conservative option. Here, the p-value is multiplied by the number of comparisons. This is useful, when let's say we're trying to avoid false positives. We will progress with those areas identified with this method. 
+
+To map this, we can create a new variable, let's call it hotspot, which can take the value of "hot spot" if the Bonferroni adjusted p-value is smaller than 0.05 and the z score is positive, and "cold spot" if the Bonferroni adjusted p-value is smaller than 0.05 and the z score is negative. Otherwise it will be labelled "Not significant". 
+
+
 
 ```{r}
+# convert to simple features object
+grid_cc_sf <- st_as_sf(grid_cc)
 # Creates p values for Bonferroni adjustment
-grid_cc$G_hotspot_bonf <- p.adjust(p_values_lg, "bonferroni")
-# Create character vector based on Z score and p values (since this is a spatial polygon tidier functions such as mutate won´t do the job and have to use base R)
-grid_cc$HOTSPOT <- "Not significant"
-grid_cc$HOTSPOT[grid_cc$G_hotspot_bonf < 0.05 & grid_cc$G_hotspot_z > 0] <- "Hot spot"
-grid_cc$HOTSPOT[grid_cc$G_hotspot_bonf < 0.05 & grid_cc$G_hotspot_z < 0] <- "Cold spot"
-table(grid_cc$HOTSPOT)
+grid_cc_sf$G_hotspot_bonf <- p.adjust(p_values_lg, "bonferroni")
+# Create character vector based on Z score and p values 
+grid_cc_sf <- grid_cc_sf %>% 
+  mutate(hotspot = case_when(grid_cc_sf$G_hotspot_bonf < 0.05 & 
+                               grid_cc_sf$G_hotspot_z > 0 ~ "Hot spot",
+                             grid_cc_sf$G_hotspot_bonf < 0.05 & 
+                               grid_cc_sf$G_hotspot_z < 0 ~ "Cold spot",
+                             TRUE ~ "Not significant"))
 
 ```
 
-We can now map these values.
+Now let's see the result
+
+```{r}
+
+table(grid_cc_sf$hotspot)
+
+```
+
+Great, we have our 10 significant hot spots, and no significant cold spots apparently. We can now map these values.
 
 ```{r, message=FALSE, warning=FALSE}
+#set to view mode and make sure colours are colourblind safe
 tmap_mode("view")
 tmap_style("col_blind")
-map1 <- tm_shape(st_as_sf(grid_cc)) + 
-  tm_fill(c("G_hotspot_z"), 
-          title="Z scores",
-          alpha = 0.5)
-map2 <- tm_shape(st_as_sf(grid_cc)) +
-  tm_fill(c("HOTSPOT"), 
-          title="Hot spots",
-          alpha = 0.5)
+
+# make map of the z-scores
+map1 <- tm_shape(grid_cc_sf) + 
+  tm_fill(c("G_hotspot_z"), title="Z scores", alpha = 0.5)
+
+# make map of significant hot spots
+map2 <- tm_shape(grid_cc_sf) +
+  tm_fill(c("hotspot"), title="Hot spots", alpha = 0.5)
+
+# print both maps side by side
 tmap_arrange(map1, map2, nrow=1)
 
 
@@ -233,60 +282,80 @@ We can see here that not all the micro grid cells with an elevated count of burg
 
 ### Computing the local Moran´s I
 
-The Local Gerdis and Ord statistic, as we noted is a type of local indicator of spatial autocorrelation. There is also a local version of Moran´s I, which allow for the  the decomposition of such as Moran's I, into the contribution of each observation. 
+The Local Gerdis and Ord statistic, are local indicators of spatial autocorrelation. There is also a local version of Moran´s I, which allow for the decomposition of global indicators of spatial autocorrelation such as Moran's I discussed in Chapter 9, into the contribution of each observation. This allows us to elaborate on the location and nature of the clustering within our study area, once we have found that autocorrelation occurs globally. 
 
-Let's first look at the Moran's scatterplot for our data. Remember from last chapter that a Moran´s scatterplot is plotting the values of the variable of interest, in this case the burglary count on each micro grid, against the spatial lagged value. For creating the Moran´s scatterplot we generally use row standardisation in the weight matrix so that the Y and the X axis are more comparable.
+Let's first look at the Moran's scatterplot for our data. Remember from last chapter that a Moran´s scatterplot plots the values of the variable of interest, in this case the burglary count on each micro grid, against the spatial lagged value. For creating the Moran´s scatterplot we generally use row standardisation in the weight matrix so that the Y and the X axis are more comparable.
 
 ```{r}
-
+# create row standardised weights
 lw_queen_rs <-  nb2listw(nb_queen_cc, style='W')
-m_plot_burglary <- moran.plot(as.vector(scale(grid_cc$layer)),
-                              lw_queen_rs,
-                              cex=1, pch=".",
-                              xlab="burglary count",
-                              ylab="lagged burglary count")
+
+# build Moran's scatterplot
+m_plot_burglary <- moran.plot(as.vector(scale(grid_cc$layer)), 
+                              lw_queen_rs, cex=1, pch=".", 
+                              xlab="burglary count",  ylab="lagged burglary count")
 
 ```
 
 Notice how the plot is split into 4 quadrants structured around the centered mean for the value of burglary and its spatial lag. The top right corner belongs to areas that have high level of burglary and are surrounded by other areas that have above the average level of burglary. These are **high-high** locations. The bottom left corner belongs to the **low-low areas**. These are areas with low level of burglary and surrounded by areas with below average levels of burglary. Both the high-high and low-low represent clusters. A high-high cluster is what you may refer to as a *hot spot*. And the low-low clusters represent *cold spots*. 
 
-In the opposite diagonal we have **spatial outliers**. They are not outliers in the standard statistical sense, extreme observations, they are outliers in that they are surrounded by areas that are very unlike them. So you could have *high-low spatial outliers*, areas with high levels of burglary and low levels of surrounding burglary, or *low-high spatial outliers*, areas that have themselves low levels of burglary (or whatever else we are mapping) and that are surrounded by areas with above average levels of burglary. This would suggest pockets of non-stationarity. @Anselin_1996 warns these can sometimes surface as a consequence of problems with the specification of the weight matrix.
+In the opposite diagonal we have **spatial outliers**. They are not outliers in the standard statistical sense, as inextreme observations. Instead, they are outliers in that they are surrounded by areas that are very unlike them. So you could have *high-low spatial outliers*, areas with high levels of burglary and low levels of surrounding burglary, or *low-high spatial outliers*, areas that have themselves low levels of burglary (or whatever else we are mapping) and that are surrounded by areas with above average levels of burglary. This would suggest pockets of non-stationarity. @Anselin_1996 warns these can sometimes surface as a consequence of problems with the specification of the weight matrix.
 
 The slope of the line in the scatterplot gives you a measure of the global spatial autocorrelation. As we noted earlier, the local Moran´s I  help you to identify what are the locations that weigh more heavily in the computation of the global Moran´s I. The object generated by the `moran.plot()` function includes a measure of this leverage, a hat value, for each location in your study area and we can plot these values if we want to geographically visualise those locations:
 
 ```{r, warning=FALSE, message=FALSE}
 # We extract the influence measure and place it in the sp object
-grid_cc$lm_hat <- m_plot_burglary$hat
+grid_cc_sf$lm_hat <- m_plot_burglary$hat
 # Then we can plot this measure of influence
-tm_shape(grid_cc) + tm_fill("lm_hat")
+tm_shape(grid_cc_sf) + tm_fill("lm_hat")
 
 ```
 
-To compute the local Moran we can use a function from the `spdep` package: `localmoran()`.
+To compute the local Moran's I we can use the `localmoran()` function from the `spdep` package.
 
 ```{r}
-locm_burglary <- localmoran(grid_cc$layer, lw_queen_rs,
-                            alternative = "two.sided")
+locm_burglary <- localmoran(grid_cc_sf$layer, lw_queen_rs, alternative = "two.sided")
 ```
 
-As with the local $G*$ it is necessary to adjust for multiple comparisons. The unadjusted p value for the test is stored in the fifth column of the object of class `localmoran` that we generated with the `localmoran` function. As before we can extract this element and pass it as an argument to the `p.adjust()` function in order to obtain p values with some method of adjustment for the problem of multiple comparisons.
+As with the local $G*$ it is necessary to adjust for multiple comparisons. The unadjusted p-value for the test is stored in the fifth column of the object of class `localmoran` that we generated with the `localmoran()` function. As before we can extract this element and pass it as an argument to the `p.adjust()` function in order to obtain p-values with some method of adjustment for the problem of multiple comparisons.
 
 ```{r}
 p_values_lm <- locm_burglary[,5]
 sum(p_values_lm < 0.05)
 
 ```
-If we do not adjust for multiple comparisons, then, there would be 33 areas with a significant p value. As shown below these get reduced to 11 once we apply the Bonferroni correction.
+
+
+**NOTE:** It is important to note that by default, the `localmoran()` function does not adjust for the problem of multiple comparisons. This needs to be kept in mind, as it might lead us to erroneously conclude we have many hot or cold spots. 
+
+In our example, if we do not adjust for multiple comparisons, then, there would be 33 areas with a significant p value. If we apply again the Bonferroni correction, these get reduced to only 11.
 
 ```{r}
 bonferroni_lm <- p.adjust(p_values_lm, "bonferroni")
 sum(bonferroni_lm < 0.05)
 ```
 
-It is also possible to use conditional permutation for inference purposes, instead of the analytical methods used above. In this case we would need to invoke `spdep::localmoran_perm()` function. Here we would need an additional argument `nsim` setting the number of simulations. @Bivand_2018 suggest that "increasing the number of draws beyond 999 has no effect" (p. 741). The `iseed` argument ensures we use the same random seed and get reproducible results. As before adjusting for multiple comparisons notably reduces the number of significant clusters.
+
+<!-- We note above that the default of the `localmoran()` function is to not adjust for multiple comparisons in the p-values, but you can also just specify this on the `p.adjust.method` parameter of the function. For example, to use Bonferroni:  -->
+
+
+<!-- ```{r} -->
+<!-- locm_burglary <- localmoran(grid_cc_sf$layer, lw_queen_rs, alternative = "two.sided",  -->
+<!--                             p.adjust.method = "bonferroni") -->
+<!-- ``` -->
+
+<!-- Now we can check how many grids are significant:  -->
+
+<!-- ```{r} -->
+<!-- p_values_lm <- locm_burglary[,5] -->
+<!-- sum(p_values_lm < 0.05) -->
+
+<!-- ``` -->
+
+Another approach is to use conditional permutation for inference purposes, instead of the analytical methods used above. In this case we would need to invoke the `localmoran_perm()` function also from the `spdep` package. This approach is based on simulations, so we also have to specify an additional argument `nsim` setting the number of simulations. @Bivand_2018 suggest that "increasing the number of draws beyond 999 has no effect" (p. 741). The `iseed` argument ensures we use the same random seed and get reproducible results. As before adjusting for multiple comparisons notably reduces the number of significant clusters.
 
 ```{r}
-locm_burglary_perm <- localmoran_perm(grid_cc$layer, 
+locm_burglary_perm <- localmoran_perm(grid_cc_sf$layer, 
                                       lw_queen_rs, 
                                       nsim=499, 
                                       alternative="two.sided", 
@@ -297,17 +366,21 @@ bonferroni_lmp <- p.adjust(p_values_lmp, "bonferroni")
 sum(bonferroni_lmp < 0.05)
 ```
 
+We go from `r sum(p_values_lmp < 0.05)` to `r sum(bonferroni_lmp < 0.05)` significant regions! This really illustrates the perils of not correcting for multiple comparisons!
+
 ### Creating a LISA map
 
-In order to produce the LISA map we need to do some previous work. First we are going to create some new variables that we are going to need.
+In order to map these Local Indicators of Spatial Association (LISA) we need to do some prep work. 
 
-First we scale the variable of interest. As noted earlier, when we scale burglary what we are doing is re-scaling the values so that the mean is zero. We use `scale()`, which is a generic function whose default method centers and/or scales the variable. We've also added `as.vector()` to the end, to make sure that the data type we get out of this is a vector, that maps neatly into our `sp` object. Then we will also store the adjusted p values into a variable within this object.
+First we must scale the variable of interest. As noted earlier, when we scale burglary what we are doing is re-scaling the values so that the mean is zero. We use the `scale()` function, which is a generic function whose default method centers and/or scales the variable. 
+
+<!-- We've also added `as.vector()` to the end, to make sure that the data type we get out of this is a vector, that maps neatly into our `sp` object. Then we will also store the adjusted p values into a variable within this object. -->
 
 ```{r}
 # Scale the count of burglary
-grid_cc$s_burglary <- scale(grid_cc$layer) %>% as.vector()
+grid_cc_sf$s_burglary <- scale(grid_cc_sf$layer) 
 # Creates p values for Bonferroni adjustment
-grid_cc$localmp_bonf <- p.adjust(p_values_lmp, "bonferroni")
+grid_cc_sf$localmp_bonf <- p.adjust(p_values_lmp, "bonferroni")
 
 ```
 
@@ -315,40 +388,68 @@ To produce the LISA maps we also need to generate a **spatial lag**: the average
 
 ```{r}
 #create a spatial lag variable and save it to a new column
-grid_cc$lag_s_burglary <- lag.listw(lw_queen_rs, grid_cc$s_burglary)
+grid_cc_sf$lag_s_burglary <- lag.listw(lw_queen_rs, grid_cc_sf$s_burglary)
 ```
 
-Make sure to check the summaries to ensure nothing weird is going on
+Make sure to check the summaries to ensure the numbers are in line with our expectations, and nothing weird is going on. 
 
 ```{r, eval=FALSE}
 
-summary(grid_cc$s_burglary)
-summary(grid_cc$lag_s_burglary)
+summary(grid_cc_sf$s_burglary)
+summary(grid_cc_sf$lag_s_burglary)
 ```
 
-We are now going to create a new variable to identify the quadrant in which each observation falls within the Moran Scatter plot, so that we can tell apart the high-high, low-low, high-low, and low-high areas. We will only identify those that are significant according to the p value that was provided by the local moran function adjusted for multiple comparisons. The data we need for each observation, in order to identify whether it belongs to the high-high, low-low, high-low, or low-high quadrants are the standardised burglary score, the spatial lag score, and the p-value. 
+We are now going to create a new variable to identify the quadrant in which each observation falls within the Moran Scatter plot, so that we can tell apart the high-high, low-low, high-low, and low-high areas. We will only identify those that are significant according to the p-value that was provided by the local Moran function adjusted for multiple comparisons with out Bonferroni adjustment. The data we need for each observation, in order to identify whether it belongs to the high-high, low-low, high-low, or low-high quadrats are the standardised burglary score (positive or negative), the spatial lag score, and the p-value. 
 
 Essentially all we'll be doing, is assigning a variable values based on where in the plot it is. So for example, if it's in the upper right, it is high-high, and has values larger than 0 for both the burglary and the spatial lag values.  It it's in the upper left, it's low-high, and has a value larger than 0 for the spatial lag value, but lower than 0 on the burglary value. And so on, and so on. Here's an image to illustrate:
 
-![](img/moran_plot_annotate.png)
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+library(ggplot2)
+
+ggplot() + 
+  geom_point(data = mtcars, aes(x = scale(mpg), y = scale(wt)), shape = 9) +
+  geom_rect(aes(xmin = -2, ymin = -2, xmax = 0, ymax = 0), fill = "#a6cee3", alpha = 0.5) + 
+  geom_rect(aes(xmin = 2, ymin = 2, xmax = 0, ymax = 0), fill = "#1f78b4", alpha = 0.5) +
+  geom_rect(aes(xmin = -2, ymin = 2, xmax = 0, ymax = 0), fill = "#b2df8a", alpha = 0.5) +
+  geom_rect(aes(xmin = 0, ymin = -2, xmax = 2, ymax = 0), fill = "#33a02c", alpha = 0.5) +
+  geom_label(aes(x = 1, y = 1, label = "Lagged X > 0 and \nStandardised X > 0"), colour = "#1f78b4") + 
+   geom_label(aes(x = -1, y = 1, label = "Lagged X > 0 and \nStandardised X < 0"), colour = "#b2df8a") + 
+    geom_label(aes(x = -1, y = -1, label = "Lagged X < 0 and \nStandardised X < 0"), colour = "#a6cee3") + 
+  geom_label(aes(x = 1, y = -1, label = "Lagged X > 0 and \nStandardised X < 0"), colour = "#33a02c") +
+  theme_minimal() + 
+  xlim(c(-2,2)) + 
+  ylim(c(-2,2)) + 
+  ylab("Lagged X") + 
+  xlab("X")
+  
+
+
+```
+
 
 So let's first initialise this variable. In this instance we are creating a new column in the `sp` object and calling it "quad_sig". 
 
 
 ```{r}
-grid_cc$quad_sig[grid_cc$localmp_bonf >= .05] <- "Not significant"
-grid_cc$quad_sig[grid_cc$s_burglary > 0 & 
-                   grid_cc$lag_s_burglary > 0 &  
-                   grid_cc$localmp_bonf < 0.05] <- "high-high"
-grid_cc$quad_sig[grid_cc$s_burglary < 0 & 
-                   grid_cc$lag_s_burglary < 0 & 
-                   grid_cc$localmp_bonf < 0.05] <- "low-low"
-grid_cc$quad_sig[grid_cc$s_burglary < 0 & 
-                   grid_cc$lag_s_burglary > 0 & 
-                   grid_cc$localmp_bonf < 0.05] <- "low-high"
-grid_cc$quad_sig[grid_cc$s_burglary > 0 & 
-                   grid_cc$lag_s_burglary < 0 & 
-                   grid_cc$localmp_bonf < 0.05] <- "high-low"
+
+grid_cc_sf <- grid_cc_sf %>% 
+  mutate(quad_sig = case_when(localmp_bonf >= .05 ~ "Not significant", 
+                              s_burglary > 0 &  
+                                lag_s_burglary > 0 &  
+                                localmp_bonf < 0.05 ~ "High-high", 
+                              s_burglary < 0 &
+                                lag_s_burglary < 0 & 
+                                localmp_bonf < 0.05 ~ "Low-low", 
+                              s_burglary < 0 &
+                                lag_s_burglary > 0 &
+                                localmp_bonf < 0.05 ~ "Low-high", 
+                              s_burglary > 0 & 
+                                lag_s_burglary < 0 & 
+                                localmp_bonf < 0.05 ~ "High-low" ))
+
+
+
 
      
 ```
@@ -358,16 +459,17 @@ Now we can have a look at what this returns us:
 
 ```{r}
 
-table(grid_cc$quad_sig)
+table(grid_cc_sf$quad_sig)
 
 ```
 
 So the 9 significant clusters we found split into 5 high-high and 4 low-high. 
+
 Let's put them on a map, using the standard colours used in this kind of maps:
 
 ```{r, warning=FALSE,message=FALSE}
 
-tm_shape(grid_cc) + 
+tm_shape(grid_cc_sf) + 
   tm_fill("quad_sig",
           palette= c("red","blue","white"),
           labels = c("High-High","Low-High", "non-significant"),
@@ -382,11 +484,14 @@ tm_shape(grid_cc) +
             main.title.size = 1.2)
 ```
 
-## Scan satistics in `DCluster`
+There we have it, our LISA map of a grid overlay over Manchester's City Centre ward, identifying local spatial autocorrelation in burglaries. 
+
+
+## Scan satistics 
 
 ### The `DCluster` package
 
-As we mentioned at the outset of the chapter, a number of alternative approaches using a different philosophy to those that are based on the idea of LISA, have been developed as well within spatial epidemiology. Rather than focusing on local dependence these tests focus on assessing homogeneity (-@Marshall_1991):
+As we mentioned at the outset of the chapter, a number of alternative approaches using a different philosophy to those that are based on the idea of LISA, have been developed within spatial epidemiology. Rather than focusing on local dependence these tests focus on assessing homogeneity (-@Marshall_1991):
 
 >The null hypothesis when clustering is thought to be due to elevated local risk is usually that cases of disease follow a non-homogeneous Poisson process with intensity proportional to population density. Tests of the null Poisson model can be carried out by comparing observed and expected count" (p. 423).
 
@@ -394,22 +499,31 @@ Here we will look at two well known approaches with a focus on their implementat
 
 Straight away we see the problem we encounter here. The criminology of place emphasises small places, but for this level of aggregation (street segments or micro grid cells) we won´t have census variables indexing the population that we could easily use for purposes of standardisation. This means we need to (1) either compromise and look for clusters at a level of aggregation for which we have some population measure that we could use for standardising or (2) get creative an try to find other ways of solving this problem. Increasingly environmental criminologists are trying to find ways of taking this second route (see -@Andresen_2021). For this illustration and for convenience reasons, we will take the first one. Although it is important to warn we should try to stick whenever possible to the level of the spatial process we are interested in exploring.
 
-For this example the  expected counts will be computed using the overall incidence ratio (i.e., total number of cases divided by the total population: in this case the number of residential dwellings in the area).
+For this example the expected counts will be computed using the overall incidence ratio (i.e., total number of cases divided by the total population: in this case the number of residential dwellings in the area). We will use the unit of analysis of neighbourhoods operationalised as a commonly used census unit of geography in the UK, the Lower Super Output Area (LSOA). 
+
+Let's compute the expected count by dividing the total number of burglaries by the total number of dwellings (if burglaries were evenly distributed across all dwellings in our study area) and then multiplying this with the number of dwellings in each LSOA
 
 ```{r}
-burglary_lsoa$b_expected <- burglary_lsoa$dwellings * sum(burglary_lsoa$burglary) / sum(burglary_lsoa$dwellings)
+
+# calculate rate per dwelling in whole study area
+even_rate_per_dwelling <- sum(burglary_lsoa$burglary) / sum(burglary_lsoa$dwellings)
+
+# expected count for each LSOA times rate per number of dwellings
+burglary_lsoa <- burglary_lsoa %>% 
+  mutate(b_expected = dwellings * even_rate_per_dwelling)
+
 
 ```
 
-This package requires as well the centroids for the polygons we are using.  To extract this we can use `sf::st_centroid()` with `sf::st_coordinates()`. All the GEOS functions underlying `sf` need projected coordinates to work properly, so we need to ensure an adequate projection (which we did when we loaded the data at the outset of the chapter):
+This package requires as well the centroids for the polygons we are using.  To extract this we can use `st_centroid()` function form the `sf` package. If we want to extract the coordinates individually, we also need to use the `st_coordinates()` function. All the GEOS functions underlying `sf` need projected coordinates to work properly, so we need to ensure an adequate projection (which we did when we loaded the data at the outset of the chapter):
 
 ```{r, warning=FALSE}
 # Get coordinates for centroids
-nh_centroid <- st_centroid(burglary_lsoa) %>%
-  st_coordinates(nh_centroid)
+lsoa_centroid <- st_centroid(burglary_lsoa) %>%
+  st_coordinates(lsoa_centroid)
 # Place the coordinates as vectors in our sf dataframe
-burglary_lsoa$x <- nh_centroid[,1]
-burglary_lsoa$y <- nh_centroid[,2]
+burglary_lsoa$x <- lsoa_centroid[,1]
+burglary_lsoa$y <- lsoa_centroid[,2]
 
 ```
 
@@ -441,6 +555,7 @@ pwtest <- pottwhitt.test(Observed~offset(log(Expected)),
 oplus <- sum(lsoas$Observed)
 1 - pnorm(pwtest$t0, oplus * (oplus - 1), sqrt(2 * 100 * oplus * (oplus - 1)))
 ```
+
 Detail in those two tests and the used code is available from -@Bivand_2013. In what follows we introduce two of the approaches implemented here for the detection of clusters.
 
 ### Oppenshaw´s GAM
@@ -456,6 +571,7 @@ gam_burglary <- opgam(data = as(lsoas, "data.frame"),
                    radius = 50, step = 10, alpha = 0.002)
 
 ```
+
 Once `opgam` has found a solution we could plot either the circles or the centre of these circles. We can use the following code to do the map, which will be shown in the next section.
 
 ```{r}
@@ -524,11 +640,13 @@ nyc_burg <- get_crime_data(
 ) %>%
   dplyr::filter(offense_type == "residential burglary/breaking & entering" &
            nyc_boro_nm == "MANHATTAN")
-manhattan <- st_read("https://services5.arcgis.com/GfwWNkhOj9bNBqoJ/arcgis/rest/services/NYC_Borough_Boundary/FeatureServer/0/query?where=1=1&outFields=*&outSR=4326&f=pgeojson", quiet=TRUE) %>%
+manhattan <- st_read("data/manhattan.geojson", quiet=TRUE) %>%
   filter(BoroName == "Manhattan")
 manhattan <- st_transform(manhattan, 32118)
 nyc_burg <- st_transform(nyc_burg, 32118)
 ```
+
+
 The `NearRepeat` package uses the Knox test for space time clustering, which has been around since 1964. This test whether there is a significant cluster within a defined distance and time period. The Knox algorithm counts the pair of points within a specified space and time interval and compares this to the expected number of points. "If many of the cases that are 'close' in time are also 'close' in space or viceversa, then there is space-time interaction" (-@Kulldorff_1999). The idea underpinning the test, as higlighted by -@Mantel_1967, is that "if there is time-space clustering, cases in a cluster will be close both in time and space, while unrelated cases will tend to have a larger average separation in time and space." (p. 209).
 
 The `NearRepeat` package is quite straightforward with just a couple of functions, as we will see. The key function is `NearRepeat()` that takes as inputs the data (a vector with the $x$ coordinates, a vector with the $y$ coordinates, and a vector with the time information -which can be an integer, numeric or date). You then need to specify the time and the spatial intervals. Ratcliffe (2020) indicates that:
@@ -577,4 +695,4 @@ So, as with most data analysis exercises one has to try different approaches and
 
 A more advanced approach at considering space time interactions and exploration of highly clustered even sequences than the one assumed by the Knox test rely on the idea of self-exciting points that are common in seismology. For details in this approach see -@Mohler_2011. -@Kulldorff_2005 also developed a space time permutation scan statistic for detecting disease outbreaks that may be useful within the context of crime analysis (see, for example, -@Uittenbogaard_2012 use to study spatio-temporal clusters of crime in Stockholm or -@Cheng_2015 use of the prospective scan statistic in London). -@Gorr_2015 discuss an alternative approach to study and responding to chronic and temporary hotspot. Of interest as well is the work by -@Adepeju_2021, and the associated R package `Akmedoids`(-@Adepeju_2020), for classifying longitudinal trajectories of crime at micro places.
 
-Also, as noted in previous chapters, we need to acknowledge the underlying network structure constraining the spatial distribution of our crime data. -@Shiode_2015 developed a hotspot detection method that uses a network-based space-time search window technique (see also -@Shiode_2020 for more recent work). However, the software implementation of this approach has not yet seen the light as of this writing despite the authors mentioning a "GIS plug-in tool" to be in development in their 2015 paper. Also relevant is the work by -@Briz-Redón_2019b that developed a R package (`DRHotNet`) for diﬀerential risk hotspots on a linear network. This is a procedure to detect whether speciﬁc type of event is overrepresented in relation to the other types of events observed (say, for example, burglaries in relation to other crimes). There is a detailed tutorial for this package in -@Briz-Redón_2019.
+Also, as noted in previous chapters, we need to acknowledge the underlying network structure constraining the spatial distribution of our crime data. -@Shiode_2015 developed a hotspot detection method that uses a network-based space-time search window technique (see also -@Shiode_2020 for more recent work). However, the software implementation of this approach has not yet seen the light as of this writing despite the authors mentioning a "GIS plug-in tool" to be in development in their 2015 paper. Also relevant is the work by -@BrizRedon_2019b that developed a R package (`DRHotNet`) for ldifferential risk hotspots on a linear network. This is a procedure to detect whether specific type of event is overrepresented in relation to the other types of events observed (say, for example, burglaries in relation to other crimes). There is a detailed tutorial for this package in -@BrizRedon_2019a.

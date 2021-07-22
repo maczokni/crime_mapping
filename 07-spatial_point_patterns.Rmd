@@ -223,18 +223,18 @@ intensity.ppp(rescale(jitter_bur, 1000, "km"))
 
 Manhattan has roughly 59.1 Km^2^. If we divide 1727 incidents by this area we get around 29 burglaries per Km^2^. This estimate, let´s remember, assumes that the intensity is homogeneous across the study window.
 
-If we suspect the point pattern is spatially varying, we can start exploring this with **quadrant counting**. One could divide the window of observation into quadrants and count the number of points into each of these quadrants. If the quadrants have an equal area and the process is spatially homogeneous, one would expect roughly the same number of incidents in each quadrant.
+If we suspect the point pattern is spatially varying, we can start exploring this with **quadrat counting**. A **quadrat** refers to a small area - a term taken from ecology where quadrats are used to sample local distribution of plants or animals. One could divide the window of observation into quadrats and count the number of points into each of these quadrats. If the quadrats have an equal area and the process is spatially homogeneous, one would expect roughly the same number of incidents in each quadrat.
 
-For producing this counting we use the `spatstat.geom::quadratcount()` function. The `nx` and `ny` argument in this function control how many breaks you want alongside the X and Y coordinates to create the quadrants. So to create 6 quadrants from top to bottom of Manhattan we will set them to 1 and 6 respectively. The configuration along the X and Y and the number of quadrants is something you will have to choose according to what is convenient to you. Then we just use standard plotting functions from R base.
+For producing this counting we use the `spatstat.geom::quadratcount()` function. The `nx` and `ny` argument in this function control how many breaks you want alongside the X and Y coordinates to create the quadrats. So to create 6 quadrats from top to bottom of Manhattan we will set them to 1 and 6 respectively. The configuration along the X and Y and the number of quadrats is something you will have to choose according to what is convenient to you. Then we just use standard plotting functions from R base.
 
 ```{r quadratcount_6}
 
 q <- quadratcount(jitter_bur, nx = 1, ny = 6)
-plot(q, main = "Quadrant Count")
+plot(q, main = "Quadrat Count")
 
 ```
 
-As you can see with its irregular shape it is difficult to divide Manhattan in equally shaped and sized quadrants and thus it is hard to assess if regions of equal area contain a similar number of points. Notice, however,how the third quadrant from the bottom seems to have less incidents than the ones that surround it. A good portion of this quadrant is taken by Central Park, where you would not expect a burglary.
+As you can see with its irregular shape it is difficult to divide Manhattan in equally shaped and sized quadrats and thus it is hard to assess if regions of equal area contain a similar number of points. Notice, however,how the third quadrat from the bottom seems to have less incidents than the ones that surround it. A good portion of this quadrat is taken by Central Park, where you would not expect a burglary.
 
 Instead, we can use other forms of tessellation, like hexagons by using the `spatstas.geom::hextess` function. This is similar to the binning we introduced in Chapter 4, only using different functions. The numeric argument sets the size of the hexagons, you will need to play along to find an adequate value for your own applications. Rather than printing the numbers inside these hexagons (if you many this will make it difficult to read in a plot) we can map a color to the intensity (the number of points per hexagon):
 
@@ -270,7 +270,7 @@ quadrat.test(jitter_bur, nx = 1, ny = 6)
 
 Observing the results we see that the p value is well below conventional standards for rejection of the null hypothesis. Observing our data of burglary in Manhattan would be extremely rare if the null hypothesis of a homogeneous distribution was true. We can then conclude that the burglary data is not randomly distributed in the observed space. But no cop nor criminologist would really question this. They would rarely be surprised by your findings! We do know, through research, that crime is not randomly distributed in space. 
 
-Beware as well that this test would come out as significant if the point pattern violates the property of independence between the points. It is important to keep in mind that the null may be rejected either because the process is not homogeneous *or* because the points are not independent, but the test doesn´t tell us the reason for the rejection. Equally, the power depend on the size of the quadrants (and they are not too large or too small). And the areas are not of equal size here in any case. So the test in many applications will be of limited use.
+Beware as well that this test would come out as significant if the point pattern violates the property of independence between the points. It is important to keep in mind that the null may be rejected either because the process is not homogeneous *or* because the points are not independent, but the test doesn't tell us the reason for the rejection. Equally, the power depend on the size of the quadrats (and they are not too large or too small). And the areas are not of equal size here in any case. So the test in many applications will be of limited use.
 
 ## Mapping intensity estimates with `spatstat`
 
