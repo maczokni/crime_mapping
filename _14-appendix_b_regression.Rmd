@@ -1,45 +1,35 @@
-# Regression analysis (a refresher)
+# Appendix B: Regression analysis (a refresher)
 
 
 
 ## Introduction
 
-
-We will use a dataset that includes information about homicides in the US, as well as information in a number of sociodemographic variables that are often thought of as associated with the geographical distribution of homicides.
-
-```{r, eval=FALSE}
-##R in Windows have some problems with https addresses, that's why we need to do this first:
-urlfile<-'https://s3.amazonaws.com/geoda/data/ncovr.zip'
-download.file(urlfile, 'ncovr.zip')
-#Let's unzip and create a new directory (ncovr) in our working directory to place the files
-unzip('ncovr.zip', exdir = 'ncovr')
+In this appendix we present a very brief and high-level overview of regression analysis, in order to give some reference to when we introduce spatial regression in Chapter 11. We will follow a practical approach, working through one data set to illustrate regression basics using R. For those who wish to have a more thorough grounding please refer to the further reading section at the end of this Appendix. 
 
 
-```
+Here we will return to the "ncovr" data set produced as part of the National Consortium on Violence Research (NCOVR) agenda (see -@Baller_2001). The data set includes variables related to homicides in the US, as well as information in a number of sociodemographic variables that are often thought of as associated with the geographical distribution of homicides. This data set is available as part of the `geodaData` package. 
 
-There is quite a few files and folders here. We don't need all of it. If you look inside the newly created folder you will find two subdirecoties MACOSX and ncovr. Look in the latter. You will see a pdf file called codebook.pdf. Read this file. It provides information on the variables and data that is included here. We are now going to read the main data file into R. This is the NAT.csv file.
+
 
 ```{r}
-ncovr <- read.csv('ncovr/ncovr/NAT.csv')
+library(geodaData)
+data("ncovr")
 ```
 
-The dataset contains information about 3085 counties in the US and if you view it you will see it has information about several decades, the 60s, 70s, 80s, and 90s. The number at the end of the variable names denotes the relevant decade and you will see that for each decade we have the same variables.
+The dataset contains information about `r nrow(ncovr)` counties in the United States and if you view it you will see it has information about several decades, the 60s, 70s, 80s, and 90s. The number at the end of the variable names denotes the relevant decade and you will see that for each decade we have the same variables.
 
-The purpose of this and next session is to help you choose a model to represent the relationship between homicide and various predictors. You can think of a model as a map. A map aims to represent a given reality, but as you may have already discovered there are many ways of presenting the same information through a map. As an analyst you decide what the most appropriate representation for your needs is. Each representation you choose will involve an element of distortion. Maps (and models) are not exact representations of the real word, they are simply good approximations that may serve well a particular functional need. Look at the map of the metro in London.
-
-
-London doesn’t quite look like this. Yet, if you want to use the Metro system, this map will be extremely helpful to you. It serves a need in a good way. The same happens with models. They may not be terribly good reflections of the world, but may give us approximations that allows us to develop useful insights.
+The purpose of regression analysis as we approach it here is to choose a model to represent the relationship between homicide and various predictors. You can think of a model as a map. A map aims to represent a given reality, but as you may have already discovered there are many ways of presenting the same information through a map. As an analyst you decide what the most appropriate representation for your needs is. Each representation you choose will involve an element of distortion. Maps (and models) are not exact representations of the real word, they are simply good approximations that may serve well a particular functional need. You may think about the map of the London Underground. It doesn't show you geographically where the Underground lines of London are, yet, if you want to use the Metro system, this map will be extremely helpful to you. It serves a need in a good way. The same happens with models. They may not be terribly good reflections of the world, but may give us approximations that allows us to develop useful insights.
 
 Choosing a good model is like choosing a good way for displaying quantitative information in a map. Decisions, decisions, decisions. There are many parameters and options one can choose from. This can be overwhelming, particularly as you are learning how to model and map phenomena. How to make good decisions is something that you learn on earnest by practice, practice, practice. Nobody expects you to get the maps you are doing as you are learning, and the models you are developing as you are learning spot on. So please do not stress out about this. All we can do here is to learn some basic principles and start getting some practice, which you will be able to further develop in a professional context or in further training.
 
 The first step in any analysis is to develop some familiarity with the data you are going to be working with. We have been here before. Read the codebook. Run summary statistics for your quantitative variables, frequency distributions for your categorical variables, and visualise your variables. This will help you to detect any anomalies and give you a sense for what you have. If, for example, you run a histogram for the homicide rate for 1990 (HR90), you will get a sense of the distribution form –which of course is skewed.
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 library(ggplot2)
 qplot(x = HR90, data = ncovr)
 ```
 
-Once one has gone through the process of exploring the data in this way (or maybe using the `skimr` package from week 1 again) for all the variables you want to work, you can start exploring bivariate associations with your dependent, response or outcome variable. So, as an illustration, you could explore the association with resource deprivation (*RD90*), a measure of the level of concentrated disadvantage or social exclusion in an area, via a scatterplot:
+Once one has gone through the process of exploring the data in this way (or maybe using the `skimr` package - see **appendix A**) for all the variables you want to work with, you can start exploring bivariate associations with your dependent, response or outcome variable. So, as an illustration, you could explore the association with resource deprivation (*RD90*), a measure of the level of concentrated disadvantage or social exclusion in an area, via a scatterplot:
 
 ```{r}
 ggplot(ncovr, aes(x = RD90, y = HR90)) +
@@ -73,7 +63,7 @@ I certainly would not go with the overall mean or median as my prediction anymor
 
 If we plot the conditional means we can see that the mean of homicide rate for counties that report a value of 4 in *RD90* is around 22. So you may be better off guessing that.
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 library(grid)
 ggplot() +
   geom_point(data=ncovr, aes(x = RD90, y = HR90), alpha=.2) +
@@ -88,12 +78,12 @@ geom_line(data=ncovr, aes(x = round(RD90/0.12)*0.12, y = HR90), # Can you guess 
 
 Linear regression tackles this problem using a slightly different approach. Rather than focusing on the conditional mean (smoothed or not), it draws a straight line that tries to capture the trend in the data. If we focus in the region of the scatterplot that are less sparse we see that this is an upward trend, suggesting that as resource deprivation increases so does the homicide rate. 
 
-Simple linear regression draws a single straight line of predicted values as the model for the data. This line would be a **model**, a *simplification* of the real world like any other model (e.g., a toy pistol, an architectural drawing, a subway map), that assumes that there is approximately a linear relationship between X and Y. Let's draw the regression line:
+Simple linear regression draws a single straight line of predicted values as the model for the data. This line would be a **model**, a *simplification* of the real world like any other model (e.g., a toy pistol, an architectural drawing, a subway map), that assumes that there is approximately a linear relationship between X and Y. Let's draw the regression line using the function `geom_smooth()`. This ask for a `method=` parameter where we specify `lm` for the linear regression line. We also set `se=` to `FALSE` so we ask for just the line to be printed but not the standard error around it. The other arguments specify the color and thickness of the line. 
 
 ```{r}
 ggplot(data = ncovr, aes(x = RD90, y = HR90)) +
   geom_point(alpha = .2) +
-  geom_smooth(method = "lm", se = FALSE, color = "red", size = 1) #This ask for a geom with the regression line, method=lm asks for the linear regression line, se=FALSE ask for just the line to be printed but not the standard error, the other arguments specify the color and thickness of the line
+  geom_smooth(method = "lm", se = FALSE, color = "red", size = 1) 
 ```
 
 What that line is doing is giving you guesses (predictions) for the values of homicide based in the information that we have about the level of resource deprivation. It gives you one possible guess for the value of homicide for every possible value of resource deprivation and links them all together in a straight line. 
@@ -116,24 +106,21 @@ ggplot() +
 
 Our regression line underpredicts at low levels of resource deprivation and does not seem to capture well the variability at higher levels of resource deprivation. But imperfect as a model as it might be it simplifies well the overall growing trend for homicide as resource deprivation increases.
 
-As De Veaux et al (2012: 179) highlight: "like all models of the real world, the line will be wrong, wrong in the sense that it can't match reality exactly. But it can help us understand how the variables are associated". A map is never a perfect representation of the world, the same happens with statistical models. Yet, as with maps, models can be helpful.
+As -@DeVeaux_2012  highlight: "like all models of the real world, the line will be wrong, wrong in the sense that it can't match reality exactly. But it can help us understand how the variables are associated" (p. 179). A map is never a perfect representation of the world, the same happens with statistical models. Yet, as with maps, models can be helpful.
 
 ## Fitting a simple regression model
 
 In order to draw a regression line (or in fact any line in a Cartesian coordinate system) we need to know two things:
 
-1) We need to know where the line begins, what is the value of Y (our dependent variable) when X (our independent variable) is 0, so that we have a point from which to start drawing the line. The technical name for this point is the **intercept**.
-2) And we need to know what is the **slope** of that line, that is, how inclined the line is, the angle of the line.
+- 1) We need to know where the line begins, what is the value of Y (our dependent variable) when X (our independent variable) is 0, so that we have a point from which to start drawing the line. The technical name for this point is the **intercept**.
 
-If you recall from elementary algebra (and you may not), the equation for any straight line is:
- `y = mx + b`  
+- 2) And we need to know what is the **slope** of that line, that is, how inclined the line is, the angle of the line.
 
-In statistics we use a slightly different notation, although the equation remains the same:
-`y = b_0 + b_1x`
+If you recall from elementary algebra (and you may not), the equation for any straight line is: $y = mx + b$ . In statistics we use a slightly different notation, although the equation remains the same: $y = \beta_0 + \beta_1x$. 
 
-We need the origin of the line (b0) and the slope of the line (b1). How does R get the intercept and the slope for the green line? How does R know where to draw this line? We need to estimate these **parameters** (or **coefficients**) from the data. How? We don't have the time to get into these more mathematical details now. You should study the [required reading](http://link.springer.com/chapter/10.1007/978-1-4614-7138-7_3) to understand this (*required means it is required, it is not optional*)[^2]. For now, suffice to say that for linear regression modes like the one we cover here, when drawing the line, R tries to minimise the distance from every point in the scatterplot to the regression line using a method called **least squares estimation**.
+We need the origin of the line ($\beta_0$) and the slope of the line ($\beta_1$). How does R get the intercept and the slope for the green line? How does R know where to draw this line? We need to estimate these **parameters** (or **coefficients**) from the data. How? We don't have the time to get into these more mathematical details now, but will suggest further reading at the end of this appendix for the curious.  For now, suffice to say that for linear regression modes like the one we cover here, when drawing the line, R tries to minimise the distance from every point in the scatterplot to the regression line using a method called **least squares estimation**.
 
-In order to fit the model we use the `lm()` function using the formula specification `(Y ~ X)`. Typically you want to store your regression model in a "variable", let's call it `fit_1`:
+In order to fit the model we use the `lm()` function using the formula specification $(Y ~ X)$. Typically you want to store your regression model in a "variable", let's call it `fit_1`:
 
 ```{r}
 fit_1 <- lm(HR90 ~ RD90, data = ncovr)
@@ -155,8 +142,9 @@ summary(fit_1)
 Or if you prefer more parsimonious presentation you could use the `display()` function of the `arm` package:
 
 ```{r}
+library(arm)
 
-arm::display(fit_1)
+display(fit_1)
 
 ```
 
@@ -172,14 +160,14 @@ We then need the b1 regression coefficient for our independent variable, the val
 
 Knowing these two parameters not only allows us to draw the line, we can also solve for any given value of X. Let's go back to our guess-the-homicide-rate game. Imagine I tell you the level of resource deprivation is 1. What would be your best bet now? We can simply go back to our regression line equation and insert the estimated parameters:
 
-`y = b_0 + b_1x$`   
-`y = 6.18 + 3.77 \times 1`   
-`y = 9.95`
+$$y = b_0 + b_1x$$ 
+$$y = 6.18 + 3.77 \times 1$$  
+$$y = 9.95$$
 
-Or if you don't want to do the calculation yourself, you can use the `predict` function (differences are due to rounding error):
+Or if you don't want to do the calculation yourself, you can use the `predict()` function (differences are due to rounding error). First you name your stored model and then you identify the new data (which has to be in a data frame format and with a variable name matching the one in the original data set). 
 
 ```{r}
-predict(fit_1, data.frame(RD90 = c(1))) #First you name your stored model and then you identify the new data (which has to be in a data frame format and with a variable name matching the one in the original data set)
+predict(fit_1, data.frame(RD90 = c(1))) 
 ```
 
 This is the expected value of Y, homicide rate, when X, resource deprivation is 1 **according to our model** (according to our simplification of the real world, our simplification of the whole cloud of points into just one straight line). Look back at the scatterplot we produced earlier with the red line. Does it look as if the green line when X is 1 corresponds to a value of Y of 9.95?
@@ -188,8 +176,24 @@ This is the expected value of Y, homicide rate, when X, resource deprivation is 
 
 In the output above we saw there was something called the residuals. The residuals are the differences between the observed values of Y for each case minus the predicted or expected value of Y, in other words the distances between each point in the dataset and the regression line (see the visual example below). 
 
-![drawing](img/mYzliZjY4ZDc0NjI3YWQ3YWVlM2MzZmUzN2MwOWY.jpg)
 
+```{r}
+
+ggplot(data = mtcars[1:5,], aes(x = mpg, y = wt)) + 
+  geom_segment(aes(x = 21.4, xend = 21.4, y = 3.215, yend = 2.8), col = "red", lty = "dashed") + 
+  geom_smooth(method = 'lm', se = FALSE) + 
+  geom_point(size = 3) + 
+  geom_segment(aes(x = 22, xend = 21.4, y = 3.3, yend = 3.215), arrow = arrow(length = unit(0.03, "npc")), alpha = 0.8) + 
+  geom_label(aes(x = 22, y = 3.3, label = "Measured value")) + 
+  geom_segment(aes(x = 21.4, xend = 21.4, y = 2.45, yend = 2.8), arrow = arrow(length = unit(0.03, "npc")), alpha = 0.8, col = "blue") + 
+  geom_label(aes(x = 21.4, y = 2.45, label = "Predicted value"), col ="blue") + 
+  geom_segment(aes(x = 22.4, xend = 21.4, y = 3, yend = 3), arrow = arrow(length = unit(0.03, "npc")), alpha = 0.8, col = "red") + 
+  geom_label(aes(x = 22.4, y = 3, label = "Residual"), col ="red") + 
+  theme_minimal() + 
+  xlab("") + 
+  ylab("")
+
+```
 
 
 You see that we have our line, which is our predicted values, and then we have the black dots which are our actually observed values. The distance between them is essentially the amount by which we were wrong, and all these distances between observed and predicted values are our residuals. Least square estimation essentially aims to reduce the average of the squares of all these distances: that's how it draws the line.
@@ -197,7 +201,7 @@ You see that we have our line, which is our predicted values, and then we have t
 Why do we have residuals? Well, think about it. The fact that the line is not a perfect representation of the cloud of points makes sense, doesn't it? You cannot predict perfectly what the value of Y is for every observation just by looking ONLY at their level of resource deprivation! This line only uses information regarding resource deprivation. This means that there's bound to be some difference between our predicted level of homicide given our knowledge of deprivation (the regression line) and the actual level of homicide (the actual location of the points in the scatterplot). There are other things that matter not being taken into account by our model to predict the values of Y. There are other things that surely matter in terms of understanding homicide. And then, of course, we have measurement error and other forms of noise.
 
 We can re-write our equation like this if we want to represent each value of Y (rather than the predicted value of Y) then: 
-`y = b_0 + b_1x + \text{residuals}`
+$y = \beta_0 + \beta_1x + \text{residuals}$
 
 The residuals capture how much variation is unexplained, how much we still have to learn if we want to understand variation in Y. A good model tries to maximise explained variation and reduce the magnitude of the residuals. 
 
@@ -213,30 +217,28 @@ All this formula is doing is taking a ratio of the explained variation (the squa
 
 As then we can take this value as a measure of the strength of our model. If you look at the R output you will see that the R2 for our model was .32 (look at the multiple R square value in the output) . We can say that our model explains 32% of the variance in the fear of homicide. when doing regression, you will often find that regression models with aggregate data such as county level data will give you better results than when dealing with individuals. It is much harder understanding individual variation than county level variation.
 
+
+As an aside, and to continue emphasising your appreciation of the object oriented nature of R, when we run the `summary()` function we are simply generating a list object of the class summary.lm.
 ```{r}
-#As an aside, and to continue emphasising your appreciation of the object oriented nature of R, when we run the summary() function we are simply generating a list object of the class summary.lm.
 attributes(summary(fit_1))
-#This means that we can access its elements if so we wish. So, for example, to obtain just the R Squared, we could ask for:
+```
+
+This means that we can access its elements if so we wish. So, for example, to obtain just the R Squared ($R^2$), we could ask for:
+
+```{r}
 summary(fit_1)$r.squared
 ```
 
-Knowing how to interpret this is important. R^2 ranges from 0 to 1. The greater it is the more powerful our model is, the more explaining we are doing, the better we are able to account for variation in our outcome Y with our input. In other words, the stronger the relationship is between Y and X. As with all the other measures of effect size interpretation is a matter of judgement. You are advised to see what other researchers report in relation to the particular outcome that you may be exploring. 
+Knowing how to interpret this is important. $R^2$ ranges from 0 to 1. The greater it is the more powerful our model is, the more explaining we are doing, the better we are able to account for variation in our outcome Y with our input. In other words, the stronger the relationship is between Y and X. As with all the other measures of effect size interpretation is a matter of judgment. You are advised to see what other researchers report in relation to the particular outcome that you may be exploring. 
 
-Weisburd and Britt (2009: 437) suggest that in criminal justice you rarely see values for R^2 greater than .40. Thus, if your R^2 is larger than .40, you can assume you have a powerful model. When, on the other hand, R^2 is lower than .15 or .2 the model is likely to be viewed as relatively weak. Our observed r squared here is rather poor. There is considerably room for improvement if we want to develop a better model to explain fear of violent crime[^3]. In any case, many people would argue that R^2 is a bit overrated. You need to be aware of what it measures and the context in which you are using it. Read [here](http://blog.minitab.com/blog/adventures-in-statistics/how-high-should-r-squared-be-in-regression-analysis) for some additional detail.
+-@Weisburd_2014 suggest that in criminal justice you rarely see values for $R^2$ greater than .40. Thus, if your $R^2$ is larger than .40, you can assume you have a powerful model. When, on the other hand, $R^2$ is lower than .15 or .2 the model is likely to be viewed as relatively weak. Our observed r squared here is rather poor. There is considerably room for improvement if we want to develop a better model to explain fear of violent crime. In any case, many people would argue that $R^2$ is a bit overrated. You need to be aware of what it measures and the context in which you are using it. 
 
 ## Inference with regression
 
 In real applications, we have access to a set of observations from which we can compute the least squares line, but the population regression line is unobserved. So our regression line is one of many that could be estimated. A different sample would produce a different regression line. The same sort of ideas that we introduced when discussing the estimation of sample means or proportions also apply here. if we estimate b0 and b1 from a particular sample, then our estimates won't be exactly equal to b0 and b1 in the population. But if we could average the estimates obtained over a very large number of data sets, the average of these estimates would equal the coefficients of the regression line in the population.
 
-We can compute standard errors for the regression coefficients to quantify our uncertainty about these estimates. These standard errors can in turn be used to produce confidence intervals. This would require us to assume that the residuals are normally distributed. As seen in the image, and for a simple regression model, you are assuming that the values of Y are approximately normally distributed for each level of X:
+We can compute standard errors for the regression coefficients to quantify our uncertainty about these estimates. These standard errors can in turn be used to produce confidence intervals. This would require us to assume that the residuals are normally distributed. For a simple regression model, you are assuming that the values of Y are approximately normally distributed for each level of X. In those circumstances we can trust the confidence intervals that we can draw around the regression line.
 
-![normalityresiduals](img/Doe4.3.png)
-
-In those circumstances we can trust the confidence intervals that we can draw around the regression line as in the image below:
-
-![estimated](img/SimpleLinearRegressionJags-ICON-FREQ-EST.png "Image taken from John Krushcke blog http://doingbayesiandataanalysis.blogspot.co.uk/")
-
-The dark-blue line marks the best fit. The two dark-pink lines mark the limits of the confidence interval. The light-pink lines show the sampling distributions around each of the confidence-interval limits (the many regression lines that would result from repeated sampling); notice that the best-fit line falls at the extreme of each sampling distribution.
 
 You can also then perform standard hypothesis test on the coefficients. As we saw before when summarising the model, R will compute the standard errors and a t test for  each of the coefficients.
 
@@ -244,7 +246,7 @@ You can also then perform standard hypothesis test on the coefficients. As we sa
 summary(fit_1)$coefficients
 ```
 
-In our example, we can see that the coefficient for our predictor here is statistically significant[^4].
+In our example, we can see that the coefficient for our predictor here is statistically significant.
 
 
 We can also obtain confidence intervals for the estimated coefficients using the `confint()` function:
@@ -331,11 +333,13 @@ If we look at the r squared we can now see that it is higher than before. r squa
 
 We see that the coefficients for the predictors change somehow, it goes down a bit for *RD90* and it halves for *SOUTH*. **But their interpretation now changes**. A common interpretation is that now the regression for each variable tells you about changes in Y related to that variable **when the other variables in the model are held constant**. So, for example, you could say the coefficient for *RD90* represents the increase in homicide for every one-unit increase in the measure of resource deprivation *when holding all other variables in the model constant* (in this case that refers to holding constant *SOUTH*). But this terminology can be a bit misleading.
 
-Other interpretations are also possible and are more generalizable. Gelman and Hill (2007: p. 34) emphasise what they call the *predictive interpretation* that considers how "the outcome variable differs, on average, when comparing two groups of units that differ by 1 in the relevant predictor while being identical in all the other predictors". So [if you're regressing y on u and v, the coefficient of u is the average difference in y per difference in u, comparing pairs of items that differ in u but are identical in v](http://andrewgelman.com/2013/01/05/understanding-regression-models-and-regression-coefficients/).
+Other interpretations are also possible and are more generalizable. -@Gelman_2007 emphasise what they call the *predictive interpretation* that considers how "the outcome variable differs, on average, when comparing two groups of units that differ by 1 in the relevant predictor while being identical in all the other predictors" (p. 34). So if you're regressing y on u and v, the coefficient of u is the average difference in y per difference in u, comparing pairs of items that differ in u but are identical in v.
 
-So, for example, in this case we could say that comparing counties that have the same level of resource deprivation but that differed in whether they are South or North, the model predicts a expected difference of 3.18 in their homicide rate. And that respondents that do not vary in whether they are South or North, but that differ by one point in the level of resource deprivation, we would expect to see a difference of 2.96 in their homicide rate. So we are interpreting the regression slopes **as comparisons of cases that differ in one predictor while being at the same levels of the other predictors**.
 
-As you can see, interpreting regression coefficients can be kind of tricky[^6]. The relationship between the response y and any one explanatory variable can change greatly depending on what other explanatory variables are present in the model. 
+For example, in this case we could say that comparing counties that have the same level of resource deprivation but that differed in whether they are South or North, the model predicts a expected difference of 3.18 in their homicide rate. And that respondents that do not vary in whether they are South or North, but that differ by one point in the level of resource deprivation, we would expect to see a difference of 2.96 in their homicide rate. So we are interpreting the regression slopes **as comparisons of cases that differ in one predictor while being at the same levels of the other predictors**.
+ 
+ 
+As you can see, interpreting regression coefficients can be kind of tricky. The relationship between the response y and any one explanatory variable can change greatly depending on what other explanatory variables are present in the model. 
 
 For example, if you contrast this model with the one we run with only *SOUTH* as a predictor you will notice the intercept has changed. You cannot longer read the intercept as the mean value of homicide rate for Northern counties. *Adding predictors to the model changes their meaning*. Now the intercept index the value of homicide for southern counties that score 0 in *RD90*. In this case you have cases that meet this condition (equal zero in all your predictors), but often you may not have any case that does meet the definition of the intercept. More often than not, then, there is not much value in bothering to interpret the intercept.
 
@@ -345,9 +349,10 @@ Comparing the simple models with this more complex model we could say that adjus
 
 ## Presenting your regression results.
 
-Communicating your results in a clear manner is incredibly important. We have seen the tabular results produced by R. If you want to use them in a paper you may need to do some tidying up of those results. There are a number of packages (`textreg`, `stargazer`) that automatise that process. They take your `lm` objects and produce tables that you can put straight away in your reports or papers. One popular trend in presenting results is the **coefficient plot** as an alternative to the table of regression coefficients. There are various ways of producing coefficient plots with R for a variety of models. See [here](https://www.r-statistics.com/2010/07/visualization-of-regression-coefficients-in-r/) or [here](http://felixhaass.de/dataviz_ggplot2/session4.html), for example.
+Communicating your results in a clear manner is incredibly important. We have seen the tabular results produced by R. If you want to use them in a paper you may need to do some tidying up of those results. There are a number of packages (`textreg`, `stargazer`) that automatise that process. They take your `lm` objects and produce tables that you can put straight away in your reports or papers. One popular trend in presenting results is the **coefficient plot** as an alternative to the table of regression coefficients. There are various ways of producing coefficient plots with R for a variety of models. 
 
-We are going to use instead the `plot_model()` function of the `sjPlot` package, that makes it easier to produce this sort of plots. You can find a more detailed tutorial about this function [here](https://strengejacke.wordpress.com/2017/10/23/one-function-to-rule-them-all-visualization-of-regression-models-in-rstats-w-sjplot/). See below for an example:
+
+We are going to use instead the `plot_model()` function of the `sjPlot` package, that makes it easier to produce this sort of plots. 
 
 ```{r}
 library(sjPlot)
@@ -361,7 +366,8 @@ fit_4 <- lm(HR90 ~ RD90 + SOUTH_f + DV90 + MA90 + PS90, data=ncovr)
 plot_model(fit_4, breakLabelsAt = 30)
 ```
 
-What you see plotted here is the point estimates (the circles), the confidence intervals around those estimates (the longer the line the less precise the estimate), and the colours represent whether the effect is negative (red) or positive (blue). There are other packages that also provide similar functionality, like the `dotwhisker` package that you may want to explore, see more details [here](https://cran.r-project.org/web/packages/dotwhisker/vignettes/dotwhisker-vignette.html).
+What you see plotted here is the point estimates (the circles), the confidence intervals around those estimates (the longer the line the less precise the estimate), and the colours represent whether the effect is negative (red) or positive (blue). There are other packages that also provide similar functionality, like the `dotwhisker` package that you may want to explore.
+
 
 The `sjPlot` package also allows you to produce html tables for more professional presentation of your regression tables. For this we use the `tab_model()` function. This kind of tabulation may be particularly helpful for your final assignment.
 
@@ -400,7 +406,7 @@ summary(fit_4)
 
 We just cannot. One way of dealing with this is by rescaling the input variables. A common method involves subtracting the mean and dividing by the standard deviation of each numerical input. The coefficients in these models is the expected difference in the response variable, comparing units that differ by one standard deviation in the predictor while adjusting for other predictors in the model. 
 
-Instead, [Gelman (2008)](http://www.stat.columbia.edu/~gelman/research/published/standardizing7.pdf) has proposed dividing each numeric variables *by two times its standard deviation*, so that the generic comparison is with inputs equal to plus/minus one standard deviation. As Gelman explains the resulting coefficients are then comparable to untransformed binary predictors. The implementation of this approach in the `arm` package subtract the mean of each binary input while it subtract the mean and divide by two standard deviations for every numeric input.
+Instead, -@Gelman_2008 has proposed dividing each numeric variables *by two times its standard deviation*, so that the generic comparison is with inputs equal to plus/minus one standard deviation. As Gelman explains the resulting coefficients are then comparable to untransformed binary predictors. The implementation of this approach in the `arm` package subtract the mean of each binary input while it subtract the mean and divide by two standard deviations for every numeric input.
 
 The way we would obtain these rescaled inputs uses the `standardize()` function of the `arm` package, that takes as an argument the name of the stored fit model.
 
@@ -414,11 +420,11 @@ Standardising in the way described here will help you to make fairer comparisons
 
 ## Testing conditional hypothesis: interactions
 
-In the social sciences there is a great interest in what are called conditional hypothesis or interactions. Many of our theories do not assume simply **additive effects** but **multiplicative effects**.For example, [Wikstrom and his colleagues (2011)](http://euc.sagepub.com/content/8/5/401.short) suggest that the threat of punishment only affects the probability of involvement on crime for those that have a propensity to offend but are largely irrelevant for people who do not have this propensity. Or you may think that a particular crime prevention programme may work in some environments but not in others. The interest in this kind of conditional hypothesis is growing.
+In the social sciences there is a great interest in what are called conditional hypothesis or interactions. Many of our theories do not assume simply **additive effects** but **multiplicative effects**.For example,  -@Wikstrom_2011 suggest that the threat of punishment only affects the probability of involvement on crime for those that have a propensity to offend but are largely irrelevant for people who do not have this propensity. Or you may think that a particular crime prevention programme may work in some environments but not in others. The interest in this kind of conditional hypothesis is growing.
 
-One of the assumptions of the regression model is that the relationship between the response variable and your predictors is additive. That is, if you have two predictors `x1` and `x2`. Regression assumes that the effect of `x1` on `y` is the same at all levels of `x2`. If that is not the case, you are then violating one of the assumptions of regression. This is in fact one of the most important assumptions of regression, even if researchers often overlook it.
+One of the assumptions of the regression model is that the relationship between the response variable and your predictors is additive. That is, if you have two predictors $x_1$ and $x_2$. Regression assumes that the effect of $x_1$ on `y` is the same at all levels of $x_2$. If that is not the case, you are then violating one of the assumptions of regression. This is in fact one of the most important assumptions of regression, even if researchers often overlook it.
 
-One way of extending our model to accommodate for interaction effects is to add additional terms to our model, a third predictor `x3`, where `x3` is simply the product of multiplying `x1` by `x2`. Notice we keep a term for each of the **main effects** (the original predictors) as well as a new term for the interaction effect. "Analysts should include all constitutive terms when specifying multiplicative interaction models except in very rare circumstances" (Brambor et al., 2006: 66).
+One way of extending our model to accommodate for interaction effects is to add additional terms to our model, a third predictor $x_3$, where $x_3$ is simply the product of multiplying $x_1$ by $x_2$. Notice we keep a term for each of the **main effects** (the original predictors) as well as a new term for the interaction effect. "Analysts should include all constitutive terms when specifying multiplicative interaction models except in very rare circumstances" @Brambor_2006 p.66).
 
 How do we do this in R? One way is to use the following notation in the formula argument. Notice how we have added a third term `RD90:SOUTH_f`, which is asking R to test the conditional hypothesis that resource deprivation may have a different impact on homicide for southern and northern counties.
 
@@ -451,9 +457,7 @@ Essentially what happens is that the regression coefficients that get printed ar
 
 + The coefficient for the interaction term represents the difference in the slope for *RD90* comparing southern and northern counties, the difference in the slope of the two lines that we visualised above.
 
-Models with interaction terms are too often misinterpreted. I strongly recommend you read this piece by [Brambor et al (2005)](https://files.nyu.edu/mrg217/public/pa_final.pdf) to understand some of the issues involved. When discussing logistic regression we will return to this and will consider tricks to ease the interpretation.
 
-Equally, [John Fox (2003)](http://www.jstatsoft.org/v08/i15/paper) piece on the `effects` package goes to much more detail that we can here to explain the logic and some of the options that are available when producing plots to show interactions with this package.
 
 ## Model building and variable selection
 
@@ -491,8 +495,12 @@ So these are the assumptions of linear regression, and today we will go through 
 
 You may have noticed the second of this assumption is independence of errors. This is an issue with spatial data. If you have spatial autocorrelation basically you are saying that your observations are not independent. What happens in area X is likely to be similar to what happens in its surrounding neighbours (if you have positive spatial autocorrelation). What do you do? Well, that's what we will cover next week. We will learn how to fit regression models where you have spatial dependency.
 
-### HOMEWORK
-Fit a regression model with a few relevant explanatory variables for the homicide rate in 1970. Make sure you interpret your results.
+## Summary and further reading
+
+@Friedman_2001 is a classic book for anyone looking to develop their skills modelling data with comprehensive examples and exercises to follow in R. 
+
+Models with interaction terms are too often misinterpreted. We strongly recommend a read of @Brambor_2006 to facilitate correct interpretation. Equally,-@Fox_2003 piece on the `effects` package goes to great detail to explain the logic and some of the options that are available when producing plots to show interactions with this package.
+
 
 
 

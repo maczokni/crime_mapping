@@ -193,7 +193,8 @@ With spatial data one useful thing to do is to look at any spatial patterning in
 We are going to produce a choropleth map for the residuals, but we will use a common classification method we haven't covered yet: standard deviations. Standard deviation is a statistical technique type of map based on how much the data differs from the mean. You measure the mean and standard deviation for your data. Then, each standard deviation becomes a class in your choropleth maps. In order to do that we will compute the mean and the standard deviation for the variable we want to plot and break the variable according to these values. The following code creates a new variable in which we will express the residuals in terms of standard deviations away from the mean. So, for each observation, we substract the mean and divide by the standard deviation. Remember, this is exactly what the `scale` function does:
 
 ```{r}
-ncovr$sd_breaks <- scale(ncovr$res_fit3)[,1] # because scale is made for matrices, we just need to get the first column using [,1]
+# because scale is made for matrices, we just need to get the first column using [,1]
+ncovr$sd_breaks <- scale(ncovr$res_fit3)[,1] 
 # this is equal to (ncovr$res_fit1 - mean(ncovr$res_fit1)) / sd(ncovr$res_fit1)
 summary(ncovr$sd_breaks)
 ```
@@ -203,7 +204,8 @@ Next we use a new style, `fixed`, within the `tm_fill` function. When we break t
 ```{r, message=FALSE}
 my_breaks <- c(-14,-3,-2,-1,1,2,3,14)
 tm_shape(ncovr) + 
-  tm_fill("sd_breaks", title = "Residuals", style = "fixed", breaks = my_breaks, palette = "-RdBu") +
+  tm_fill("sd_breaks", title = "Residuals", style = "fixed", 
+          breaks = my_breaks, palette = "-RdBu") +
   tm_borders(alpha = 0.1) +
   tm_layout(main.title = "Residuals", main.title.size = 0.7 ,
             legend.position = c("right", "bottom"), legend.title.size = 0.8)
@@ -450,7 +452,7 @@ abs(direct)/abs(indirect)
 ```
 When the ratio is greater than 1 this suggest that the direct effect prevails, as we see for resource deprivation. With a score lower than 1 this indicates that the spillover effect is greater than that of internalisation as we see for population structure and unemployment.
 
-## Further reading
+## Summary and further reading
 
 This chapter has introduced some of the issues associated with spatial regression. We have deliberately avoided mathematical detail and focused instead on providing a general and more superficial introduction of some of the issues associated with fitting, choosing, and interpreting basic spatial regression models in R. We have also favoured the kind of models that have been previously discussed in the criminological literature, those relying on the frequentist tradition, use of maximum likelihood, simultaneous autoregressive models, and the incorporation of the spatial structure through a neighbourhood matrix. These are not the only ways of fitting spatial regression, though.  The functions of `spatialreg`, for example, allow for newer generalized method of moments (GMM) estimators. On the other hand, other scientific fields have emphasised conditional autoregressive models (see -@Wall_2004 for the difference between CAR and SAR) and there is too a greater reliance, for example in spatial epidemiology, on Bayesian approaches. Equally we have only focused on cross sectional models, without any panel or spatio-temporal dimension to them. As Ralph Sockman was attributed to say "the larger the island of knowledge, the longer the shoreline of wonder". Learning more about spatial analysis only leads to discovering there is much more to learn. This chapter mostly aims to make you realise this about spatial regression and hopefully tempt you into wanting to continue this journey. In what follows we offer suggestions for this path.
 
