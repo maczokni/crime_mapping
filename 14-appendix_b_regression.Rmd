@@ -177,7 +177,7 @@ This is the expected value of Y, homicide rate, when X, resource deprivation is 
 In the output above we saw there was something called the residuals. The residuals are the differences between the observed values of Y for each case minus the predicted or expected value of Y, in other words the distances between each point in the dataset and the regression line (see the visual example below). 
 
 
-```{r}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 
 ggplot(data = mtcars[1:5,], aes(x = mpg, y = wt)) + 
   geom_segment(aes(x = 21.4, xend = 21.4, y = 3.215, yend = 2.8), col = "red", lty = "dashed") + 
@@ -207,7 +207,29 @@ The residuals capture how much variation is unexplained, how much we still have 
 
 We can use information from the residuals to produce a measure of effect size, of how good our model is in predicting variation in our dependent variables. Remember our game where we try to guess homicide (Y)? If we did not have any information about X our best bet for Y would be the mean of Y. The regression line aims to improve that prediction. By knowing the values of X we can build a regression line that aims to get us closer to the actual values of Y (look at the Figure below). 
 
-![r squared](img/weight2.png)
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+ggplot(data = mtcars[1:5,], aes(x = mpg, y = wt)) + 
+  geom_segment(aes(x = 21.4, xend = 21.4, y = 3.215, yend = 2.8), col = "red", lty = "dashed") + 
+  geom_segment(aes(x = 21.4, xend = 21.4, y = 2.8, yend = 2.55), col = "purple", lty = "dashed") + 
+  geom_segment(aes(x = 19.5, xend = 19.5, y = 3.215, yend = 2.55), col = "green", lty = "dashed") + 
+  geom_smooth(method = 'lm', se = FALSE) + 
+  geom_point(size = 3) + 
+  geom_hline(yintercept = 3.215, lty = "dashed") + 
+  geom_label(aes(x = 22.3, y = 3.215, label = "Actual Y")) + 
+  geom_hline(yintercept = 2.8, lty = "dashed") + 
+  geom_label(aes(x = 22.3, y = 2.8, label = "Predicted Y")) + 
+  geom_hline(yintercept = 2.55, lty = "dashed") + 
+  geom_label(aes(x = 22.3, y = 2.55, label = "Mean of Y")) +
+  geom_label(aes(x = 22.05, y = 3, label = "Unexplained deviation \n(residual)"), col = 'red') + 
+  geom_label(aes(x = 20.8, y = 2.68, label = "Explained deviation \n(regression)"), col = 'purple') + 
+  geom_label(aes(x = 19.5, y = 3, label = "Total deviation"), col = 'green') + 
+  theme_minimal() + 
+  xlab("") + 
+  ylab("") 
+
+```
+
 
 The distance between the mean (our best guess without any other piece of information) and the observed value of Y is what we call the **total variation**. The residual is the difference between our predicted value of Y  and the observed value of Y. This is what we cannot explain (i.e, variation in Y that is *unexplained*). The difference between the mean value of Y and the expected value of Y (the value given by our regression line) is how much better we are doing with our prediction by using information about X (i.e., in our previous example it would be variation in Y that can be *explained* by knowing about resource deprivation). How much closer the regression line gets us to the observed values. We can then contrast these two different sources of variation (explained and unexplained) to produce a single measure of how good our model is. The formula is as follows:
 
@@ -384,7 +406,9 @@ tab_model(fit_4, dv.labels = "Homicide rate 1990")
 Or you could change the labels for the independent variables:
 
 ```{r}
-tab_model(fit_4, pred.labels = c("(Intercept)", "Resource deprivation", "South", "Percent divorced males", "Median age", "Population structure"), dv.labels = "Homicide rate")
+tab_model(fit_4, pred.labels = c("(Intercept)", "Resource deprivation", 
+                                 "South", "Percent divorced males", "Median age",
+                                 "Population structure"), dv.labels = "Homicide rate")
 ```
 
 Visual display of the effects of the variables in the model are particularly helpful. The `effects` package allows us to produce plots to visualise these relationships (when adjusting for the other variables in the model). Here's an example going back to our model fit_3 which contained *SOUTH* and *RD90* predictor variables:
