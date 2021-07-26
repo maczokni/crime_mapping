@@ -1,34 +1,261 @@
 # Appendix C: sourcing geographical data for crime analysis
 
-When you get to the link, you will see on the top there is some notification to help you with the boundary data selector. If in the future you are looking for UK boundary data and you are feeling unsure at any point, feel free to click on that note "**How to use Boundary Data Selector**" which will help to guide you. In other countries you have similar data repositories where you can get the relevant census geographies (see Appendix B for details) and there are also some websites that aim to provide this data for all countries (http://www.diva-gis.org/gdata).  
+
+Throughout this book we provide example data sets and geometry files taken from various sources. Some, we get from data released with research papers, such as the NCOVR dataset on homicides in U.S. Counties. Some are administrative data, such as open crime data, which are linked with geometries from similarly available data provided on government or other institutional websites. In some cases we use APIs, for example to get data from Open Street Map, or from the Transport for London API, and in other cases we make use of resources made available for R such as the r package `rnaturalearth` which makes available boundaries from the natural earth project through installing the package. 
 
 
-[boundary selector](https://borders.ukdataservice.ac.uk/bds.html) Can use example of how to get *Local Authority Districts* for *England* (for the EU ref example in Chapter 4?) 
+As the kind of data, both attribute and geometry data, will vary from between each reader of this book, and even very for the same reader in different times, we cannot offer a definitive guide to sourcing the appropriate spatial data for your specific needs. However, we will instead show some examples of how we sourced our spatial data, in hopes that it might inspire and be useful to you in your mapping adventures. 
 
-In this case that means select "English Districts, UAs and London Boroughs, 2011": 
+Specifically we will highlight the following useful resources: getting UK boundary data from: 
+- rnaturalearth
+- Open Street Map API
+- UK Data Service
+
+## The rnaturalearth package
+
+The package `rnaturalearth` is an R package created by Andy South to hold and facilitate interaction with Natural Earth map data @South_2017. Natural Earth is a public domain map data set collected and maintained by the North American Cartographic Information Society. This data set contains both vector and raster data, which are available to download and use in your crime mapping endeavours. The package `rnaturalearth` allows us to access this database from within R, and to resturn the results as either `sp` or `sf` objects. 
+
+To do so, we need to install and load the package, and have a little understanding of the ways we can access and subset the data. We will give some small examples herem but recommend the documentation and vignettes available with the package for further detail. 
+
+
+So step one is to install the package if you have not yet done so, and then load it with the `library()` function: 
+
+```{r loadrnaturalearth}
+
+library(rnaturalearth)
+
+```
+
+Let's start by plotting the outline of all the countries in the world. We can retrieve all countries in the data set with the `ne.countries()` function. Inside the function we specify the parameter `returnclass =` which allows us to choose whether we want a `sf` or `sp` object. Here let's choose `sf`: 
+
+```{r}
+
+all_countries <- ne_countries(returnclass = "sf")
+
+```
+
+If we wanted now to plot this, we can use any of the many methods covered in this book from `plot()` to `ggplot()` to `tmap` and so on. 
+
+
+```{r}
+library(ggplot2)
+
+ggplot() + 
+  geom_sf(data = all_countries) + 
+  theme_void()
+
+```
+
+
+And here we see the boundaries for all the countries in the data set. How exciting! We can also have a look at the attribute data included by viewing the `sf` object with the `View()` function. 
+
+
+```{r, eval=FALSE}
+View(all_countries)
+
+```
+
+You can see most of the information contained all relate to the ways to identify the different geometries, such as `geounit` or `name` or various codes. You can use these to filter, so that we only include certain countires we are interested in, or you can use this to join additional attribute data from elsewhere. 
+
+Let's say we wanted to select only Uganda. we could subset from the `all_countries` object we called above: 
+
+
+```{r}
+library(dplyr)
+
+uganda <- all_countries %>% filter(name == "Uganda")
+
+
+```
+
+Or we could filter within the original call, which saves us having to download all the data in the first place: 
+
+
+```{r}
+
+uganda_2 <- ne_countries(country = 'Uganda', returnclass = "sf")
+
+```
+
+
+You should be able to see the two results are the same.
+
+
+```{r}
+u1 <- ggplot() + geom_sf(data = uganda) + theme_void()
+
+u2 <- ggplot() + geom_sf(data = uganda_2) + theme_void()
+
+gridExtra::grid.arrange(u1, u2, nrow = 1)
+
+
+```
+
+
+If we are focusing on one country, we might want to see some boundaries *within* said country. For this, we can use the function `ne_states()` when we request the file, and this will include boundaries. 
+
+
+```{r}
+
+uganda <- ne_states(country = "Uganda", returnclass = "sf")
+
+```
+
+Now if we have a look we can see the different districts within Uganda have been also downloaded. 
+
+```{r}
+
+ggplot() + geom_sf(data = uganda) + theme_void()
+
+```
+
+It is possible that sometimes this is not the ideal sub-geometry for you analysis, in which case you'll have to go to other resources, but in some cases it might match up with your needs, in which case this will have been a very convenient way to be sourcing some geography data!
+
+
+You can also change the scale of resolution at which you want to download your boundaries. 
+
+```{r}
+
+# small
+uganda_1 <- ne_countries(country = "Uganda", returnclass = "sf", scale = 110)
+
+# medium
+uganda_2 <- ne_countries(country = "Uganda", returnclass = "sf", scale = 50)
+
+# large
+uganda_3 <- ne_countries(country = "Uganda", returnclass = "sf", scale = 10)
+
+
+# plot them to compare
+
+u1 <- ggplot() + geom_sf(data = uganda_1) + theme_void()
+u2 <- ggplot() + geom_sf(data = uganda_2) + theme_void()
+u3 <- ggplot() + geom_sf(data = uganda_3) + theme_void()
+
+gridExtra::grid.arrange(u1, u2, u3, nrow = 1)
+
+```
+
+You can see as we move to lower numbers we get better resolution, which results in more detail around the border of the country (but also in larger file sizes!). It will be a decision for you to make what is relevant and appropriate for the specific map you are making. 
+
+
+A final note on `rnaturalearth` before we move on. With the `ne_states()` function, we specified which country we wanted with the `country` argument. This was OK for Uganda, but what if we wanted to plot something in France instead? 
+
+
+```{r}
+france <- ne_states(country = "France", returnclass = "sf")
+
+ggplot() + geom_sf(data = france) + theme_void()
+
+```
+
+
+You see France appears, but so do the overseas territories of France, such as French Guiana, Guadeloupe, French Polynesia, and so on. It is possible you want to focus only on France. In this case, you can specfy, instead of `country`, the parameter `geounit`. Like so: 
+
+```{r}
+
+france <- ne_states(geounit = "France", returnclass = "sf")
+
+ggplot() + geom_sf(data = france) + theme_void()
+
+```
+
+
+Now we see only France. But what if you do want to include it all? Well in that case, one approach you might try is to add these territories in a way they appear closer to France, by inserting them by way of the *inset map*. We demonstrate how to add an inset map in Chapter 5. 
+
+## Data from APIs
+
+
+## Data from data repositories
+
+There are many places where you can access data relevant to your particular area of interest. For example, in the United Kingdom, one such service is the **UK Data Service**. This is a research council funded comprehensive collection which includes includes major UK government-sponsored surveys, cross-national surveys, longitudinal studies, UK census data, international aggregate, business data, and qualitative data. A specific subset relevant to us is the *Census Boundaries* data set, which is accessible through the Census Support Boundary Datasets. 
+
+
+To access this resource, we visit [https://borders.ukdataservice.ac.uk/](https://borders.ukdataservice.ac.uk/), where we can access all Census geography products since 1971. On this page, there is a link to the **UK Data Service Census Geography eLearning Modules ** which are a set of resources designed to make users more familiar with the data and services available. There are also tutorials for **QGIS** and **Python** users. 
+
+
+To acquire boundary data from here, we can select the **Boundary Data Selector** option. When you get to the link, you will see on the top there is some notification to help you with the boundary data selector. If in the future you are looking for UK boundary data and you are feeling unsure at any point, feel free to click on that note "**How to use Boundary Data Selector**" which will help to guide you. 
+
+
+For a quick example here, we can download some Local Authoriry boundaries for England. In this case that means, for *Country* select "England", for *Geography* select "Administrative", and for *Dates* let's go for "2011 and later". Then, hit the button which says "Find" and see some options appear in the *Boundaries* box below. From these, let's select "English Districts, UAs and London Boroughs, 2011": 
 
 ![](img/la_shp_dl.png)
 
 
-Once you have the file, download, extract (unzip) and put the folder in your working directory. Mine is in a subfolder in my working directory called data, so I point R inside that folder to find my shape file. 
+Once you have the file, you could select sub-areas. For this, hit the "List Areas" button, and select those relevant to you. Otherwise, you can move to *Extract Boundary Data*, where you will be taken to the next page. 
 
-So you can see immediately that there are some documentations around the usage of this shapefile, in the "README.txt" and the "TermsAndConditionshtml" files. They contain information about how you can use this map. For example, all your maps will have to mention where you got all the data from. So since you got this boundary data from the UKDS, you will have to note the following: 
 
-"Contains National Statistics data © Crown copyright and database right [year]
-    Contains OS data © Crown copyright [and database right] (year)"
+Here you will have a list of possible choices of what versions of the boundary files to download. At the time of writing these options are: 
 
-You can read more about this in the terms and conditions document once we unzip the file.
+- English Districts, UAs and London Boroughs, 2011
+- English Districts, UAs and London Boroughs, 2011, Clipped
+- English Districts, UAs and London Boroughs, 2011, Generalised (simplified polygon geometry)
+- English Districts, UAs and London Boroughs, 2011, Clipped and Generalised (simplified polygon geometry)
 
-Let´s now unzip all these files:
+The choice here is similar to that of the `scale` argument in the `ne_countries()` function above when we were getting boundary data from the `rnaturalearth` package. The first option is not changed, and so is the most geographically accurate file, but also therefore the largest in file size (which will later affect computation speed). Then there are increasing steps of simplification applied. For those interested in the Generalisation and Clipping process see -@UKDS_2013. Generally, for crime mapping purposes, we tend to go with the last option, but it will depend on the unit of analysis at which your data are collected, and the kinds of analysis you will do whether precision of the borders is important or not in your specific case. 
 
-```{r, eval = FALSE}
-#First you need to decide where you want to place the folders. 
-# In my machine I will use the following location, but you will 
-# need to use whatever is appropriate for you.
-outdir <- "C:/crime_mapping/data/BoundaryData"
-#Then you can unzip the file to this folder
-unzip(tf, exdir = outdir)
+
+Once you have chosen which file to download, you can also choose the format. This is between the options of: CSV, KML, MapInfo, or Shapefile. We make use of the shapefile format in this book, it is a very commonly used format for those originally trained on propriatery GIS software such as ESRI Arc Suite, as both the authors of this book were. This is probably why we use it... On the other hand, KML files are neat, simple, and can easily be imported into R using the `st_read()` function from the `sf` package. Again, it is up to you which format to choose, what you are familiar with, and whether other co-authors or collaborators might be using other GIS software which supports some formats better than others. R is flexible, so you can be too. 
+
+
+Here, let's download the KML format of the most simplified geometry. Once you select this download, it will save a `.zip` file to your computer. Make sure to put it in your working directory, and if you use subfolders, then the relevant subfolder. We have saved it to our "data" folder. We can extract (unzip) using R: 
+
+
+```{r}
+unzip('data/England_lad_2011_gen_clipped.zip', exdir = "data/England_lad_2011_gen_clipped")
 
 ```
+
+
+Now you see (if you are following the same structure as we are) there is a new sub folder in the 'data' directory called 'England_lad_2011_gen_clipped' which contains the `.kml` file, and a  `TermsAndConditions.html` file. This will contain information about how you can use this map. For example, all your maps will have to mention where you got all the data from. So since you got this boundary data from the UKDS, you will have to note the following: 
+
+> "Contains National Statistics data © Crown copyright and database right [year]
+    Contains OS data © Crown copyright [and database right] (year)"
+
+You can read more about this in the terms and conditions document. 
+
+Now we can import our `.kml` file with `st_read()` from the `sf` package :
+
+```{r}
+
+las <- st_read("data/England_lad_2011_gen_clipped/england_lad_2011_gen_clipped.kml")
+
+```
+
+And plot it to see: 
+
+
+```{r}
+ggplot() + geom_sf(data = las) + theme_void()
+
+```
+
+
+### International resources
+
+And here we have our English Local Authorities. Now we realise that this is useful mainly for our audiences based in the UK, but we include this illustration as other countries you similar data repositories where you can get the relevant census geographies. For example, the United States Census Bureau has census shapefiles for the United States @USACB_2021, Census Canada for Canada @StatsCan_2021, the National Institute of Statistics and Geography (INEGI) for Mexico @Inegi_2021, and many more. 
+
+
+There are also resources which contain geography files for multiple countries. DIVA-GIS @DIVAGIS_2021 is one such resource, which aims to collect free geographic data for any country in the world. They creators focus on studying the distribution of biodiversity, however these maps can be useful for the crime mapper as well. Another collection comes from -@MIT_2021 who collect links to various GIS resources. Finally, international organisations or organisations which focus on international data can also provide a good starting point for sourcing your geographic data. For example, the Centers for Disease Control and Prevention (CDC) have a list of shapefiles for many countries on their website @CDC_2021. There are probably many more, and sometimes it is just a case of a thorough internet search to find the right geography for your data. 
+
+
+## Open Street Map
+
+Finally we want to mention the possibility of getting geographic data from Open Street Map. Open Street Map is a database of geospatial information built by a community of mappers, enthusiasts and members of the public, who contribute and maintain data about all sorts of environmental features, such as roads, green spaces, restaurants and railway stations, amongst many other things, all over the world @OSM_2021. 
+
+You can view the information contributed to Open Street Map using their online mapping platform (https://www.openstreetmap.org/). The result of people's contributions is a database of spatial information rich in local knowledge which provides invaluable information about places and their features, without being subject to strict terms on usage. 
+
+
+Open Street Map data can be accessed using its API which stands for Application Programming Interface. An API can be understood as a tool which defines an interface for a programme to interact with a software component. For example, it defines the kind of requests or calls which can be made, and how these calls and requests can be carried out. Here, we are using the term 'API' to denote tools created by an open data provider to give access to different subsets of their content. Such APIs facilitate scripted and programmatic extraction of content, as permitted by the API provider [@olmedilla2016harvesting]. APIs can take many different forms and be of varying quality and usefulness [@foster2016big]. APIs may also have *wrappers* which refers to any interface which makes them easier to access. For example, Open Street Map has a graphical user interface called Overpass Turbo [https://overpass-turbo.eu/](https://overpass-turbo.eu/), which allows users to build queries using any internet browser, and download and save the result. 
+
+Another wrapper comes in the form of an R package called `osmdata`. This package allows us to query the Open Street Map API and return the results of our query directly into R. We used this in *Chapter 2* of this book, to query the location of pubs in Manchester. But we can also use this to source our boundary data as well. 
+
+
+
+
+
+
+
+
 
 

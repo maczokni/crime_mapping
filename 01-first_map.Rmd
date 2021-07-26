@@ -521,9 +521,9 @@ gridExtra::grid.arrange(p1, p2, p3, nrow = 1)
 
 Here we will get some boundaries for Manchester. We know that our crime data has a column for LSOA, so we can proceed with this as our appropriate unit of analysis. 
 
-To get some boundary data, you can use the UK Data Service website. There is a simple [Boundary Data Selector](https://borders.ukdataservice.ac.uk/bds.html) tool which you could use. Other countries also have such repositories, and in some cases where they do not, other resources, such as Open Street Map, or natural earth (and associated R package `rnaturalearth`) can be handy resources. In Appendix C "Sourcing geographical data for crime analysis" we elaborate more on these, with some examples. 
+To get some boundary data, you will need to be able to source **geographic data** for your study area. In this case, since we are working with data in the UK, we can use the UK Data Service website to find this. There is a simple [Boundary Data Selector](https://borders.ukdataservice.ac.uk/bds.html) tool which you could use. Other countries also have such repositories, and in some cases where they do not, other resources, such as Open Street Map, or natural earth (and associated R package `rnaturalearth`) can be handy resources. In *Appendix C: Sourcing geographical data for crime analysis* we elaborate more on these, with some examples. 
 
-For now, you can turn to the data folder which you have downloaded from this book's repository. (If unsure, refer to the Preamble section!). Specifically, we're looking for a folder called `BoundaryData`. When we download a shapefile, we usually get many files, and a folder which contains them all. It is important for these files to be kept together, in the same folder. If you have a look inside thie BoundaryData folder, you will  notice that there are 4 files with the same name "england_lsoa_2011". 
+For now, you can turn to the data folder which you have downloaded from this book's repository. (If unsure, refer to the *Preamble* section!). Specifically, we're looking for a folder called `BoundaryData` within the "data" folder. We will be working with a type of geodata called a **shapefile** - but in the case of this format we're actually working with *many files*. When we download a shapefile, we usually get many files, all bundled inside a folder which contains them all. It is important for these files to be kept together, in the same folder. If you have a look inside this BoundaryData folder, you will notice that there are 4 files with the same name "england_lsoa_2011", but with different extensions. 
 
 **NOTE: It is important that you keep all these files in the same location as each other!** 
 
@@ -549,7 +549,7 @@ shp_name <- "data/BoundaryData/england_lsoa_2011.shp"
 
 Make sure that this is saved in your working directory, and you have set your working directory. 
 
-Now use the `st_read()` function from the `sf` package to read in the shapefile: 
+Now use the `st_read()` function from the `sf` package to read in the shapefile (the one with the `.shp` extension: 
 
 ```{r, message=FALSE, warning=FALSE, results='hide'}
 
@@ -557,7 +557,7 @@ manchester_lsoa <- st_read(shp_name)
 
 ```
 
-Now you have your spatial data file. Notice how running the function sends to the console some metadata about your data. You have a polygon, with 282 rows, and the CRS is the projected British National Grid. You can have a look at what sort of data it contains, the same way you would view a dataframe, with the `View()` function: 
+Notice that you don't have to read in any of the other files (e.g. `.proj` or `.dbf`), it is enough that they are there silently in the folder from which you read in the `.shp` extension file. Now you have your spatial data file. Notice how running the function sends to the console some metadata about your data. You have a polygon, with 282 rows, and the CRS is the projected British National Grid. You can have a look at what sort of data it contains, the same way you would view a dataframe, with the `View()` function: 
 
 ```{r, eval=FALSE}
 
