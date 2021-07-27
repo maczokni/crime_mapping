@@ -34,7 +34,7 @@ library(spgwr)
 
 ### Fitting the constrained and the unconstrained models
 
-To illustrate this solution we will go back to the "ncovr" data we explored last week and use the same spatial weight matrix as in the previous chapter. If you have read the -@Baller_2001 paper that we are in a way replicating here, you could see they decided that they needed to run separate models for the South and the North. Let´s explore this here.
+To illustrate this solution we will go back to the "ncovr" data we explored last week and use the same spatial weight matrix as in the previous chapter. If you have read the @Baller_2001 paper that we are in a way replicating here, you could see they decided that they needed to run separate models for the South and the North. Let´s explore this here.
 
 ```{r}
 data("ncovr")
@@ -82,7 +82,7 @@ We can see a higher intercept for the South, reflecting the higher level of homi
 
 ### Running the Chow test
 
-The Chow Test is often used in econometrics to determine whether the independent variables have different impacts on different subgroups of the population. -@Anselin_2007 provides an implementation for this test, that extracts the residuals and the degrees of freedom from the constrained (the simpler oLS model) and the unconstrained models (the less parsimonious spatial regime), and then computes the test based on the F distribution.
+The Chow Test is often used in econometrics to determine whether the independent variables have different impacts on different subgroups of the population. @Anselin_2007 provides an implementation for this test, that extracts the residuals and the degrees of freedom from the constrained (the simpler oLS model) and the unconstrained models (the less parsimonious spatial regime), and then computes the test based on the F distribution.
 
 ```{r}
 chow.test <- function(rest,unrest)
@@ -128,7 +128,7 @@ summary(fit3_70_sr_sar)
 
 We see that the AIC is better than for the non-spatial model and that there is no more residual autocorrelation. We could explore other specifications (ie spatial Durbin model) and the same caveats about interpreting coefficients in a spatial lag model we raised in the previous chapter would apply here. If the Lagrange multiplier tests had suggested a spatial error model, we could also have fitted the model in the way we have also already covered simply adjusting the regression formula as in this section.
 
-We can now also run a Chow test, only in this case, we need to adjust the previous one to account for spatial dependence. -@Anselin_2007 also providesfor an implementation of this test in R with the following ad hoc function:
+We can now also run a Chow test, only in this case, we need to adjust the previous one to account for spatial dependence. @Anselin_2007 also provides for an implementation of this test in R with the following ad-hoc function:
 
 ```{r}
 spatialchow.test <- function(rest,unrest)
@@ -323,7 +323,7 @@ Nevertheless it is a great technique to identify spatial variation, which, unlik
 This chapter has tackled some of the issues of spatial heterogeneity in regression results. When applying regression in a spatial context, it is possible to encounter situations where we might observe a different effect on our variables in different parts of our study area. SPecifically, we covered two approaches to exploring this. The first one was to impose some a-priori segmentation to our data, based on contextual knowledge and possible patterns in our regression results. We illustrated this by imposing spatial regimes in our NCOVR data set, splitting into separate North and South USA, as was done by the original authors of the paper @Baller_2001. The second approach was to explore how the coefficients may vary across our study space by applying Geographically Weighted Regression to our study area. We provided a high-level overview of this process and recommended it as an illustrative, exploratory technique to raise questions about possible spatial heterogeneity in the processes we are trying to model in our study region.   
 
 
-To delve into greater detail on the topic of spatial heterogeneity, Chapters 8 and 9 in @Anselin_2007 discuss specification of spatial heterogeneity. This is particularly helpful as an introduction to the issues and solutions we have discussed in this chapter. For more details and applications of Geographically Weighted Regression, we recommend @Fotheringham_2003. For applications and an illustration of the importance to consider spatial variation within the context of criminology and crime analysis, read -@Cahill_2007 and -@Andresen_2020b as good examples. 
+To delve into greater detail on the topic of spatial heterogeneity, Chapters 8 and 9 in @Anselin_2007 discuss specification of spatial heterogeneity. This is particularly helpful as an introduction to the issues and solutions we have discussed in this chapter. For more details and applications of Geographically Weighted Regression, we recommend @Fotheringham_2003. For applications and an illustration of the importance to consider spatial variation within the context of criminology and crime analysis, read @Cahill_2007 and @Andresen_2020b as good examples. 
 
 
-And for those wishing to explore additional ways to model spatial interactions, such as CAR and Bayesian models, we suggest to read -@Banerjee_2014 as well as Chapters 9 and 10 in -@Bivand_2013. 
+And for those wishing to explore additional ways to model spatial interactions, such as CAR and Bayesian models, we suggest to read @Banerjee_2014 as well as Chapters 9 and 10 in @Bivand_2013. 
