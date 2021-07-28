@@ -252,10 +252,73 @@ Another wrapper comes in the form of an R package called `osmdata`. This package
 
 
 
+Let's begin by loading the library
+
+```{r}
+
+library(osmdata)
 
 
+```
 
 
+Our first task is to create a bounding box, so that we return only those data that fall within this box. Let's continue to try and source data about Uganda, but let's narrow in to the capital of Kampala. To get a bounding box the shape of Kampala, we can use the`getbb()` function: 
+
+```{r}
+
+kampala_bb <- getbb("kampala", format_out = "sf_polygon")
+
+```
 
 
+We should check on this object to make sure it looks the way we would expect: 
+
+
+```{r}
+
+ggplot() + geom_sf(data = kampala_bb) + theme_void()
+
+```
+
+That's looking Kampala-shaped to us, so we can continue. To query Open Street Map we have to build an Overpass Query, Overpass being the Open Street Map API. We can create this with the `opq()` function (which stands for **O**ver**p**ass **Q**uery - we assume...!) where we specify our bounding box object we created above. We can then pipe (` %>% `) our query elements to this. In the next step, we specify what features we want with the `add_osm_feature()` function. The parameters should define what we want, following the Overpass query language. We can look for things (nodes, ways, or relations if we're being specific) using key value pairs. For example, to return all post boxes within an area, we need to use the *amenity* key and the *post box* value, or to find museum you would use the *tourism* key and the *museum* value. To learn more about this visit the OSM wiki @osm_2021. 
+
+
+To get administrative boundaries, we can use the key of *admin_level*, and for the value, we pass a number which can be any number between 2 and 10, where bigger numbers mean more granular resolution. For example admin_level = 2 is almost always a de-facto independent country, and admin_level=4 is usually equivalent to a "province". However, numbers higher than 4 values vary in meaning between countries. You can look up the country specific levels on @osm_2021b . In Uganda, we can see that level 2 represents the borders of the 112 districts of Uganda, 4 the the boundary of counties, and level 8 the the boundary of sub-counties. Let's use admin level 8 to map sub-counties in Kampala. 
+
+Finally, to make sure your query returns in `sf` format, append the `osmdata_sf()` to the end of the pipe. 
+
+```{r}
+
+kampala_boundaries <- opq(kampala_bb) %>% 
+add_osm_feature(key = "admin_level", value = "8") %>% 
+osmdata_sf() 
+
+```
+
+
+Now that we have the results, we can extract our boundary polygons, which are stored in the `multiploygon` object inside the query results. Let's extract this now. 
+
+
+```{r}
+
+kampala_boundaries <- kampala_boundaries$osm_multipolygons
+
+```
+
+
+And now we can plot our results, labelling each region for clarity: 
+
+
+```{r, warning=FALSE, message=FALSE}
+
+ggplot() + geom_sf(data = kampala_boundaries) + 
+  geom_sf_label(data = kampala_boundaries, aes(label = name)) + theme_void()
+
+```
+
+
+## Summary and further reading
+
+
+Here we demonstrated a few ways in which you can source geo-data for your crime mapping projects and endeavors. The amazing resource that is `rnaturalearth` will no doubt come in handy for all, so do read up on the documentation in @South_2017. Administrative boundaries will also no doubt be more and more available from official government statistical resources, or collective initiatives like @DIVAGIS_2021 and others, many  collected on the @MIT_2021 resource. And of course, Open Street Map is a bottomless well of georeferenced information. Not only for boundaries, but roads, transport paths, and any feature which your heart may desire is probably available here. @mooney2017review and @kounadi2009assessing are good resources to read up for those interested in making more use of Open Street Map data.  
 
