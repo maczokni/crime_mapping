@@ -5,16 +5,40 @@
 This chapter aims to focus on introducing good practice in map design and presentation. When putting a map together you need to think about its intended audience (their level of expertise, whether you want them to interact with the map), purpose, and format of delivery (e.g., printed, web, projected in a screen, etc). There are many design decisions you need to consider: fonts, labels, colour, legends, layout, etc. In this chapter we provide a general introduction to some basic design principles for map production. These themes, and the appropriate election of symbol representation, are the subject matter of cartography, the art and science of map making. Within cartography a considerable body of research and scholarship has focused on studying the visual and psychological implications of our mapping choices. As noted on previous chapters one of the problems with maps is that powerful as a tool as they, they can lead to misunderstanding. What the mapmaker chooses to emphasise and what the map reader see may not be the same thing. We will work you through an example of a fairly basic map and the process of taking to a point where it could be ready for presentation to an audience other that yourself.
 
 
-In this chapter we will be working with some data published by Hungarian police available online [http://www.police.hu/hu/a-rendorsegrol/statisztikak/kozrendvedelem](http://www.police.hu/hu/a-rendorsegrol/statisztikak/kozrendvedelem). Specifically we will be looking at some statistics related to drink driving. Drunk driving is one of a number of problems police confront that relate to impaired and dangerous driving. Hungary has a strict drink driving policy, with the maximum drink diving limit being 0.0 BAC. Most European countries are at 0.5 BAC, while the UK is 0.8 (except 0.5 for Scotland). We have record for each county the number of brethalyser checks carried out, and the number of these which returned a positive result. Let's read in this data from January 2020 (taken from [here](http://www.police.hu/sites/default/files/Kozrendvedelem%20SK%202021_01.pdf)), 
+In this chapter we will be working with some data published by Hungarian police available online [@Policehu_2021]. Specifically we will be looking at some statistics related to drink driving. Drunk driving is one of a number of problems police confront that relate to impaired and dangerous driving. Hungary has a strict drink driving policy, with the maximum drink diving limit being 0.0 BAC. Most European countries are at 0.5 BAC, while the UK is 0.8 (except 0.5 for Scotland). We have record for each county the number of brethalyser checks carried out, and the number of these which returned a positive result. 
+We've downloaded and saved these data in the data folder made available with this textbook. The two data sets we will use are this drink driving data set, called `drink_driving.csv`, and a geometry of the counties within Hungary called `hungary.geojson`. 
+
+
+In this chapter, we will be making use of the following libraries: 
 
 
 ```{r, results='hide', message=FALSE}
 
-library(sf)
+
+# Packages for reading data and data carpentry
 library(readr)
 library(dplyr)
 
 
+# Packages for handling spatial data and for geospatial carpentry
+library(sf)
+library(ggspatial)
+library(rnaturalearth)
+
+# Packages for mapping and visualisation
+library(ggplot2)
+library(scatterpie)
+library(RColorBrewer)
+library(ggrepel)
+library(cowplot)
+
+```
+
+
+So let's read in our data sets, and join the attribute data to the geometry using `left_join()`. 
+
+
+```{r, results='hide', message=FALSE}
 # read in geojson polygon for Hungary
 hungary <- st_read("data/hungary.geojson")
 
@@ -31,7 +55,7 @@ We can now use this example to talk through the important principles of good vis
 
 Cartographers have always been concerned about the appearance of maps and how the display marries form with function @Field_2012. As there is no definitive definition for what is meant by *cartographic design* it can be challenging to evaluate what makes *good* design. However there are themes and elements which can be used to guide the map maker, and offer points of reflection to encourage thoughtful designs. 
 
-The primary aim of maps is the communication of information in an honest and ethical way. This means each map should have a clear goal and know its audience, show all relevant data and not use the data to lie or mislead @Dent_2008. It should also be reproducible, transparent, cite all data sources, and consider diversity in its audience @Dent_2008. So what does that mean for specifically implementing these into practice. While a good amount of critical thought from the map maker will be required, there are aids we can rely upon. For example, @Field_2007 developed a map evaluation checklist which you can access here: [http://downloads.esri.com/MappingCenter2007/arcGISResources/more/MapEvaluationGuidelines.pdf](http://downloads.esri.com/MappingCenter2007/arcGISResources/more/MapEvaluationGuidelines.pdf). The questions fall into three broad categories: 
+The primary aim of maps is the communication of information in an honest and ethical way. This means each map should have a clear goal and know its audience, show all relevant data and not use the data to lie or mislead @Dent_2008. It should also be reproducible, transparent, cite all data sources, and consider diversity in its audience @Dent_2008. So what does that mean for specifically implementing these into practice. While a good amount of critical thought from the map maker will be required, there are aids we can rely upon. For example, @Field_2007 developed a map evaluation checklist which asks the map maker a series of questions to guide their map making process. The questions fall into three broad categories: 
 
 - *Cartographic Requirements*:  such as what is the rationale for the map, who are the audience? 
 - *Cartographic Complication and Design* such as are all the relevant features included and do the colours, symbold, and other features legible and appropriate to achieve the map's objectives? And finally, 
@@ -84,7 +108,7 @@ map
 ```
 
 
-Ggplot plots automatically add a grid reference to our data (see Chapter 1). To remove this, we can use the `theme_void()` theme, which will strip this away. 
+Maps made with `ggplot` are automatically placed upon a grid reference to our data (see our brief overview of building plots with `ggplot` in Chapter 1). To remove this, we can use the `theme_void()` theme, which will strip this away. 
 
 ```{r themmapthemevoid}
 
@@ -115,8 +139,7 @@ Or we can change the colour of the borders with the `col =` argument:
 ```{r themmapwhitebord}
 
 ggplot(data = hu_dd) + 
-  geom_sf(aes(fill = total_breath_tests), 
-          lwd = 0.5, 
+  geom_sf(aes(fill = total_breath_tests), lwd = 0.5, 
           col = "white") + # specify border colour
   theme_void()
 
@@ -129,13 +152,13 @@ Here we have a continuous fill for our values, however we can employ our learnin
 
 # create new variable for quantiles
 hu_dd <- hu_dd %>% 
-  mutate(total_quantiles = cut(total_breath_tests, breaks = round(quantile(total_breath_tests),0), include.lowest = TRUE, dig.lab=10))
+  mutate(total_quantiles = cut(total_breath_tests, 
+                               breaks = round(quantile(total_breath_tests),0),
+                               include.lowest = TRUE, dig.lab=10))
 
 # plot this new variable
 ggplot(data = hu_dd) + 
-  geom_sf(aes(fill = total_quantiles), 
-          lwd = 0.5, 
-          col = "white") + 
+  geom_sf(aes(fill = total_quantiles), lwd = 0.5, col = "white") + 
   theme_void()
 
 ```
@@ -206,7 +229,7 @@ How you choose to represent your data will depend on your decisions to the quest
 
 ### Rate vs count
 
-In chapter 3 we have discussed this already in great detail, so again I will not dwell on this, but it is important that your data are meaningful and easy to interpret. We might, in this case for example, want to consider the rate of positive breath tests per test carried out in each county. To compute this, we might want to consider the proportion of positive results on the breatalyser tests (where the person had been drinking and their result is over the limit). To compute this, we can simply divide the positive results by the total test, and multiply by 100. We also include the `round()` function in there 
+In Chapter 3 we have discussed this already in great detail, so again I will not dwell on this, but it is important that your data are meaningful and easy to interpret. We might, in this case for example, want to consider the rate of positive breath tests per test carried out in each county. To compute this, we might want to consider the proportion of positive results on the breatalyser tests (where the person had been drinking and their result is over the limit). To compute this, we can simply divide the positive results by the total test, and multiply by 100. We also include the `round()` function in there 
 
 
 ```{r}
@@ -307,7 +330,7 @@ Of course, perceptual uniformity matters for your qualitative scales for your un
 The main message here is that you should generally not put together your color palettes in an ad hoc way. It is too easy to go astray. In addition to the considerations we have been discussing, there we might also want to avoid producing plots that confuse people who are colour blind, for example, and color blindness comes in a variety of forms. Fortunately for us, almost all of the work has been done for us already. Different color spaces have been defined and standardized in ways that account for these uneven or nonlinear aspects of human color perception.
 
 
-A good resource is [colorbrewer](http://colorbrewer2.org/). We have come across @Brewer_2006 in Chapter 3. Colorbrewer is a resource developed by Cynthia Brewer and colleagues in order to help implement good colour practice in data visualisation and cartography @Brewer_1994. This site offers many colour schemes we can make use of for our maps, which are easily integrated into R using the `Rcolorbrewer` package.
+A good resource is [colorbrewer](http://colorbrewer2.org/). We have come across the work of Cynthia @Brewer_2006 in Chapter 3. Colorbrewer is a resource developed by Cynthia Brewer and colleagues in order to help implement good colour practice in data visualisation and cartography [@Brewer_1994]. This site offers many colour schemes we can make use of for our maps, which are easily integrated into R using the `Rcolorbrewer` package.
 
 
 ```{r, loadrcolorbrewer}
@@ -360,7 +383,7 @@ display.brewer.all(colorblindFriendly = TRUE)
 
 ```
 
-You can see there are a few palettes missing from our earlier results, when we did not specify this requirement. My recommendation is to always use one of these palettes. 
+You can see there are a few palettes missing from our earlier results, when we did not specify this requirement. Our recommendation is to always use one of these palettes. 
 
 
 Another way to ensure that we are making accessible maps is to use greyscale (if your map is being printed, this may also save some money). To introduce a greyscale palette, you can use the function `scale_fill_grey() ` from the `ggplot2` package: 
@@ -370,7 +393,7 @@ Another way to ensure that we are making accessible maps is to use greyscale (if
 
 ggplot(data = hu_dd) + 
   geom_sf(aes(fill = total_quantiles), lwd = 0.5, col = "white") + 
-  scale_fill_grey() + 
+  scale_fill_grey() + # use greyscale colour scheme for fill
   theme_void()
 
 ```
@@ -559,13 +582,11 @@ But this floating label is a little ambiguous, and needs to be more explicitly c
 
 # get x coordinate
 bp_x <- labs_df %>% 
-  mutate(cent_lng = st_coordinates(st_centroid(.))[,1]) %>% 
-  pull(cent_lng)
+  mutate(cent_lng = st_coordinates(st_centroid(.))[,1]) %>% pull(cent_lng)
 
 # get y coordinate
 bp_y <- labs_df %>% 
-  mutate(cent_lat = st_coordinates(st_centroid(.))[,2]) %>% 
-  pull(cent_lat)
+  mutate(cent_lat = st_coordinates(st_centroid(.))[,2]) %>% pull(cent_lat)
 
 ```
 
@@ -613,8 +634,7 @@ Then we can include this `caption_text` object as a caption in the function `lab
 
 ```{r, warning=FALSE, message=FALSE}
 
-map <- map + 
-  labs(caption = caption_text) # include production notes here
+map <- map + labs(caption = caption_text) # include production notes here
 
 map
 
@@ -636,8 +656,7 @@ So how to include this in our mapping in R? Well we can turn to the `ggspatial` 
 
 library(ggspatial)
 
-map + 
-  annotation_north_arrow(height = unit(7, "mm"), # specify arrow height
+map + annotation_north_arrow(height = unit(7, "mm"), # specify arrow height
                          width = unit(5, "mm")) # specify arrow width
 
 
@@ -647,8 +666,7 @@ You can also change the style with the `style = ` parameter, and choose from sty
 
 ```{r orientationarrowstyle, warning=FALSE}
 
-map <- map + 
-  annotation_north_arrow(height = unit(7, "mm"), # specify arrow height
+map <- map + annotation_north_arrow(height = unit(7, "mm"), # specify arrow height
                          width = unit(5, "mm"), 
                         style = north_arrow_minimal()) # specify arrow style
 
@@ -663,8 +681,7 @@ Besides the North Arrow another key feature of maps is the scale indicator, whic
 ```{r scale, warning=FALSE}
 
 
-map <- map + 
-  annotation_scale(line_width = 0.5,      # add scale and specify width
+map <- map +  annotation_scale(line_width = 0.5,      # add scale and specify width
                    height = unit(1, "mm"), # specify height
                    pad_x = unit(6, "cm"))  # adjust on x axis
 
@@ -688,11 +705,8 @@ As mentioned above, we have encountered and included basemaps in previous exerci
 
 ggplot(data = hu_dd) + 
   annotation_map_tile() +  # add basemap layer first
-  geom_sf(aes(fill = total_quantiles), 
-          lwd = 0.5, col = "white") + 
-  scale_fill_brewer(type = "seq", 
-                    palette = "Greens", 
-                    name = "Total tests") 
+  geom_sf(aes(fill = total_quantiles), lwd = 0.5, col = "white") + 
+  scale_fill_brewer(type = "seq", palette = "Greens", name = "Total tests") 
 
 ```
 
@@ -731,8 +745,7 @@ library(rnaturalearth)
 
 europe_countries <- st_as_sf(countries110) %>%  # get geom for all countries
   filter(region_un=="Europe" & # select Europe
-           name != "Russia" &   # remove Russia
-           name != "Iceland") %>% # remove Iceland
+           name != "Russia" & name != "Iceland") %>%  # remove Russia and Iceland
   pull(name) # get only the names in a list
 
 europe <- ne_countries(geounit = europe_countries, # get geoms for countries in list
@@ -780,7 +793,7 @@ First, we set up an empty drawing layer for our ggplot using the `ggdraw()` func
 hu_dd_with_inset <- ggdraw() +  # set layer
   draw_plot(map) +  # draw the main map
   draw_plot(inset_map,   # draw inset map
-            x = 0.75,    # specify location on x axis
+            x = 0.7,    # specify location on x axis
             y = 0,    # specify location on y axis
             width = 0.35,    # specify width
             height = 0.35)   # specify height
@@ -800,7 +813,7 @@ You can play around with where you position your inset map by adjusting the x an
 
 ## Summary and further reading
 
-In this chapter we covered some principles of data visualisation and good map design, specifically how to implement some of these using `ggplot2` library in R. We talked about symbols, about colour, about text, and about adding context. GGplot2 is an incredibly flexible framework, and through the use of layers you can achieve a very beautiful and meaningful map output. We could for example consider adding topography, such as rivers, lakes, and mountains to our maps, and it would be only a case of adding another layer. To get more familiar with this I recommend @Wickham_2010 and @Healy_2019. 
+In this chapter we covered some principles of data visualisation and good map design, specifically how to implement some of these using `ggplot2` library in R. We talked about symbols, about colour, about text, and about adding context. `ggplot2` provides an incredibly flexible framework, and through the use of layers you can achieve a very beautiful and meaningful map output. We could for example consider adding topography, such as rivers, lakes, and mountains to our maps, and it would be only a case of adding another layer. To get more familiar with this we recommend @Wickham_2010 and @Healy_2019. 
 
 For general readings on cartography, the work of Kenneth Field privudes (eg: @Field_2012 or @Field_2018) thorough and engaging guidance. For data visualisation, while @Tufte_2001 is a classic text, those looking for practical instruction may wish to turn to @Kirk_2016 or @Cairo_2016 for more guidance. 
 
