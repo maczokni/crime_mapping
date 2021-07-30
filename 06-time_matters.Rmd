@@ -43,15 +43,15 @@ library(tmap)
 
 In this book so far we have really emphasised the role of place in presenting opportunities for crimes to occur. However we cannot consider space without also considering time. An area might look very different during the day and during the night, on a weekend or on a weekday, and in the summer or in the winter. 
 
-On a macro-scale, the relationship between crime and the seasons is something that had been a topic of concern for researchers as long as space has (@Baumer_1996). Zooming into a micro-scale, changes in routine activities with time of day or day of week  will affect the profile of a place, and linking back to the idea of crime places such as *generators* or *attractors*, will have significant effect on crime rates.  In conceptualising these crime places, @Newton_2018 emphasised the importance to consider the measure of busyness of a place by time of day in order to understand its role as an attractor, generator, or other crime place. For example, at transit stations during school days there is a morning peak time of work and school users combined, an afternoon school closing peak, and a secondary and slightly later end-of-workday peak time. Any calculation of crime rates needs to account for these micro-level temporal variations. 
+On a macro-scale, the relationship between crime and the seasons is something that had been a topic of concern for researchers as long as space has [@Baumer_1996]. Zooming into a micro-scale, changes in routine activities with time of day or day of week  will affect the profile of a place, and linking back to the idea of crime places such as *generators* or *attractors*, will have significant effect on crime rates.  In conceptualising these crime places, @Newton_2018 emphasised the importance to consider the measure of busyness of a place by time of day in order to understand its role as an attractor, generator, or other crime place. For example, at transit stations during school days there is a morning peak time of work and school users combined, an afternoon school closing peak, and a secondary and slightly later end-of-workday peak time. Any calculation of crime rates needs to account for these micro-level temporal variations. 
 
-At whatever unit of analysis, time is a vital variable to include in our crime analysis and criminological research. To quote @Tompson_2013
-
-
-> "[I]t is important to disaggregate data into sensible temporal categories to have a real understanding of the relationship between the variables under scrutiny. (@Tompson_2013, p.627)
+At whatever unit of analysis, time is a vital variable to include in our crime analysis and criminological research. To quote @Tompson_2013:
 
 
-Returning to the importance of the role of place, we can introduce **spatio-temporal data** analysis. Spatio-temporal analysis is the process of utilising geo-and-time-referenced data in order to extract meaning and patterns from our data. In the earlier days, crime pattern analysis has tended to focus on identifying areas with higher densities of criminal activity, but not so much the monitoring of change in crime patterns over time (@Ratcliffe_1998). However, crime hotspots display significant spatio-temporal variance, and the identification of spatio-temporal patterns of hot streets provides significant ‘actionable intelligence’ for police departments (@Herrmann_2013). Evidently, we cannot ignore time as a variable in our analyses. And while the main focus of this book is space, we must take at least one chapter to introduce some key concepts, and provide additional resources for readers to follow up with. 
+> "[I]t is important to disaggregate data into sensible temporal categories to have a real understanding of the relationship between the variables under scrutiny. (p.627)
+
+
+Returning to the importance of the role of place, we can introduce **spatio-temporal data** analysis. Spatio-temporal analysis is the process of utilising geo-and-time-referenced data in order to extract meaning and patterns from our data. In the earlier days, crime pattern analysis has tended to focus on identifying areas with higher densities of criminal activity, but not so much the monitoring of change in crime patterns over time [@Ratcliffe_1998]. However, crime hotspots display significant spatio-temporal variance, and the identification of spatio-temporal patterns of hot streets provides significant ‘actionable intelligence’ for police departments [@Herrmann_2013]. Evidently, we cannot ignore time as a variable in our analyses. And while the main focus of this book is space, we must take at least one chapter to introduce some key concepts, and provide additional resources for readers to follow up with. 
 
 ## Temporal data wrangling
 
@@ -59,7 +59,7 @@ Temporal data means that we can perform all sorts of exciting operations in our 
 
 A key R package that will help with temporal data wrangling is `lubridate`. Date-time data can be frustrating to work with and many base R commands for date-times can be unintuitive. The package `lubridate` was created to address such issues, and make it easier to do the things R does with date-times.
 
-Specifically, we will be using crime data from New York City made available by @Ashby_2019 which is also accessible through the R package `crimedata` @Ashby_2018. You can refer to these citations to learn more about acquiring data from this fantastic resource! However for now, let's make use of the data provided with the book, where we selected a specific subset of aggravated assault in New York for a period of five years. 
+Specifically, we will be using crime data from New York City made available by the R package `crimedata` [@Ashby_2018, @Ashby_2019]. You can refer to these citations to learn more about acquiring data from this fantastic resource! However for now, let's make use of the data provided with the book, where we selected a specific subset of aggravated assault in New York for a period of five years. 
 
 ```{r load_data_8b, message=FALSE}
 
@@ -68,19 +68,9 @@ agassault_ny<-read_csv("data/agassault.csv")
 
 When you read the data into R, you will see that there is a column for date called **date_single**. Let's have a look at the first value in this column: 
 
-```{r, eval=FALSE}
+```{r}
 
-agassault_ny %>% 
-  select(date_single) %>% 
-  head(1)
-
-```
-
-```{r, echo=FALSE}
-
-agassault_ny %>% 
-  dplyr::select(date_single) %>% 
-  head(1)
+agassault_ny %>%  dplyr::select(date_single) %>% head(1)
 
 ```
 
@@ -98,9 +88,9 @@ Let's plot this data:
 
 ```{r ggplot_8b}
 
-agassault_ny %>% 
-  ggplot(aes(date_single)) + 
+ggplot(agassault_ny, aes(date_single)) + 
   geom_freqpoly(binwidth = 7*24*60*60) # 7 days in seconds
+
 ```
 
 Notice what `geom_freqpoly()` is doing. We have a dataframe with rows for each case. The data is not aggregated in any form. But this function counts on the fly the number of cases (of rows) for each of the bins as we define them. It is, thus, a convenient function that saves us from having to first do that aggregation ourselves when we want to plot it. 
@@ -129,8 +119,7 @@ agassault_ny <- agassault_ny %>%
   mutate(year = year(date_single), 
          month = month(date_single, label = TRUE, abbr=FALSE), 
          day = day(date_single), 
-         wday = wday(date_single, label = TRUE, abbr=FALSE)
-         )
+         wday = wday(date_single, label = TRUE, abbr=FALSE) )
 
 ```
 
@@ -141,9 +130,7 @@ Let's consider distribution of events per day of the week.
 
 ```{r assaults_per_wday}
 
-agassault_ny %>% 
-  ggplot(aes(x = wday)) +
-    geom_bar()
+ggplot(agassault_ny, aes(x = wday)) + geom_bar()
 
 ```
 
@@ -206,8 +193,7 @@ It is a date object, so we will be able to do date-time operations to it. Good s
 ```{r count_events_per_day}
 
 agassault_ny_d <- agassault_ny %>%
-                    group_by(date) %>%
-                    summarise(assaults = n())
+                    group_by(date) %>% summarise(assaults = n())
 
 ```
 
@@ -290,25 +276,14 @@ ggplot(femicidos, aes(x = month, y = femicidios, group = 1)) +
 This visualisation gives us an insight into how the count of crimes varies between observations, but it subsumes in itself the three elements mentioned above (the overal trend, seasonal fluctuation, and random noise). This makes it difficult to isolate and discuss any one of these, making it difficult to answer the question about whether crime is going up or down, or whether there are any seasonal fluctuations present. In order to achieve this, we want to **decompose** the data into these components. 
 
 
-To look into decomposing into these components, we can use the many functionality within R to deal with time series data. To take advantage of many of these, we will need our dataframe to be stored as a **time series** object. This enables us to apply R’s many functions for analysing time series data. To store the data in a time series object, we use the `ts()` function. Inside this function, we pass only the column which contains the number of crimes for each month (we filter with the `select()` function)
+To look into decomposing into these components, we can use the many functionality within R to deal with time series data. To take advantage of many of these, we will need our dataframe to be stored as a **time series** object. This enables us to apply R’s many functions for analysing time series data. To store the data in a time series object, we use the `ts()` function. Inside this function, we pass only the column which contains the number of crimes for each month (we filter with the `select()` function from `dplyr` package). 
 
-```{r turn_into_ts_8a, eval=FALSE}
-
-library(dplyr)
+```{r turn_into_ts_8a}
  
-fem_timeseries <- ts(femicidos %>% 
-                       select(femicidios))
+fem_timeseries <- ts(femicidos %>% dplyr::select(femicidios))
 
 ```
 
-```{r message=FALSE, echo=FALSE}
-
-library(dplyr)
- 
-fem_timeseries <- ts(femicidos %>% 
-                       dplyr::select(femicidios))
-
-```
 
 We have taken our dataframe of observed values in our time series (montly observations of crime counts in this case) and tranformed it into a matric with class of "ts" - essentially representing our data as having been sampled at set intervals (in this case every month). Once we have the result stored in our `fem_timeseries` object, we can auto print to see some details: 
 
@@ -395,9 +370,7 @@ We can adapt this code to decompose and estimate the trends for the aggravated a
 agassault_ny_d2 <- dplyr::select(agassault_ny_d, assaults)
 
 #use ts() to transform to time series object
-ny_timeseries <- ts(agassault_ny_d2, 
-                    frequency=365, 
-                    start=c(2014,1,1))
+ny_timeseries <- ts(agassault_ny_d2, frequency=365, start=c(2014,1,1))
 
 # decompose time series
 ny_timeseriescomponents <- decompose(ny_timeseries)
@@ -419,8 +392,7 @@ ny_df <- tsdf(ny_timeseries)
 Then we can use the `ggsdc()` function in order to create a four-facet plot of seasonal decomposition showing observed, trend, seasonal and random components
 
 ```{r, message=FALSE, warning=FALSE}
-ggsdc(ny_df, aes(x = x, y = y), 
-      method = "decompose") +
+ggsdc(ny_df, aes(x = x, y = y),  method = "decompose") +
    geom_line()
 
 ```
@@ -488,12 +460,8 @@ While we will include the ward name as a spatial component in a way, this isn't 
 
 ```{r}
 
-ggplot(mcr_burglary, 
-       aes(x = month, 
-           y = burglaries, 
-           group = ward_name)) + 
-  geom_line() + 
-  theme_minimal()
+ggplot(mcr_burglary, aes(x = month, y = burglaries, group = ward_name)) + 
+  geom_line() + theme_minimal()
 
 ```
 
@@ -502,10 +470,7 @@ This is quite the mess. So in what situation may this be useful? Well maybe you 
 
 ```{r, warning=FALSE}
 
-ggplot(mcr_burglary, 
-       aes(x = month, 
-           y = burglaries, 
-           group = ward_name)) + 
+ggplot(mcr_burglary, aes(x = month,  y = burglaries, group = ward_name)) + 
   geom_line(color="darkgrey") + 
   stat_summary(aes(group = 1), # we want to summarise all the data together
                geom = "line",  # geometry to display the summary 
@@ -521,10 +486,7 @@ We could also use colour to highlight a specific area compared to the rest of th
 
 ```{r, warning=FALSE}
 
-ggplot(mcr_burglary, 
-       aes(x = month, 
-           y = burglaries, 
-           group = ward_name)) + 
+ggplot(mcr_burglary, aes(x = month, y = burglaries, group = ward_name)) + 
   geom_line(color="darkgrey") + 
   geom_line(data = mcr_burglary %>%    # pass new data in this layer
               filter(ward_name == "Fallowfield"),  #filter only Fallowfield 
@@ -558,7 +520,7 @@ Also, to apply `gganimate` to `sf` objects, you need to have a package called `t
 
 Then, we need to make sure that our temporal variable is a date object. We can use the `ymd()` function, from the fantastic `lubridate` package (really I cannot praise this package enough, it makes handling dates so easy...!) to make sure that our month variable is a date object. 
 
-One thing you might notice looking at this data is that there is no date associated with each observation, only month and year.  How can we use `ymd()` which clearly requires *y*ear *m*onth and *day*! Well, one approach is to make this up, and just say that everything in our data happened on the 1st of the month. We can use the `paste0()` function to do this: 
+One thing you might notice looking at this data is that there is no date associated with each observation, only month and year.  How can we use `ymd()` which clearly requires **y**ear **m**onth and **d**ay! Well, one approach is to make this up, and just say that everything in our data happened on the 1st of the month. We can use the `paste0()` function to do this: 
 
 ```{r}
 
@@ -572,8 +534,7 @@ Now, we can create a simple static plot, the way we already know how. Let's plot
 ```{r}
 
 anim <- ggplot() +
-  geom_sf(data = mcr_burglary, 
-          aes(fill = burglaries)) + 
+  geom_sf(data = mcr_burglary, aes(fill = burglaries)) + 
   theme_void()
 ```
 
@@ -597,7 +558,7 @@ In the print book, this will not look very exciting, but hopefull you are follow
 In this chapter we had a very brief introduction to temporal data, and considered how we can manipulate and wrangle this new type of data using packages such as `lubridate`. We then introduced some approaches to visualising temporal data, and finally, ways to visualise spatio-temporal variation as well. To read up on the importance of time, and specifically spatio-temporal crime analysis, we recommend @Ratcliffe_2010, @Wheeler_2016, and @Roth_2013. 
 
 
-While we did not get to go into any spatio-temporal analysis at this stage, visualisation is a good starting point to begin to engage with this important element of crime data. To move into spatio-temporal analysis would require a more thorough training in temporal data analysis first, and so we do not cover here. But we provide some resources for those interested. Notably @Hyndman_2021 is an excellent resource for this, and we can also recommend @Chatfield_2019. For those already comfortable with this, @Pebesma_2012 also offers a very thoughtful introduction to how spatio-temporal data layouts appear and useful graphs for spatio-temporal data. @Pebesma_2012 also introduces the R package `spacetime`, for handling such analyses. At the time of writing, functions in `spacetime` take as inputs older `sp` objects, but work in `sftime`, to work with `sf` objects is ongoing.  For additional details in how to visualise space-time data with R we suggest @Perpinan_2014 and Chapter 2 of @Wikkle_2019.
+While we did not get to go into any spatio-temporal analysis at this stage, visualisation is a good starting point to begin to engage with this important element of crime data. To move into spatio-temporal analysis would require a more thorough training in temporal data analysis first, and so we do not cover here. But we provide some resources for those interested. Notably @Hyndman_2021 is an excellent resource for this, and we can also recommend @Chatfield_2019. For those already comfortable with this, @Pebesma_2012 also offers a very thoughtful introduction to how spatio-temporal data layouts appear and useful graphs for spatio-temporal data. @Pebesma_2012 also introduces the R package `spacetime`, for handling such analyses. At the time of writing, functions in `spacetime` take as inputs older `sp` objects, but work in `sftime`, to work with `sf` objects is ongoing.  For additional details in how to visualise space-time data with R we suggest @Perpinan_2014 and Chapter 2 of @Wikle_2019.
 
 
-As noted there are packages that provide functionality for better handling of dates and time. It is worth to go over the details of ´lubridate´ in the official page and the relevant chapter in @Wickham_2017 is also very helpful. There is a brand new package `clock` that aims to improve on `lubridate` and that is also worth exploring (for details see @Vaughan_2021). 
+As noted there are packages that provide functionality for better handling of dates and time. It is worth to go over the details of `lubridate` in the official page and the relevant chapter in @Wickham_2017 is also very helpful. There is a brand new package `clock` that aims to improve on `lubridate` and that is also worth exploring (for details see @Vaughan_2021). 
