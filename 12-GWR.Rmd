@@ -4,7 +4,7 @@
 
 One of the challenges of spatial data is that we may encounter exceptions to stationary processes. There may be, for example, parameter variability across the study area. When we have homogeneity everything is the same everywhere, in terms of our regression equation, the parameters are constant. But as we illustrated via an interaction term in the last chapter, that may not be the case. We can encounter situations where a particular input has a different effect in parts of our study area. In this chapter we explore this issue and a number of solutions that have been proposed to deal with it. It goes without saying that having extreme heterogeneity creates technical problems for estimation. If everything is different everywhere we may have to estimate more parameters that we have data for.
 
-One way of dealing with this is by imposing some form of structure, for example partitioning data for the United States to fit a separate model for Southern and Northern counties. Unlike data partition, **full spatial regimes** also imply using different coefficients for each subset of the data but you fit everything in one go. This is essentially the same as running as many models as subsets you have. As Luc Anselin highlights (@Anselin_2007), this corrects for heterogeneity but does not explain it. We can then test whether this was necessary, using a *Chow test* comparing the simpler model with the one where we allow variability. Of course, we can also include spatial dependence in these models.
+One way of dealing with this is by imposing some form of structure, for example partitioning data for the United States to fit a separate model for Southern and Northern counties. Unlike data partition, **full spatial regimes** also imply using different coefficients for each subset of the data but you fit everything in one go. This is essentially the same as running as many models as subsets you have. As @Anselin_2007  highlights, this corrects for heterogeneity but does not explain it. We can then test whether this was necessary, using a *Chow test* comparing the simpler model with the one where we allow variability. Of course, we can also include spatial dependence in these models.
 
 Another way of dealing with heterogeneity is by allowing continuous variation, rather than discrete (as when we subset the data), of the parameters. A popular method for doing this is **geographically weighted regression (GWR)**. This is a case of a local regression where you try to estimate a different set of parameters for each location and these parameters are obtained from a subset of observation using kernel regression. In traditional local regression we select the subset in the attribute space (observations with similar attributes), in GWR the local subset is defined in a geographical sense using a kernel (remember how we used kernels for density estimation to define a set of "neighbors"). We are estimating regression equations based on nearby locations as specified by our kernel and this produces a different coefficient for each location. As with kernel density estimation you can distinguish between fixed bandwidth and adaptive bandwidth.
 
@@ -49,7 +49,9 @@ rwm <- mat2listw(rwm, style='W')
 rm(list = c("ncovr_sp", "xy", "nb_k10"))
 ```
 
+
 We can start by running a model for the whole country to use as a baseline model:
+
 
 ```{r}
 fit1_70 <- lm(HR70 ~ RD70 + PS70 + MA70 + DV70 + UE70, data = ncovr)
@@ -74,7 +76,8 @@ ncovr$ONE <- 1
 Having created these new columns we can fit a standard OLS model interacting the inputs with our dummies and setting the intercept to 0, so that each regime is allowed its own intercept:
 
 ```{r}
-fit2_70_sr <- lm(HR70 ~ 0 + (ONE + RD70 + PS70 + MA70 + DV70 + UE70):(SOUTH + NORTH), data = ncovr)
+fit2_70_sr <- lm(HR70 ~ 0 + (ONE + RD70 + PS70 + MA70 + DV70 + UE70):(SOUTH + NORTH), 
+                 data = ncovr)
 summary(fit2_70_sr)
 ```
 
@@ -122,7 +125,9 @@ The Lagrange multiplier tests, according to Anselin suggestions for how to inter
 We could then fit this model using `sp`
 
 ```{r}
-fit3_70_sr_sar <- lagsarlm(HR70 ~ 0 + (ONE + RD70 + PS70 + MA70 + DV70 + UE70):(SOUTH + NORTH), data = ncovr, rwm)
+fit3_70_sr_sar <- lagsarlm(HR70 ~ 0 + 
+                             (ONE + RD70 + PS70 + MA70 + DV70 + UE70):(SOUTH + NORTH), 
+                           data = ncovr, rwm)
 summary(fit3_70_sr_sar)
 ```
 
@@ -164,12 +169,10 @@ The basic idea behind Geographically Weighted Regression (GWR) is to explore how
 
 Geographically Weighted Regression can be used for a variety of applications, including the following:
 
-- Is the relationship between educational attainment and income consistent across the study area?
-- Do certain illness or disease occurrences increase with proximity to water features?
-- What are the key variables that explain high forest fire frequency?
-- Which habitats should be protected to encourage the reintroduction of an endangered species?
-- Where are the districts in which children are achieving high test scores? What characteristics seem to be associated? Where is each characteristic most important?
-- Are the factors influencing higher cancer rates consistent across the study area?
+- Is the relationship between homicide rate and resource deprivation consistent across the study area?
+- What are the key variables that explain high homicide rates?
+- Where are the counties in which we see high homicide rates? What characteristics seem to be associated with these? Where is each characteristic most important?
+- Are the factors influencing higher homicide rates consistent across the study area?
 
 GWR provides three types of regression models: Continuous, Binary, and Count. These types of regression are known in statistical literature as Gaussian, Logistic, and Poisson, respectively. The Model Type for your analysis should be chosen based on the level of measurement of the Dependent Variable $Y$. 
 
@@ -185,7 +188,7 @@ summary(model)
 
 And now, to get an idea of how our model might perform differently in different area, we can map the residuals across each county: 
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 
 # map residuals
 ncovr$resids <- residuals(model)
@@ -208,7 +211,6 @@ Here we use `gwr.sel()` which uses cross validation method for selecting optimal
 With adapt function you can choose whether you want the bandwidth to adapt (i.e. find the proportion between 0 and 1 of observations to include in weighting scheme (k-nearest neighbours)) or whether you want to find a global bandwidth. A global bandwidth might make sense where the areas of interest are of equal size, and equally spaced, however if we have variation, for example like in the case of the counties of the United States, it makes sense to adjust the bandwidth for each observation. Here we set to adapt. 
  
 Another important consideration is the function for the geographical weighting. We mentioned this above. In the `gwr.sel()` function you can set this with the `gweight=` parameter. By default, this is set to a Gaussian function. We will keep it that way here.
-
 
 
 With an sf object (whcih our data are in), one of the parameters required is a coordinate point for each one of our observations. In this case, what we can do is grab the centroid of each one of our polygons. To do this, we can use the `st_coordinates()` function: 

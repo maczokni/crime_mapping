@@ -7,7 +7,7 @@
 In this appendix we present a very brief and high-level overview of regression analysis, in order to give some reference to when we introduce spatial regression in Chapter 11. We will follow a practical approach, working through one data set to illustrate regression basics using R. For those who wish to have a more thorough grounding please refer to the further reading section at the end of this Appendix. 
 
 
-Here we will return to the "ncovr" data set produced as part of the National Consortium on Violence Research (NCOVR) agenda (see -@Baller_2001). The data set includes variables related to homicides in the US, as well as information in a number of sociodemographic variables that are often thought of as associated with the geographical distribution of homicides. This data set is available as part of the `geodaData` package. 
+Here we will return to the "ncovr" data set produced as part of the National Consortium on Violence Research (NCOVR) agenda (we use this also in Chapters 11 and 11, for more information on this data see @Baller_2001). The data set includes variables related to homicides in the US, as well as information in a number of sociodemographic variables that are often thought of as associated with the geographical distribution of homicides. This data set is available as part of the `geodaData` package. 
 
 
 
@@ -29,7 +29,7 @@ library(ggplot2)
 qplot(x = HR90, data = ncovr)
 ```
 
-Once one has gone through the process of exploring the data in this way (or maybe using the `skimr` package - see **appendix A**) for all the variables you want to work with, you can start exploring bivariate associations with your dependent, response or outcome variable. So, as an illustration, you could explore the association with resource deprivation (*RD90*), a measure of the level of concentrated disadvantage or social exclusion in an area, via a scatterplot:
+Once one has gone through the process of exploring the data in this way (or maybe using the `skimr` package - see *Appendix: A quick intro to R and RStudio*) for all the variables you want to work with, you can start exploring bivariate associations with your dependent, response or outcome variable. So, as an illustration, you could explore the association with resource deprivation (*RD90*), a measure of the level of concentrated disadvantage or social exclusion in an area, via a scatterplot:
 
 ```{r}
 ggplot(ncovr, aes(x = RD90, y = HR90)) +
@@ -45,8 +45,10 @@ Now, imagine that we play a game. Imagine I have all the respondents waiting in 
 ```{r}
 ggplot(ncovr, aes(x = HR90)) + 
   geom_density() +
-  geom_vline(xintercept = median(ncovr$HR90), linetype = "dashed", size = 1, color="red") + # median = 4.377
-  geom_vline(xintercept = mean(ncovr$HR90), linetype = "dashed", size = 1, color="blue") + # mean = 6.183
+  geom_vline(xintercept = median(ncovr$HR90), linetype = "dashed", size = 1, 
+             color="red") + # median = 4.377
+  geom_vline(xintercept = mean(ncovr$HR90), linetype = "dashed", size = 1, 
+             color="blue") + # mean = 6.183
   ggtitle("Density estimate, mean and median of homicide rate 1990")
 
 ```
@@ -67,20 +69,19 @@ If we plot the conditional means we can see that the mean of homicide rate for c
 library(grid)
 ggplot() +
   geom_point(data=ncovr, aes(x = RD90, y = HR90), alpha=.2) +
-geom_line(data=ncovr, aes(x = round(RD90/0.12)*0.12, y = HR90), # Can you guess why we do not write 'RD90' as the x variable? Try it!
-          stat='summary',
-          fun.y=mean,
-          color="red",
-          size=1) +
-  annotate("segment", x=3, xend = 4, y = 25, yend= 22, color = "blue", size = 2, arrow = arrow()) +
-  annotate("text", x = 3, y = 29, label = "Pick this one!", size =7, colour = "blue")
+geom_line(data=ncovr, aes(x = round(RD90/0.12)*0.12, y = HR90),
+          stat='summary', fun.y=mean, color="red", size=1) +
+  annotate("segment", x=3, xend = 4, y = 25, yend= 22, color = "blue", 
+           size = 2, arrow = arrow()) +
+  annotate("text", x = 3, y = 29, label = "Pick this one!", 
+           size =7, colour = "blue")
 ```
 
 Linear regression tackles this problem using a slightly different approach. Rather than focusing on the conditional mean (smoothed or not), it draws a straight line that tries to capture the trend in the data. If we focus in the region of the scatterplot that are less sparse we see that this is an upward trend, suggesting that as resource deprivation increases so does the homicide rate. 
 
 Simple linear regression draws a single straight line of predicted values as the model for the data. This line would be a **model**, a *simplification* of the real world like any other model (e.g., a toy pistol, an architectural drawing, a subway map), that assumes that there is approximately a linear relationship between X and Y. Let's draw the regression line using the function `geom_smooth()`. This ask for a `method=` parameter where we specify `lm` for the linear regression line. We also set `se=` to `FALSE` so we ask for just the line to be printed but not the standard error around it. The other arguments specify the color and thickness of the line. 
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 ggplot(data = ncovr, aes(x = RD90, y = HR90)) +
   geom_point(alpha = .2) +
   geom_smooth(method = "lm", se = FALSE, color = "red", size = 1) 
@@ -90,7 +91,7 @@ What that line is doing is giving you guesses (predictions) for the values of ho
 
 The linear model then is a model that takes the form of the equation of a straight line through the data. The line does not go through all the points. In fact, you can see is a slightly less accurate representation than the (smoothed) conditional means:
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, warning=FALSE, message=FALSE}
 ggplot() +
   geom_point(data = ncovr, aes(x = RD90, y = HR90),
              alpha = .2, color ="orange") +
@@ -106,7 +107,7 @@ ggplot() +
 
 Our regression line underpredicts at low levels of resource deprivation and does not seem to capture well the variability at higher levels of resource deprivation. But imperfect as a model as it might be it simplifies well the overall growing trend for homicide as resource deprivation increases.
 
-As -@DeVeaux_2012  highlight: "like all models of the real world, the line will be wrong, wrong in the sense that it can't match reality exactly. But it can help us understand how the variables are associated" (p. 179). A map is never a perfect representation of the world, the same happens with statistical models. Yet, as with maps, models can be helpful.
+As @DeVeaux_2012  highlight: "like all models of the real world, the line will be wrong, wrong in the sense that it can't match reality exactly. But it can help us understand how the variables are associated" (p. 179). A map is never a perfect representation of the world, the same happens with statistical models. Yet, as with maps, models can be helpful.
 
 ## Fitting a simple regression model
 
@@ -233,7 +234,7 @@ ggplot(data = mtcars[1:5,], aes(x = mpg, y = wt)) +
 
 The distance between the mean (our best guess without any other piece of information) and the observed value of Y is what we call the **total variation**. The residual is the difference between our predicted value of Y  and the observed value of Y. This is what we cannot explain (i.e, variation in Y that is *unexplained*). The difference between the mean value of Y and the expected value of Y (the value given by our regression line) is how much better we are doing with our prediction by using information about X (i.e., in our previous example it would be variation in Y that can be *explained* by knowing about resource deprivation). How much closer the regression line gets us to the observed values. We can then contrast these two different sources of variation (explained and unexplained) to produce a single measure of how good our model is. The formula is as follows:
 
-$R^2 = \dfrac{SSR}{SST} = \dfrac{\Sigma(\hat y_i - \bar y )^2}{\Sigma(y_i - \bar y )^2}$
+$$R^2 = \dfrac{SSR}{SST} = \dfrac{\Sigma(\hat y_i - \bar y )^2}{\Sigma(y_i - \bar y )^2}$$
 
 All this formula is doing is taking a ratio of the explained variation (the squared differences between the regression line and the mean of Y for each observation) by the total variation (the squared differences of the observed values of Y for each observation from the mean of Y). This gives us a measure of the **percentage of variation in Y that is "explained" by X**. If this sounds familiar is because it is a measure similar to eta squared ($eta^2$) in ANOVA.
 
@@ -253,7 +254,7 @@ summary(fit_1)$r.squared
 
 Knowing how to interpret this is important. $R^2$ ranges from 0 to 1. The greater it is the more powerful our model is, the more explaining we are doing, the better we are able to account for variation in our outcome Y with our input. In other words, the stronger the relationship is between Y and X. As with all the other measures of effect size interpretation is a matter of judgment. You are advised to see what other researchers report in relation to the particular outcome that you may be exploring. 
 
--@Weisburd_2014 suggest that in criminal justice you rarely see values for $R^2$ greater than .40. Thus, if your $R^2$ is larger than .40, you can assume you have a powerful model. When, on the other hand, $R^2$ is lower than .15 or .2 the model is likely to be viewed as relatively weak. Our observed r squared here is rather poor. There is considerably room for improvement if we want to develop a better model to explain fear of violent crime. In any case, many people would argue that $R^2$ is a bit overrated. You need to be aware of what it measures and the context in which you are using it. 
+@Weisburd_2014 suggest that in criminal justice you rarely see values for $R^2$ greater than .40. Thus, if your $R^2$ is larger than .40, you can assume you have a powerful model. When, on the other hand, $R^2$ is lower than .15 or .2 the model is likely to be viewed as relatively weak. Our observed r squared here is rather poor. There is considerably room for improvement if we want to develop a better model to explain fear of violent crime. In any case, many people would argue that $R^2$ is a bit overrated. You need to be aware of what it measures and the context in which you are using it. 
 
 ## Inference with regression
 
@@ -331,11 +332,11 @@ Looking only at covariation between pair of variables can be misleading. It may 
 
 It's not an exaggeration to say that most quantitative explanatory research is about trying to control for the presence of **confounders**, variables that may explain explain away observed associations. Think about any criminology question: Does marriage reduces crime? Or is it that people that get married are different from those that don't (and are those pre-existing differences that are associated with less crime)? Do gangs lead to more crime? Or is it that young people that join gangs are more likely to be offenders to start with? Are the police being racist when they stop and search more members of ethnic minorities? Or is it that there are other factors (i.e., offending, area of residence, time spent in the street) that, once controlled, would mean there is no ethnic dis-proportionality in stop and searches? Does a particular program reduces crime? Or is the observed change due to something else?
 
-These things also matter for policy. Wilson and Kelling, for example, argued that signs of incivility (or antisocial behaviour) in a community lead to more serious forms of crime later on as people withdraw to the safety of their homes when they see those signs of incivilities and this leads to a reduction in informal mechanisms of social control. All the policies to tackle antisocial behaviour in this country are very much informed by this model and were heavily influenced by broken windows theory.
+These things also matter for policy. @Wilson_1982, for example, argued that signs of incivility (or antisocial behaviour) in a community lead to more serious forms of crime later on as people withdraw to the safety of their homes when they see those signs of incivilities and this leads to a reduction in informal mechanisms of social control. All the policies to tackle antisocial behaviour in this country are very much informed by this model and were heavily influenced by broken windows theory.
 
-But is the model right? Sampson and Raudenbush argue it is not entirely correct. They argue, and tried to show, that there are other confounding factors (poverty, collective efficacy) that explain the association of signs of incivility and more serious crime. In other words, the reason why you see antisocial behaviour in the same communities that you see crime is because other structural factors explain both of those outcomes. They also argue that perceptions of antisocial behaviour are not just produced by observed antisocial behaviour but also by stereotypes about social class and race. If you believe them, then the policy implications are that only tackling antisocial behaviour won't help you to reduce crime (as Wilson and Kelling have argued) . So as you can see this stuff matters for policy not just for theory. 
+But is the model right? @Sampson_1997 argue it is not entirely correct. They argue, and tried to show, that there are other confounding factors (poverty, collective efficacy) that explain the association of signs of incivility and more serious crime. In other words, the reason why you see antisocial behaviour in the same communities that you see crime is because other structural factors explain both of those outcomes. They also argue that perceptions of antisocial behaviour are not just produced by observed antisocial behaviour but also by stereotypes about social class and race. If you believe them, then the policy implications are that only tackling antisocial behaviour won't help you to reduce crime (as @Wilson_1982 have argued) . So as you can see this stuff matters for policy not just for theory. 
 
-Multiple regression is one way of checking the relevance of competing explanations. You could set up a model where you try to predict crime levels with an indicator of broken windows and an indicator of structural disadvantage. If after controlling for structural disadvantage you see that the regression coefficient for broken windows is still significant you may be into something, particularly if the estimated effect is still large. If, on the other hand, the t test for the regression coefficient of your broken windows variable is no longer significant, then you may be tempted to think that perhaps Sampson and Raudenbush were into something. 
+Multiple regression is one way of checking the relevance of competing explanations. You could set up a model where you try to predict crime levels with an indicator of broken windows and an indicator of structural disadvantage. If after controlling for structural disadvantage you see that the regression coefficient for broken windows is still significant you may be into something, particularly if the estimated effect is still large. If, on the other hand, the t test for the regression coefficient of your broken windows variable is no longer significant, then you may be tempted to think that perhaps @Sampson_1997 were into something. 
 
 ## Fitting and interpreting a multiple regression model
 
@@ -349,13 +350,13 @@ summary(fit_3)
 
 With more than one input, you need to ask yourself whether all of the regression coefficients are zero. This hypothesis is tested with a F test. Again we are assuming the residuals are normally distributed, though with large samples the F statistics approximates the F distribution. You see the F test printed at the bottom of the summary output and the associated p value, which in this case is way below the conventional .05 that we use to declare statistical significance and reject the null hypothesis. At least one of our inputs must be related to our response variable. 
 
-Notice that the table printed also reports a t test for each of the predictors. These are testing whether each of these predictors is associated with the response variable when adjusting for the other variables in the model. They report the "partial effect of adding that variable to the model" (James et al. 2014: 77). In this case we can see that both variables seem to be significantly associated with the response variable.
+Notice that the table printed also reports a t test for each of the predictors. These are testing whether each of these predictors is associated with the response variable when adjusting for the other variables in the model. They report the "partial effect of adding that variable to the model" [@James_2013: 77]. In this case we can see that both variables seem to be significantly associated with the response variable.
 
 If we look at the r squared we can now see that it is higher than before. r squared will always increase as a consequence of adding new variables, even if the new variables added are weakly related to the response variable. 
 
 We see that the coefficients for the predictors change somehow, it goes down a bit for *RD90* and it halves for *SOUTH*. **But their interpretation now changes**. A common interpretation is that now the regression for each variable tells you about changes in Y related to that variable **when the other variables in the model are held constant**. So, for example, you could say the coefficient for *RD90* represents the increase in homicide for every one-unit increase in the measure of resource deprivation *when holding all other variables in the model constant* (in this case that refers to holding constant *SOUTH*). But this terminology can be a bit misleading.
 
-Other interpretations are also possible and are more generalizable. -@Gelman_2007 emphasise what they call the *predictive interpretation* that considers how "the outcome variable differs, on average, when comparing two groups of units that differ by 1 in the relevant predictor while being identical in all the other predictors" (p. 34). So if you're regressing y on u and v, the coefficient of u is the average difference in y per difference in u, comparing pairs of items that differ in u but are identical in v.
+Other interpretations are also possible and are more generalizable. @Gelman_2007 emphasise what they call the *predictive interpretation* that considers how "the outcome variable differs, on average, when comparing two groups of units that differ by 1 in the relevant predictor while being identical in all the other predictors" (p. 34). So if you're regressing y on u and v, the coefficient of u is the average difference in y per difference in u, comparing pairs of items that differ in u but are identical in v.
 
 
 For example, in this case we could say that comparing counties that have the same level of resource deprivation but that differed in whether they are South or North, the model predicts a expected difference of 3.18 in their homicide rate. And that respondents that do not vary in whether they are South or North, but that differ by one point in the level of resource deprivation, we would expect to see a difference of 2.96 in their homicide rate. So we are interpreting the regression slopes **as comparisons of cases that differ in one predictor while being at the same levels of the other predictors**.
@@ -376,7 +377,8 @@ Communicating your results in a clear manner is incredibly important. We have se
 
 We are going to use instead the `plot_model()` function of the `sjPlot` package, that makes it easier to produce this sort of plots. 
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
+
 library(sjPlot)
 
 ```
@@ -394,7 +396,7 @@ What you see plotted here is the point estimates (the circles), the confidence i
 The `sjPlot` package also allows you to produce html tables for more professional presentation of your regression tables. For this we use the `tab_model()` function. This kind of tabulation may be particularly helpful for your final assignment.
 
 ```{r}
-tab_model(fit_4)
+knitr::kable(tab_model(fit_4))
 ```
 
 As before you can further customise this table. Let's change for example the name that is displayed for the dependent variable.
@@ -430,7 +432,7 @@ summary(fit_4)
 
 We just cannot. One way of dealing with this is by rescaling the input variables. A common method involves subtracting the mean and dividing by the standard deviation of each numerical input. The coefficients in these models is the expected difference in the response variable, comparing units that differ by one standard deviation in the predictor while adjusting for other predictors in the model. 
 
-Instead, -@Gelman_2008 has proposed dividing each numeric variables *by two times its standard deviation*, so that the generic comparison is with inputs equal to plus/minus one standard deviation. As Gelman explains the resulting coefficients are then comparable to untransformed binary predictors. The implementation of this approach in the `arm` package subtract the mean of each binary input while it subtract the mean and divide by two standard deviations for every numeric input.
+Instead, @Gelman_2008 has proposed dividing each numeric variables *by two times its standard deviation*, so that the generic comparison is with inputs equal to plus/minus one standard deviation. As Gelman explains the resulting coefficients are then comparable to untransformed binary predictors. The implementation of this approach in the `arm` package subtract the mean of each binary input while it subtract the mean and divide by two standard deviations for every numeric input.
 
 The way we would obtain these rescaled inputs uses the `standardize()` function of the `arm` package, that takes as an argument the name of the stored fit model.
 
@@ -444,7 +446,7 @@ Standardising in the way described here will help you to make fairer comparisons
 
 ## Testing conditional hypothesis: interactions
 
-In the social sciences there is a great interest in what are called conditional hypothesis or interactions. Many of our theories do not assume simply **additive effects** but **multiplicative effects**.For example,  -@Wikstrom_2011 suggest that the threat of punishment only affects the probability of involvement on crime for those that have a propensity to offend but are largely irrelevant for people who do not have this propensity. Or you may think that a particular crime prevention programme may work in some environments but not in others. The interest in this kind of conditional hypothesis is growing.
+In the social sciences there is a great interest in what are called conditional hypothesis or interactions. Many of our theories do not assume simply **additive effects** but **multiplicative effects**.For example,  @Wikstrom_2011 suggest that the threat of punishment only affects the probability of involvement on crime for those that have a propensity to offend but are largely irrelevant for people who do not have this propensity. Or you may think that a particular crime prevention programme may work in some environments but not in others. The interest in this kind of conditional hypothesis is growing.
 
 One of the assumptions of the regression model is that the relationship between the response variable and your predictors is additive. That is, if you have two predictors $x_1$ and $x_2$. Regression assumes that the effect of $x_1$ on `y` is the same at all levels of $x_2$. If that is not the case, you are then violating one of the assumptions of regression. This is in fact one of the most important assumptions of regression, even if researchers often overlook it.
 
@@ -523,7 +525,7 @@ You may have noticed the second of this assumption is independence of errors. Th
 
 @Friedman_2001 is a classic book for anyone looking to develop their skills modelling data with comprehensive examples and exercises to follow in R. 
 
-Models with interaction terms are too often misinterpreted. We strongly recommend a read of @Brambor_2006 to facilitate correct interpretation. Equally,-@Fox_2003 piece on the `effects` package goes to great detail to explain the logic and some of the options that are available when producing plots to show interactions with this package.
+Models with interaction terms are too often misinterpreted. We strongly recommend a read of @Brambor_2006 to facilitate correct interpretation. Equally,@Fox_2003 piece on the `effects` package goes to great detail to explain the logic and some of the options that are available when producing plots to show interactions with this package.
 
 
 
