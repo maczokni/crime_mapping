@@ -1,3 +1,8 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
 # Appendix B: Regression analysis (a refresher)
 
 
@@ -328,7 +333,7 @@ So we have seen that we can fit models with just one predictor.  We can build be
 
 Another reason why it is important to think about additional variables in your model is to control for spurious correlations (although here you may also want to use your common sense when selecting your variables!). You must have heard before that correlation does not equal causation. Just because two things are associated we cannot assume that one is the cause for the other. Typically we see how the pilots switch the secure the belt button when there is turbulence. These two things are associated, they tend to come together. But the pilots are not causing the turbulences by pressing a switch! The world is full of **spurious correlations**, associations between two variables that should not be taking too seriously. You can explore a few [here](http://tylervigen.com/). It's funny. 
 
-Looking only at covariation between pair of variables can be misleading. It may lead you to conclude that a relationship is more important than it really is. This is no trivial matter, but one of the most important ones we confront in research and policy[^5]. 
+Looking only at covariation between pair of variables can be misleading. It may lead you to conclude that a relationship is more important than it really is. This is no trivial matter, but one of the most important ones we confront in research and policy. 
 
 It's not an exaggeration to say that most quantitative explanatory research is about trying to control for the presence of **confounders**, variables that may explain explain away observed associations. Think about any criminology question: Does marriage reduces crime? Or is it that people that get married are different from those that don't (and are those pre-existing differences that are associated with less crime)? Do gangs lead to more crime? Or is it that young people that join gangs are more likely to be offenders to start with? Are the police being racist when they stop and search more members of ethnic minorities? Or is it that there are other factors (i.e., offending, area of residence, time spent in the street) that, once controlled, would mean there is no ethnic dis-proportionality in stop and searches? Does a particular program reduces crime? Or is the observed change due to something else?
 
@@ -393,27 +398,50 @@ plot_model(fit_4, breakLabelsAt = 30)
 What you see plotted here is the point estimates (the circles), the confidence intervals around those estimates (the longer the line the less precise the estimate), and the colours represent whether the effect is negative (red) or positive (blue). There are other packages that also provide similar functionality, like the `dotwhisker` package that you may want to explore.
 
 
-The `sjPlot` package also allows you to produce html tables for more professional presentation of your regression tables. For this we use the `tab_model()` function. This kind of tabulation may be particularly helpful for your final assignment.
+The `sjPlot` package also allows you to produce html tables for more professional presentation of your regression tables. For this we use the `tab_model()` function. 
 
-```{r}
-knitr::kable(tab_model(fit_4))
+```{r, eval = FALSE}
+tab_model(fit_4)
 ```
 
-As before you can further customise this table. Let's change for example the name that is displayed for the dependent variable.
+You can customise this table. For example, you can change the name that is displayed for the dependent variable with the `dv.labels = ` parameter, and you could change the labels for the independent variables with the `pred.labels = ` parameter.
 
-```{r}
-tab_model(fit_4, dv.labels = "Homicide rate 1990")
+```{r, eval = FALSE}
+
+tab_model(fit_4, 
+          dv.labels = "Homicide rate 1990", 
+          pred.labels = c("(Intercept)", "Resource deprivation","South", 
+                          "Percent divorced males", "Median age","Population structure"))
 ```
 
-Or you could change the labels for the independent variables:
 
-```{r}
-tab_model(fit_4, pred.labels = c("(Intercept)", "Resource deprivation", 
-                                 "South", "Percent divorced males", "Median age",
-                                 "Population structure"), dv.labels = "Homicide rate")
+The `tab_model()` function is great if you have a html output. In case you're making your tables for a PDF output, you might want to consider the `stargazer` package, from which the function `stargazer()` stargazer command produces LaTeX code, HTML code and ASCII text for well-formatted tables.
+
+
+```{r stargazer, message=FALSE, warning=FALSE, results='hide'}
+library(stargazer)
+
 ```
 
-Visual display of the effects of the variables in the model are particularly helpful. The `effects` package allows us to produce plots to visualise these relationships (when adjusting for the other variables in the model). Here's an example going back to our model fit_3 which contained *SOUTH* and *RD90* predictor variables:
+
+```{r stgztab1, results='asis'}
+
+stargazer(fit_4)
+
+```
+
+
+You could also use this to show the results of several models side by side. 
+
+
+```{r, results='asis'}
+
+stargazer(fit_3, fit_4)
+
+```
+
+
+Besides tables, visual display of the effects of the variables in the model are particularly helpful. The `effects` package allows us to produce plots to visualise these relationships (when adjusting for the other variables in the model). Here's an example going back to our model fit_3 which contained *SOUTH* and *RD90* predictor variables:
 
 ```{r}
 library(effects)
@@ -487,7 +515,7 @@ Essentially what happens is that the regression coefficients that get printed ar
 
 ## Model building and variable selection
 
-How do you construct a good model? This partly depends on your goal, although there are commonalities. You do want to start with theory as a way to select your predictors and when specifying the nature of the relationship to your response variable (e.g., additive, multiplicative). Gelman and Hill (2007) provide a series of general principles[^7]. I would like to emphasise at this stage two of them:
+How do you construct a good model? This partly depends on your goal, although there are commonalities. You do want to start with theory as a way to select your predictors and when specifying the nature of the relationship to your response variable (e.g., additive, multiplicative). Gelman and Hill (2007) provide a series of general principles. I would like to emphasise at this stage two of them:
 
 + Include all input variables that, for substantive reasons, might be expected to be important in predicting the outcome.
 
@@ -525,15 +553,7 @@ You may have noticed the second of this assumption is independence of errors. Th
 
 @Friedman_2001 is a classic book for anyone looking to develop their skills modelling data with comprehensive examples and exercises to follow in R. 
 
-Models with interaction terms are too often misinterpreted. We strongly recommend a read of @Brambor_2006 to facilitate correct interpretation. Equally,@Fox_2003 piece on the `effects` package goes to great detail to explain the logic and some of the options that are available when producing plots to show interactions with this package.
+Models with interaction terms are too often misinterpreted. We strongly recommend a read of @Brambor_2006 to facilitate correct interpretation. Equally, @Fox_2003 piece on the `effects` package goes to great detail to explain the logic and some of the options that are available when producing plots to show interactions with this package.
 
 
 
-
-[^2]: [This](http://link.springer.com/chapter/10.1007/978-1-4614-9170-5_15) is a fine chapter too if you struggle with the explanations in the required reading. Many universities, like the University of Manchester, have full access to Springer ebooks. You can also have a look at [these notes](http://people.stern.nyu.edu/wgreene/Statistics/MultipleRegressionBasicsCollection.pdf).
-[^3]: [This](http://blog.minitab.com/blog/adventures-in-statistics/regression-analysis-how-do-i-interpret-r-squared-and-assess-the-goodness-of-fit) is a reasonable explanation of how to interpret R-Squared.
-[^4]: [This blog post](http://www.sumsar.net/blog/2013/12/an-animation-of-the-construction-of-a-confidence-interval/) provides a nice animation of the confidence interval and hypothesis testing.
-[^5]: [This](http://vudlab.com/simpsons/) is a nice illustration of the Simpon's Paradox, a well known example of omitted variable bias.
-[^6]: I recommend reading chapter 13 "Woes of regression coefficients" of an old book Mostseller and Tukey (1977) Data Analysis and Regression. Reading: Addison-Wesley Publishing.
-[^7]: Look at [this](
-http://www.r-bloggers.com/stop-using-bivariate-correlations-for-variable-selection/) too.
