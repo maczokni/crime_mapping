@@ -294,7 +294,7 @@ knitr::kable(df, caption = 'Example data table')
 
 You then want to plot this. To do so, you want to create a plot that combines the following layers: 
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height=2, fig.width=6, fig.cap = 'Layers of ggplot'}
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height=3, fig.width=6, fig.cap = 'Layers of ggplot'}
 
 
 
@@ -320,7 +320,7 @@ gridExtra::grid.arrange(p1, p2, p3, nrow = 1)
 
 This will result in a final plot: 
 
-```{r, echo = FALSE, message=FALSE, warning=FALSE, fig.cap='Final plot'}
+```{r, echo = FALSE, message=FALSE, warning=FALSE, fig.cap='Final plot', fig.height=3}
 
 ggplot(df, aes(x = gsub(" from the person", "",crime_type), y = n)) + 
   geom_bar(stat = "identity") + 
@@ -350,7 +350,7 @@ df
 
 Now let us add the layers to our ggplot object. First, the data layer: 
 
-```{r, fig.cap='Data layer', fig.height=2}
+```{r, fig.cap='Data layer', fig.height=3}
 library(ggplot2)
 
 ggplot(df, aes(x = crime_type, y = n))
@@ -361,7 +361,7 @@ ggplot(df, aes(x = crime_type, y = n))
 Then add the geometry (in this case, `geom_col()`): 
 
 
-```{r, fig.cap='Geometry layer', fig.height=2}
+```{r, fig.cap='Geometry layer', fig.height=3}
 
 ggplot(df, aes(x = crime_type, y = n)) + 
   geom_col()
@@ -369,7 +369,7 @@ ggplot(df, aes(x = crime_type, y = n)) +
 
 Then our annotations: 
 
-```{r, fig.cap='Annotations layer', fig.height=2}
+```{r, fig.cap='Annotations layer', fig.height=3}
 
 ggplot(df, aes(x = crime_type, y = n)) + 
   geom_col() + 
@@ -381,7 +381,7 @@ ggplot(df, aes(x = crime_type, y = n)) +
 
 We can also specify our themes, by using a custom theme such as `theme_minimal()`, and by adding our own specifications within an additional `theme()` function: 
 
-```{r, fig.cap='Customise themes', fig.height=2}
+```{r, fig.cap='Customise themes', fig.height=3}
 
 ggplot(df, aes(x = crime_type, y = n)) + 
   geom_col() + 
@@ -396,7 +396,7 @@ ggplot(df, aes(x = crime_type, y = n)) +
 
 We can add further specifications within the `aes()` (aesthetics) function, where we add additional layers from our data, to represent even more information in our charts, for example the outcomes for each crime. 
 
-```{r, fig.cap='Additional layers', fig.height=2}
+```{r, fig.cap='Additional layers', fig.height=3}
 
 # create new dataframe (df) including last_outcome_category variable
 
@@ -421,7 +421,7 @@ ggplot(df, aes(x = crime_type, y = n, fill = last_outcome_category)) +
 
 We can be explicit about the colours we want to use with the function `scale_fill_brewer()`, which we can also use to rename our legend. Don't worry too much at this point about where the palette comes from, in the chapter on cargography we will discuss colour in more detail. 
 
-```{r, fig.cap='Customise colour', fig.height=2}
+```{r, fig.cap='Customise colour', fig.height=3}
 
 ggplot(df, aes(x = crime_type,  y = n, fill = last_outcome_category)) + 
   geom_col() + 
@@ -441,7 +441,7 @@ There are many many more options. While this here is not the greatest graph you'
 
 So how can we use this for spatial data? We can use the `geom_sf()` function to do so. Using `geom_sf` is slightly different to other geometries, for example how we used `geom_col()` above. First we initiate the plot with the `ggplot()` function but don't include the data in there. Instead, it is in the geometry where we add the data. And second we don't need to specify the mapping of x and y. Since this is in the geometry column of our spatial object. Like so:
 
-```{r, fig.cap='geom_sf for plotting', fig.height=2}
+```{r, fig.cap='geom_sf for plotting', fig.height=3}
 
 ggplot() + 
   geom_sf(data = crimes_sf)
@@ -452,7 +452,7 @@ And here we have a map of each point in our data set, each recorded crime in Jun
 
 We can do this by adding a layer to our graph object. Specifically we will use the `annotation_map_tile()` from the `ggspatial` package. This provides us with a static Open Street Map layer behind our data, giving it (some) more context. Remember to load the package (and install if you haven't already). And then use the `annotation_map_tile()` function, making sure to place it before the `geom_sf` points layer, so the background map is placed first, and the points on top of that:  
 
-```{r, message=FALSE, fig.cap='Adding a basemap', fig.height=2}
+```{r, message=FALSE, fig.cap='Adding a basemap', fig.height=3}
 
 library(ggspatial)
 
@@ -481,7 +481,7 @@ Census boundary data are a digitised representation of the underlying geography 
 
 The hierarchy of the census geographies in the UK goes from Country to Local Authority to Middle Layer Super Output Area (MSOA) to Lower Layer Super Output Area (LSOA) to Output Area (in other countries you have similar levels in the census hierarchies):
 
-```{r, echo = FALSE, message=FALSE, warning=FALSE, results='hide', fig.cap='Hierarchy of Census Geographies in the UK', fig.height=2}
+```{r, echo = FALSE, message=FALSE, warning=FALSE, results='hide', fig.cap='Hierarchy of Census Geographies in the UK', fig.height=3}
 
 country <- rnaturalearth::ne_countries(scale = 110, geounit = "united kingdom", returnclass = "sf")
 la <- rnaturalearth::ne_states(geounit = "england", returnclass = "sf") %>% filter(region == "North West")
@@ -559,7 +559,7 @@ glimpse(manchester_lsoa)
 
 And of course, since it's spatial data, you can map it using the `geom_sf()` function, as we did with our points:  
 
-```{r, fig.cap="Plot of Manchester's LSOAs", fig.height=2}
+```{r, fig.cap="Plot of Manchester's LSOAs", fig.height=3}
 
 ggplot() + 
   geom_sf(data = manchester_lsoa)

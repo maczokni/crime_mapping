@@ -719,7 +719,7 @@ It's not the neatest of maps, with all these overlaps, but we will talk about pr
 Finally, let's say we want to save our interactive map, while keeping it interactive. You can do this by clicking on the export button at the top of the plot viewer, and choose the *Save as Webpage* option saving this as a `.html` file: 
 
 
-```{r, fig.cap='Save leaflet map as interactive html document'}
+```{r, fig.cap='Save leaflet map as interactive html document', echo=FALSE, fig.width=3}
 
 knitr::include_graphics('img/save_as_wp.png')
 
@@ -754,7 +754,7 @@ To illustrate on scale, let's have a look at another source of data on bars in M
 
 One interesting data set, especially for our questions about the different alcohol outlets is the [Licensed Premises data set](http://www.manchester.gov.uk/open/downloads/file/169/licensed_premises). This details all the currently active licenced premises in Manchester. There is URL a link to download these provided. 
 
-There are a few ways we can download this data set. On the manual side of things, we can simply right click on the download link from the website, save it to your computer, and read it in from there, by [specifying the file path](Remember, if you save it in your R *working directory*, then you just need to specify the file name, as the working directory folder is where R will first look for this file.). 
+There are a few ways we can download this data set. On the manual side of things, we can simply right click on the download link from the website, save it to your computer, and read it in from there, by specifying the file path. Remember, if you save it in your R *working directory*, then you just need to specify the file name, as the working directory folder is where R will first look for this file. 
 
 Another way is to read into R directly from the URL provided. Here, let's read in the licensed premises data directly from the web using the URL `"http://www.manchester.gov.uk/open/download/downloads/id/169/licensed_premises.csv"`: 
 
@@ -890,7 +890,7 @@ For this practical example we will look at the Madrid data. Earlier, we read in 
 st_crs(madrid)
 ```
 
-For this we will transform and reproject to EPSG 2062, which is one of the [appropriate projected coordinate system for Madrid](see here for details https://epsg.io/?q=Spain%20kind%3APROJCRS). How do you figure out this if you don't want to check the EPSG site? There is a convenient package `crsuggest` developed by Kyle @Walker_2021 that does this job for you. The function `suggest_crs()` from this package will attempt to list of candidate projections for your `sf` object. And we will see that top of that list is the 2062 EPSG.
+For this we will transform and reproject to EPSG 2062, which is one of the [appropriate projected coordinate system for Madrid](https://epsg.io/?q=Spain%20kind%3APROJCRS). How do you figure out this if you don't want to check the EPSG site? There is a convenient package `crsuggest` developed by Kyle @Walker_2021 that does this job for you. The function `suggest_crs()` from this package will attempt to list of candidate projections for your `sf` object. And we will see that top of that list is the 2062 EPSG.
 
 ```{r}
 suggested_crs <- suggest_crs(madrid)
@@ -989,9 +989,12 @@ Now let's create the map.
 
 full_map <- leaflet() %>% 
   addTiles() %>% 
-  addMarkers(data = comisarias_sf, icon = ~police_icon, group = "Police stations") %>% 
-  addPolygons(data = police_distances[[1]], fillColor = pal(police_distances$distance_km), 
-              fillOpacity = 0.8, weight =0, opacity = 1, color = "transparent", group = "Distances",
+  addMarkers(data = comisarias_sf, icon = ~police_icon, 
+             group = "Police stations") %>% 
+  addPolygons(data = police_distances[[1]], 
+              fillColor = pal(police_distances$distance_km), 
+              fillOpacity = 0.8, weight =0, opacity = 1, color = "transparent", 
+              group = "Distances",
               highlight = highlightOptions(weight = 2.5, color = "#666", 
                                            bringToFront = TRUE, opacity= 1), 
               popupOptions = popupOptions(autoPan = FALSE, closeOnClick = TRUE,
