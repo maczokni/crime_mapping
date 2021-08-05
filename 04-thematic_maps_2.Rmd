@@ -33,7 +33,7 @@ library(sf)
 # Packages for mapping and visualisation
 library(ggplot2)
 library(ggspatial)
-library(gridExtra)
+library(cowplot)
 library(cartogram)
 
 ```
@@ -116,7 +116,7 @@ ma_spatial <- ma_spatial %>%
 
 As a first step, we can plot asb in the borough of Manchester using simple ggplot, as demonstrated in Chapter 1. We can plot our points first:
 
-```{r, fig.height= 3. fig.cap= 'Point map of ASB in Manchester'}
+```{r, fig.height= 3, fig.cap= 'Point map of ASB in Manchester'}
 
 ggplot(ma_spatial, aes(x = longitude, y = latitude)) +
   geom_sf() + 
@@ -246,7 +246,8 @@ Now we can print them all side-by-side using `plot_grid()` function from the `co
 
 library(cowplot)
 
-plot_grid(rectangular_bin_map, hexagonal_bin_map, heatmap, nrow =1, labels = "AUTO", scale = c(1, 1, .85))
+plot_grid(rectangular_bin_map, hexagonal_bin_map, heatmap, nrow =1, 
+          labels = "AUTO", scale = c(1, 1, .85))
 
 ```
 
@@ -304,13 +305,13 @@ ggplot() +
 ```
 
 
-The Local Authorities vary greatly in their shape and size, and in the case of smaller LAs the result is barely visible. In this case, we cannot really see what was happening with the EU referendum in London, for example. This is the sort of situationwhere augmenting our polygons may be handy. Cartograms offer one way to achieve this. 
+The Local Authorities (LAs) vary greatly in their shape and size, and in the case of smaller LAs the result is barely visible. In this case, we cannot really see what was happening with the EU referendum in London, for example. This is the sort of situationwhere augmenting our polygons may be handy. Cartograms offer one way to achieve this. 
 
-There are different types of cartograms. **Density-equalizing (contiguous) cartograms** are your traditional cartograms. In density-equalizing cartograms, map features bulge out a specific variable. Even though it distorts each feature, it remains connected during its creation. On the other hand, you can have **Non-Contiguous Cartograms**, where features in non-contiguous cartograms don’t have to stay connected. Finally, **Dorling Cartograms** (named after professor Danny Dorling [@Dorling_1991]) use shapes like circles and rectangles to depict area. These types of cartograms make it easy to recognize patterns. 
+There are different types of cartograms. **Density-equalizing (contiguous) cartograms** are your traditional cartograms. In density-equalizing cartograms, map features bulge out a specific variable. Even though it distorts each feature, it remains connected during its creation. On the other hand, you can have **Non-Contiguous Cartograms**, where features in non-contiguous cartograms don’t have to stay connected. Finally, **Dorling Cartograms** (named after professor Danny Dorling [@Dorling_1991]) use shapes like circles and rectangles to depict areas. These types of cartograms make it easy to recognize patterns. 
 
-We can explore cartograms using the `cartogram` package. Within that we will use the `cartogram()` function. In this function, we will specify two parameters: 1 - `shp = `, which asks for the shape file (it can be a SpatialPolygonDataFrame or an sf object), and 2 - `weight = `, which asks for the variable which it should use to distort the polygon by. 
+We can explore cartograms using the `cartogram` package. Within that we will use the `cartogram()` function. In this function, we will specify two parameters: first the `shp = `, which asks for the shape file (it can be a SpatialPolygonDataFrame or an sf object), and second, `weight = `, which asks for the variable which it should use to distort the polygon by. 
 
-In our data set we have a variable "Electorate" which refers to the total number of registered electors in that Local Authority. It serves to give an indicator of the total number of people who were eligible to vote in the referendum. We can use this variable to distort our polygons and create our cartogram. 
+In our data set we have a variable `Electorate` which refers to the total number of registered electors in that Local Authority. It serves to give an indicator of the total number of people who were eligible to vote in the referendum. We can use this variable to distort our polygons and create our cartogram. 
 
 ```{r, eval = FALSE}
 
@@ -333,7 +334,7 @@ eu_cartogram <- cartogram_cont(eu_sf, "Electorate", itermax = 5)
 
 This will be faster (but may not result in the best possible cartogram output). Once your cartogram has been created, you can now plot again the referendum results, but using the electorate to change the size of the Local Authority: 
 
-```{r}
+```{r, fig.cap='Cartogram weightin each polygon (Local Authority) by the size of its electorate'}
 ggplot() +
   geom_sf(data = eu_cartogram, aes(fill = Pct_Leave)) + 
   theme_void()
@@ -343,7 +344,7 @@ We can now see London much better, and see that darker coloured cluster where mu
 
 ### Dorling Cartogram
 
-While the continuous area cartogram we created above tries to maintain some fidelity to our original shapes, other approaches take more freedom when applyign transformations. Sometimes, maintaining a resemblance to the original geometry of each polygon may not be important. In that case, you might be interested in creating a **Dorling cartogram**. 
+While the continuous area cartogram we created above tries to maintain some fidelity to our original shapes, other approaches take more freedom when applyign transformations. Sometimes, maintaining a resemblance to the original geometry of each polygon may not be important. In that case, you might be interested in creating a **Dorling cartogram**. We can achieve this by using the `cartogram_dorling()` function. Again we specify the sf object, and the variable which we use to scale our areas. 
 
 ```{r}
 
@@ -353,7 +354,9 @@ eu_dorling_cartogram <- cartogram_dorling(eu_sf, "Electorate")
 ```
 
 
-```{r}
+Let's plot the output:
+
+```{r, fig.cap='Dorling cartogram of LAs by electorate size'}
 ggplot() +
   geom_sf(data = eu_dorling_cartogram, aes(fill = Pct_Leave)) + 
   theme_void()
@@ -364,7 +367,7 @@ This map has transformet each Local Authority's shape into a circle, where the r
 
 ## Bivariate Maps
 
-Usually in your thematic maps you are mapping one variable. For example in the maps above, we mapped the distribution of the percepntage who voted to leave the European Union (the `Pct_Leave` variable). But occasionally, you might want to use your map to illustrate the relationship between *two* variables. In this case, you may want to create a **Bivariate Choropleth Map**. Bivariate choropleths follow the same concept as the univariate ones (which display only one variable), except they show two variables at once. This is achieved through the creative use of colour. 
+Usually in your thematic maps you are mapping one variable. In the distortion examples above, we incorporate a second variable in order to make the map more legible. However,  occasionally, you might want to use your map to illustrate the relationship between *two* variables. In this case, you may want to create a **Bivariate Choropleth Map**. Bivariate choropleths follow the same concept as the univariate ones (which display only one variable), except they show two variables at once. This is achieved through the creative use of colour. 
 
 We first came across the idea of bivariate choropleth maps from the blog of @Stevens_2015. I recommend having a read as he discusses in great detail how to develop the colour schemes necessary for these maps. The idea is that there are two main colours, each one representing gradual change in one of our two variables of interest. Then, these two colours are combined to create an overlapping colour scheme. 
 
@@ -395,7 +398,7 @@ leave_breaks <- quantile(eu_sf$Pct_Leave,
 And then the same again but for the turnout variable `Pct_Turnout`. 
 
 ```{r}
-tunrout_breaks <- quantile(eu_sf$Pct_Turnout, 
+turnout_breaks <- quantile(eu_sf$Pct_Turnout, 
                            probs = seq(0,1, by = 1/3), 
                            na.rm=TRUE, 
                            names=TRUE, 
@@ -411,7 +414,7 @@ leave_breaks
 
 ```
 
-The results are the cutoff values which we want to use to "cut" our numeric variable. We do this with the `cut()` function, where we specify again what to cut (the variables `Pct_Leave` and `Pct_Turnout`), and the breaks at which to cut (the objects we created above, `leave_breaks` and `tunrout_breaks`): 
+The results are the cutoff values which we want to use to "cut" our numeric variable. We do this with the `cut()` function, where we specify again what to cut (the variables `Pct_Leave` and `Pct_Turnout`), and the breaks at which to cut (the objects we created above, `leave_breaks` and `turnout_breaks`): 
 
 ```{r}
 
@@ -419,7 +422,7 @@ eu_sf <- eu_sf %>%
   mutate(leave_quantiles = cut(Pct_Leave, 
                                breaks = leave_breaks), 
          turnout_quantiles = cut(Pct_Turnout, 
-                                 breaks = tunrout_breaks))
+                                 breaks = turnout_breaks))
 
 ```
 
@@ -427,7 +430,7 @@ We have two resulting variables, `leave_quantiles` and `turnout_quantiles` which
 
 ### Step 2: New variable
 
-This step is really quite easy. What we want to do is create a new variable, this time let's call it `group`, which tells us which quartile the specific Local Authority (each row) falls into. By applying the `as.numeric()` function we translate the ranges of the quartile into their label (i.e. 1, 2, or 3rd quartile). We do this for both variables, and paste them together using the `paste()` function, and the separator "-": 
+In this step we create a new variable. This time let's call it `group`, which tells us which quartile the specific Local Authority (each row) falls into. By applying the `as.numeric()` function we translate the ranges of the quartile into their label (i.e. 1, 2, or 3rd quartile). We do this for both variables, and paste them together using the `paste()` function, and the separator "-": 
 
 
 ```{r}
@@ -479,7 +482,7 @@ bivariate_color_scale_2 <- tibble(
 
 ```
 
-You can have a look at both these, and see which one you like. Feel free to use either in your future bivariate mapping adventures. Or construct your own, perhaps following the two additional ones provided by @Stevens_2015, or some entirely news ones you may have constructued. 
+You can have a look at both of these, and see which one you like. Feel free to use either in your future bivariate mapping adventures. Or construct your own, perhaps following the two additional ones provided by @Stevens_2015, or some entirely new ones you may have constructed. 
 
 ### Step 4: Join colour scheme
 
@@ -502,8 +505,7 @@ The legend is a little tricky, as we need to separate out the values into separa
 
 # separate the groups
 bivariate_color_scale <- bivariate_color_scale_2 %>%
-  separate(group, 
-           into = c("Pct_Turnout", "Pct_Leave"), sep = " - ")
+  separate(group,  into = c("Pct_Turnout", "Pct_Leave"), sep = " - ")
 
 ```
 
@@ -525,7 +527,7 @@ legend <- ggplot() +
 
 This code returns the legend as a chart itself. Have a look what it looks like: 
 
-```{r, fig.height=1}
+```{r, fig.height=1, fig.cap='Legend for bivariate map'}
 
 legend
 
@@ -546,7 +548,7 @@ map <- ggplot(eu_sf) +
 
 Finally, to display the legend and the map together, we can use the `ggdraw()` and `draw_plot()` functions from the  `cowplot` package. 
 
-```{r}
+```{r, fig.cap='Bivariate choropleth map of voter turnout and % who voted to leave the EU'}
 library(cowplot)
 ggdraw() +
   draw_plot(map, 0, 0, 1, 1) +
