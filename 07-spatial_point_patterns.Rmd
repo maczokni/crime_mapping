@@ -6,7 +6,7 @@ A key piece of information we explore in environmental criminology is the "exact
 
 In Chapter 1, we generated some maps with point locations representing crimes in Greater Manchester (UK) and we saw how the large volume of events made it difficult to discern any spatial pattern. In previous chapters we saw how we could deal with this via aggregation of the point data to enumeration areas such census tracts or by virtue of binning. In this chapter we will introduce techniques that are used as an alternative visualisations for point patterns and that are based on the mathematics of density estimation. They are used to produce isarithmic maps, these are the kind of maps you often see in the weather reports displaying temperature. What we are doing is creating an interpolated surface from discrete data points. Or in simpler terms we are "effectively inventing data values for the areas on the map for which you don't have data or sample points" [@Field_2015].
 
-Before we get to the detail of how we produce these maps we will briefly and very generally introduce the field of spatial point pattern analysis. The analysis of discrete locations are a subfield of spatial statistics. In this chapter we will indeed introduce an R package called `spatstat`, that was developed for spatial point pattern analysis and modelling. It was written by Adrian Baddeley and Rolf Turner. There is a [webpage](http://spatstat.org) dedicated to this package.  In our book we are only going to provide you with an introductory practical entry into this field of techniques. If this package is not installed in your machine, make sure you install it before we carry on. In this chapter we will also be using the package `crimedata` developed by our colleague Matt Ashby, which we introduced in the previous Chapter [@Ashby_2018]. 
+Before we get to the detail of how we produce these maps we will briefly and very generally introduce the field of spatial point pattern analysis. The analysis of discrete locations are a subfield of spatial statistics. In this chapter we will introduce an R package called `spatstat`, that was developed for spatial point pattern analysis and modelling. It was written by Adrian Baddeley and Rolf Turner. There is a [webpage](http://spatstat.org) and a book [@Baddeley_2016] dedicated to this package.  In our book we are only going to provide you with an introductory practical entry into this field of techniques. If this package is not installed in your machine, make sure you install it before we carry on. In this chapter we will also be using the package `crimedata` developed by our colleague Matt Ashby, which we introduced in the previous Chapter [@Ashby_2018]. 
 
 ```{r load_libraries_6, warnings=FALSE, message=FALSE}
 
@@ -34,7 +34,7 @@ library(crimedata)
 
 ## Burglaries in NYC
 
-Like in Chapter 6, our data come from the **Crime Open Database (CODE)**, a service that makes it convenient to use crime data from multiple US cities in research on crime. All the data in CODE are available to use for free as long as you acknowledge the source of the data. The package `crimedata` was developed by Dr. Ashby to make it easier to read into R the data from this service.
+Like in Chapter 6, our data come from the **Crime Open Database (CODE)**, a service that makes it convenient to use crime data from multiple US cities in research on crime. All the data in CODE are available to use for free as long as you acknowledge the source of the data. The package `crimedata` was developed by Dr. Ashby to make it easier to read into R the data from this service. In the last chapter we provided the data in a csv format, but here we will actually make use of the package to show you how you might acquire such data yourself. 
 
 The key function in `crimedata`  is `get_crime_data()`. We will be using the crime data from New York City police and for 2010, and we want the data to be in `sf` format. We will also filter the data to only include residential burglaries in Brooklyn. 
 
@@ -59,7 +59,7 @@ manhattan <- st_read("data/manhattan.geojson") %>%
 
 Now we have all our data, let's plot to see how they look. 
 
-```{r plot_data_6}
+```{r plot_data_6, fig.cap='Plot Manhattan borough and crime locations as points'}
 
 ggplot() + 
   geom_sf(data = manhattan) + # boundary data
