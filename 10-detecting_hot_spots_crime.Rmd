@@ -405,7 +405,7 @@ We are now going to create a new variable to identify the quadrant in which each
 Essentially all we'll be doing, is assigning a variable values based on where in the plot it is. So for example, if it's in the upper right, it is high-high, and has values larger than 0 for both the burglary and the spatial lag values.  It it's in the upper left, it's low-high, and has a value larger than 0 for the spatial lag value, but lower than 0 on the burglary value. And so on, and so on. Here's an image to illustrate:
 
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE}
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.height=4, fig.cap='Quadrants of a Moran scatterplot'}
 library(ggplot2)
 
 ggplot() + 
@@ -633,9 +633,8 @@ Although a good deal of the near repeat victimisation literature focuses on burg
 nyc_burg <- get_crime_data(
   cities = "New York", #specifies the city for which you want the data
   years = 2010,        #reads the appropriate year of data
-  type = "extended",   #you can select core fields, extended (a fuller set of                          fields), or sample
-  output = "sf"        #Specified whether you want a sf objet with WGS84 or a                          tibble
-) %>%
+  type = "extended",   #select extended (a fuller set of fields)
+  output = "sf") %>%        #Specify you want a sf object with WGS84 
   dplyr::filter(offense_type == "residential burglary/breaking & entering" &
            nyc_boro_nm == "MANHATTAN")
 manhattan <- st_read("data/manhattan.geojson", quiet=TRUE) %>%
@@ -667,7 +666,7 @@ nyc_burg_df <- rename(nyc_burg_df, x = V1, y = V2)
 
 We can then try the test. We look at three temporal intervals of seven days each (defined by `tds`) and four spatial bands (defined by `sds`), expressed in meters here. By default this functions relis on the Manhattan distances, but we can also set them to Euclidean if we prefer (`method = "euclidean"`). The p values are computed using a Monte Carlo simulation approach, so `nrep` sets the number of simulations we desire. The generic `plot()` function to the generated object will then generate a heat map with the results of the Knox test.
 
-```{r}
+```{r, fig.height=3, fig.cap='Results of the Knox test'}
 
 set.seed(123)
 results_knox <- NearRepeat(x = nyc_burg_df$x, 
