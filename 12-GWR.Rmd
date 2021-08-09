@@ -60,10 +60,13 @@ summary(fit1_70)
 
 A simple visualisation of the residuals suggest the model may not be optimal for the entire study region:
 
-```{r}
+```{r, fig.cap='Distribution of residuals by study region (South v North)'}
 ncovr$res_fit1 <- fit1_70$residuals
 ggplot(ncovr, aes(x = res_fit1, colour = as.factor(SOUTH))) + 
-  geom_density() 
+  geom_density() + 
+  xlab("Residuals") + 
+  scale_color_brewer(palette = "Set1", name = "Region (1 = South)") + 
+  theme_bw()
 ```
 
 To be able to fit these spatial regimes, that will allow for separate coefficients for counties in the North and those in the South, first we need to define a dummy for the Northern counties, and we create a vector of 1.
@@ -188,7 +191,7 @@ summary(model)
 
 And now, to get an idea of how our model might perform differently in different area, we can map the residuals across each county: 
 
-```{r, warning=FALSE, message=FALSE}
+```{r, warning=FALSE, message=FALSE, fig.cap='Map of model residuals'}
 
 # map residuals
 ncovr$resids <- residuals(model)
@@ -281,7 +284,7 @@ gwr_results <- cbind(ncovr, gwr_results)
 
 Now we can begin to map our results. First, let's see how well the model performs across the different counties of the United States. To do this, we can map the `localR2` value which contains the local $R^2$ value for each observation. 
 
-```{r}
+```{r, fig.cap='Map of local R-square value for each county'}
 
 qtm(gwr_results, fill =  "localR2" )
 
@@ -294,7 +297,7 @@ We can also map the coefficients for specific variables. Let's say we're interes
 >**NOTE:** In our `gwr_results` data frame we have a varaible called `RD70`, this contains the observed resource deprivation value for the county. We then have `RD70.1` this is the coefficient value for each county. In the results contained in the SDF element of our model (`gwr_model$SDF`) it was named `RD70` but when we joined the two object, the `.1` was appended to allow us to differentiate between the two. 
 
 
-```{r, message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE, fig.cap='Map of coefficient for resource deprivation value for each county'}
 
 qtm(gwr_results, fill =  "RD70.1" )
 
@@ -304,7 +307,7 @@ We can see in this map again some regional patterns in the coefficient of Resour
 
 This may be interesting and raise questions, however, it is important to consider not only the coefficients, but also the *standard errors* associated with them, so we can get some ideas behind the reliability of these estimates. So let us have a look by mapping the standard errors for these coefficients, which are contained in the `RD70_se` variable. 
 
-```{r, message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE, fig.cap='Map of standard error for resource deprivation value for each county'}
 
 qtm(gwr_results, fill =  "RD70_se" )
 

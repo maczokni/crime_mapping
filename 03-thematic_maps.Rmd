@@ -13,7 +13,7 @@ In this chapter we will get to know how to think about thematic maps, and how to
 
 Thematic maps focus on representing the spatial pattern of a variable of interest (e.g, crimes, trust in the police, etc.) and they can be used for exploration and analysis or for presentation and communication to others. There are different types of thematic maps depending on how the variable of interest is represented. In this and the next chapters we will introduce some of these types of particular interest for crime analysis, the different challenges they pose, and some ideas that may help you to choose the best representation for your data. Critically, we need to think about the quality of the data we work with, for adequate measurement is the basis of any data analysis.
 
-In this chapter, we introduce in particular two types of thematic maps used for mapping quantitative variables: **choropleth maps** and **proportional symbol maps**. In previous chapters we introduced two separate packages for creating maps in R (`ggpplot2` and `leaflet`). In this chapter we will introduce a third package for creating maps: `tmap`. The libraries we use in this chapter are as follow:
+In this chapter, we introduce in particular two types of thematic maps used for mapping quantitative variables: **choropleth maps** and **proportional symbol maps**. In previous chapters we introduced two separate packages for creating maps in R (`ggplot2` and `leaflet`). In this chapter we will introduce a third package for creating maps: `tmap`. The libraries we use in this chapter are as follow:
 
 
 ```{r load_libraries_3, warnings=FALSE, message=FALSE}
@@ -100,7 +100,7 @@ A similar type of map use graduated symbol maps. As with choropleth classing, th
 
 ## Creating proportional symbol maps
 
-Today we are going to introduce the `tmap` package. This package was developed to easily produce thematic maps. It is inspired by the `ggplot2` package and the layered grammar of graphics. It was written by Martjin Tennekes, a Dutch data scientist. It is fairly user friendly and intuitive. To read more about tmap see @Tennekes_2018. 
+In this chapter we are going to introduce the `tmap` package. This package was developed to easily produce thematic maps. It is inspired by the `ggplot2` package and the layered grammar of graphics. It was written by Martjin Tennekes, a Dutch data scientist. It is fairly user friendly and intuitive. To read more about tmap see @Tennekes_2018. 
 
 In `tmap` each map can be plotted as a static map (*plot mode*) or shown interactively (*view mode*). We will start by focusing on static maps.
 
@@ -157,7 +157,7 @@ There are several arguments that you can pass within the `tm_bubble()` function 
 
 By default, the symbol area sizes are scaled proportionally to the data variable you are using. As noted above this is done by taking the square root of the normalized data variable. This is called mathematical scaling. However, "it is well known that the perceived area of proportional symbols dose not match their mathematical area; rather, we are inclined to underestimate the area of larger symbols. As a solution to this problem, it is reasonable to modify the area of larger circles in order to match it with the perceived area." [@Tanimura_2006] The `perceptual = TRUE` option allows you to use a method that aims to compensate for how the default approach may underestimate the area of the larger symbols. Notice the difference between the map we produced and this new one.
 
-```{r, fig.cap='Bubble map with perceptual parameter set to TRUE', fig.height=4}
+```{r, fig.cap='Bubble map with perceptual parameter set to TRUE', fig.height=4, warning=FALSE, message=FALSE}
 tm_shape(manchester) +  
   tm_bubbles("count", border.lwd=NA, perceptual = TRUE) + # add perceptual = TRUE
   tm_borders(alpha=0.1) +                           
@@ -545,10 +545,14 @@ This is a problem that was first noted by epidemiologists doing disease mapping.
 
 One way of dealing with this is by **smoothing** or **shrinking** the rates. This basically as the word implies aims for a smoother representation that avoids hard spikes associated with random noise. There are different ways of doing that. Some ways use a non-spatial approach to smoothing, using something called a **empirical bayesian smoother**. How does this work? This approach takes the raw rates and tries to “shrunk” them towards the overall average. What does this mean? Essentially, we compute a weighted average between the raw rate for each area and the global average across all areas, with weights proportional to the underlying population at risk. What this procedure does is to have the rates of smaller areas (those with a small population at risk) to have their rates adjusted considerably (brought closer to the global average), whereas the rates for the larger areas will barely change.
 
-Here we are going to introduce the approach implemented in `DCluster`, a package developed for epidemiological research and detection of clusters of disease. Specifically we can implement the `empbaysmooth()` function which creates a Smooth relative risks from a set of expected and observed number of cases using a Poisson-Gamma model as proposed by @Clayton_1987. 
+Here we are going to introduce the approach implemented in `DCluster`, a package developed for epidemiological research and detection of clusters of disease. Specifically we can implement the `empbaysmooth()` function which creates a smooth relative risks from a set of expected and observed number of cases using a Poisson-Gamma model as proposed by @Clayton_1987.  The function  `empbaysmooth()` expects two parameters, the **expected** value (the global average) and the **observed** value (the rate we actually see).  In our case, these parameters should be: the observed is the homicide rate we see (`ncovr$HR60`), and the expected is the global homicide rate for the entire USA (`sum(ncovr$HC60)/sum(ncovr$PO60)`) times the population of the county (`ncovr$PO60`): 
+
+
 
 ```{r}
-res <- empbaysmooth(ncovr$HC60, ncovr$PO60)
+
+res <- empbaysmooth(ncovr$HR60, ncovr$PO60*(sum(ncovr$HC60)/sum(ncovr$PO60)))
+
 ```
 
 In the new object we generate, which is a list, you have an element which contains the computed rates. We can add those to our dataset:

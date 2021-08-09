@@ -4,34 +4,35 @@
 
 ### Clusters, hot spots of crime, and near repeat victimisation
 
-There has been a great interest within criminology and crime analysis in the study of local clusters of crime or hot spots over the last 30 years. Hot spots is the term typically used within criminology and crime analysis to refer to small geographical areas with a high concentration of crime. @Weisburd_2015 argues for a *law of concentration* of crime that postulates that a large proportion of crime events occur at relatively few places (such as specific addresses, street intersections, street blocks, or other small micro places) within larger geographical areas such as cities. In one of the earlier contributions to this field of research, @Sherman_1989 noted how roughly 3% of all addresses in Minneapolis (USA) generated about 50% of all calls to police services. A number of subsequent studies have confirmed this pattern elsewhere. @Steenbeek_2016 argue that, in fact, most of the geographical variability of crime (58% to 69% in their data from The Hague) can be attributed to micro geographic units, with a very limited contribution from the neighbourhood level (see, however, @Ramos_2021). This literature also argues that many crime hot spots are relatively stable over time [@Andresen_2011b; @Andresen_2017; @Andresen_2017b].
+There has been a great interest within criminology and crime analysis in the study of local clusters of crime or hot spots over the last 30 years. Hot spots is the term typically used within criminology and crime analysis to refer to small geographical areas with a high concentration of crime. @Weisburd_2015 argues for a *law of concentration* of crime that postulates that a large proportion of crime events occur at relatively few places (such as specific addresses, street intersections, street blocks, or other small micro places) within larger geographical areas such as cities. In one of the earlier contributions to this field of research, @Sherman_1989 noted how roughly 3% of all addresses in Minneapolis (USA) generated about 50% of all calls to police services. A number of subsequent studies have confirmed this pattern elsewhere. @Steenbeek_2016 argue that, in fact, most of the geographical variability of crime (58% to 69% in their data from the Hague) can be attributed to micro geographic units, with a very limited contribution from the neighbourhood level (see, however, @Ramos_2021). This literature also argues that many crime hot spots are relatively stable over time [@Andresen_2011b; @Andresen_2017; @Andresen_2017b].
 
 There is also now a considerable body of research evaluating police interventions that take this insight as key for articulating responses to crime. **Hot spots policing**, or place based policing, assumes that police can reduce crime by focusing their resources on the small number of places that generate a majority of crime problems [@Braga_2010]. Policing crime hot spots has become a popular strategy in the US and efforts to adopt this approach have also taken place elsewhere. Theoretically one could use all sort of proactive creative approaches to solve crime in these locations (using for example conceptual and tactical tools from @Goldstein_1990 problem oriented policing approach), though too often in practice directed patrol becomes the default response. Recent reviews of the literature (dominated by the US experience) suggest the approach can have a small effect size [@Braga_2019], though some authors contend alternative measures of effect size (which are suggestive of a moderate effect) should be used instead [@Braga_2020]. Whether these findings would replicate well in other contexts is still an open question (see, for example, @Collazos_2020)
 
-Thus, figuring out the location of hot spots and how to detect clusters of crime is of great significance for crime analysis. In previous chapters we explored ways to visualise the concentration of crime incidents in particular location as a way to explore places with an elevated intensity of crime. We used tesselation and kernel density estimation as a way to do this. But, as noted by @Chainey_2014:
+Thus, figuring out the location of hot spots and how to detect clusters of crime is of great significance for crime analysis. In previous chapters we explored ways to visualise the concentration of crime incidents in particular locations as a way to explore places with an elevated intensity of crime. We used tesselation and kernel density estimation as a way to do this. But, as noted by @Chainey_2014:
 
 > "Maps generated using KDE and the other common hotspot mapping methods are useful for showing where crime concentrates but may fail to unambiguously determine what is hot (in hotspot analysis terms) from what is not hot.  That is, they may fail in separating the  significant  spatial  concentrations  of  crime  from  those  spatial  distributions  of  less interest or from random variation."
 
-Apparent clusters may indeed appear by chance alone [@Marshall_1991]. There are a number of tools that have been developed to detect local clusters among random variation. It is not exaggerated to say that this has been a key concern in the field of spatial statistics with practical applications in many fields of study. In crime analysis, for example, it is common the use of the local $Gi^*$ statistic, which is a type of a **local indicator of spatial autocorrelation**. Another popular LISA is the local Moran´s $I$, developed by @Anselin_1995. 
+Apparent clusters may indeed appear by chance alone [@Marshall_1991]. There are a number of tools that have been developed to detect local clusters among random variation. It is not exaggerated to say that this has been a key concern in the field of spatial statistics with practical applications in many fields of study. In crime analysis, for example, it is common to use the local $Gi^*$ statistic, which is a type of a **local indicator of spatial autocorrelation**. Another popular LISA is the local Moran's $I$, developed by @Anselin_1995. 
 
-These LISA statistics serve two purposes. On one hand, they may be interpreted as indicators of local pockets of nonstationarity, to identify outliers. On the other hand, they may be used to assess the influence of individual locations on the magnitude of the global statistic [@Anselin_1995]. @Anselin_1995 suggests that any LISA satisfies two requirements (p. 94:
-"-a) the LISA for each observation gives an indication of the extent of significant spatial clustering of similar values around that observation;
-- b) the sum of LISAs for all observations is proportional to a global indicator of spatial association".
+These LISA statistics serve two purposes. On one hand, they may be interpreted as indicators of local pockets of nonstationarity, to identify outliers. On the other hand, they may be used to assess the influence of individual locations on the magnitude of the global statistic [@Anselin_1995]. @Anselin_1995 suggests that any LISA satisfies two requirements (p. 94):
+
+- **a)** the LISA for each observation gives an indication of the extent of significant spatial clustering of similar values around that observation;
+- **b)** the sum of LISAs for all observations is proportional to a global indicator of spatial association".
 
 These measures of local spatial dependence are available in tools often used by crime analysts (CrimeStat, GeoDa, ArcGIS, and also R). But it is important to realise that there are some subtle differences in implementation that reflect design decisions by the programmers. These differences in design may result on apparent differences in numerical findings generated with these different programs. The defaults used by different software may give the impression different results are achieved. @Bivand_2018 offers an excellent thorough review of these different implementations (and steps needed for ensuring comparability). Our focus here will be in introducing the functionality of the `spdep` packages.
 
-Aside from these LISAS, in spatial epidemiology a number of techniques have been developed for detecting areas with an unusually high risk of disease [@Marshall_1991b. Although originally developed in the context of clusters of disease ("a set of neighbouring areas where far more cases than expected appear during a concrete period of time" @Gomez_2005: p. 190), these techniques can also be applied to the study of crime. Most of the methods in spatial epidemiology are based on the idea of "moving windows", such as the spatial scan statistic developed by @Kulldorff_1997. Several packages bring this scan statistics to R. There are also other packages that use different algorithms to detect disease clusters, such as AMOEBA, that is based in the Getis-Ord algorithm. As we will see we are spoiled for choice in this regard. Here we will only provide a glimpse into how to perform a few of these tests with R.
+Aside from these LISAs, in spatial epidemiology a number of techniques have been developed for detecting areas with an unusually high risk of disease [@Marshall_1991b]. Although originally developed in the context of clusters of disease ("a set of neighbouring areas where far more cases than expected appear during a concrete period of time" [@Gomez_2005: p. 190], these techniques can also be applied to the study of crime. Most of the methods in spatial epidemiology are based on the idea of "moving windows", such as the spatial scan statistic developed by @Kulldorff_1997. Several packages bring these scan statistics to R. There are also other packages that use different algorithms to detect disease clusters, such as AMOEBA, that is based in the Getis-Ord algorithm. As we will see we are spoiled for choice in this regard. Here we will only provide a glimpse into how to perform a few of these tests with R.
 
-In crime analysis is also relevant the study of **repeat victimisation**. This refers to the observed pattern of repeated criminal victimisation against the same person or target. The idea that victimisation presages further victimisation was first observed in studies of burglary, where the single best predictor of new victimisation was past victimisation. This opened up an avenue of research led by British scholars Ken Pease and Graham Farrell, that also noticed that the risk of revictimisation is much higher in the days immediate to the first offence and that repeat victimisation accounts for a non trivial proportion of crime [@Pease_1998]. There continues to be some debate as to whether this is to do with underlying stable vulnerabilities (the *flag* hypothesis) or to increased risk resulting form the first victimisation (the *boost* hypothesis), although likely both play a role. Subsequent research has extended the foci of application well beyond the study of burglary and the UK (for a review see @Pease_2017 and @Pease_2018). From the very beginning this literature emphasised the importance for crime prevention policy, for this helps to identify potential targets for it. The advocates of this concept argue that using insights from repeat victimisation is a successful approach to crime reduction [@Grove_2014; @Farrell_2017].
+In crime analysis the study of **repeat victimisation** is also relevant. This refers to the observed pattern of repeated criminal victimisation against the same person or target. The idea that victimisation presages further victimisation was first observed in studies of burglary, where the single best predictor of new victimisation was past victimisation. This opened up an avenue of research led by British scholars Ken Pease and Graham Farrell, that also noticed that the risk of revictimisation is much higher in the days immediate to the first offence and that repeat victimisation accounts for a non trivial proportion of crime [@Pease_1998]. There continues to be some debate as to whether this is to do with underlying stable vulnerabilities (the *flag* hypothesis) or to increased risk resulting form the first victimisation (the *boost* hypothesis), although likely both play a role. Subsequent research has extended the foci of application well beyond the study of burglary and the UK (for a review see @Pease_2017 and @Pease_2018). From the very beginning this literature emphasised the importance for crime prevention policy, for this helps to identify potential targets for it. The advocates of this concept argue that using insights from repeat victimisation is a successful approach to crime reduction [@Grove_2014; @Farrell_2017].
 
-A related phenomenon is that of **near repeat victimisation**. @Townsley_2003, building in the epidemiological notion of contagion, proposed and tested the idea that "proximity to a burgled dwelling increases burglary risk for those areas that have a high degree of housing homogeneity and that this risk is similar in nature to the temporarily heightened risk of becoming a repeat victim after an initial victimisation" (p. 615). Or as, in a subsequent paper, @Bowers_2004 put it "following a burglary at one home the risk of burglary at nearby homes is amplified" (p. 12). So if we combine the ideas of repeat victimisation and near repeats we would observe: (1) a heightened but short lived risk of victimisation for the original victim following a first attack and (2) a heightened but also short lived risk for those "targets" located nearby. Although most studies on near repeats have focused on studying burglary there are some that have also successfully applied this concept to other forms of criminal victimisation. In 2006 and with funds from the US National Institute of Justice, Jerry Ratcliffe developed a free point and click interface to perform near repeat analysis [@Ratcliffe_2020]. This software can be accessed from his personal home page. But out focus in this chapter will be in a package (`NearRepeat`) developed by Wouter Steenbeek in 2019 to bring this functionality into R @Steenbeek_2021. At the time of writing, this package is not yet available from CRAN but needs to be installed from its GitHub repo;
+A related phenomenon is that of **near repeat victimisation**. @Townsley_2003, building in the epidemiological notion of contagion, proposed and tested the idea that "proximity to a burgled dwelling increases burglary risk for those areas that have a high degree of housing homogeneity and that this risk is similar in nature to the temporarily heightened risk of becoming a repeat victim after an initial victimisation" (p. 615). Or as, in a subsequent paper, @Bowers_2004 put it "following a burglary at one home the risk of burglary at nearby homes is amplified" (p. 12). So if we combine the ideas of repeat victimisation and near repeats we would observe: (1) a heightened but short lived risk of victimisation for the original victim following a first attack and (2) a heightened but also short lived risk for those "targets" located nearby. Although most studies on near repeats have focused on studying burglary there are some that have also successfully applied this concept to other forms of criminal victimisation. In 2006 and with funds from the US National Institute of Justice, Jerry Ratcliffe developed a free point and click interface to perform near repeat analysis [@Ratcliffe_2020]. This software can be accessed from his personal home page. But out focus in this chapter will be in a package (`NearRepeat`) developed by Wouter Steenbeek in 2019 to bring this functionality into R @Steenbeek_2021. At the time of writing, this package is not yet available from CRAN but needs to be installed from its GitHub repository. This can be done by using the `install_github()` function from the `remotes` package, with the code below;
 
 ```{r, eval=FALSE}
 remotes::install_github("wsteenbeek/NearRepeat")
 ```
 
 
-Additionally, for this section we will need the following packages:
+Additionally, for this chapter we will need the following packages:
 
 ```{r, message=FALSE, warning=FALSE}
 
@@ -57,7 +58,7 @@ library(crimedata)
 
 ### Burglaries in Manchester
 
-We return to burglaries in Manchester for most of this chapter. The files we are loading include the geomasked locations of burglary occurrences in 2017, for the whole of Manchester city and separately for its city centre. Later in this chapter we will look at the whole of Manchester and we will use counts of burglary per Lower Super Output Area (LSOA), so we will also load this aggregated data now.
+We return to burglaries in Manchester for most of this chapter. The files we are loading include the geomasked locations of burglary occurrences in 2017, for the whole of Manchester city and separately for its city centre. Later in this chapter we will look at the whole of Manchester and we will use counts of burglary per Lower Super Output Area (LSOA), so we will also load this aggregated data now. 
 
 ```{r, message=FALSE, warning=FALSE}
 
@@ -89,13 +90,13 @@ burglary_lsoa <- st_transform(burglary_lsoa, 27700)
 Now that we have all the data we need in our environment, let's get started. 
 
 
-## Using ´raster` micro grid cells to spot hot spots
+## Using `raster` micro grid cells to spot hot spots
 
-Analysis which produces "hot spots" generally focuses on understanding small places or micro geographical units where crime (or other topic of interest) may concentrate. There are different ways in which one could define this "micro unit". A number of studies, recognising the nature of police data, look at this from the perspective of street segments. Another way of approaching the problem would be to define-micro grid cells. @Chainey_2021 argues that if street segments are available this should be the preferred level of analysis "because they act as a behavioral setting along which social activities are organized" (p. 42). Yet, as we will see through this chapter, most of the more traditional techniques that have been developed for detecting local clusters, and that are available in standard software for hot spot detection, were designed for points and polygons rather than lines. The focus on this chapter is in these more traditional techniques and therefore we will use micro grid cells as the vector object to work with through this chapter.
+Analysis which produces "hot spots" generally focuses on understanding small places or micro geographical units where crime (or other topic of interest) may concentrate. There are different ways in which one could define this "micro unit". A number of studies, recognising the nature of police data, look at this from the perspective of street segments. Another way of approaching the problem would be to define-micro grid cells. @Chainey_2021 argues that if street segments are available this should be the preferred level of analysis "because they act as a behavioral setting along which social activities are organized" (p. 42). Yet, as we will see throughout this chapter, most of the more traditional techniques that have been developed for detecting local clusters, and that are available in standard software for hot spot detection, were designed for points and polygons rather than lines. The focus on this chapter is in these more traditional techniques and therefore we will use micro grid cells as the vector object to work with throughout this chapter.
 
 In Chapter 4 we discussed alternatives to choropleth maps, and one of these was to use a grid map. This is a process whereby a tessellating grid of a shape such as squares or hexagons is overlaid on top of our area of interest, and our points are aggregated to such a grid. We explored this using `ggplot2` package. We also used this approach when discussing quadrat counting with `ppp` objects and using the functionality provided by the `spatstat` package in Chapter 7.
 
-Here we can revisit this with another approach, using the `raster` package. First we need to create the grid by using the `raster()` function. The first argument defines the extent for the grid. By using our "manchester" `sf` object we ensure it includes all of our study area. Then the `resolution` argument defines how large we want the cells in this grid to be. You can play around with this argument and see how the results will vary. 
+Here we can revisit this with another approach, using the `raster` package. First we need to create the grid by using the `raster()` function. The first argument defines the extent for the grid. By using our `manchester` `sf` object we ensure it includes all of our study area. Then the `resolution` argument defines how large we want the cells in this grid to be. You can play around with this argument and see how the results will vary. 
 
 ```{r}
 # Create empty raster grid
@@ -103,7 +104,7 @@ manchester_r <- raster(manchester, resolution = 0.004)
 ```
 
 
-We can then use the `rasterize()` function to count the number of points that fall within each cell. This is just a form of quadrat counting as the one we introduced in Chapter 7. The `rasterize()` function takes as the first argument the coordinates of the points. The second argument provides the grid we just created (`manchester_r`). The `field` argument in this case is assigned a value of `1`  so that each point is counted a unit. Then we use the `fun` argument to specify what we want to do with the points. In this case, we want to `"count"` the points within each cell. The `rasterize()` function by default will set at NA all the values where there are no points. We don´t want this to be the case, as no points is meaningful in our case (means 0 crimes in that grid). So that the raster include those cells as zero we use the `background` argument and set it to zero: 
+We can then use the `rasterize()` function to count the number of points that fall within each cell. This is just a form of quadrat counting as the one we introduced in Chapter 7. The `rasterize()` function takes as the first argument the coordinates of the points. The second argument provides the grid we just created (`manchester_r`). The `field =` argument in this case is assigned a value of `1`  so that each point is counted a unit. Then we use the `fun = ` argument to specify what we want to do with the points. In this case, we want to `"count"` the points within each cell. The `rasterize()` function by default will set at `NA` all the values where there are no points. We don't want this to be the case, as no points is meaningful in our case (means 0 crimes in that grid). So that the raster include those cells as zero we use the `background =` argument and set it to zero: 
 
 ```{r}
 
@@ -119,7 +120,7 @@ m_burglary_raster <- rasterize(manc_burglary,
 
 We can now plot our results: 
 
-```{r}
+```{r, fig.cap='Raster map of burglary across Manchester'}
 # Use base R functionality to plot the raster
 plot(m_burglary_raster)
 plot(st_geometry(manchester), border='#00000040', add=T)
@@ -132,7 +133,7 @@ When we read in our files at the start of the chapter, we created the `city_cent
 
 Let's repeat the steps of creating a raster, and then the grid which we demonstrated above for all Manchester Local Authority, but now for the City Centre only. 
 
-```{r, warning = FALSE, message = FALSE}
+```{r, warning = FALSE, message = FALSE, fig.cap='Raster map of burglary in City Centre only'}
 # Create empty grid for the City Centre
 city_centre_r <- raster(city_centre, resolution = 0.0009)
 # Produce raster object with the number of incidents within each cell
@@ -146,7 +147,7 @@ plot(burglary_raster_cc)
 plot(st_geometry(city_centre), border='#00000040', add=T)
 ```
 
-You can see in the above map where hotspots might occur. However you also see that we have created cells of 0 burglaries outside of the boundary of our City Centre ward. This is not quite true, as we didn't include burglaries which occurred outside of here. Therefore, we should not have in this raster object incidents outside the boundaries of the neighborhoud. Instead, we want to declare those cells as NAs. We can do that with the `raster::mask()` function.
+You can see in the above map where hotspots might occur. However you also see that we have created cells of 0 burglaries outside of the boundary of our City Centre ward. This is not quite true, as we didn't include burglaries which occurred outside of here. Therefore, we should not have in this raster object incidents outside the boundaries of the neighborhoud. Instead, we want to declare those cells as `NA`s. We can do that with the `mask()` function in the `raster` package.
 
 ```{r}
 burglary_raster_cc <- mask(burglary_raster_cc, city_centre)
@@ -158,7 +159,7 @@ Now you can see we indicate more clearly where we have cells which contain no bu
 
 To better understand what might be going on in out grids with higher burglary count, let's add some context. We will use `mapview` for this. This is another great package if you want to give your audience some interactivity. It does what is says in the tin: 
 
->it "provides functions to very quickly and conveniently create interactive visualisations of spatial data. Its main goal is to fill the gap of quick (not presentation grade) interactive plotting to examine and visually investigate both aspects of spatial data, the geometries and their attributes. It can also be considered a data-driven API for the leaflet package as it will automatically render correct map types, depending on the type of the data (points, lines, polygons, raster)." 
+>it "provides functions to very quickly and conveniently create interactive visualisations of spatial data. Its main goal is to fill the gap of quick (not presentation grade) interactive plotting to examine and visually investigate both aspects of spatial data, the geometries and their attributes. It can also be considered a data-driven API for the leaflet package as it will automatically render correct map types, depending on the type of the data (points, lines, polygons, raster)" [@Appelhans_2021].  
 
 With very few lines of code you can get an interactive plot. Here we first will use `brewer.pal()` from the `RColorBrewer` package to define a convenient palette (see CHapter 5 for details on this) and then use the `mapview()` function from the `mapview` package to plot our raster layes we created above. Below you see how we increase the transparency with the `alpha.region` argument and how we use `col.regions` to change from the default palette to the one we created.
 
@@ -182,7 +183,8 @@ Whereas the tests we covered in the previous chapter measure dependence at the g
 
 There are two variants of the local Getis-Ord statistic. The local $G$ is computed as a ratio of the weighted average of the values of the attribute of interest in the neighboring locations, not including the value at the location. It is generally used for spread and diffusion studies. The local $G^*$,on the other hand, includes the value at the location in both numerator and denominator. It is more generally used for clustering studies (for formula details see @Getis_1992 and @Ord_1995). High positive values indicate the possibility of a local cluster of high values of the variable being analysed ("hot spot"), very low relative values a similar cluster of low values ("cold spot"). 
 
->"A value larger than the mean (or, a positive value for a standardized z-value) suggests a High-High cluster or hot spot, a value smaller than the mean (or, negative for a z-value) indicates a Low-Low cluster or cold spot." (@Anselin_2020a) 
+>"A value larger than the mean (or, a positive value for a standardized z-value) suggests a High-High cluster or hot spot, a value smaller than the mean (or, negative for a z-value) indicates a Low-Low cluster or cold spot" [@Anselin_2020a].
+
 
 For statistical inference, a Bonferroni-type test is suggested in the the papers by Getis and Ord, where tables of critical values are included. The critical values for the 95th percentile under the assumptions discussed by @Ord_1995 are for $n$=30: 2.93, $n$=50: 3.08, $n$=100: 3.29, $n$=500: 3.71, and for $n$=1000: 3.89. @Anselin_2020a suggest that this analytical approximation may not be reliable in practice and that conditional permutation is advisable. Inference with these local measures are also complicated by problems of multiple comparisons, so it is typically advisable to use some form of adjustment to this problem.
 
@@ -214,7 +216,7 @@ summary(grid_cc$G_hotspot_z)
 
 How do you interpret these? They are z scores. So you expect large absolute values to index the existence of cold spots (if they are negative) or hot spots (if they are positive). Our sample size is 475 cells and there are only a very small handful of cells with values that reach the critical value in our dataset.
 
-A known problem with this statistic is that of multiple comparisons. As noted by @Pebesma_2021: "although the apparent detection of hotspots from values of local indicators has been quite widely adopted, it remains fraught with difficulty because adjustment of the inferential basis to accommodate multiple comparisons is not often chosen." So we need to ensure the critical values we use adjust for this. As recommended by @Pebesma_2021, we can use `stats::p.adjust()` to count the number of observations that this statistic identifies as hot spots using different solutions for the multiple comparison problem, such as Bonferroni, False Discovery Rate (`fdr`), or the method developed by Benjamini and Yekutielli (`BY`).
+A known problem with this statistic is that of multiple comparisons. As noted by @Pebesma_2021: "although the apparent detection of hotspots from values of local indicators has been quite widely adopted, it remains fraught with difficulty because adjustment of the inferential basis to accommodate multiple comparisons is not often chosen." So we need to ensure the critical values we use adjust for this. As recommended by @Pebesma_2021, we can use the `p.adjust()` function to count the number of observations that this statistic identifies as hot spots using different solutions for the multiple comparison problem, such as Bonferroni, False Discovery Rate (`fdr`), or the method developed by Benjamini and Yekutielli (`BY`).
 
 ```{r}
 p_values_lg <- 2 * pnorm(abs(c(grid_cc$G_hotspot_z)), lower.tail = FALSE)
@@ -258,7 +260,7 @@ table(grid_cc_sf$hotspot)
 
 Great, we have our 10 significant hot spots, and no significant cold spots apparently. We can now map these values.
 
-```{r, message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE, fig.cap='Map of z-scores and of significant hot spots of burglary'}
 #set to view mode and make sure colours are colourblind safe
 tmap_mode("view")
 tmap_style("col_blind")
@@ -279,15 +281,15 @@ tmap_arrange(map1, map2, nrow=1)
 
 We can see here that not all the micro grid cells with an elevated count of burglaries exhibit significant local dependence. There are only two clusters of burglaries where we see positive spatial dependence. One is located north of Picadilly Gardens in the Northern Quarter of Manchester (an area of trendy bars and shops, and significant gentrification, in proximity to a methadone delivery clinic) and the Deansgate area of the city centre (one of the main commercial hubs of the city not far from the criminal courts).
 
-## Local Moran´s I and Moran scaterplot
+## Local Moran's I and Moran scaterplot
 
-### Computing the local Moran´s I
+### Computing the local Moran's I
 
-The Local Gerdis and Ord statistic, are local indicators of spatial autocorrelation. There is also a local version of Moran´s I, which allow for the decomposition of global indicators of spatial autocorrelation such as Moran's I discussed in Chapter 9, into the contribution of each observation. This allows us to elaborate on the location and nature of the clustering within our study area, once we have found that autocorrelation occurs globally. 
+The Local Getis and Ord statistic is a local indicators of spatial autocorrelation. In the previous Chapter of this book, we looked at using the Moran's I as a global measure of spatial autocorrelation. There is also a local version of Moran's I, which allow for the decomposition of global indicators of spatial autocorrelation such as Moran's I discussed in Chapter 9, into the contribution of each observation. This allows us to elaborate on the location and nature of the clustering within our study area, once we have found that autocorrelation occurs globally. 
 
-Let's first look at the Moran's scatterplot for our data. Remember from last chapter that a Moran´s scatterplot plots the values of the variable of interest, in this case the burglary count on each micro grid, against the spatial lagged value. For creating the Moran´s scatterplot we generally use row standardisation in the weight matrix so that the Y and the X axis are more comparable.
+Let's first look at the Moran's scatterplot for our data. Remember from last chapter that a Moran's scatterplot plots the values of the variable of interest, in this case the burglary count on each micro grid, against the spatial lagged value. For creating the Moran's scatterplot we generally use row standardisation in the weight matrix so that the Y and the X axis are more comparable.
 
-```{r}
+```{r, fig.cap="Moran's scatterplot for burglary in Manchester"}
 # create row standardised weights
 lw_queen_rs <-  nb2listw(nb_queen_cc, style='W')
 
@@ -302,9 +304,9 @@ Notice how the plot is split into 4 quadrants structured around the centered mea
 
 In the opposite diagonal we have **spatial outliers**. They are not outliers in the standard statistical sense, as inextreme observations. Instead, they are outliers in that they are surrounded by areas that are very unlike them. So you could have *high-low spatial outliers*, areas with high levels of burglary and low levels of surrounding burglary, or *low-high spatial outliers*, areas that have themselves low levels of burglary (or whatever else we are mapping) and that are surrounded by areas with above average levels of burglary. This would suggest pockets of non-stationarity. @Anselin_1996 warns these can sometimes surface as a consequence of problems with the specification of the weight matrix.
 
-The slope of the line in the scatterplot gives you a measure of the global spatial autocorrelation. As we noted earlier, the local Moran´s I  help you to identify what are the locations that weigh more heavily in the computation of the global Moran´s I. The object generated by the `moran.plot()` function includes a measure of this leverage, a hat value, for each location in your study area and we can plot these values if we want to geographically visualise those locations:
+The slope of the line in the scatterplot gives you a measure of the global spatial autocorrelation. As we noted earlier, the local Moran's I  help you to identify what are the locations that weigh more heavily in the computation of the global Moran's I. The object generated by the `moran.plot()` function includes a measure of this leverage, a hat value, for each location in your study area and we can plot these values if we want to geographically visualise those locations:
 
-```{r, warning=FALSE, message=FALSE}
+```{r, warning=FALSE, message=FALSE, fig.cap='Map to visualise high leverage (hat value) areas'}
 # We extract the influence measure and place it in the sp object
 grid_cc_sf$lm_hat <- m_plot_burglary$hat
 # Then we can plot this measure of influence
@@ -468,7 +470,7 @@ So the 9 significant clusters we found split into 5 high-high and 4 low-high.
 
 Let's put them on a map, using the standard colours used in this kind of maps:
 
-```{r, warning=FALSE,message=FALSE}
+```{r, warning=FALSE,message=FALSE, fig.cap="Significant clusters from local Moran's I"}
 
 tm_shape(grid_cc_sf) + 
   tm_fill("quad_sig",
@@ -498,7 +500,7 @@ As we mentioned at the outset of the chapter, a number of alternative approaches
 
 Here we will look at two well known approaches with a focus on their implementation in the `DCluster` package: Openshaw's GAM and Kulldorf's scan statistic. The package `DCluster` [@Gomez_2005] was one of the first to introduce tools to assess spatial disease clusters to R. This package precedes `sf` and it likes the data to be stored in a data frame with at least four columns: observed number of cases, expected number of cases, and the longitude and latitude. It is a bit opinionated in the way it is structured. `DCluster`, like many packages that are influenced by the epidemiological literature, take as key inputs the *observed cases* (in criminology this will be criminal occurrences) and *expected cases*. In epidemiology expected cases are often standardised to account for population heterogeneity. In crime analysis this is not as common (although in some circumstances it should be!).  
 
-Straight away we see the problem we encounter here. The criminology of place emphasises small places, but for this level of aggregation (street segments or micro grid cells) we won´t have census variables indexing the population that we could easily use for purposes of standardisation. This means we need to (1) either compromise and look for clusters at a level of aggregation for which we have some population measure that we could use for standardising or (2) get creative an try to find other ways of solving this problem. Increasingly environmental criminologists are trying to find ways of taking this second route (see @Andresen_2021). For this illustration and for convenience reasons, we will take the first one. Although it is important to warn we should try to stick whenever possible to the level of the spatial process we are interested in exploring.
+Straight away we see the problem we encounter here. The criminology of place emphasises small places, but for this level of aggregation (street segments or micro grid cells) we won't have census variables indexing the population that we could easily use for purposes of standardisation. This means we need to (1) either compromise and look for clusters at a level of aggregation for which we have some population measure that we could use for standardising or (2) get creative an try to find other ways of solving this problem. Increasingly environmental criminologists are trying to find ways of taking this second route (see @Andresen_2021). For this illustration and for convenience reasons, we will take the first one. Although it is important to warn we should try to stick whenever possible to the level of the spatial process we are interested in exploring.
 
 For this example the expected counts will be computed using the overall incidence ratio (i.e., total number of cases divided by the total population: in this case the number of residential dwellings in the area). We will use the unit of analysis of neighbourhoods operationalised as a commonly used census unit of geography in the UK, the Lower Super Output Area (LSOA). 
 
@@ -559,7 +561,7 @@ oplus <- sum(lsoas$Observed)
 
 Detail in those two tests and the used code is available from @Bivand_2013. In what follows we introduce two of the approaches implemented here for the detection of clusters.
 
-### Openshaw´s GAM
+### Openshaw's GAM
 
 Stan Openshaw is a retired British geography professor with a interest in geocomputation. We already encountered him earlier, for he wrote one of the seminal papers on the modifiable areal unit problem. In 1987, together with several colleagues, he published his second most highly cited paper introducing what the called a **geographical analysis machine** (GAM). This was a technique developed to work with point pattern data with the aim of finding clusters [@Openshaw_1987]. The machine is essentially an automated algorithm that tries to assess whether "there is an excess of observed points within $x$ km of a specific location" (p. 338). A test statistics is computed for this circular search area and some form of inference can then be made. 
 
@@ -581,13 +583,13 @@ gam_burglary_sf <- st_transform(gam_burglary_sf, crs = 4326)
 tmap_mode("plot")
 map_gam <- tm_shape(burglary_lsoa) + tm_borders(alpha = 0.3) +
   tm_shape(gam_burglary_sf) + tm_dots(size=0.1, col = "red") +
-  tm_layout(main.title = "Openshaw´s GAM", main.title.size=1.2)
+  tm_layout(main.title = "Openshaw's GAM", main.title.size=1.2)
 
 ```
 
 One of the problems with this method is that the tests are not independent; "very similar clusters (i.e., most of their regions are the same) are tested" @Bivand_2013. Inference then is a bit compromised and the approach has received criticism over the years for this failure to solve the multiple testing problem: "any Bonferroni type of procedure to adjust for multiple testing is futile due to the extremely large number of dependent tests performed" [@Kulldorff_1995]. For these reasons and others (see @Marshall_1991b), it is considered hard to ask meaningful statistical questions from a GAM. Notwithstanding this, this technique, as noted by @Bivand_2013, can still be helpful as part of the exploration of your data, as long as you are aware of its limitations.
 
-### Kulldorf´s Scan Statistic
+### Kulldorf's Scan Statistic
 
 More popular has been the approach developed by @Kulldorff_1995. This test could be used for aggregated or point pattern data. It aim to overcome the limitations from previous attempts to assess clusters of disease. Unlike previous methods the scan statistic construct circles of varying radius [@Kulldorff_1995]:
 
@@ -598,7 +600,7 @@ The test statistic then compares the relative risk within the circle to the rela
 
 The scan statistic was implemented by Kulldorff in the SatScan^TM software, freely available from www.satscan.org. This software extends the basic idea to various problems, including spatio temporal clustering. A number of R packages use this scan statistic (`smerc`, `spatstat`, `SpatialEpi` are some of the best known), although the implementation is different across these packages. There is also a package (`rsatscan`) that can allow us to interface with SatScan^TM via R. Here we will continue focusing on `DCluster` for parsimony reasons. The vignettes for the other packages provide a useful platform for exploring those other solutions.
 
-For this we return to the `opgam()` function. There are some key differences in the arguments. The `icluster` argument, which we didn´t specify previously, needs to make clear now we are using the clustering function for Kulldorff and Nagarwalla scan statistic. `R` is the number of bootstrap permutations to compute. The `model` argument allow us to specify the model to generate the random observations. @Bivand_2013 suggests the use of a negative binomial model (`"negbin"`) to account for over dispersion which may result from unaccounted spatial autocorrelation. And `mle` specifies parameters that are needed for the bootstrap calculation. These can be computed with the `DCluster::calculate.mle()` function, which simply takes as arguments the data and the type of model. -when illustrating `opgam` earlier we used the `step` method to draw the grid, in this case we will explicitly provide a grid based on our data points.
+For this we return to the `opgam()` function. There are some key differences in the arguments. The `icluster` argument, which we didn't specify previously, needs to make clear now we are using the clustering function for Kulldorff and Nagarwalla scan statistic. `R` is the number of bootstrap permutations to compute. The `model` argument allow us to specify the model to generate the random observations. @Bivand_2013 suggests the use of a negative binomial model (`"negbin"`) to account for over dispersion which may result from unaccounted spatial autocorrelation. And `mle` specifies parameters that are needed for the bootstrap calculation. These can be computed with the `DCluster::calculate.mle()` function, which simply takes as arguments the data and the type of model. -when illustrating `opgam` earlier we used the `step` method to draw the grid, in this case we will explicitly provide a grid based on our data points.
 
 ```{r}
 mle <- calculate.mle(as(lsoas, "data.frame"), model = "negbin")
@@ -611,7 +613,7 @@ kns_results <- opgam(data = as(lsoas, "data.frame"),
 
 Once the computation is complete we are ready to plot the data and to compare the result to those obtained with the GAM.
 
-```{r}
+```{r, fig.cap="Difference in results between Openshaw's GAM and Kulldorf scan statistics"}
 kulldorff_scan <- st_as_sf(kns_results, 
                       coords = c("x", "y"),
                       crs = 27700)
@@ -654,7 +656,7 @@ And likewise for the temporal bands:
 
 >"The number of temporal bands is dependent on how long you expect a pattern of near repeats to extend. For example, the research on repeat victimization suggests that a risk of repeat burglary increases rapidly after an initial burglary, but that this risk dissipates in the months after the incident and the risk returns to the background (normal level for the area) after a few months. Settings of a 30 day temporal bandwidth with 12 temporal bands, or 14 days with 13 temporal bands (to cover a six month period) are common, but experimentation is encouraged."
 
-The Knox test basically uses these temporal and spatial bands to compute the expected number of pairs of events that are close in time and space and compares this with the observed count. Let´s first prepare the data. We will extract the key vectors to a data frame.
+The Knox test basically uses these temporal and spatial bands to compute the expected number of pairs of events that are close in time and space and compares this with the observed count. Let's first prepare the data. We will extract the key vectors to a data frame.
 
 ```{r}
 nyc_burg_df <- matrix(unlist(nyc_burg$geometry), ncol = 2, byrow = T)

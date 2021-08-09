@@ -485,24 +485,39 @@ The hierarchy of the census geographies in the UK goes from Country to Local Aut
 
 country <- rnaturalearth::ne_countries(scale = 110, geounit = "united kingdom", returnclass = "sf")
 la <- rnaturalearth::ne_states(geounit = "england", returnclass = "sf") %>% filter(region == "North West")
+lsoas <- st_read("data/BoundaryData/england_lsoa_2011.shp") %>% st_transform(st_crs(la))
   
 
 p1 <- ggplot() + 
+  geom_sf(data = lsoas, aes(col = "LSOAs")) + 
   geom_sf(data = country, aes(col = "country")) + 
   geom_sf(data = la, aes(col = "local authority")) + 
-  theme_void()
+  theme_void() + 
+  scale_colour_manual(values = c("country" = "#1b9e77",
+                                 "local authority" = "#d95f02", 
+                                 "LSOAs" = "#7570b3"), 
+                      name = "Boundary: ")
 
-lsoas <- st_read("data/BoundaryData/england_lsoa_2011.shp") %>% st_transform(st_crs(la))
 
 p2 <- ggplot() + 
    geom_sf(data = la , aes(col = "local authority")) + 
-  geom_sf(data = lsoas, aes(col = "lsoas")) +  theme_void() 
+  geom_sf(data = lsoas, aes(col = "lsoas")) +  theme_void() + 
+  scale_colour_manual(values = c("country" = "#1b9e77",
+                                 "local authority" = "#d95f02", 
+                                 "LSOAs" = "#7570b3"), 
+                      name = "Boundary: ")
+
 
 p3 <- ggplot() + 
    # geom_sf(data = la %>% filter(name == "Manchester"), aes(col = "local authority")) + 
-  geom_sf(data = lsoas, aes(col = "LSOAs")) +  theme_void() 
+  geom_sf(data = lsoas, aes(col = "LSOAs")) +  theme_void() + 
+  scale_colour_manual(values = c("country" = "#1b9e77",
+                                 "local authority" = "#d95f02", 
+                                 "LSOAs" = "#7570b3"), 
+                      name = "Boundary: ")
 
-gridExtra::grid.arrange(p1, p2, p3, nrow = 1)
+
+ggpubr::ggarrange(p1, p2, p3, nrow = 1, common.legend = TRUE)
 
 
 ```
