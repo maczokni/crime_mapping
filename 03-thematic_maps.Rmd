@@ -9,11 +9,11 @@ knitr::opts_chunk$set(cache = F)
 
 In the first chapter we showed you fairly quickly how to create maps by understanding how data may have spatial elements, and how that can be linked to geometries. 
 
-In this chapter we will get to know how to think about thematic maps, and how to apply your learning to creating your own maps of this variety. In the process we will discuss various types of thematic maps and the various issues they raise.
+In this chapter we will get to know how to think about thematic maps, and how to apply your learning to creating your own maps of this variety. In the process we will discuss various types of thematic maps and the issues they raise.
 
 Thematic maps focus on representing the spatial pattern of a variable of interest (e.g, crimes, trust in the police, etc.) and they can be used for exploration and analysis or for presentation and communication to others. There are different types of thematic maps depending on how the variable of interest is represented. In this and the next chapters we will introduce some of these types of particular interest for crime analysis, the different challenges they pose, and some ideas that may help you to choose the best representation for your data. Critically, we need to think about the quality of the data we work with, for adequate measurement is the basis of any data analysis.
 
-In this chapter, we introduce in particular two types of thematic maps used for mapping quantitative variables: **choropleth maps** and **proportional symbol maps**. In previous chapters we introduced two separate packages for creating maps in R (`ggplot2` and `leaflet`). In this chapter we will introduce a third package for creating maps: `tmap`. The libraries we use in this chapter are as follow:
+In this chapter, we introduce in particular two types of thematic maps used for mapping quantitative variables: **choropleth (thematic) maps** and **proportional symbol maps**. In previous chapters we introduced two separate packages for creating maps in R (`ggplot2` and `leaflet`). In this chapter we will introduce a third package for creating maps: `tmap`. The libraries we use in this chapter are as follow:
 
 
 ```{r load_libraries_3, warnings=FALSE, message=FALSE}
@@ -52,13 +52,13 @@ Most choropleth maps you encounter are classified choropleth maps. They group th
 
 2. Boundaries of geographical areas are to a large extent arbitrary (and unlikely to be associated with major discontinuities in your variable of interest). In crime analysis we very often use census administrative units, but these rarely represent natural neighbourhoods.
 
-3. They work better if areas are of similar size. Areas of greater size may be more heterogeneous internally than those of smaller size: that is, they potentially have the largest error of representation. Also, visual attention may be drawn by areas that are large in size (if size is not the variable use to create a ratio)
+3. They work better if areas are of similar size. Areas of greater size may be more heterogeneous internally than those of smaller size: that is, they potentially have the largest error of representation. Also, visual attention may be drawn by areas that are large in size (if size is not the variable used to create a ratio)
 
 ### What do we use choropleth maps for?
 
 #### Crime rates
 
-In a choropleth map you “can” show raw totals (absolute values), for example number of crimes, or derived values (ratios), crime per 100,000 inhabitants. But as a general rule, you should restrict choropleth maps to show derived variables such as rates or percentages [@Monmonier_1993, @Field_2018]. This is because the areas we often use are of different size and this may introduce an element of confusion in the interpretation of choropleth maps. The size of say, a province or a county, "has a big effect on the amount of color shown on the map, but unit area may have little relationship, or even an inverse relationship, to base populations and related counts." [@Brewer_2006: S30]
+In a choropleth map you “can” show raw totals (absolute values), for example number of crimes, or derived values (ratios), such as crime per 100,000 inhabitants. But as a general rule, you should restrict choropleth maps to show derived variables such as rates or percentages [@Monmonier_1993, @Field_2018]. This is because the areas we often use are of different size and this may introduce an element of confusion in the interpretation of choropleth maps. The size of say, a province or a county, "has a big effect on the amount of color shown on the map, but unit area may have little relationship, or even an inverse relationship, to base populations and related counts." [@Brewer_2006: S30]
 
 Mapping counts, that is mapping where a lot of the crime incidents concentrate is helpful, but we may want to understand as well if this is simply a function of the spatial distribution of the population at risk. As @Ratcliffe_2010 suggests "practitioners often recognize that a substantial density of crime in a location is sufficient information to initiate a more detailed analysis of the problem", but equally we may want to know if "this clustering of crime is meaningfully non-random, and if the patterns observed are still present once the analysis has controlled for the population at risk." (p. 11-12). 
 
@@ -92,11 +92,11 @@ Confusingly, though, you will find authors and practitioners that consider incid
 
 ### Proportional and graduate symbol maps: mapping crime counts
 
-Proportional symbol maps, on the other hand, are used to represent quantitative variables for either areas or point locations. Each area get a symbol and the size represents the intensity of the variable. It is expected with this type of map that the reader could estimate the different quantities mapped out and to be able to detecting patterns across the map [@Field_2018]. The symbols typically will be squares or circles that are scaled "in proportion to the square root of each data value so that symbol areas visually represent the data values" [@Brewer_2006: S29]. Circles are generally used since they are considered to perform better in facilitating visual interpretation. 
+Proportional symbol maps, on the other hand, are used to represent quantitative variables for either areas or point locations. Each area gets a symbol and the size represents the intensity of the variable. It is expected with this type of map that the reader could estimate the different quantities mapped out and to be able to detecting patterns across the map [@Field_2018]. The symbols typically will be squares or circles that are scaled "in proportion to the square root of each data value so that symbol areas visually represent the data values" [@Brewer_2006: S29]. Circles are generally used since they are considered to perform better in facilitating visual interpretation. 
 
 We often use proportional symbol maps to represent count data (e.g., number of crimes reported in a given area). A common problem with proportional symbol maps is symbol congestion/overlap, especially if there are large variations in the size of symbols or if numerous data locations are close together.
 
-A similar type of map use graduated symbol maps. As with choropleth classing, the symbol size may represent data ranges. They are sometimes used when data ranges are too great to practically represent the full range on a small map. 
+A similar type of map uses graduated symbol maps. As with choropleth classing, the symbol size may represent data ranges. They are sometimes used when data ranges are too great to practically represent the full range on a small map. 
 
 ## Creating proportional symbol maps
 
@@ -114,7 +114,7 @@ manchester <- st_read("data/manchester.geojson", quiet=TRUE)
 
 ```
 
-Every time you use the `tmap` package you will need a line of code that specifies the spatial object you will be using. Although originally developed to handle `sp` objects only, it now also has support for `sf` objects. For specifying the spatial object we use the `tm_shape()` function and inside we specify the name of the spatial object we are using. Its key function is simply to do just that,to identify our spatial data. On its own, this will do nothing apparent. No map will be created. We need to add additional functions to specify what we are doing with that spatial object, how we want to represent it. If you try to run this line on its own, you'll get an error telling you you must "Specify at least one layer after each tm_shape". 
+Every time you use the `tmap` package you will need a line of code that specifies the spatial object you will be using. Although originally developed to handle `sp` objects only, it now also has support for `sf` objects. For specifying the spatial object we use the `tm_shape()` function and inside we specify the name of the spatial object we are using. Its key function is simply to do just that,to identify our spatial data. On its own, this will do nothing apparent. No map will be created. We need to add additional functions to specify what we are doing with that spatial object, how we want to represent it. If you try to run this line on its own, you'll get an error telling you you must "Specify at least one layer after each tm_shape" (or it might say "Error: no layer elements defined after tm_shape" depending on your R version). 
 
 ```{r, eval=FALSE}
 tm_shape(manchester)
@@ -155,7 +155,7 @@ tm_shape(manchester) +
 
 There are several arguments that you can pass within the `tm_bubble()` function that control the appearance of the symbols. The `scale` argument controls the symbol size multiplier number. Larger values will represent the largest bubble as larger. You can experiment with the value you find more appropriate. Another helpful parameter in `tm_bubble()` is `alpha`, which you can use to make the symbols more or less transparent as a possible way to deal with situations where you may have a significant degree of overlapping between the symbols. You can play around with this and modify the code we provide above with different values for these two arguments.
 
-By default, the symbol area sizes are scaled proportionally to the data variable you are using. As noted above this is done by taking the square root of the normalized data variable. This is called mathematical scaling. However, "it is well known that the perceived area of proportional symbols dose not match their mathematical area; rather, we are inclined to underestimate the area of larger symbols. As a solution to this problem, it is reasonable to modify the area of larger circles in order to match it with the perceived area." [@Tanimura_2006] The `perceptual = TRUE` option allows you to use a method that aims to compensate for how the default approach may underestimate the area of the larger symbols. Notice the difference between the map we produced and this new one.
+By default, the symbol area sizes are scaled proportionally to the data variable you are using. As noted above this is done by taking the square root of the normalized data variable. This is called mathematical scaling. However, "it is well known that the perceived area of proportional symbols does not match their mathematical area; rather, we are inclined to underestimate the area of larger symbols. As a solution to this problem, it is reasonable to modify the area of larger circles in order to match it with the perceived area." [@Tanimura_2006] The `perceptual = TRUE` option allows you to use a method that aims to compensate for how the default approach may underestimate the area of the larger symbols. Notice the difference between the map we produced and this new one.
 
 ```{r, fig.cap='Bubble map with perceptual parameter set to TRUE', fig.height=4, warning=FALSE, message=FALSE}
 tm_shape(manchester) +  
@@ -172,7 +172,7 @@ We can see that we get much larger bubbles in the City Centre region of Manchest
 
 ### Generating the rates
 
-We have now seen the importance to map rates rather than counts of things, and that is for the simple reason that population is not equally distributed in space. That means that if we do not account for how many people are somewhere, we end up mapping population size rather than our topic of interest. 
+We have now seen the importance of mapping rates rather than counts of things, and that is for the simple reason that population is not equally distributed in space. That means that if we do not account for how many people are somewhere, we end up mapping population size rather than our topic of interest. 
 
 The `manchester` object we are working with has a column named `respop` that includes the residential population in each of the LSOA areas. These areas for the whole of the UK have an average population of around 1500 people. We can see a similar picture for Manchester city, with an average closer to 1700 here.
 
@@ -189,11 +189,11 @@ hist(manchester$wkdpop, main = "Distribution of workday population across LSOAs"
 
 ```
 
-The distribution is much more skewed with some LSOAs in Manchester, with at least one LSOA attracting up to 42253 people during the working day. This gives an idea of the relevance of the "denominator dilemma" we mentioned earlier. In this section we will create rates of crime using both variables in the denominator to observe how the emerging picture varies.
+The distribution of the workday population is much more skewed than the residential population, with most LSOAs having only 5,000 or fewer workday population, but the busiest LSOAs attracting over 40,000 people during the working day. This gives an idea of the relevance of the "denominator dilemma" we mentioned earlier. In this section we will create rates of crime using both variables in the denominator to observe how the emerging picture varies.
 
 First we need to create new variables. For this we can use the `mutate()` function from the `dplyr` package. This is a very helpful function to create new variables in a dataframe based on transformations or mathematical operations performed on other variables within the dataframe. In this function, the first argument is the name of the data frame, and then we can pass as arguments all new variables we want to create as well as the instructions as to how we are creating those variables. 
 
-First we want to create a rate using the usual residents, since crime rates are often expressed by 100,000 inhabitants we will multiply the division of the number of crimes by the number of usual residents by 100,000. We will then create another variable, `crimr2`, using the workday population as the denominator. We will store this new variables in our existing `manchester` dataset. You can see that below then I specify the name of a new variable `crimr1` and then I tell the function I want that variable to equal (for each case) the division of the values in the variable `count` (number of crimes) by the variable `respop` (number of people residing in the area) and then we multiply the result of this division by 100,000 to obtain a rate expressed in those terms. Then we do likewise for the alternative measure of crime.
+First we want to create a rate using the usual residents, since crime rates are often expressed by 100,000 inhabitants we will multiply the division of the number of crimes by the number of usual residents by 100,000. We will then create another variable, `crimr2`, using the workday population as the denominator. We will store this new variables in our existing `manchester` dataset. You can see that below we then specify the name of a new variable `crimr1` and then tell the function we want that variable to equal (for each case) the ratio of the values in the variable `count` (number of crimes) by the variable `respop` (number of people residing in the area). We then multiply the result of this division by 100,000 to obtain a rate expressed in those terms. We can do likewise for the alternative measure of crime.
 
 ```{r}
 manchester <- mutate(manchester, 
@@ -470,7 +470,7 @@ knitr::kable(manchester %>% dplyr::filter(code=="E01033658") %>% dplyr::select(c
 
 ```
 
-We can see in this area there were `r manchester %>% filter(code=="E01033658") %>% pull(count)` crime incidents for a residential population of `r manchester %>% filter(code=="E01033658") %>% pull(respop)`, but the workday population is as high as `r manchester %>% filter(code=="E01033658") %>% pull(wkdpop)` people. So, of course, using these different denominators is bound to have an impact in the resulting rate. As noted earlier, using as a denominator some measure of the population at risk is most appropriate.
+We can see in this area there were `r manchester %>% filter(code=="E01033658") %>% pull(count)` crime incidents for a residential population of `r manchester %>% filter(code=="E01033658") %>% pull(respop)`, but the workday population is as high as `r manchester %>% filter(code=="E01033658") %>% pull(wkdpop)` people. So, of course, using these different denominators is bound to have an impact in the resulting rate. As noted earlier, the most appropriate denominator represents some measure of the population at risk.
 
 Once again, we can rely on some advice from @Cameron_2005: 
 
@@ -480,7 +480,7 @@ Once again, we can rely on some advice from @Cameron_2005:
 
 In previous sections we discussed how to map rates. It seems a fairly straightforward issue, you calculate a rate by dividing your numerator (e.g: number of crimes) by an appropriately selected denominator (e.g: daytime population). You get your variable with the relevant rate and you map it using a choropleth map. However, things are not always that simple. 
 
-Rates are funny animals. @Gelman_1999 goes so far as to suggest that all maps of rates are misleading. The problem at hand is well known in spatial epidemiology: " plotting observed rates can have serious drawbacks when sample sizes vary by area, since very high (and low) observed rates are found disproportionately in poorly-sampled areas" [@Gelman_1999, p. 3221]. There is associated noise for those areas where the denominators give us a small sample size. And it is hard to solve this problem.
+Rates are funny animals. @Gelman_1999 goes so far as to suggest that all maps of rates are misleading. The problem at hand is well known in spatial epidemiology: "plotting observed rates can have serious drawbacks when sample sizes vary by area, since very high (and low) observed rates are found disproportionately in poorly-sampled areas" [@Gelman_1999, p. 3221]. There is associated noise for those areas where the denominators give us a small sample size. And it is hard to solve this problem.
 
 Let's illustrate with an example. We are going to use historic data on homicide across US counties. The dataset was used as the basis for the study by @Baller_2001. It contains data on homicide counts and rates for various decades across the US as well as information on structural factors often thought to be associated with violence. The data is freely available through the webpage of Geoda, a clever point-and-click interface developed by Luc Anselin (a spatial econometrician and coauthor of the above paper) and his team, to make spatial analysis accessible. It is also available as one of the datasets in the `geodaData` package.
 
@@ -506,7 +506,7 @@ borden$HR60
 
 ```
 
-[Borden county](https://en.wikipedia.org/wiki/Borden_County,_Texas) is in Texas. You may be thinking… “Texas Chainsaw Massacre” perhaps? No, not really. Ed Gein, who inspired the film, was based and operated in Wisconsin. Borden's claim to fame is rather more prosaic: it was named after Gail Borden, the inventor of condensed milk. So, what’s going on here? Why do we have a homicide rate in Borden that makes it look like a war zone? Is is that it is only one of the six counties where alcohol is banned in Texas?
+[Borden county](https://en.wikipedia.org/wiki/Borden_County,_Texas) is in Texas. You may be thinking… “Texas Chainsaw Massacre” perhaps? No, not really. Ed Gein, who inspired the film, was based and operated in Wisconsin. Borden's claim to fame is rather more prosaic: it was named after Gail Borden, the inventor of condensed milk. So, what’s going on here? Why do we have a homicide rate in Borden that makes it look like a war zone? Is it that it is only one of the six counties where alcohol is banned in Texas?
 
 To get to the bottom of this, we can look at the variable `HC60` which tells us about the homicide *count* in Borden: 
 
@@ -543,7 +543,7 @@ In fact, if you look at the counties with the highest homicide rate in the "ncov
 
 This is a problem that was first noted by epidemiologists doing disease mapping. But a number of other disciplines have now noted this and used some of the approaches developed by public health researchers that confronted this problem when producing maps of disease (*aside*: techniques and approaches used by spatial epidemiologists are very similar to those used by criminologists -in case you ever think of changing careers or need inspiration for how to solve a crime analysis problem).
 
-One way of dealing with this is by **smoothing** or **shrinking** the rates. This basically as the word implies aims for a smoother representation that avoids hard spikes associated with random noise. There are different ways of doing that. Some ways use a non-spatial approach to smoothing, using something called a **empirical bayesian smoother**. How does this work? This approach takes the raw rates and tries to “shrunk” them towards the overall average. What does this mean? Essentially, we compute a weighted average between the raw rate for each area and the global average across all areas, with weights proportional to the underlying population at risk. What this procedure does is to have the rates of smaller areas (those with a small population at risk) to have their rates adjusted considerably (brought closer to the global average), whereas the rates for the larger areas will barely change.
+One way of dealing with this is by **smoothing** or **shrinking** the rates. This basically as the word implies aims for a smoother representation that avoids hard spikes associated with random noise. There are different ways of doing that. Some ways use a non-spatial approach to smoothing, using something called a **empirical bayesian smoother**. How does this work? This approach takes the raw rates and tries to “shrink” them towards the overall average. What does this mean? Essentially, we compute a weighted average between the raw rate for each area and the global average across all areas, with weights proportional to the underlying population at risk. What this procedure does is to have the rates of smaller areas (those with a small population at risk) to have their rates adjusted considerably (brought closer to the global average), whereas the rates for the larger areas will barely change.
 
 Here we are going to introduce the approach implemented in `DCluster`, a package developed for epidemiological research and detection of clusters of disease. Specifically we can implement the `empbaysmooth()` function which creates a smooth relative risks from a set of expected and observed number of cases using a Poisson-Gamma model as proposed by @Clayton_1987.  The function  `empbaysmooth()` expects two parameters, the **expected** value (the global average) and the **observed** value (the rate we actually see).  In our case, these parameters should be: the observed is the homicide rate we see (`ncovr$HR60`), and the expected is the global homicide rate for the entire USA (`sum(ncovr$HC60)/sum(ncovr$PO60)`) times the population of the county (`ncovr$PO60`): 
 
@@ -609,7 +609,7 @@ boxplot(ncovr$HR60, ncovr$HR60EBS, ncovr$HR60EBSL,
         main = "Different rates of homicide per 100,000 people",
         names = c("Raw rate", 
                   "Bayes smoother", 
-                  "Locat base smoother"),
+                  "Local base smoother"),
         ylab = "Rates")
 ```
 
@@ -621,7 +621,7 @@ So to smooth or not too smooth? Clearly we can see how smoothing stabilises the 
 
 This chapter introduced some basic principles of thematic maps. We learned how to make them using the `tmap` package, we learned about the importance of classification schemes, and how each one may produce a different looking map, which may tell a different story. For further reading, @Brewer_2006 provides a brief condensed introduction to thematic mapping for epidemiologists but that can be generally extrapolated for crime mapping purposes. We have talked about the potential to develop misleading maps and @Monmonier_1996 "How to lie with maps" provides good guidance to avoid that our negligent choices when producing a map confuse the readers. @Carr_2010 offers a more detailed treatment of small multiples and micromaps. 
 
-Mapping rates has been more thoroughly discussed within spatial epidemiology than in criminology. There is ample literature on disease mapping that address in more sophisticated ways some of the issues we introduce here (see @Waller_2004, @Lawson_2006, @Lawson_2021a, or @Lawson_2021b). Much of this work on spatial epidemiology adopts a Bayesian framework. We will talk a bit more about this later on, but if you want a friendly introduction to Bayesian data analysis there is no better introduction than @McElreath_2018.
+Mapping rates has been more thoroughly discussed within spatial epidemiology than in criminology. There is ample literature on disease mapping that address in more sophisticated ways some of the issues we introduce here (see @Waller_2004,  @Lawson_2021a, @Lawson_2006, or @Lawson_2021b). Much of this work on spatial epidemiology adopts a Bayesian framework. We will talk a bit more about this later on, but if you want a friendly introduction to Bayesian data analysis there is no better introduction than @McElreath_2018.
 
 
 
