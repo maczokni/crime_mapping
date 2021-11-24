@@ -57,9 +57,44 @@ However we define "place", it is the central concept to crime mapping, and spati
 
 In spatial analysis it is customary to refer to places as objects. These objects can be a whole country, or a road. In forestry, the objects of interest might be trees, and their location will be represented as points. On the other hand, studies of social or economic patterns may need to consider the two-dimensional extent of places, which will therefore be represented as areas. These representations of the world are part of what is called the **vector data model**: a representation of the world using points, lines, and polygons. Vector models are useful for storing data that have discrete boundaries, such as country borders, land parcels, and streets. This is made up of points, lines, and areas (polygons): 
 
-- *Points*: Points are pairs of coordinates, in latitude/longitude or some other standard system. In the context of crime analysis, the typical point we work with, though not the only one, represents the specific location of a criminal event. These points form patterns we explore and analyse.
-- *Lines*: Lines are ordered sequences of points connected by straight lines.
+- *Points*: Points are pairs of coordinates, in latitude/longitude or some other standard system. In the context of crime analysis, the typical point we work with, though not the only one, represents the specific location of a criminal event. These points form patterns we explore and analyse. Postcodes can also be represented with a single point in the middle of the postcode area, which could be mapped using latitude/longitude pair.
+- *Lines*: Lines are ordered sequences of points connected by straight lines. An example might be a road, or street segment. 
 - *Areas* (polygons): Areas are ordered rings of points, also connected by straight lines to form polygons. It can contain holes, or be linked with separate islands. Areas can represent neighbourhoods, police districts, municipal terms, etc. You may come across the term **lattice data** to denote the type of data we work with when we observed attributes of areas and want to explore and analyse this data.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height=3, fig.width=6, fig.cap = 'Point, Line, and Polygon'}
+df <- data.frame(x = c(1, 4, 3, 2, 1), 
+                 y = c(2, 0, 2, 4, 2))
+
+p1 <- ggplot(df) + 
+  geom_point(aes(x = x, y = y), size = 5) + 
+  xlim(c(0,5)) + 
+  ylim(c(-1,5)) + 
+  theme_void() +
+  labs(title = "Points") + 
+  theme(panel.border = element_rect(colour = "black", fill=NA, size=3))
+
+p2 <- ggplot(df, aes(x = x, y = y)) + 
+  geom_point(size = 5) + 
+  geom_line(size = 2) + 
+  xlim(c(0,5)) + 
+  ylim(c(-1,5)) + 
+  theme_void() +
+  labs(title = "Line") + 
+  theme(panel.border = element_rect(colour = "black", fill=NA, size=3))
+
+p3 <- ggplot(df, aes(x = x, y = y)) + 
+  geom_point(size = 5) + 
+  geom_path(size = 2) + 
+  xlim(c(0,5)) + 
+  ylim(c(-1,5)) + 
+  theme_void() +
+  labs(title = "Polygon") + 
+  theme(panel.border = element_rect(colour = "black", fill=NA, size=3))
+
+
+gridExtra::grid.arrange(p1, p2, p3, nrow = 1)
+
+```
     
 Spatial objects may also be stored as **raster data**. Raster data are made up of pixels (or cells), and each cell has an associated value. Simplifying slightly, a digital photograph is an example of a raster dataset where each pixel value corresponds to a particular colour. In GIS, the pixel values usually represent continuous data such as elevation above sea level, or chemical concentrations, or rainfall, etc. The key point is that all of this data is represented as a grid of (usually square or hexagonal) cells. 
 
