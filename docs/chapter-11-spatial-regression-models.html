@@ -24,7 +24,7 @@
 <meta name="author" content="Juanjo Medina and Reka Solymosi" />
 
 
-<meta name="date" content="2021-10-05" />
+<meta name="date" content="2021-11-25" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -538,15 +538,15 @@ div.csl-indent {
 <div id="introduction-9" class="section level2" number="12.1">
 <h2><span class="header-section-number">12.1</span> Introduction</h2>
 <p>In science one of our main concerns is to develop models of the world, models that help us to understand the world a bit better or to predict how things will develop better. Crime analysis also is interested in understanding the processes that may drive crime. This is a key element in the SARA process (<em>analysis</em>) that form part of the problem oriented policing approach <span class="citation">(<a href="#ref-Eck_1997" role="doc-biblioref">Eck and Spelman 1997</a>)</span>. Statistics provides a set of tools that help researchers build and test scientific models, and to develop predictions. Our models can be simple. We can think that unemployment is a factor that may help us to understand why cities differ in their level of violent crime. We could express such a model like this:</p>
-<div class="figure"><span id="fig:unnamed-chunk-338"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-338-1.png" alt="A simple model" width="672" />
+<div class="figure"><span id="fig:unnamed-chunk-339"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-339-1.png" alt="A simple model" width="672" />
 <p class="caption">
 FIGURE 12.1: A simple model
 </p>
 </div>
 <p>Surely we know the world is complex and likely there are other things that may help us to understand why some cities have more crime than others. So, we may want to have tools that allow us to examine such models. Like, for example, the one below:</p>
-<div class="figure"><span id="fig:unnamed-chunk-339"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-339-1.png" alt="A slightly less simple model" width="672" />
+<div class="figure"><span id="fig:unnamed-chunk-340"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-340-1.png" alt="A slightly less simple model" width="672" />
 <p class="caption">
 FIGURE 12.2: A slightly less simple model
 </p>
@@ -660,8 +660,8 @@ FIGURE 12.2: A slightly less simple model
 ## F-statistic:  592 on 3 and 3081 DF,  p-value: &lt;2e-16</code></pre>
 <p>You see here that essentially you have only two inputs (resource deprivation and south) but several regression coefficients. <span class="citation"><a href="#ref-Gelman_2007" role="doc-biblioref">Gelman and Hill</a> (<a href="#ref-Gelman_2007" role="doc-biblioref">2007</a>)</span> suggest reserving the term input for the variables encoding the information and to use the term predictor to refer to each of the terms in the model. So here we have two inputs and three predictors (one for SOUTH, another for resource deprivation, and a final one for the interaction effect). In this case the test for the interaction effect is significant, which suggests there may be such an interaction. Let’s visualise the results with the <code>effects</code> package:</p>
 <div class="sourceCode" id="cb545"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb545-1"><a href="chapter-11-spatial-regression-models.html#cb545-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">allEffects</span>(fit2_90), <span class="at">ask=</span><span class="cn">FALSE</span>)</span></code></pre></div>
-<div class="figure"><span id="fig:unnamed-chunk-347"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-347-1.png" alt="Effect plots for effect if South varaible on relationship between homicide rate and resource deprivation" width="672" />
+<div class="figure"><span id="fig:unnamed-chunk-348"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-348-1.png" alt="Effect plots for effect if South varaible on relationship between homicide rate and resource deprivation" width="672" />
 <p class="caption">
 FIGURE 12.3: Effect plots for effect if South varaible on relationship between homicide rate and resource deprivation
 </p>
@@ -730,8 +730,8 @@ FIGURE 12.3: Effect plots for effect if South varaible on relationship between h
 <span id="cb552-5"><a href="chapter-11-spatial-regression-models.html#cb552-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>
 <span id="cb552-6"><a href="chapter-11-spatial-regression-models.html#cb552-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_layout</span>(<span class="at">main.title =</span> <span class="st">&quot;Residuals&quot;</span>, <span class="at">main.title.size =</span> <span class="fl">0.7</span> ,</span>
 <span id="cb552-7"><a href="chapter-11-spatial-regression-models.html#cb552-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">legend.position =</span> <span class="fu">c</span>(<span class="st">&quot;right&quot;</span>, <span class="st">&quot;bottom&quot;</span>), <span class="at">legend.title.size =</span> <span class="fl">0.8</span>)</span></code></pre></div>
-<div class="figure"><span id="fig:unnamed-chunk-351"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-351-1.png" alt="Map of regression model residuals" width="672" />
+<div class="figure"><span id="fig:unnamed-chunk-352"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-352-1.png" alt="Map of regression model residuals" width="672" />
 <p class="caption">
 FIGURE 12.4: Map of regression model residuals
 </p>
@@ -797,7 +797,7 @@ likely to be unfruitful."</p>
 <p>A third basic model is the one that allows for autocorrelation in the predictors (<strong>Durbin factor</strong>). Here we allow for exogenous interaction effects, where the dependent variable of a given area is influenced by independent explanatory variables of other areas. In this case we include in the model a spatial lag of the predictors. These, however, have been less commonly used in practice.</p>
 <p>These three models only have one spatial component, but this could be combined. In the last 15 years interest in models with more than one spatial component has grown. You could have models with two spatial components and even consider together the three ways of spatial interaction (in the error, in the predictors, and the dependent variable). <span class="citation"><a href="#ref-Elhorst_2010" role="doc-biblioref">Elhorst</a> (<a href="#ref-Elhorst_2010" role="doc-biblioref">2010</a>)</span> classified the different models according to the spatial interactions included.</p>
 <table>
-<caption><span id="tab:unnamed-chunk-354">TABLE 12.1: </span>Models classified according to the spatial interactions included</caption>
+<caption><span id="tab:unnamed-chunk-355">TABLE 12.1: </span>Models classified according to the spatial interactions included</caption>
 <colgroup>
 <col width="22%" />
 <col width="77%" />

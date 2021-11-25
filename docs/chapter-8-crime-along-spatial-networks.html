@@ -24,7 +24,7 @@
 <meta name="author" content="Juanjo Medina and Reka Solymosi" />
 
 
-<meta name="date" content="2021-10-05" />
+<meta name="date" content="2021-11-25" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -538,8 +538,8 @@ div.csl-indent {
 <div id="introduction-6" class="section level2" number="9.1">
 <h2><span class="header-section-number">9.1</span> Introduction</h2>
 <p>In the previous chapter we explored how the techniques for spatial pattern analysis can be used to study the varying intensity of crime across space. We introduce the key idea of spatial randomness. These methods were developed to study locations in a continuous plane and are also referred to as <strong>planar spatial analysis</strong>. Point crime data, however, has an inherent structure to it. There are parts of our study region where it cannot appear. Since typically the data will be geocoded at the street level address, crime data almost always will appear alongside the spatial network of roads and streets. Crime won’t appear randomly anywhere in our 2 dimensional representation of the city, they will only appear along the street network covering this city. We can see this in the following example from Chicago using data from <code>spatstat</code>:</p>
-<div class="figure"><span id="fig:unnamed-chunk-214"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-214-1.png" alt="Crime along street networkin Chicago" width="672" />
+<div class="figure"><span id="fig:unnamed-chunk-215"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-215-1.png" alt="Crime along street networkin Chicago" width="672" />
 <p class="caption">
 FIGURE 9.1: Crime along street networkin Chicago
 </p>
@@ -609,8 +609,8 @@ FIGURE 9.1: Crime along street networkin Chicago
 <span id="cb365-4"><a href="chapter-8-crime-along-spatial-networks.html#cb365-4" aria-hidden="true" tabindex="-1"></a>figure_1 <span class="ot">&lt;-</span> <span class="fu">ggarrange</span>(plot_1, plot_2, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;Kensington&quot;</span>, <span class="st">&quot;Manhattan&quot;</span>),</span>
 <span id="cb365-5"><a href="chapter-8-crime-along-spatial-networks.html#cb365-5" aria-hidden="true" tabindex="-1"></a>                    <span class="at">ncol =</span> <span class="dv">2</span>, <span class="at">nrow =</span> <span class="dv">1</span>)</span>
 <span id="cb365-6"><a href="chapter-8-crime-along-spatial-networks.html#cb365-6" aria-hidden="true" tabindex="-1"></a>figure_1</span></code></pre></div>
-<div class="figure"><span id="fig:unnamed-chunk-218"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-218-1.png" alt="Street network geometries for Kensington in Toronto, CA and Manhattan, in New York, USA" width="672" />
+<div class="figure"><span id="fig:unnamed-chunk-219"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-219-1.png" alt="Street network geometries for Kensington in Toronto, CA and Manhattan, in New York, USA" width="672" />
 <p class="caption">
 FIGURE 9.2: Street network geometries for Kensington in Toronto, CA and Manhattan, in New York, USA
 </p>
@@ -625,7 +625,7 @@ FIGURE 9.2: Street network geometries for Kensington in Toronto, CA and Manhatta
 <p>We quickly below show the <code>as_sfnetwork()</code> function with the road network in Kensington (which will generate an object of class <code>sfnetwork</code>) so that you get a sense for the look of a spatial network, but for further details on network construction and pre-processing it is important you see the documentation, as well as the other materials cited above.</p>
 <div class="sourceCode" id="cb366"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb366-1"><a href="chapter-8-crime-along-spatial-networks.html#cb366-1" aria-hidden="true" tabindex="-1"></a>kensigton_ntwk <span class="ot">&lt;-</span> <span class="fu">as_sfnetwork</span>(kensington_lines)</span>
 <span id="cb366-2"><a href="chapter-8-crime-along-spatial-networks.html#cb366-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(kensigton_ntwk)</span></code></pre></div>
-<p><img src="crime_mapping_files/figure-html/unnamed-chunk-219-1.png" width="672" /></p>
+<p><img src="crime_mapping_files/figure-html/unnamed-chunk-220-1.png" width="672" /></p>
 <p>Once you have a spatial network that has been properly cleaned and prepared as discussed in the references above, there are a number of things you can do with it. You can apply geospatial operations, such as blending points into the edges, segmenting the edges, running spatial filters, etc. You can also apply standard social network analysis techniques and measures (such as centrality, measuring shortest path). Illustration of these applications are available in the vignettes for <code>sfnetworks</code> <span class="citation">(<a href="#ref-Vandemeer_2021" role="doc-biblioref">van der Meer et al. 2021</a>)</span> and in <span class="citation"><a href="#ref-Abad_2019" role="doc-biblioref">Abad, Lovelace, and Meer</a> (<a href="#ref-Abad_2019" role="doc-biblioref">2019</a>)</span>.</p>
 <p>Another format for linear networks in R is <code>linnet</code> used by the package <code>spatstat</code>. When what we want is to do analysis not of the network itself, but of the location of points (such as crime events) along the network <code>spatstat</code> is the way to go and so we would need to ensure we store the data in formats that are required by this package. Statistical analysis of events along these networks is of key interest for crime analysts. Later in this chapter we will, for example, explain how to perform density estimation along networks. Until we get to that final section we will introduce applications of interest to crime analysis using, for convenience, slightly more standard and familiar data structures.</p>
 </div>
@@ -650,7 +650,7 @@ FIGURE 9.2: Street network geometries for Kensington in Toronto, CA and Manhatta
 <div class="sourceCode" id="cb368"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb368-1"><a href="chapter-8-crime-along-spatial-networks.html#cb368-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plot the bountary and the crimes</span></span>
 <span id="cb368-2"><a href="chapter-8-crime-along-spatial-networks.html#cb368-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">st_geometry</span>(ldn))</span>
 <span id="cb368-3"><a href="chapter-8-crime-along-spatial-networks.html#cb368-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">st_geometry</span>(btp_crimes),  <span class="at">add =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
-<p><img src="crime_mapping_files/figure-html/unnamed-chunk-221-1.png" width="672" /></p>
+<p><img src="crime_mapping_files/figure-html/unnamed-chunk-222-1.png" width="672" /></p>
 <p>Here we can see the latitude and longitude locations of crimes in London recorded by British Transport Police. However, we know these must take place along the underground and rail network. So let’s see how we account for this in our analysis. For simplicity sake let’s focus on only one of the London Underground lines. We’ve picked the bakerloo line here. This is saved for you in two files. First the stations along the bakerloo line is in <code>bakerloo_stops.csv</code>, while the line is in the file <code>bakerloo_line.geojson</code>.</p>
 <div class="sourceCode" id="cb369"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb369-1"><a href="chapter-8-crime-along-spatial-networks.html#cb369-1" aria-hidden="true" tabindex="-1"></a><span class="co">#read stops csv file</span></span>
 <span id="cb369-2"><a href="chapter-8-crime-along-spatial-networks.html#cb369-2" aria-hidden="true" tabindex="-1"></a>bakerloo_stops <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;data/bakerloo_stops.csv&quot;</span>)</span>
@@ -671,8 +671,8 @@ FIGURE 9.2: Street network geometries for Kensington in Toronto, CA and Manhatta
 <span id="cb370-3"><a href="chapter-8-crime-along-spatial-networks.html#cb370-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> bakerloo_line) <span class="sc">+</span> </span>
 <span id="cb370-4"><a href="chapter-8-crime-along-spatial-networks.html#cb370-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> ldn, <span class="at">fill =</span> <span class="cn">NA</span>) <span class="sc">+</span> </span>
 <span id="cb370-5"><a href="chapter-8-crime-along-spatial-networks.html#cb370-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>() </span></code></pre></div>
-<div class="figure"><span id="fig:unnamed-chunk-223"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-223-1.png" alt="Bakerloo line in London" width="672" />
+<div class="figure"><span id="fig:unnamed-chunk-224"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-224-1.png" alt="Bakerloo line in London" width="672" />
 <p class="caption">
 FIGURE 9.3: Bakerloo line in London
 </p>
@@ -720,8 +720,8 @@ FIGURE 9.3: Bakerloo line in London
 <span id="cb381-4"><a href="chapter-8-crime-along-spatial-networks.html#cb381-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> bakerloo_crimes, <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>) <span class="sc">+</span> </span>
 <span id="cb381-5"><a href="chapter-8-crime-along-spatial-networks.html#cb381-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>() <span class="sc">+</span> </span>
 <span id="cb381-6"><a href="chapter-8-crime-along-spatial-networks.html#cb381-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.grid.major =</span> <span class="fu">element_line</span>(<span class="at">colour =</span> <span class="st">&quot;white&quot;</span>))</span></code></pre></div>
-<div class="figure"><span id="fig:unnamed-chunk-229"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-229-1.png" alt="Crimes on or near Bakerloo line stations" width="672" />
+<div class="figure"><span id="fig:unnamed-chunk-230"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-230-1.png" alt="Crimes on or near Bakerloo line stations" width="672" />
 <p class="caption">
 FIGURE 9.4: Crimes on or near Bakerloo line stations
 </p>
@@ -751,8 +751,8 @@ FIGURE 9.4: Crimes on or near Bakerloo line stations
 <span id="cb384-9"><a href="chapter-8-crime-along-spatial-networks.html#cb384-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_gradient2</span>(<span class="at">name =</span> <span class="st">&quot;Number of crimes&quot;</span>, </span>
 <span id="cb384-10"><a href="chapter-8-crime-along-spatial-networks.html#cb384-10" aria-hidden="true" tabindex="-1"></a>                         <span class="at">midpoint =</span> midpoint_crimes,</span>
 <span id="cb384-11"><a href="chapter-8-crime-along-spatial-networks.html#cb384-11" aria-hidden="true" tabindex="-1"></a>                         <span class="at">low =</span> <span class="st">&quot;#ffffcc&quot;</span>, <span class="at">mid =</span> <span class="st">&quot;#fd8d3c&quot;</span>, <span class="at">high =</span> <span class="st">&quot;#800026&quot;</span>)</span></code></pre></div>
-<div class="figure"><span id="fig:unnamed-chunk-230"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-230-1.png" alt="Hot routes map displaying count of crimes per segment" width="672" />
+<div class="figure"><span id="fig:unnamed-chunk-231"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-231-1.png" alt="Hot routes map displaying count of crimes per segment" width="672" />
 <p class="caption">
 FIGURE 9.5: Hot routes map displaying count of crimes per segment
 </p>
@@ -779,8 +779,8 @@ FIGURE 9.5: Hot routes map displaying count of crimes per segment
 <span id="cb387-7"><a href="chapter-8-crime-along-spatial-networks.html#cb387-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_gradient2</span>(<span class="at">name =</span> <span class="st">&quot;Rate of crimes per meter&quot;</span>, </span>
 <span id="cb387-8"><a href="chapter-8-crime-along-spatial-networks.html#cb387-8" aria-hidden="true" tabindex="-1"></a>                         <span class="at">midpoint =</span> midpoint_rates,</span>
 <span id="cb387-9"><a href="chapter-8-crime-along-spatial-networks.html#cb387-9" aria-hidden="true" tabindex="-1"></a>                         <span class="at">low =</span> <span class="st">&quot;#ffffcc&quot;</span>, <span class="at">mid =</span> <span class="st">&quot;#fd8d3c&quot;</span>, <span class="at">high =</span> <span class="st">&quot;#800026&quot;</span>)</span></code></pre></div>
-<div class="figure"><span id="fig:unnamed-chunk-231"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-231-1.png" alt="Hot routes map displaying rate of crimes per meter for each segment" width="672" />
+<div class="figure"><span id="fig:unnamed-chunk-232"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-232-1.png" alt="Hot routes map displaying rate of crimes per meter for each segment" width="672" />
 <p class="caption">
 FIGURE 9.6: Hot routes map displaying rate of crimes per meter for each segment
 </p>
@@ -795,8 +795,8 @@ FIGURE 9.6: Hot routes map displaying rate of crimes per meter for each segment
 <span id="cb388-7"><a href="chapter-8-crime-along-spatial-networks.html#cb388-7" aria-hidden="true" tabindex="-1"></a>                         <span class="at">midpoint =</span> midpoint_rates,</span>
 <span id="cb388-8"><a href="chapter-8-crime-along-spatial-networks.html#cb388-8" aria-hidden="true" tabindex="-1"></a>                         <span class="at">low =</span> <span class="st">&quot;#ffffcc&quot;</span>, <span class="at">mid =</span> <span class="st">&quot;#fd8d3c&quot;</span>, <span class="at">high =</span> <span class="st">&quot;#800026&quot;</span>) <span class="sc">+</span></span>
 <span id="cb388-9"><a href="chapter-8-crime-along-spatial-networks.html#cb388-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_size_continuous</span>(<span class="at">name =</span> <span class="st">&quot;Rate of crimes per meter (width)&quot;</span>) </span></code></pre></div>
-<div class="figure"><span id="fig:unnamed-chunk-232"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-232-1.png" alt="Hot routes map displaying rate of crimes per meter for each segment with line width as well as colour" width="672" />
+<div class="figure"><span id="fig:unnamed-chunk-233"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-233-1.png" alt="Hot routes map displaying rate of crimes per meter for each segment with line width as well as colour" width="672" />
 <p class="caption">
 FIGURE 9.7: Hot routes map displaying rate of crimes per meter for each segment with line width as well as colour
 </p>
@@ -813,7 +813,7 @@ FIGURE 9.7: Hot routes map displaying rate of crimes per meter for each segment 
 <div class="sourceCode" id="cb389"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb389-1"><a href="chapter-8-crime-along-spatial-networks.html#cb389-1" aria-hidden="true" tabindex="-1"></a>bk_lorenz <span class="ot">&lt;-</span> <span class="fu">Lc</span>(bakerloo_sections<span class="sc">$</span>crime_per_m)</span></code></pre></div>
 <p>Our resulting <code>bk_lorenz</code> object has 3 elements. First, the <code>p</code> represents the cumulative percent of crimes (per meter) for each line segment. Then, <code>L</code> contains the values of the ordinary Lorenz curve, while the <code>L.general</code> element the values for the generalised Lorenz curve. We can plot the Lorenz curve with the <code>plot()</code> function from base R.</p>
 <div class="sourceCode" id="cb390"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb390-1"><a href="chapter-8-crime-along-spatial-networks.html#cb390-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(bk_lorenz)</span></code></pre></div>
-<p><img src="crime_mapping_files/figure-html/unnamed-chunk-234-1.png" width="672" /></p>
+<p><img src="crime_mapping_files/figure-html/unnamed-chunk-235-1.png" width="672" /></p>
 <p>Upon seeing this, we can consider that many of the segments of the Bakerloo line contribute very little to overall crimes, and it is instead the top few which contribute most of the crimes. From a visual inspection, it appears that the Bakerloo line very precisely fits the Pareto Principle, whereby 20% of the segments seem to account for 80% of the crimes (per meter length of the segment). We can quantify this further using the Gini coefficient.</p>
 <div class="sourceCode" id="cb391"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb391-1"><a href="chapter-8-crime-along-spatial-networks.html#cb391-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ineq</span>(bakerloo_sections<span class="sc">$</span>crime_per_m, <span class="at">type=</span><span class="st">&quot;Gini&quot;</span>)</span></code></pre></div>
 <pre><code>## [1] 0.7159</code></pre>
@@ -831,8 +831,8 @@ FIGURE 9.7: Hot routes map displaying rate of crimes per meter for each segment 
 <span id="cb393-4"><a href="chapter-8-crime-along-spatial-networks.html#cb393-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> bakerloo_crimes, <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>) <span class="sc">+</span> </span>
 <span id="cb393-5"><a href="chapter-8-crime-along-spatial-networks.html#cb393-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>() <span class="sc">+</span> </span>
 <span id="cb393-6"><a href="chapter-8-crime-along-spatial-networks.html#cb393-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.grid.major =</span> <span class="fu">element_line</span>(<span class="at">colour =</span> <span class="st">&quot;white&quot;</span>))</span></code></pre></div>
-<div class="figure"><span id="fig:unnamed-chunk-236"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-236-1.png" alt="Bakerloo line, stations, and relevant crimes" width="672" />
+<div class="figure"><span id="fig:unnamed-chunk-237"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-237-1.png" alt="Bakerloo line, stations, and relevant crimes" width="672" />
 <p class="caption">
 FIGURE 9.8: Bakerloo line, stations, and relevant crimes
 </p>
@@ -931,8 +931,8 @@ FIGURE 9.8: Bakerloo line, stations, and relevant crimes
 <span id="cb402-8"><a href="chapter-8-crime-along-spatial-networks.html#cb402-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">&quot;Crime Rate per 10,000 passengers&quot;</span>) <span class="sc">+</span> </span>
 <span id="cb402-9"><a href="chapter-8-crime-along-spatial-networks.html#cb402-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span> </span>
 <span id="cb402-10"><a href="chapter-8-crime-along-spatial-networks.html#cb402-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">60</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span></code></pre></div>
-<div class="figure"><span id="fig:unnamed-chunk-238"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-238-1.png" alt="Route profile for Bakerloo line" width="672" />
+<div class="figure"><span id="fig:unnamed-chunk-239"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-239-1.png" alt="Route profile for Bakerloo line" width="672" />
 <p class="caption">
 FIGURE 9.9: Route profile for Bakerloo line
 </p>
@@ -962,8 +962,8 @@ FIGURE 9.9: Route profile for Bakerloo line
 <span id="cb404-12"><a href="chapter-8-crime-along-spatial-networks.html#cb404-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values=</span><span class="fu">c</span>(<span class="st">&quot;#66c2a5&quot;</span>, <span class="st">&quot;#8da0cb&quot;</span>, <span class="st">&quot;#fc8d62&quot;</span>), </span>
 <span id="cb404-13"><a href="chapter-8-crime-along-spatial-networks.html#cb404-13" aria-hidden="true" tabindex="-1"></a>                      <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;Jan&quot;</span>, <span class="st">&quot;Feb&quot;</span>, <span class="st">&quot;Mar&quot;</span>), </span>
 <span id="cb404-14"><a href="chapter-8-crime-along-spatial-networks.html#cb404-14" aria-hidden="true" tabindex="-1"></a>                      <span class="at">guide=</span><span class="st">&quot;legend&quot;</span>, <span class="at">name=</span><span class="st">&quot;Month&quot;</span>)</span></code></pre></div>
-<div class="figure"><span id="fig:unnamed-chunk-240"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-240-1.png" alt="Route profile of Bakerloo line comparing different months" width="672" />
+<div class="figure"><span id="fig:unnamed-chunk-241"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-241-1.png" alt="Route profile of Bakerloo line comparing different months" width="672" />
 <p class="caption">
 FIGURE 9.10: Route profile of Bakerloo line comparing different months
 </p>
@@ -1007,8 +1007,8 @@ FIGURE 9.10: Route profile of Bakerloo line comparing different months
 <span id="cb405-24"><a href="chapter-8-crime-along-spatial-networks.html#cb405-24" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">c</span>(<span class="st">&quot;cook_roads&quot;</span>, <span class="st">&quot;cook_tract&quot;</span>, <span class="st">&quot;tract_roads&quot;</span>,<span class="st">&quot;x&quot;</span> ))</span></code></pre></div>
 <p>Now we have our <code>linnet</code> object called <code>s_englewood_linnet</code> which contains a street network for the South Englewood area. We can plot this to have a visual inspection.</p>
 <div class="sourceCode" id="cb406"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb406-1"><a href="chapter-8-crime-along-spatial-networks.html#cb406-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(s_englewood_linnet, <span class="at">style =</span> <span class="st">&quot;none&quot;</span>, <span class="at">main =</span> <span class="st">&quot;South Englewood&quot;</span>)</span></code></pre></div>
-<div class="figure"><span id="fig:unnamed-chunk-241"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-241-1.png" alt="Street network of South Englewood as linnet object" width="672" />
+<div class="figure"><span id="fig:unnamed-chunk-242"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-242-1.png" alt="Street network of South Englewood as linnet object" width="672" />
 <p class="caption">
 FIGURE 9.11: Street network of South Englewood as linnet object
 </p>
@@ -1054,8 +1054,8 @@ FIGURE 9.11: Street network of South Englewood as linnet object
 <p>Now we can plot our two layers, the crimes in our <code>chi_viol_lpp</code> object, and the network in the <code>s_englewood_linnet</code> object.</p>
 <div class="sourceCode" id="cb411"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb411-1"><a href="chapter-8-crime-along-spatial-networks.html#cb411-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(chi_viol_lpp, <span class="at">meansize =</span> <span class="dv">50</span>, <span class="at">main =</span> <span class="st">&quot;Assaults in South Englewood (2019)&quot;</span>)</span>
 <span id="cb411-2"><a href="chapter-8-crime-along-spatial-networks.html#cb411-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(s_englewood_linnet, <span class="at">style =</span> <span class="st">&quot;none&quot;</span>, <span class="at">add=</span> <span class="cn">TRUE</span>)</span></code></pre></div>
-<div class="figure"><span id="fig:unnamed-chunk-244"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-244-1.png" alt="Assaults as lpp object over network as linnet object" width="672" />
+<div class="figure"><span id="fig:unnamed-chunk-245"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-245-1.png" alt="Assaults as lpp object over network as linnet object" width="672" />
 <p class="caption">
 FIGURE 9.12: Assaults as lpp object over network as linnet object
 </p>
@@ -1069,11 +1069,11 @@ FIGURE 9.12: Assaults as lpp object over network as linnet object
 <span id="cb412-4"><a href="chapter-8-crime-along-spatial-networks.html#cb412-4" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">continuous =</span> <span class="cn">FALSE</span>,</span>
 <span id="cb412-5"><a href="chapter-8-crime-along-spatial-networks.html#cb412-5" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">verbose=</span> <span class="cn">FALSE</span>))</span></code></pre></div>
 <pre><code>##    user  system elapsed 
-##   6.923   0.056   6.987</code></pre>
+##   7.570   0.122   7.712</code></pre>
 <p>And to visualise:</p>
 <div class="sourceCode" id="cb414"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb414-1"><a href="chapter-8-crime-along-spatial-networks.html#cb414-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(d_okabe, <span class="at">main=</span><span class="st">&quot;Okabe-Suhigara (disc.)&quot;</span>)</span></code></pre></div>
-<div class="figure"><span id="fig:unnamed-chunk-246"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-246-1.png" alt="Network density map (Okabe-Suhigara (disc.) method)" width="672" />
+<div class="figure"><span id="fig:unnamed-chunk-247"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-247-1.png" alt="Network density map (Okabe-Suhigara (disc.) method)" width="672" />
 <p class="caption">
 FIGURE 9.13: Network density map (Okabe-Suhigara (disc.) method)
 </p>
@@ -1083,10 +1083,10 @@ FIGURE 9.13: Network density map (Okabe-Suhigara (disc.) method)
 <span id="cb415-2"><a href="chapter-8-crime-along-spatial-networks.html#cb415-2" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">weights =</span> <span class="fu">marks</span>(chi_viol_lpp), </span>
 <span id="cb415-3"><a href="chapter-8-crime-along-spatial-networks.html#cb415-3" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">sigma =</span> <span class="dv">60</span>))</span></code></pre></div>
 <pre><code>##    user  system elapsed 
-##  283.39   53.58  337.21</code></pre>
+##  304.24   58.14  363.38</code></pre>
 <div class="sourceCode" id="cb417"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb417-1"><a href="chapter-8-crime-along-spatial-networks.html#cb417-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(d_mcswiggan, <span class="at">main=</span><span class="st">&quot;McSwiggan&quot;</span>)</span></code></pre></div>
-<div class="figure"><span id="fig:unnamed-chunk-248"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-248-1.png" alt="Network density map (McSwiggan Gaussian method)" width="672" />
+<div class="figure"><span id="fig:unnamed-chunk-249"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-249-1.png" alt="Network density map (McSwiggan Gaussian method)" width="672" />
 <p class="caption">
 FIGURE 9.14: Network density map (McSwiggan Gaussian method)
 </p>
@@ -1097,11 +1097,11 @@ FIGURE 9.14: Network density map (McSwiggan Gaussian method)
 <span id="cb418-3"><a href="chapter-8-crime-along-spatial-networks.html#cb418-3" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">sigma =</span> <span class="dv">60</span>,</span>
 <span id="cb418-4"><a href="chapter-8-crime-along-spatial-networks.html#cb418-4" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">edge2D =</span> <span class="cn">TRUE</span>))</span></code></pre></div>
 <pre><code>##    user  system elapsed 
-##   0.108   0.012   0.123</code></pre>
+##   0.116   0.011   0.128</code></pre>
 <p>We can now plot the data and compare the results:</p>
 <div class="sourceCode" id="cb420"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb420-1"><a href="chapter-8-crime-along-spatial-networks.html#cb420-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(d_rakshit, <span class="at">main=</span><span class="st">&quot;Rakshit&quot;</span>)</span></code></pre></div>
-<div class="figure"><span id="fig:unnamed-chunk-250"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-250-1.png" alt="Network density map (Rakshit method)" width="672" />
+<div class="figure"><span id="fig:unnamed-chunk-251"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-251-1.png" alt="Network density map (Rakshit method)" width="672" />
 <p class="caption">
 FIGURE 9.15: Network density map (Rakshit method)
 </p>
