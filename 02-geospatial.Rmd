@@ -20,9 +20,7 @@ The main objectives for this chapter are that by the end you will have:
 - made interactive point map with leaflet.
 - used **geocoding** methods to translate text fields such as addresses into geographic coordinates.
 
-These are all very useful tools for the spatial crime analyst, and we will hope to demonstrate this by working through an example project. 
-
-The packages we will use in this chapter are: 
+These are all very useful tools for the spatial crime analyst, and we will hope to demonstrate this by working through an example project. The packages we will use in this chapter are: 
 
 ```{r libraries_2, message=FALSE}
 
@@ -53,12 +51,11 @@ The main example we will work through most of the chapter considers the assumpti
 
 One theory might be that some of these serve as *crime attractors*. 
 
-> Crime attractors are particular places, areas, neighbourhoods, districts which create well-known criminal opportunities to which strongly motivated, intending criminal offenders are attracted because of the known opportunities for particular types of crime. Examples might include bar districts; prostitution areas; drug markets; large shopping malls, particularly those near major public transit exchanges; large, insecure parking lots in business or commercial areas. The intending offender goes to rough bars looking for fights or other kinds of 'action' [@Brantingham_1995, p.7].
+> "Crime attractors are particular places, areas, neighbourhoods, districts which create well-known criminal opportunities to which strongly motivated, intending criminal offenders are attracted because of the known opportunities for particular types of crime. Examples might include bar districts; prostitution areas; drug markets; large shopping malls, particularly those near major public transit exchanges; large, insecure parking lots in business or commercial areas. The intending offender goes to rough bars looking for fights or other kinds of 'action'" [@Brantingham_1995, p.7].
 
 On the other hand, it is possible that these areas are *crime generators*. 
 
-> Crime generators are particular areas to which large numbers of people are attracted for reasons unrelated to any particular level of criminal motivation they might have or to any particular crime they might end up committing. Typical examples might include shopping precincts; entertainment districts; office concentrations; or sports stadiums [@Brantingham_1995, p.8]. 
-
+> "Crime generators are particular areas to which large numbers of people are attracted for reasons unrelated to any particular level of criminal motivation they might have or to any particular crime they might end up committing. Typical examples might include shopping precincts; entertainment districts; office concentrations; or sports stadiums" [@Brantingham_1995, p.8]. 
 
 It is possible that some licensed premises attract crimes, due to their reputation. However it is also possible that some of them are simply located in areas that are busy, attracts lots of people for lots of reasons, and crimes occur as a result of an abundance of opportunities instead. 
 
@@ -70,13 +67,11 @@ We will be using three different sources of data in this chapter. First, we will
 
 ### Reading in crime data
 
-
 The point-level crime data for Greater Manchester can be found in the file `2019-06-greater-manchester-street.csv` we used in Chapter 1. We can import it with the `read_csv()` function from the `readr` package. 
 
 ```{r read_data_2a, message=FALSE}
 
 crimes <- read_csv("data/2019-06-greater-manchester-street.csv")
-
 
 ```
 
@@ -105,9 +100,7 @@ Much better! Now let's get some boundary data for Manchester.
 
 **GeoJSON** is an open standard format designed for representing simple geographical features, along with their non-spatial attributes. It is based on JSON, the JavaScript Object Notation. It is a format for encoding a variety of geographic data structures and is the most common format for geographical representation in the web. Unlike ESRI shapefiles, with GeoJSON data everything is stored in a single file.
 
-Geometries are shapes. All simple geometries in GeoJSON consist of a type and a collection of coordinates. The features include points (therefore addresses and locations), line strings (therefore streets, highways and boundaries), polygons (countries, provinces, tracts of land), and multi-part collections of these types. GeoJSON features need not represent entities of the physical world only; mobile routing and navigation apps, for example, might describe their service coverage using GeoJSON.
-
-To tinker with GeoJSON and see how it relates to geographical features, try [geojson.io](geojson.io), a tool that shows code and visual representation in two panes. 
+Geometries are shapes. All simple geometries in GeoJSON consist of a type and a collection of coordinates. The features include points (therefore addresses and locations), line strings (therefore streets, highways and boundaries), polygons (countries, provinces, tracts of land), and multi-part collections of these types. GeoJSON features need not represent entities of the physical world only; mobile routing and navigation apps, for example, might describe their service coverage using GeoJSON. To tinker with GeoJSON and see how it relates to geographical features, try [geojson.io](geojson.io), a tool that shows code and visual representation in two panes. 
 
 Let's read in a geoJSON spatial file, again from the web. This particular geoJSON represents the wards of Greater Manchester. 
 
@@ -117,7 +110,7 @@ manchester_ward <- st_read("data/wards.geojson")
 
 ```
 
-Let's select only the city centre ward, using the `filter()` function from the `dplyr` package. Notice how we're using the values in the data (or attribute) table, therefore this is an *attribure operation*. 
+Let's now select only the city centre ward, using the `filter()` function from the `dplyr` package. Notice how we're using the values in the data (or attribute) table, therefore this is an *attribure operation*. 
 
 ```{r select_centre_2b}
 
@@ -146,7 +139,7 @@ Now we could use this geometry to make sure that our points are in fact only lic
 
 To map licenced premises we will be accessing data from Open Street Map, a database of geospatial information built by a community of mappers, enthusiasts and members of the public, who contribute and maintain data about all sorts of environmental features, such as roads, green spaces, restaurants and railway stations. You can see all about open street map on their [online mapping platform](https://www.openstreetmap.org/). One feature of Open Street Map, unlike Google Map, is that the underlying data is openly available for download *for free*. In R, we can take advantage of a package written specifically for querying Open Street Map's API, called `osmdata`. For more detail on how to use this, see @Langton_2020, and *Appendix C: sourcing geographical data for crime analysis* of this book. 
 
-If we load the package `osmdata` we can use its functions to query the Open Street Map API. To find out more about the capabilities of this package, see @Padgham_2017. While this is outside the scope of our chapter here, you may want to explore `osmdata` more, as it is an international database, and has lots of data may come in handy for research and analysis. 
+If we load the package `osmdata` we can use its functions to query the Open Street Map API. To find out more about the capabilities of this package, see @Padgham_2017. While this is outside the scope of our chapter here, you may want to explore `osmdata` more, as it is an international database, and has lots of data that may come in handy for research and analysis. 
 
 Here we focus specifically on Manchester. To retrieve data for a specific area, we must create a **bounding box**. You can think of the bounding box as a box drawn around the area that we are interested in (in this case, Manchester, UK) which tells the Open Street Map API that we want everything *inside* the box, but nothing *outside* the box. 
 
@@ -159,9 +152,7 @@ bb_sf <- getbb(place_name = "greater manchester united kingdom",
 
 ```
 
-
 We can see what this bounding box looks like by plotting it (notice this time we combine the plot() and st_geometry() functions to save needing to create a new object):
-
 
 ```{r plot_bb, message=FALSE, warning=FALSE}
 
@@ -199,16 +190,14 @@ We now have an `sf` object with all the bars in our study region mapped by Open 
 One column we should consider is the `name` which tells us the name of the bar. There are missing values here as well, and for this example, we will choose to exclude those lines where there is no name included, as we would like at least a little bit of context around our bars. To do this, perform another *attribute operation* using the `filter()` function:
 
 ```{r filter_names}
-
 osm_bar_sf <- osm_bar_sf %>% filter(!is.na(name))
-
 ```
 
 We are still left with `r nrow(osm_bar_sf)` bars in our data set. 
 
 ## Attribute operations
 
-We mentioned above when we were using **attribute operations**. These are changes to the data which we make based on manipulation of elements in the attribute table. For example, the use of `filter()` is an attribute operation, because we rely on the data in the attribute table in order to accomplish this task. 
+We mentioned above we were using **attribute operations**. These are changes to the data which we make based on manipulation of elements in the attribute table. For example, the use of `filter()` is an attribute operation, because we rely on the data in the attribute table in order to accomplish this task. 
 
 For example, let's say we want to focus only on violent crime. To do this, we use the information in the attribute table, namely the values for the `crime_type` variable for each observation (crime) in our data set. 
 
@@ -232,7 +221,7 @@ So you can see we can do exciting spatial operations with our spatial data, whic
 
 ### Reprojecting coordinates
 
-It is important to recall here some of the learning from the previous chapter on map projections and coordinate reference systems. We learned about ways of flattening out the earth, and ways of making sense of what that means for how to be able to point to specific locations in our maps. **Coordinate Reference System** or CRS is this method of how to refer to locations with our data. You might use a *Geographic Coordinate System*, which tells you where your data are located on the surface of the Earth. The most commonly used one (at least by us!) is the **WGS 84**, where we define our locations with latitude and longitude points. The other type is a *Projected Coordinate System* which tells the data how to draw on a flat, 2-dimensional surface (such as a computer screen). In our case here, we will often encounter the **British National Grid** when working with British data. Here our locations are defined with Eastings and Northings. 
+It is important to recall here some of the learning from the previous chapter on map projections and coordinate reference systems. We learned about ways of flattening out the earth, and ways of making sense of what that means for how to be able to point to specific locations in our maps. **Coordinate Reference System** or CRS is this method of how to refer to locations with our data. You might use a *Geographic Coordinate System*, which tells you where your data are located on the surface of the Earth. The most commonly used one is the **WGS 84**, where we define our locations with latitude and longitude points. The other type is a *Projected Coordinate System* which tells the data how to draw on a flat, 2-dimensional surface (such as a computer screen). In our case here, we will often encounter the **British National Grid** when working with British data. Here our locations are defined with Eastings and Northings. 
 
 So why are we talking about this? 
 
@@ -248,8 +237,6 @@ st_crs(crimes)
 
 You can see that we get the CRS returned as `NA`. Can you think of why? Have we made this into a spatial object? Or is this merely a dataframe with a latitude and longitude column? The answer is really in the question here. So we need to convert this to a `sf` object, or a spatial object, and make sure that R knows that the latitude and the longitude columns are, in fact, coordinates. 
 
-In the `st_as_sf()` function we specify what we are transforming (the name of our dataframe), the column names that have the coordinates in them (longitude and latitude), the CRS we are using (4326 is the code for WGS 84, which is the CRS that uses latitude and longitude coordinates (remember BNG uses Easting and Northing)), and finally *agr*, the attribute-geometry-relationship, specifies for each non-geometry attribute column how it relates to the geometry, and can have one of following values: `"constant"`, `"aggregate"`, `"identity"`. The option `"constant"` is used for attributes that are constant throughout the geometry (e.g. land use), `"aggregate"` where the attribute is an aggregate value over the geometry (e.g. population density or population count), `"identity"` when the attributes uniquely identifies the geometry of particular "thing", such as a building ID or a city name. The default value, NA_agr_, implies we don't know. Finally we can specify the parameter `na.fail` which decides what to do when one or more of our observations have missing (`NA`)  values in their coordinates. The default setting is for the entire process to fail in this case. However, if we set this to `FALSE` it simply means we will lose those observations. Essentially, we are getting rid of those violent crimes which have not been geocoding, excluding them from our analysis. 
-
 ```{r define_crs}
 
 
@@ -258,15 +245,15 @@ crimes <- st_as_sf(crimes, coords = c("longitude", "latitude"),
 
 ```
 
+In the `st_as_sf()` function we specify what we are transforming (the name of our dataframe), the column names that have the coordinates in them (longitude and latitude), the CRS we are using (4326 is the code for WGS 84, which is the CRS that uses latitude and longitude coordinates (remember BNG uses Easting and Northing)), and finally *agr*, the attribute-geometry-relationship, specifies for each non-geometry attribute column how it relates to the geometry, and can have one of following values: `"constant"`, `"aggregate"`, `"identity"`. The option `"constant"` is used for attributes that are constant throughout the geometry (e.g. land use), `"aggregate"` where the attribute is an aggregate value over the geometry (e.g. population density or population count), `"identity"` when the attributes uniquely identifies the geometry of particular "thing", such as a building ID or a city name. The default value, NA_agr_, implies we don't know. Finally we can specify the parameter `na.fail` which decides what to do when one or more of our observations have missing (`NA`)  values in their coordinates. The default setting is for the entire process to fail in this case. However, if we set this to `FALSE` it simply means we will lose those observations. Essentially, we are getting rid of those violent crimes which have not been geocoding, excluding them from our analysis. 
+
 Now let's check the CRS of this spatial version of our licensed premises: 
 
 ```{r check_crs_again, eval = FALSE}
 st_crs(crimes)
 ```
 
-We can now see that we have this coordinate system as WGS 84. We need to then make sure that any other spatial object with which we want to perform spatial operations is also in the same CRS. 
-
-Let's look at our city centre ward boundary file: 
+We can now see that we have this coordinate system as WGS 84. We need to then make sure that any other spatial object with which we want to perform spatial operations is also in the same CRS. Let's look at our city centre ward boundary file: 
 
 
 ```{r check_crs_wards, eval = FALSE}
@@ -312,7 +299,6 @@ st_crs(osm_bar_sf)
 You will see this is also in WGS84. Since all our data are in this CRS, we can now move on to carry out some spatial operations. 
 
 But before doing so, we need to raise an important point. R is still undergoing the adaptation to new standards in the way CRS data is stored and handled. Before 2020 you could specify the CRS data with a EPSG code or with a `proj4string` reference, which look more like gibberish to the non initiated but provided more flexibility (see @Lovelace_2019 for details). But there were problems with the old PROJ4. As we noted in the first chapter, it only allow for static reference frames (when on earth everything is moving all the time). So PROJ the main library for performing conversions between systems has changed. It now discourages the old `proj4string` format and has changed to the `OGC WKT2`. When you consult the https://epsg.io/ site you can see, whenever you select a projection how it translate to different standards (including OGC WKT). This is one of those changes that long term are really good, but because the cross dependencies between spatial R packages that were being updated at different speed this had an impact on usability. Although we will stick to the more familiar EPSG notation, we strongly recommend reading the following technical notes by Pebesma and Bivand and to be particularly alert to this issue: @Pebesma_2020, @Bivand_2019, @Bivand_2020. 
-
 
 ### Subsetting points
 
@@ -400,9 +386,7 @@ One approach is to build a buffer around our bars, and say that we will count al
 
 So, let's say we are interested in all crimes that occur within 400 meters of each licensed premise, within the study area. We chose 400m here as this is often the recommended distance for accessible bus stop guidance, so basically as far as people should walk to get to a bus stop. So in this case, we want to take our points, which represent the licensed premises, and build buffers of 400 meters around them. 
 
-You can do with the `st_buffer()` function. We pass two arguments to our function, the item which we want to buffer (the points in our `cc_bars' object) and the size of this buffer.
-
-Let's quickly illustrate: 
+You can do with the `st_buffer()` function. We pass two arguments to our function, the item which we want to buffer (the points in our `cc_bars' object) and the size of this buffer.Let's quickly illustrate: 
 
 ```{r buffers, eval=FALSE}
 
@@ -470,7 +454,7 @@ plot(st_geometry(buffer_WGS84))
 plot(st_geometry(cc_crimes), col = 'blue', add = T)
 ```
 
-OKAY, so some crimes fall inside some buffers, others not so much. Well, let's get to our next spatial operation, to be able to determine how many crimes happened in the 100m radius of each bar in Manchester City Centre. 
+Okay, so some crimes fall inside some buffers, others not so much. Well, let's get to our next spatial operation, to be able to determine how many crimes happened in the 100m radius of each bar in Manchester City Centre. 
 
 ### Counting Points within a Polygon
 
@@ -483,11 +467,7 @@ crimes_per_prem <- cc_crimes %>%
   count(name)
 ```
 
-You now have a new dataframe, `crimes_per_prem` which has a column for the name of the bars, a column for the number of violent crimes that fall within the buffer, and a column for the geometry. 
-
-Take a moment to look at this table. Use the `View()` function. Which premises have the most violent crimes? If you are perhaps familiar with Manchester bars - what do you think? Are you surprised? I was!
-
-Let's see the bar with the most crimes: 
+You now have a new dataframe, `crimes_per_prem` which has a column for the name of the bars, a column for the number of violent crimes that fall within the buffer, and a column for the geometry. Take a moment to look at this table. Use the `View()` function. Which premises have the most violent crimes? Let's see the bar with the most crimes: 
 
 ```{r select_worst_bar, results='hide'}
 
@@ -577,9 +557,7 @@ crimes_per_prem_2 %>%
 
 The bar with the highest number of crimes is still `r crimes_per_prem_2 %>% filter(num_crimes == max(num_crimes, na.rm=TRUE)) %>% pull(name)`, but now  with `r crimes_per_prem_2 %>% filter(num_crimes == max(num_crimes, na.rm = TRUE)) %>% pull(num_crimes)` crimes. This means there is a difference in the number of crimes attributed to this bar between the two approaches. Clearly there are `r abs(crimes_per_prem_2 %>% filter(num_crimes == max(num_crimes, na.rm = TRUE)) %>% pull(num_crimes) - crimes_per_prem %>% filter(n == max(n)) %>% pull(n))` crimes which fell within the buffer in the first approach, but were closer to another bar in the dataset, and were instead attributed to that one using this approach. 
 
-So which is better? 
-
-This is once again up to you as the researcher and analyst to decide. They do slightly different things, and so will answer slightly different questions. With the nearest feature approach, instead of talking about the number of crimes within some distance to the bar, we are instead talking about for each crime, the closest venue. This might mean that we could be attributing crimes that happen quite far from the venue to it, just because it's the closest within our data set. However, we are counting each crime only once. Pros and cons need to be weighed up to make decisions like these. 
+So which is better? This is once again up to you as the researcher and analyst to decide. They do slightly different things, and so will answer slightly different questions. With the nearest feature approach, instead of talking about the number of crimes within some distance to the bar, we are instead talking about for each crime, the closest venue. This might mean that we could be attributing crimes that happen quite far from the venue to it, just because it's the closest within our data set. However, we are counting each crime only once. Pros and cons need to be weighed up to make decisions like these. 
 
 ### Measuring distances
 
@@ -597,7 +575,6 @@ cp_crimes <- crime_w_bars %>% filter(nearest_bar$name  == "Crafty Pig")
 ```
 
 We can use `mapply()` and the `st_union()` function to draw a line between each crime and the closest bar (Crafty Pig in this case): 
-
 
 ```{r}
 dist_lines <- st_sfc( # Create simple feature geometry list column
@@ -632,7 +609,6 @@ cp_crimes <- cp_crimes %>%
 
 ```
 
-
 Having a look at our newly created variable, we can see that the crime locations are `r max(cp_crimes$distance)` away from the Crafty Pig bar. 
 
 One thing you might find strange about the data is that why are all these crimes geocoded on top of one another? This is how the open data are released, using geo-masking by snapping crime locations to a geomask (a set of points). This is done to ensure anonymity in the data (see @Tompson_2015 for more detail on this). In non-anonimysed data you might expect to see a little less overlap in your crime locations... Then with variation in distances between crimes and their nearest bars, we could use these distances to inform a buffer width for example. Anyway we will return to distances a little later with a better data set. But now, let's move on to putting these outcomes on a map, which will help us further investigate the case of the Crafty Pig!
@@ -654,7 +630,6 @@ You then create a map with this simple bit of code:
 ```{r, cache=FALSE}
 m <- leaflet() %>% addTiles()  
 ```
-
 
 And just print it:
 ```{r, cache=FALSE, fig.cap='A first interactive map'}
@@ -717,7 +692,6 @@ leaflet(crimes_per_prem) %>%
 
 It's not the neatest of maps, with all these overlaps, but we will talk about prettifying maps further down the line. You can however, pan and zoom, and investigate to find our most high-crime venue, the Crafty Pig. And here, with this background information, we can solve the puzzle. You see, the Crafty Pig appears to be the nearest venue to an area in Manchester City Centre called [*Piccadilly Gardens*](https://en.wikipedia.org/wiki/Piccadilly_Gardens) which is an area known for high levels of crime and anti social behaviour. Therefore it is likely that we are erroneously attributing many of these crimes to the Crafty Pig venue, as they may be taking place in Piccadilly Gardens instead. It is important, therefore, to think about any unintended consequences of the spatial operations we carry out, and how these might affect the conclusions which we draw from our crime mapping exercises. 
 
-
 Finally, let's say we want to save our interactive map, while keeping it interactive. You can do this by clicking on the export button at the top of the plot viewer, and choose the *Save as Webpage* option saving this as a `.html` file: 
 
 
@@ -727,7 +701,6 @@ knitr::include_graphics('img/save_as_wp.png')
 
 
 ```
-
 
 Then you can open this file with any type of web browser (safari, firefox, chrome) and share your map that way. You can send this to your friends, and make them jealous of your fancy map making skills.
 
@@ -754,7 +727,7 @@ addresses %>% geocode(address, method = 'osm')
 
 To illustrate on scale, let's have a look at another source of data on bars in Manchester. Manchester City Council have an [Open Data Catalogue](http://open.manchester.gov.uk/open/homepage/3/manchester_open_data_catalogue) on their website, which you can use to browse through what sort of data they release to the public. Like in many city open data portals, there are a some more and some less interesting data sets made available here. It's not quite as impressive as the open data from some of the cities in the US such as [New York](https://opendata.cityofnewyork.us/) or [Dallas](https://www.dallasopendata.com/) but we'll take it. 
 
-One interesting data set, especially for our questions about the different alcohol outlets is the [Licensed Premises data set](http://www.manchester.gov.uk/open/downloads/file/169/licensed_premises). This details all the currently active licenced premises in Manchester. There is URL a link to download these provided. 
+One interesting data set, especially for our questions about the different alcohol outlets is the [Licensed Premises data set](http://www.manchester.gov.uk/open/downloads/file/169/licensed_premises). This details all the currently active licenced premises in Manchester. There is a URL link to download these provided. 
 
 There are a few ways we can download this data set. On the manual side of things, we can simply right click on the download link from the website, save it to your computer, and read it in from there, by specifying the file path. Remember, if you save it in your R *working directory*, then you just need to specify the file name, as the working directory folder is where R will first look for this file. 
 
@@ -775,9 +748,7 @@ Let's have a look at what this data set looks like. You can use the `View()` fun
 View(lic_prem)
 ```
 
-We see that there is a field for "premisesname" which is the name of the premise, and two fields, "locationtext"  "postcode" which refer to address information. To geocode these, let's create a new column which combines the address and post code, and then use the `geocode()` function introduced above. 
-
-**Note: this will take a while (like hours!) for the whole `r nrow(lic_prem)` addresses data set, so just to illustrate for teaching purposes, we take the first 30**
+We see that there is a field for "premisesname" which is the name of the premise, and two fields, "locationtext" and "postcode" which refer to address information. To geocode these, let's create a new column which combines the address and post code, and then use the `geocode()` function introduced above.  This will take a while for the whole `r nrow(lic_prem)` addresses data set, so just for illustration purposes, we take the first 30.
 
 ```{r}
 
@@ -805,7 +776,6 @@ leaflet(data = lic_prem) %>%
 ```
 
 Geocoding may come in handy when we have address data, or something similar but no geometry to use to map it.
-
 
 ## Measuring distance more thoroughly
 
@@ -857,9 +827,7 @@ dist_headquarters <- st_distance(slice(comisarias_sf, 34),
 dist_headquarters # distance in meters
 ```
 
-The result is a matrix with a single row or column (depending on the order of the spatial objects) with a class of *units*.
-
-Often we may want to reexpress these distances in a different unit. For this purpose the `units` package offers useful functionality, through the `set_units()` function.
+The result is a matrix with a single row or column (depending on the order of the spatial objects) with a class of *units*. Often we may want to reexpress these distances in a different unit. For this purpose the `units` package offers useful functionality, through the `set_units()` function.
 
 ```{r}
 
@@ -901,7 +869,6 @@ head(suggested_crs, n = 1)
 
 ```
 
-
 Now we can transform our `madrid` object appropriately: 
 
 ```{r}
@@ -926,9 +893,7 @@ We can plot the results, to see that everything has gone according to plan:
 plot(madrid_grid)
 ```
 
-Looks good.
-
-So how do we look at distance from police stations here? We can measure the distance between each grid cell to all 39 police stations. To estimate the distance to the nearest police station we will find the minimum distance value for each grid, i.e. the distance to the nearest station.
+With so many "small" cells the paper printed version of this map may just look completely black. But it is simply composed of many small cells. So how do we look at distance from police stations here? We can measure the distance between each grid cell to all 39 police stations. To estimate the distance to the nearest police station we will find the minimum distance value for each grid, i.e. the distance to the nearest station.
 
 ```{r}
 comisarias_sf_meters <- st_transform(comisarias_sf, crs = 2062)
