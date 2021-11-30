@@ -7,13 +7,11 @@ knitr::opts_chunk$set(cache = F)
 
 ## Introduction
 
-In the first chapter we showed you fairly quickly how to create maps by understanding how data may have spatial elements, and how that can be linked to geometries. 
+In the first chapter we showed you fairly quickly how to create maps by understanding how data may have spatial elements, and how that can be linked to geometries. In this one instead we will get to know how to think about thematic maps, and how to apply your learning to creating your own maps of this variety. In the process we will discuss various types of thematic maps and the issues they raise.
 
-In this chapter we will get to know how to think about thematic maps, and how to apply your learning to creating your own maps of this variety. In the process we will discuss various types of thematic maps and the issues they raise.
+**Thematic maps** focus on representing the spatial pattern of a variable of interest (e.g, crimes, trust in the police, etc.) and they can be used for exploration and analysis or for presentation and communication to others. There are different types of thematic maps depending on how the variable of interest is represented. In this and the next chapters we will introduce some of these types of particular interest for crime analysis, the different challenges they pose, and some ideas that may help you to choose the best representation for your data. Critically, we need to think about the quality of the data we work with, for adequate measurement is the basis of any data analysis.
 
-Thematic maps focus on representing the spatial pattern of a variable of interest (e.g, crimes, trust in the police, etc.) and they can be used for exploration and analysis or for presentation and communication to others. There are different types of thematic maps depending on how the variable of interest is represented. In this and the next chapters we will introduce some of these types of particular interest for crime analysis, the different challenges they pose, and some ideas that may help you to choose the best representation for your data. Critically, we need to think about the quality of the data we work with, for adequate measurement is the basis of any data analysis.
-
-In this chapter, we introduce in particular two types of thematic maps used for mapping quantitative variables: **choropleth (thematic) maps** and **proportional symbol maps**. In previous chapters we introduced two separate packages for creating maps in R (`ggplot2` and `leaflet`). In this chapter we will introduce a third package for creating maps: `tmap`. The libraries we use in this chapter are as follow:
+We will introduce in particular two common types of thematic maps used for mapping quantitative variables: **choropleth (thematic) maps** and **proportional symbol maps**. In previous chapters we introduced two separate packages for creating maps in R (`ggplot2` and `leaflet`). Here we will introduce a third package for creating maps: `tmap`. The libraries we use in this chapter are as follow:
 
 
 ```{r load_libraries_3, warnings=FALSE, message=FALSE}
@@ -64,9 +62,7 @@ Mapping counts, that is mapping where a lot of the crime incidents concentrate i
 
 A map of rates essentially aims to provide information into geographic variation of crime risk - understood as the probability that a crime may occur. Maps of rates are ultimately about communicating the risk of crime, with greater rates suggesting a higher probability of becoming a victim of crime.
 
-In social science the denominator on mapped ratios is typically some form of population size, which typically we will want as current as possible. In other fields some measure of area size may be a preferred choice for the denominator. 
-
-However, a great deal of discussion in crime analysis has focused on the choice of the right denominator. Authors relate to this as the **denominator dilemma**: "the problem associated with identifying an appropriate target availability control that can overcome issues of spatial inequality in the areal units used to study crime" [@Ratcliffe_2010]. The best measure for your denominator is one which captures opportunities. If for example you are interested in residential burglary, it makes sense to use number of inhabited households as your denominator (rather than population size). Whatever denominator you choose, you will usually want to make a case as to why that is the best representation of the opportunities for the crime type you're interested in. 
+In social science the denominator on mapped ratios is typically some form of population size, which typically we will want as current as possible. In other fields some measure of area size may be a preferred choice for the denominator. However, a great deal of discussion in crime analysis has focused on the choice of the right denominator. Authors relate to this as the **denominator dilemma**: "the problem associated with identifying an appropriate target availability control that can overcome issues of spatial inequality in the areal units used to study crime" [@Ratcliffe_2010]. The best measure for your denominator is one which captures opportunities. If for example you are interested in residential burglary, it makes sense to use number of inhabited households as your denominator (rather than population size). Whatever denominator you choose, you will usually want to make a case as to why that is the best representation of the opportunities for the crime type you're interested in. 
 
 As noted, population is a common choice, but it is not always the one that best captures crime opportunities. Population is also highly mobile during the day. People do not stay in the areas where they live, they go to work, they go to school, they travel for tourism purposes, and in doing so they alter the population structure of any given area. As @Ratcliffe_2010 highlights with an example "the residential population (as is usually available from the census) tells the researcher little about the real number of people outside nightclubs at 2 a.m". Geographers and criminologists, thus, distinguish between the standard measures of population (that relate to people that live in an area) provided by the census and government statistical authorities; and the so called **ambient population**, that relates to people that occupy an area at a given time, and which typically are a bit more difficult to source (see for example: @Andresen_2011).
 
@@ -74,9 +70,9 @@ As we will see later, one of the key problems with mapping rates is that the est
 
 Aside from problems with the denominator, we may also have problems with our numerator. In crime analysis, the key variable we map is geocoded crime, that is crime for which we know its exact location. The source for this variable tends to be crime reported to and recorded by the police. Yet, we know this is an imperfect source of data. A very large proportion of crime is not reported to the police. In England and Wales, for example, it is estimated that around 60% of crime is unknown to the police. And this is an average! The unknown figure of crime is larger for certain types of crime (e.g., interpersonal violence, sexual abuse, fraud, etc.). What is more, we know that there are community-level attributes that are associated with the level of crime *reporting* to the police [@Goudriaan_2006]. 
 
-Equally, not all police forces or units are equally adept at properly *recording* all crimes reported to the police. An in-depth study conducted in England and Wales concluded that over 800,000 crimes reported to the police were not properly recorded (an under-recording of 19%, which is higher for violence and sexual abuse, 33% and 26% respectively) [@HMIC_2014]. There are, indeed, institutional, economic, cultural and political factors that may shape the quality of crime recording across different parts of the area we want to map out. 
+Equally, not all police forces or units are equally adept at properly *recording* all crimes reported to the police. An in-depth study conducted in England and Wales concluded that over 800,000 crimes reported to the police were not properly recorded (an under-recording of 19%, which is higher for violence and sexual abuse, 33% and 26% respectively) [@HMIC_2014]. There are, indeed, institutional, economic, cultural and political factors that may shape the quality of crime recording across different parts of the area we want to map out. Although all this has been known for a while, criminologists and crime analysts are only now beginning to appreciate how this can affect the quality of crime mapping and the decision making based on this mapping [@Buil-Gil_2021; @Hart_2012].
 
-Finally, the quality of the geocoding process, which varies across crime type, also comes into the equation. Sometimes there are issues with positional accuracy or the inability to geocode an address. Some authors suggest we need to be able to geocode at least 85% of the crime incidents to get accurate maps [@Ratcliffe_2004], otherwise geocoded crime records may be spatially biased. More recent studies offer a less conservative estimate depending on the level of analysis and number of incidents [@Andresen_2020], although some authors, on the contrary, argue for a higher hit rate and consider that hot spot detection techniques are very sensitive to the presence of non-geocoded data [@BrizRedon_2020]. Although all this has been known for a while, criminologists and crime analysts are only now beginning to appreciate how this can affect the quality of crime mapping and the decision making based on this mapping [@Buil-Gil_2021; @Hart_2012].
+Finally, the quality of the geocoding process, which varies across crime type, also comes into the equation. Sometimes there are issues with positional accuracy or the inability to geocode an address. Some authors suggest we need to be able to geocode at least 85% of the crime incidents to get accurate maps [@Ratcliffe_2004], otherwise geocoded crime records may be spatially biased. More recent studies offer a less conservative estimate depending on the level of analysis and number of incidents [@Andresen_2020], although some authors, on the contrary, argue for a higher hit rate and consider that hot spot detection techniques are very sensitive to the presence of non-geocoded data [@BrizRedon_2020].
 
 Although most of the time crime analysts are primarily concerned with mapping crime incidence and those factors associated with it, increasingly we see interest in the spatial representation of other variables of interest to criminologists such as fear of crime, trust in the police, and more. In these cases, the data may come from surveys and the problem that may arise is whether we have a sample size large enough to derive estimates at the geographical level that we may want to work with. When this is not the case, methods for small area estimation are required (for details and criminological examples see @Buil_2019). There has also been recent work mapping perception of place and fear of crime at micro-levels (see @Solymosi_2015 and @Solymosi_2020). 
 
@@ -100,13 +96,11 @@ A similar type of map uses graduated symbol maps. As with choropleth classing, t
 
 ## Creating proportional symbol maps
 
-In this chapter we are going to introduce the `tmap` package. This package was developed to easily produce thematic maps. It is inspired by the `ggplot2` package and the layered grammar of graphics. It was written by Martjin Tennekes, a Dutch data scientist. It is fairly user friendly and intuitive. To read more about tmap see @Tennekes_2018. 
+In this chapter we are going to introduce the `tmap` package. This package was developed to easily produce thematic maps. It is inspired by the `ggplot2` package and the layered grammar of graphics. It was written by Martjin Tennekes, a Dutch data scientist. It is fairly user friendly and intuitive. To read more about `tmap` see @Tennekes_2018. 
 
 In `tmap` each map can be plotted as a static map (*plot mode*) or shown interactively (*view mode*). We will start by focusing on static maps.
 
-For the purpose of demonstrating some of the functionality of this package we will use the Manchester crime data generated in the first chapter. We have now added a few variables obtained from the Census that will be handy later on. You can obtain the data in a GeoJSON format from the companion data to this book (see *Preamble* if you still need to download this data!). 
-
-Now let's import the data, saved in the file `manchester.geojson` using the `st_read()` function from the `sf` package. 
+For the purpose of demonstrating some of the functionality of this package we will use the Manchester crime data generated in the first chapter. We have now added a few variables obtained from the Census that will be handy later on. You can obtain the data in a GeoJSON format from the companion data to this book (see *Preamble* if you still need to download this data!). Now let's import the data, saved in the file `manchester.geojson` using the `st_read()` function from the `sf` package. 
 
 ```{r}
 
@@ -114,7 +108,7 @@ manchester <- st_read("data/manchester.geojson", quiet=TRUE)
 
 ```
 
-Every time you use the `tmap` package you will need a line of code that specifies the spatial object you will be using. Although originally developed to handle `sp` objects only, it now also has support for `sf` objects. For specifying the spatial object we use the `tm_shape()` function and inside we specify the name of the spatial object we are using. Its key function is simply to do just that,to identify our spatial data. On its own, this will do nothing apparent. No map will be created. We need to add additional functions to specify what we are doing with that spatial object, how we want to represent it. If you try to run this line on its own, you'll get an error telling you you must "Specify at least one layer after each tm_shape" (or it might say "Error: no layer elements defined after tm_shape" depending on your R version). 
+Every time you use the `tmap` package you will need a line of code that specifies the spatial object you will be using. Although originally developed to handle `sp` objects only, it now also has support for `sf` objects. For specifying the spatial object we use the `tm_shape()` function and inside we specify the name of the spatial object we are using. Its key function is simply to do just that, to identify our spatial data. On its own, this will do nothing apparent. No map will be created. We need to add additional functions to specify what we are doing with that spatial object, how we want to represent it. If you try to run this line on its own, you'll get an error telling you you must "Specify at least one layer after each tm_shape" (or it might say "Error: no layer elements defined after tm_shape" depending on your R version). 
 
 ```{r, eval=FALSE}
 tm_shape(manchester)
@@ -167,7 +161,6 @@ tm_shape(manchester) +
 
 We can see that we get much larger bubbles in the City Centre region of Manchester local authority. There is a chance that this is due to greater number of people present in this area. Unless we control for this, by mapping rates, we may not be able to meaningfully tell the difference...!
 
-
 ## Mapping rates rather than counts
 
 ### Generating the rates
@@ -181,7 +174,7 @@ hist(manchester$respop, main = "Distribution of residential population across LS
 
 ```
 
-We also have a variable `wkdpop` that represents the workday population. This variable re-distributes the usually resident population to their places of work, while those not in work are recorded at their usual residence. The picture it offers is much more diverse than the previous variable.
+We also have a variable `wkdpop` that represents the workday population. This variable re-distributes the usually resident population to their places of work, while those not in work are recorded at their usual residence. The picture it offers is much more diverse than the previous variable and in some ways is closer to the notion of an "ambient population" (with some caveats: for example it does not capture tourists, people visiting a place to shop or to entertain themselves in the night time economy, etc.).
 
 ```{r, fig.cap='Histogram of wkdpop variable', fig.height=3}
 
@@ -232,7 +225,7 @@ tm_shape(manchester) +
 
 The alpha parameter that we are inserting within `tm_borders()` controls the transparency of the borders, we can go from 0 (totally transparent) to 1 (not transparent). You can play around with this value and see the results.
 
-Notice as well that the legend in this map is not very informative and could be improved in terms of aesthetics. We can add a title within the `tm_fill` to clarify what "crimr1" means, and we can use the `tm_layout()` function to control the appearance of the legend. This later function `tm_layout()` allows you to think about many of the more general cosmetics of the map.
+Notice as well that the legend in this map is not very informative and could be improved in terms of aesthetics. We can add a title within the `tm_fill` to clarify what "crimr1" means, and we can use the `tm_layout()` function to control the appearance of the legend. This later function, `tm_layout()`, allows you to think about many of the more general cosmetics of the map.
 
 ```{r, message=FALSE, fig.cap='Crime rate per residential population mapped with aesthetics considered', fig.height=4}
 
@@ -247,7 +240,7 @@ tm_shape(manchester) +
 
 ```
 
-We can also change the style of the maps we produce, for example by making them more friendly to colour blind people. We can use the `tmap_style()` function to do so.
+We can also change the style of the maps we produce, for example by making them more friendly to colour blind people. We can use the `tmap_style()` function to do so. Once you set the style of the subsequent maps in your session will stick to this stil. If you want to reverse to a different style when using `tmap` you  need to do so explicitly.
 
 ```{r, message=FALSE}
 current_style <- tmap_style("col_blind")
@@ -328,15 +321,11 @@ Not only do you need to choose the classification method, you also need to decid
 
 If you want to lie with a map, it would be very easy by using a data classification scheme that conveys the message that you want to get across. It is, thus, important that your decisions are based on good practice and are impartial.
 
-For comparing the effects of using different methods we can use **small multiples**. Small multiples is simply a way of reproducing side by sides similar maps for comparative purposes. To be more precise small multiples are *sets of charts of the same type, with the same scale, presented together at a small size and with minimal detail, usually in a grid of some kind*. The term was at least popularized by Edward Tufte, appearing first in his *Visual Display of Quantitative Information* in 1983 [@Tufte_1983].
+For comparing the effects of using different methods we can use **small multiples**. Small multiples is simply a way of reproducing side by sides similar maps for comparative purposes. To be more precise small multiples are *sets of charts of the same type, with the same scale, presented together at a small size and with minimal detail, usually in a grid of some kind*. The term was popularized by Edward Tufte, appearing first in his *Visual Display of Quantitative Information* in 1983 [@Tufte_1983].
 
 There are different ways of creating small multiples with `tmap` as you could see in the vignettes for the package, some of which are quicker but a bit more restricted. Here we are going to use `tmap_arrange()`. With `tmap_arrange()` first we need to create the maps we want and then we arrange them together.
 
-Let's make five maps, each one using a different classification method: Equal interval, Quantile, Natural breaks (Jenks), Standard Deviation, and Headtails. 
-
-For each map, instead of visualising them one by one, just assign them to a new object. Let's call them `map1`, `map2`, `map3`, `map4`, `map5`. 
-
-So let's make `map1`. This will create a thematic map using equal intervals.
+Let's make five maps, each one using a different classification method: Equal interval, Quantile, Natural breaks (Jenks), Standard Deviation, and Headtails. For each map, instead of visualising them one by one, just assign them to a new object. Let's call them `map1`, `map2`, `map3`, `map4`, `map5`. So let's make `map1`. This will create a thematic map using equal intervals.
 
 ```{r}
 map1 <- tm_shape(manchester) +    
@@ -390,9 +379,7 @@ map5 <- tm_shape(manchester) +
             legend.title.size = 0.7, legend.text.size = 0.5)
 ```
 
-Notice that we are not plotting the maps, we are storing them into R objects (map1 to map5). This way they are saved, and you can call them later, which is what we need in order to plot them together using the `tmap_arrange()` function. 
-
-So if you wanted to map just `map3` for example, all you need to do, is call the `map3` object. Like so: 
+Notice that we are not plotting the maps, we are storing them into R objects (map1 to map5). This way they are saved, and you can call them later, which is what we need in order to plot them together using the `tmap_arrange()` function. So if you wanted to map just `map3` for example, all you need to do, is call the `map3` object. Like so: 
 
 ```{r, fig.cap='Quantile classification of crime in Manchester', fig.height=4}
 
@@ -492,7 +479,7 @@ data("ncovr")
 class(ncovr)
 ```
 
-Let's look at the ncvor data. We can start by looking at the homicide rate for 1960.
+Let's look at the "ncvor" data. We can start by looking at the homicide rate for 1960.
 
 ```{r}
 summary(ncovr$HR60)
@@ -514,9 +501,7 @@ To get to the bottom of this, we can look at the variable `HC60` which tells us 
 borden$HC60
 ```
 
-What? A total homicide count of 1. How can a county with just one homicide have a rate that makes it look like the most dangerous place in the US?
-
-To answer this, let's look at the population of Borden county in the 1960s, contained in the `PO60` variable. 
+What? A total homicide count of 1. How can a county with just one homicide have a rate that makes it look like the most dangerous place in the US? To answer this, let's look at the population of Borden county in the 1960s, contained in the `PO60` variable. 
 
 ```{r}
 borden$PO60
@@ -545,23 +530,44 @@ This is a problem that was first noted by epidemiologists doing disease mapping.
 
 One way of dealing with this is by **smoothing** or **shrinking** the rates. This basically as the word implies aims for a smoother representation that avoids hard spikes associated with random noise. There are different ways of doing that. Some ways use a non-spatial approach to smoothing, using something called a **empirical bayesian smoother**. How does this work? This approach takes the raw rates and tries to “shrink” them towards the overall average. What does this mean? Essentially, we compute a weighted average between the raw rate for each area and the global average across all areas, with weights proportional to the underlying population at risk. What this procedure does is to have the rates of smaller areas (those with a small population at risk) to have their rates adjusted considerably (brought closer to the global average), whereas the rates for the larger areas will barely change.
 
-Here we are going to introduce the approach implemented in `DCluster`, a package developed for epidemiological research and detection of clusters of disease. Specifically we can implement the `empbaysmooth()` function which creates a smooth relative risks from a set of expected and observed number of cases using a Poisson-Gamma model as proposed by @Clayton_1987.  The function  `empbaysmooth()` expects two parameters, the **expected** value (the global average) and the **observed** value (the rate we actually see).  In our case, these parameters should be: the observed is the homicide rate we see (`ncovr$HR60`), and the expected is the global homicide rate for the entire USA (`sum(ncovr$HC60)/sum(ncovr$PO60)`) times the population of the county (`ncovr$PO60`): 
-
+Here we are going to introduce the approach implemented in `DCluster`, a package developed for epidemiological research and detection of clusters of disease. Specifically we can implement the `empbaysmooth()` function which creates a smooth relative risks from a set of expected and observed number of cases using a Poisson-Gamma model as proposed by @Clayton_1987.  The function  `empbaysmooth()` expects two parameters, the **expected** value and the **observed** value. Let´s defined them first.
 
 
 ```{r}
-
-res <- empbaysmooth(ncovr$HR60, ncovr$PO60*(sum(ncovr$HC60)/sum(ncovr$PO60)))
-
+#First we define the observed number of cases
+ncovr$observed <- ncovr$HC60
+#To compute the expected number of cases through indirect standardisation
+#we need the overall incidence ratio
+overall_incidence_ratio <- sum(ncovr$HC60)/sum(ncovr$PO60)
+#The expected number of cases can then be obtained by multiplying the overall
+#incidence rate by the population
+ncovr$expected <- ncovr$PO60 * overall_incidence_ratio
 ```
 
-In the new object we generate, which is a list, you have an element which contains the computed rates. We can add those to our dataset:
+With this parameters we can obtain the raw relative risk:
 
 ```{r}
-ncovr$HR60EBS <- res$smthrr * 100000
+ncovr$raw_risk <- ncovr$observed / ncovr$expected
+summary(ncovr$raw_risk)
 ```
 
-Instead of shrinking to the global rate, we can shrink to a rate based on the neighbours of each county. Shrinking to the global rate ignores the spatial dimension of the phenomenon being mapped out and may mask existing heterogeneity. If instead of shrinking to a global rate, we shrink to a local rate, we may be able to take unobserved heterogeneity into account. @Marshall_1991 proposed a local smoother estimator in which the crude rate is shrunk towards a local, "neighbourhood", rate. To compute this we need the list of neighbours that surround each county (we will discuss this code in the Chapter on Spatial Dependence, so for now just trust us we are computing the rate of the areas that surround each country):
+And then estimate the smoothed relative risk:
+
+```{r}
+res <- empbaysmooth(ncovr$observed, ncovr$expected)
+
+```
+
+In the new object we generated, which is a list, you have an element which contains the computed rates. We can add those to our dataset:
+
+```{r}
+ncovr$H60EBS <- res$smthrr
+summary(ncovr$H60EBS)
+```
+
+We can observe that the dispersion narrows significantly and that there are fewer observations with extreme values once we use this smoother.
+
+Instead of shrinking to the global relative risk, we can shrink to a relative rate based on the neighbours of each county. Shrinking to the global risk ignores the spatial dimension of the phenomenon being mapped out and may mask existing heterogeneity. If instead of shrinking to a global risk, we shrink to a local rate, we may be able to take unobserved heterogeneity into account. @Marshall_1991 proposed a local smoother estimator in which the crude rate is shrunk towards a local, "neighbourhood", rate. To compute this we need the list of neighbours that surround each county (we will discuss this code in the Chapter on Spatial Dependence, so for now just trust us we are computing the rate of the areas that surround each country):
 
 ```{r}
 ncovr_sp <- as(ncovr, "Spatial")
@@ -585,35 +591,27 @@ map1<- tm_shape(ncovr) +
             legend.title.size = 0.8, legend.text.size = 0.5)
 
 map2<- tm_shape(ncovr) + 
-  tm_fill("HR60EBS", style="quantile", 
-          title = "EB Smooth", 
-          palette = "Reds") +
-  tm_layout(legend.position = c("left", "bottom"), 
-            legend.title.size = 0.8, legend.text.size = 0.5)
-
-map3<- tm_shape(ncovr) + 
   tm_fill("HR60EBSL", style="quantile", 
           title = "Local Smooth", 
           palette = "Reds") +
   tm_layout(legend.position = c("left", "bottom"), 
             legend.title.size = 0.8, legend.text.size = 0.5)
 
-tmap_arrange(map1, map2, map3) 
+tmap_arrange(map1, map2) 
 ```
 
 Notice that the quantiles are not the same, so that will make your comparison difficult. Let´s look at a boxplot of these variables. In the map of raw rates we have the most variation. 
 
 ```{r, fig.cap='Boxplots to compare variation in rates', fig.width=4}
 #Boxplots with base R graphics
-boxplot(ncovr$HR60, ncovr$HR60EBS, ncovr$HR60EBSL,
+boxplot(ncovr$HR60, ncovr$HR60EBSL,
         main = "Different rates of homicide per 100,000 people",
         names = c("Raw rate", 
-                  "Bayes smoother", 
                   "Local base smoother"),
         ylab = "Rates")
 ```
 
-The range for the raw rates is nearly 93. Much of the variation in observed homicide rates by county is attributable to statistical noise due to the small number of (observed and expected) homicides in low-population counties. Because of this noise, a disproportionate fraction of low-population counties are observed to have extremely high (or low) homicide rates when compared to typical counties in the United States. The second distribution shows that everything has been brought closer to the main mean, whereas the local smoother allows for a bit more variation. The general Bayes smoother has the opposite problem of mapping out the raw rates, it likely hides existing spatial variation. If you contrast the maps you will see how this results in a clearer and smoother spatial pattern for the rate that is estimated borrowing information from their neighbours. 
+The range for the raw rates is nearly 93. Much of the variation in observed homicide rates by county is attributable to statistical noise due to the small number of (observed and expected) homicides in low-population counties. Because of this noise, a disproportionate fraction of low-population counties are observed to have extremely high (or low) homicide rates when compared to typical counties in the United States. With smoothing we reduce this problem and if you contrast the maps you will see how this results in a clearer and smoother spatial pattern for the rate that is estimated borrowing information from their neighbours. 
 
 So to smooth or not too smooth? Clearly we can see how smoothing stabilises the rates and removes noise. But as @Gelman_1999 suggests this introduces other artifacts and autocorrelation into our estimates. Some people are also not too keen on maps of statistically adjusted estimates. Yet, the conclusions one can derive from mapping raw rates (*when* the denominator varies significantly and we have areas with small sample size) means that smoothing is often a preferable alternative [@Waller_2004]. The problem we have with maps of estimates is that we need information about the variability and it is hard to map this out in a convenient way [@Gelman_1999]. @Lawson_2006, in relation to the similar problem of disease mapping, suggests that "at the minimum any map of relative risk for a disease should be accompanied with information pertaining to estimates of rates within each region as well as estimates of variability within each region" (p. 38) whereas "at the other extreme it could be recommended that such maps be only used as a presentational aid, and not as a fundamental decision-making tool" (p. 38).  
 
@@ -621,7 +619,7 @@ So to smooth or not too smooth? Clearly we can see how smoothing stabilises the 
 
 This chapter introduced some basic principles of thematic maps. We learned how to make them using the `tmap` package, we learned about the importance of classification schemes, and how each one may produce a different looking map, which may tell a different story. For further reading, @Brewer_2006 provides a brief condensed introduction to thematic mapping for epidemiologists but that can be generally extrapolated for crime mapping purposes. We have talked about the potential to develop misleading maps and @Monmonier_1996 "How to lie with maps" provides good guidance to avoid that our negligent choices when producing a map confuse the readers. @Carr_2010 offers a more detailed treatment of small multiples and micromaps. 
 
-Mapping rates has been more thoroughly discussed within spatial epidemiology than in criminology. There is ample literature on disease mapping that address in more sophisticated ways some of the issues we introduce here (see @Waller_2004,  @Lawson_2021a, @Lawson_2006, or @Lawson_2021b). Much of this work on spatial epidemiology adopts a Bayesian framework. We will talk a bit more about this later on, but if you want a friendly introduction to Bayesian data analysis there is no better introduction than @McElreath_2018.
+Mapping rates has been more thoroughly discussed within spatial epidemiology than in criminology. There is ample literature on disease mapping that address in more sophisticated ways some of the issues we introduce here (see @Waller_2004,  @Lawson_2021a, @Lawson_2006, or @Lawson_2021b). Much of this work on spatial epidemiology adopts a Bayesian framework. We will talk a bit more about this later on, but if you want a friendly introduction to Bayesian data analysis we recommend @McElreath_2018.
 
 
 
