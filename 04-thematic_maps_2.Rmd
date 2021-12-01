@@ -46,8 +46,6 @@ In many maps there are so many data points included that little can be interpret
 
 This approach to binning generates an array of repeating shapes over a userspecified area. These shapes can be hexagons, squares, rectangles, triangles, circles or points, and they can be generated with any directional orientation. These are sometimes called 'grids' or 'fishnets' and lots of other spatial analysis (e.g., map algebra) can be done with such files.
 
-
-
 ### The Binning Process
 
 **Binning** is a data modification technique that changes the way data is shown at small scales. It is done in the pre-processing stage of data analysis to convert the original data values into a range of small intervals, known as a bin. These bins are then replaced by a value that is representative of the interval to reduce the number of data points.
@@ -63,7 +61,7 @@ Binning itself is a general term used to describe the grouping of a dataset's va
 
 #### Choropleth maps 
 
-You might be thinking, "grouping points into a larger spatial unit, haven't we already done this when making choropleth maps?". In a way you are right. Choropleth maps are another type of map that uses binning. Proportional symbol and choropleth maps group similar data points together to show a range of data instead of many individual points. We've covered this extensively, and is often the best approach to consider spatial grouping of your point variables, because the polygons (shapes) to which you are aggregating your points are *meaningful*. You can group into LSOAs because you want to show variation in neighbourhoods. Or you can group into police force areas because you want to look at differences between those units of analysis. But sometimes there is just not a geography present to meet your needs. 
+You might be thinking, "grouping points into a larger spatial unit, haven't we already done this when making choropleth maps?". In a way you are right. Choropleth maps are a type of map that uses binning. Proportional symbol and choropleth maps group similar data points together to show a range of data instead of many individual points. We've covered this extensively, and is often the best approach to consider spatial grouping of your point variables, because the polygons (shapes) to which you are aggregating your points are *meaningful*. You can group into LSOAs, as we did in previous chapters, because you want to show variation in neighbourhoods. Or you can group into police force areas because you want to look at differences between those units of analysis. But sometimes there is just not a geography present to meet your needs. 
 
 Let's say you are conducting some days of action in Manchester city centre, focusing on antisocial behaviour. You are going to put up some information booths and staff them with officers to engage with the local population about antisocial behaviour. For these to be most effective, as an analyst you decide that they should go into the areas with the highest *count* of antisocial behaviour. You want to be very specific about where you put these as well, and so LSOA level would be too broad, you want to zoom in more. One approach can be to split central Manchester into some smaller polygons, and just calculate the number of antisocial behaviour incidents recorded in each. That way you can then decide to put your information booths somewhere inside the top 5 highest count bins. 
 
@@ -87,7 +85,7 @@ manchester_asb <- read_csv("data/manchester_asb.csv")
 
 ```
 
-This is currently just a text dataframe, so we need to let R know that actually this is a spatial object, who's geometry can be found in its longitude and latitude coordinates. As we have long/lat we can assume it's in WGS 84 projection. 
+This is currently just a text dataframe, so we need to let R know that actually this is a spatial object; the geometry can be found in its longitude and latitude coordinates. As we have long/lat we can assume it's in WGS 84 projection. 
 
 ```{r}
 ma_spatial <- st_as_sf(manchester_asb, 
@@ -96,7 +94,7 @@ ma_spatial <- st_as_sf(manchester_asb,
                        agr = "constant")
 ```
 
-Now one thing that this does is it consumes our Long and Lat columns into a geometry attribute. This is generally OK, but for the binning we will do, we would like to have them as separate coordinates. To do this, we can use the `st_coordinates()` function from the `sf` package. This function extracts the longitude and latitude from the geometry within the sf object, in this case "ma_spatial" object. For example, if we look at the first row: 
+Now one thing that this does is it consumes our Long and Lat columns into a geometry attribute. This is generally OK, but for the binning we will do, we would like to have them as separate coordinates. To do this, we can use the `st_coordinates()` function from the `sf` package. This function extracts the longitude and latitude from the geometry within the `sf` object, in this case "ma_spatial" object. For example, if we look at the first row: 
 
 ```{r}
 ma_spatial %>% 
@@ -116,12 +114,12 @@ ma_spatial <- ma_spatial %>%
 
 ```
 
-As a first step, we can plot ASB in the borough of Manchester using simple ggplot, as demonstrated in Chapter 1. We can plot our points first:
+As a first step, we can plot antisocial behaviour in the borough of Manchester using simple `ggplot`, as demonstrated in Chapter 1. We can plot our points first:
 
 ```{r, fig.height= 3, fig.cap= 'Point map of ASB in Manchester'}
 
 ggplot(ma_spatial, aes(x = longitude, y = latitude)) +
-  geom_sf() + 
+  geom_sf(size=0.001) + 
   theme_minimal()
 
 ```
@@ -266,7 +264,7 @@ Because of the plethora of data types available and the wide variety of projects
 
 By using binning to create categories of data maps are easier to understand, more accurate and more visually appealing. Hexbin plots can be viewed as an alternative to scatter plots. The hexagon-shaped bins were introduced to plot densely packed sunflower plots. They can be used to plot scatter plots with high-density data.
 
-## Transforming polygons
+## Transforming polygons: cartograms
 
 When you have meaningful spatial units of analysis in your polygons, for example you are interested specifically in Local Autorities, it might make sense to aggregate the points into these meaningful polygons to create thematic maps. However, while thematic maps are an accessible and visually appealing method for displaying spatial information,  they can also be highly misleading. Irregularly shaped polygons and large differences in the size of areas being mapped can introduce misrepresentation. The message analysts and researchers want to get across might be lost, or even worse, misdirect the viewers to erroneous conclusions. @Field_2016 provide a helpful discussion of the problem illustrating the case with UK election maps. It is worth reading.
 
@@ -329,7 +327,7 @@ eu_cartogram <- cartogram_cont(eu_sf, "Electorate")
 If you run this, it might take a long time. This function, while it looks nice and simple, is actually very computationally taxing for your computer. For those interested, you may like to take the time while R works this out for you to read up on the maths behind this transformation in @Dougenik_1985 (it's got a fun name: a rubber sheet distortion algorithm!). 
 
 
-I do have a tip for you if you want to make sure the process does not take too long. You can set another parameter in the cartogram function which is the `itermax=` parameter. This specifies the maximum number of iterations we are happy to sit through for our cartogram. If you do not specify it's set to 15. Let's set to 5 for the sake of speed: 
+I do have a tip for you if you want to make sure the process does not take too long. You can set another parameter in the cartogram function which is the `itermax=` parameter. This specifies the maximum number of iterations we are happy to sit through for our cartogram. If you do not specify an alternative the defaukt is set to 15. Let's set to 5 for the sake of speed: 
 
 ```{r, message=FALSE}
 
@@ -379,7 +377,7 @@ We first came across the idea of bivariate choropleth maps from the blog of @Ste
 
 The process itself is not too complicated. We start with binning our two variables into classes. If we bin variable 1 into $n$ classes, and then again variable 2 into $n$ classes, then when we compare them across one another to create our bivariate map, we will end up with $n^2$ classes. For example, if we bin both variables into 3 classes (low, medium, high), then when displaying them together, we will have 9 classes to visualise. @Stevens_2015 blog illustrates with nice visuals, so we recommend having a look. However the practical example is in QGIS, and here we are working in R. There had been adaptations into R (eg see @Grossenbacher_2019) which we can borrow from here too.
 
-Creating the map boils down to 5 key steps. First, we take our two variables of interest, and create bins. Second, we create a new variable, which we will use for the shading. Third we create our colour scheme. Fourth, we join this to our sf object. And, finally we map! Let's go through these steps now. Using the example of voting to leave the EU. 
+Creating the map boils down to 5 key steps. First, we take our two variables of interest, and create bins. Second, we create a new variable, which we will use for the shading. Third we create our colour scheme. Fourth, we join this to our `sf` object. And, finally we map! Let's go through these steps now. Using the example of voting to leave the EU. 
 
 It may be an interesting question to look into not only how the voting outcome was distributed (`Pct_Leave`) but how this varies with voter turnout (`Pct_Turnout`). We might be interested in areas with high turnout and high percentage voting to leave, as these may be areas where people felt passionately. On the other hand, other areas may have had low turnout, which may have influenced the result, and in those places, how did people who did turn up vote? These are the kinds of questions we can answer with a bivariate map. 
 
@@ -584,7 +582,7 @@ Now that we've shown you how to do a lot of spatial crime analysis, we wanted to
 
 We borrow here from George Rengert and Brian Lockwood: 
 
-> When spatial analysis of crime is conducted, the analyst should not ignore the spatial units that data are aggregated into and the impact of this choice on the interpretation of findings. Just as several independent variables are considered to determine whether they have statistical significance, a consideration of multiple spatial units of analysis should be made as well, in order to determine whether the choice of aggregation level used in a spatial analysis can result in biased findings [@Rengert_2009].
+> "When spatial analysis of crime is conducted, the analyst should not ignore the spatial units that data are aggregated into and the impact of this choice on the interpretation of findings. Just as several independent variables are considered to determine whether they have statistical significance, a consideration of multiple spatial units of analysis should be made as well, in order to determine whether the choice of aggregation level used in a spatial analysis can result in biased findings" [@Rengert_2009, p. ].
 
 In particular, they highlight four main issues inherent in most studies of space:
 
