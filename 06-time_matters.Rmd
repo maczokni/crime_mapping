@@ -43,10 +43,7 @@ library(tmap)
 
 In this book so far we have really emphasised the role of place in presenting opportunities for crimes to occur. However we cannot consider space without also considering time. An area might look very different during the day and during the night, on a weekend or on a weekday, and in the summer or in the winter. 
 
-On a macro-scale, the relationship between crime and the seasons is something that had been a topic of concern for researchers as long as space has [@Baumer_1996]. Zooming into a micro-scale, changes in routine activities with time of day or day of week  will affect the profile of a place, and linking back to the idea of crime places such as *generators* or *attractors*, will have significant effect on crime rates.  In conceptualising these crime places, @Newton_2018 emphasised the importance to consider the measure of busyness of a place by time of day in order to understand its role as an attractor, generator, or other crime place. For example, at transit stations during school days there is a morning peak time of work and school users combined, an afternoon school closing peak, and a secondary and slightly later end-of-workday peak time. Any calculation of crime rates needs to account for these micro-level temporal variations. 
-
-At whatever unit of analysis, time is a vital variable to include in our crime analysis and criminological research. To quote @Tompson_2013:
-
+On a macro-scale, the relationship between crime and the seasons is something that had been a topic of concern for researchers as long as space has [@Baumer_1996]. Zooming into a micro-scale, changes in routine activities with time of day or day of week  will affect the profile of a place, and linking back to the idea of crime places such as *generators* or *attractors*, will have significant effect on crime rates.  In conceptualising these crime places, @Newton_2018 emphasised the importance to consider the measure of busyness of a place by time of day in order to understand its role as an attractor, generator, or other crime place. For example, at transit stations during school days there is a morning peak time of work and school users combined, an afternoon school closing peak, and a secondary and slightly later end-of-workday peak time. Any calculation of crime rates needs to account for these micro-level temporal variations. At whatever unit of analysis, time is a vital variable to include in our crime analysis and criminological research. To quote @Tompson_2013:
 
 > "[I]t is important to disaggregate data into sensible temporal categories to have a real understanding of the relationship between the variables under scrutiny" (p.627).
 
@@ -59,7 +56,7 @@ Temporal data means that we can perform all sorts of exciting operations in our 
 
 A key R package that will help with temporal data wrangling is `lubridate`. Date-time data can be frustrating to work with and many base R commands for date-times can be unintuitive. The package `lubridate` was created to address such issues, and make it easier to do the things R does with date-times.
 
-For crime data, we will be using crime data from New York City made available by the R package `crimedata` [@Ashby_2018, @Ashby_2019]. You can refer to these citations to learn more about acquiring data from this fantastic resource! However for now, let's make use of the data provided with the book, where we selected a specific subset of aggravated assault in New York for a period of five years. 
+For crime data, we will be using crime data from New York City made available by the R package `crimedata` [@Ashby_2018, @Ashby_2019]. You can refer to these citations to learn more about acquiring data from this fantastic resource. However for now, let's make use of the data provided with the book, where we selected a specific subset of aggravated assault in New York for a period of five years. 
 
 ```{r load_data_8b, message=FALSE}
 
@@ -82,9 +79,7 @@ class(agassault_ny$date_single)
 
 ```
 
-Our date and time variables are of class `POSIXct` and `POSIXt`. These are the two basic classes of date/times. Class "POSIXct" represents the (signed) [number of seconds since the beginning of 1970](https://en.wikipedia.org/wiki/Unix_time) as a numeric vector. Class "POSIXt" is a named list of vectors representing seconds (0–61), minutes (0–59), hours (0–23), day of the month (1–31), months after the first of the year (0–11), years since 1900, day of the week, starting on Sunday (0–6), and a flag for whether it is daylight savings time or not (positive if in force, zero if not, negative if unknown). 
-
-Let's plot this data:
+Our date and time variables are of class `POSIXct` and `POSIXt`. These are the two basic classes of date/times. Class "POSIXct" represents the (signed) [number of seconds since the beginning of 1970](https://en.wikipedia.org/wiki/Unix_time) as a numeric vector. Class "POSIXt" is a named list of vectors representing seconds (0–61), minutes (0–59), hours (0–23), day of the month (1–31), months after the first of the year (0–11), years since 1900, day of the week, starting on Sunday (0–6), and a flag for whether it is daylight savings time or not (positive if in force, zero if not, negative if unknown). Let's plot this data:
 
 ```{r ggplot_8b, fig.cap='Number of assaults aggregated to 7-day chunks'}
 
@@ -95,13 +90,9 @@ ggplot(agassault_ny, aes(date_single)) +
 
 Notice what `geom_freqpoly()` is doing. We have a dataframe with rows for each case. The data is not aggregated in any form. But this function counts on the fly the number of cases (of rows) for each of the bins as we define them. It is, thus, a convenient function that saves us from having to first do that aggregation ourselves when we want to plot it. 
 
-An alternative approach to plotting individual components is to round the date to a nearby unit of time, with `floor_date()`, `round_date()`, and `ceiling_date()`. These functions live inside the lubridate package. 
-
-
-Each function takes a vector of dates to adjust and then the name of the unit round down (floor), round up (ceiling), or round to. So to aggregate per month we will code as:
+An alternative approach to plotting individual components is to round the date to a nearby unit of time, with `floor_date()`, `round_date()`, and `ceiling_date()`. These functions live inside the lubridate package. Each function takes a vector of dates to adjust and then the name of the unit round down (floor), round up (ceiling), or round to. So to aggregate per month we will code as:
 
 ```{r ggplot_rounding_8b, fig.cap='Number of assaults aggregated to Month'}
-library(lubridate)
 
 agassault_ny %>% 
   count(month = floor_date(date_single, "month")) %>% # use floor date function
@@ -109,7 +100,7 @@ agassault_ny %>%
     geom_line()
 ```
 
-What if I asked you the question: which year had the most aggravated assaults? Or what if I want to know if aggravated assaults happen more in the weekday, when people are at work, or in the weekends, maybe when people are away for a holiday? You have the date, so you should be able to answer these questions, right? 
+What if we ask the question: which year had the most aggravated assaults? Or what if we want to know if aggravated assaults happen more in the weekday, when people are at work, or in the weekends, maybe when people are away for a holiday? You have the date, so you should be able to answer these questions, right? 
 
 Well you need to be able to have the right variables to answer these questions. To know what year saw the most aggravated assaults, you need to have a variable for year. To know what day of the week has the most aggravated assaults, you need to have a variable for day of the week. So how can we extract these variables from your date column? Well luckily the `lubridate` package can help us do this. We can use the `year()`, `month()`, `day()`, and `wday()` to extract these components of a date-time.
 
@@ -124,9 +115,7 @@ agassault_ny <- agassault_ny %>%
 ```
 
 
-We have now created a set of additional variables that have extracted information from your original time of occurrence variable. 
-
-Let's consider distribution of events per day of the week.
+We have now created a set of additional variables that have extracted information from your original time of occurrence variable. Let's consider distribution of events per day of the week.
 
 ```{r assaults_per_wday}
 
@@ -134,7 +123,7 @@ ggplot(agassault_ny, aes(x = wday)) + geom_bar()
 
 ```
 
-In order to extract such date-time information from variables, we need these to be date-time objects. We saw above that in this case this assumption was met. However if it is not, you can turn text column of dates into a date-time object using lubridate's functions. For example if you have a data set of day-month-year separated with "/", you can use the `dmy()` function (stands for day month year) to parse it as a date-time object. On the other hand, if you have some US data, and it is actually written as month-day-year, separated by "/", you can simply shuffle the order of the letters in the function, and use the function `mdy()`. They will translate into the same item. See for yourself: 
+In order to extract such date-time information from variables, we need these to be date-time objects. We saw above that in this case this assumption was met. However if it is not, you can turn text column of dates into a date-time object using `lubridate`'s functions. For example if you have a data set of day-month-year separated with "/", you can use the `dmy()` function (stands for day month year) to parse it as a date-time object. On the other hand, if you have some US data, and it is actually written as month-day-year, separated by "/", you can simply shuffle the order of the letters in the function, and use the function `mdy()`. They will translate into the same item. See for yourself: 
 
 ```{r}
 
@@ -150,19 +139,11 @@ dmy("15/3/2021") == mdy("March/15/2021")
 
 ```
 
-Amazing stuff, which will definitely come in handy, especially if you might be a crime analyst working with some messy messy data. Lubridate should most definitely form part of your data wrangling toolkit in this case!
-
-<!-- The `lubridate` package is incredibly helpful for anything date related. There is also a more recent package `clock` that has only recently being released and solves some problems with...  [[[]]] -->
-
+Amazing stuff, which will definitely come in handy, especially if you might be a crime analyst working with some messy messy data. Lubridate should most definitely form part of your data wrangling toolkit in this case.
 
 ## Visualising time data
 
-Once we have parsed and cleaned the temporal information that is available in our date variable, we can make use of this to visualise trends in other ways, not just using time series. For example, we might want to show where hotspots in time occur, within a year, or within a week, or some other set interval. 
-
-One approach for this is to use a calendar heatmap. 
-
-
-First, we create a column for date, removing the time (hour minute and second). We can achieve this easily by using the `date()` function in `lubridate`: 
+Once we have parsed and cleaned the temporal information that is available in our date variable, we can make use of this to visualise trends in other ways, not just using time series. For example, we might want to show where hotspots in time occur, within a year, or within a week, or some other set interval. One approach for this is to use a calendar heatmap. First, we create a column for date, removing the time (hour minute and second). We can achieve this easily by using the `date()` function in `lubridate`: 
 
 ```{r extract_to_human_readable_dates}
 
@@ -188,7 +169,7 @@ class(agassault_ny$date)
 
 ```
 
-It is a date object, so we will be able to do date-time operations to it. Good stuff. Now what we want to do is create a heatmap, a sort of calendar, of the number of aggrevated assault incidents per date. We can use our well known attribute operations here, specifically the `group_by()` function in the `dplyr` packate to count the events per day.
+It is a date object, so we will be able to do date-time operations to it. Now what we want to do is create a heatmap, a sort of calendar, of the number of aggrevated assault incidents per date. We can use our well known attribute operations here, specifically the `group_by()` function in the `dplyr` package to count the events per day.
 
 ```{r count_events_per_day}
 
@@ -223,15 +204,9 @@ This sort of visualisation might be useful for example to see if certain days of
 
 ### How (not) to present time
 
-In our calendar heatmap above we presented count of crimes on each day. But there are other approaches to visualise change over time as well. One such approach is to present **percentage change** from one point in time to the next. There are many issues with this approach, which lead to misinterpreting the data, which are explored in detail by @Wheeler_2016. For example, he mentions that percent change is not symmetric. 
+In our calendar heatmap above we presented count of crimes on each day. But there are other approaches to visualise change over time as well. One such approach is to present **percentage change** from one point in time to the next. There are many issues with this approach, which lead to misinterpreting the data, which are explored in detail by @Wheeler_2016. For example, he mentions that percent change is not symmetric: "For example, an increase from 4 to 5 crimes is a 25% increase, whereas a decrease from 5 to 4 crimes is only a 20% decrease." (p.x). He presents an alternative metric in Poisson z-scores. 
 
-> For example, an increase from 4 to 5 crimes is a 25% increase, whereas a decrease from 5 to 4 crimes is only a 20% decrease. (p.x).
-
-He presents an alternative metric in Poisson z-scores. 
-
-Another issue is with the very popular approach of showing changes as **year-to-date**. In the post "Why you can't identify changes in crime by comparing this month to last month" @Ashby_2020 presents some great arguments for why attempts to identify changes in crime frequency that involve simply comparing the number of crimes this week/month/year to the number that occurred last week/month/year, or comparing this week, month etc to the same period last year is not an appropriate way to analyse change over time. For example, doing this means throwing away useful information, ignoring trends and seasonality, and leaves results vulnerable to noise. As an alternative, he promotes the use of creating a forecast based on historic data, and comparing observed values against this. 
-
-It is important that when presenting temporal data, we keep in mind these notes of caution, and follow good practice recommendations such as those notes here. 
+Another issue is with the very popular approach of showing changes as **year-to-date**. In the post "Why you can't identify changes in crime by comparing this month to last month" @Ashby_2020 presents some great arguments for why attempts to identify changes in crime frequency that involve simply comparing the number of crimes this week/month/year to the number that occurred last week/month/year, or comparing this week, month etc to the same period last year is not an appropriate way to analyse change over time. For example, doing this means throwing away useful information, ignoring trends and seasonality, and leaves results vulnerable to noise. As an alternative, he promotes the use of creating a forecast based on historic data, and comparing observed values against this. It is important that when presenting temporal data, we keep in mind these notes of caution, and follow good practice recommendations such as those notes here. 
 
 ## Time series analysis
 
@@ -243,27 +218,23 @@ A key way to ensure we are analysing our time data appropriately is to deal with
 
 Decomposing these trends is an important part of what time series analysis is all about. We will see some examples.
 
-
 ### Plotting time series data
 
-
-Let's get some fresh data by travelling about three and a half thousand miles to Spain. The data we will work with now is called `femicidos.csv` in the companion data (see *Preamble* to this book if not sure where to find this), and is a collection of intimate partner femicides from Spain.
+The data we will work with now is called `femicidos.csv` in the companion data (see *Preamble* to this book if not sure where to find this), and is a collection of intimate partner femicides from Spain.
 
 ```{r load_plot_data_8c, warning=FALSE, message=FALSE}
 
-femicidos <- read_csv("data/femicidos.csv")
+femicidios <- read_csv("data/femicidos.csv")
 
 ```
 
-This dataframe has only two columns, `femicidos`, which is a monthly observation of the number of intimate partner femicides per month, starting in January 2003, and `month`, which is the date for each observation. So, each row represents a monthly count of these crimes.
-
-We could do something like plot the number of crimes over each month using `ggplot2`. 
+This dataframe has only two columns, `femicidos`, which is a monthly observation of the number of intimate partner femicides per month, starting in January 2003, and `month`, which is the date for each observation. So, each row represents a monthly count of these crimes. We could do something like plot the number of crimes over each month using `ggplot2`. 
 
 ```{r ggplottime, fig.cap='Plot the number of femicides per month'}
 
 library(ggplot2)
 
-ggplot(femicidos, aes(x = month, y = femicidios, group = 1)) + 
+ggplot(femicidios, aes(x = month, y = femicidios, group = 1)) + 
   geom_point() + 
   geom_line() + 
   theme_minimal() + 
@@ -272,35 +243,29 @@ ggplot(femicidos, aes(x = month, y = femicidios, group = 1)) +
 
 ```
 
-This visualisation gives us an insight into how the count of crimes varies between observations, but it subsumes in itself the three elements mentioned above (the overal trend, seasonal fluctuation, and random noise). This makes it difficult to isolate and discuss any one of these, making it difficult to answer the question about whether crime is going up or down, or whether there are any seasonal fluctuations present. In order to achieve this, we want to **decompose** the data into these components. 
+This visualisation gives us an insight into how the count of crimes varies between observations, but it subsumes in itself the three elements mentioned above (the overall trend, seasonal fluctuation, and random noise). This makes it difficult to isolate and discuss any one of these, making it difficult to answer the question about whether crime is going up or down, or whether there are any seasonal fluctuations present. In order to achieve this, we want to **decompose** the data into these components. 
 
-
-To look into decomposing into these components, we can use the many functionality within R to deal with time series data. To take advantage of many of these, we will need our dataframe to be stored as a **time series** object. This enables us to apply R’s many functions for analysing time series data. To store the data in a time series object, we use the `ts()` function. Inside this function, we pass only the column which contains the number of crimes for each month (we filter with the `select()` function from `dplyr` package). 
+To look into decomposing into these components, we can use the functionality within R to deal with time series data. To take advantage of many of these, we will need our dataframe to be stored as a **time series** object. This enables us to apply R’s many functions for analysing time series data. To store the data in a time series object, we use the `ts()` function. Inside this function, we pass only the column which contains the number of crimes for each month (we filter with the `select()` function from `dplyr` package). 
 
 ```{r turn_into_ts_8a}
  
-fem_timeseries <- ts(femicidos %>% dplyr::select(femicidios))
+fem_timeseries <- ts(femicidios %>% dplyr::select(femicidios))
 
 ```
 
 
-We have taken our dataframe of observed values in our time series (monthly observations of crime counts in this case) and transformed it into a matrix with class of "ts" - essentially representing our data as having been sampled at set intervals (in this case every month). Once we have the result stored in our `fem_timeseries` object, we can auto print to see some details: 
+We have taken our dataframe of observed values in our time series (monthly observations of crime counts in this case) and transformed it into a matrix with class of `ts` - essentially representing our data as having been sampled at set intervals (in this case every month). Once we have the result stored in our `fem_timeseries` object, we can auto print to see some details: 
 
 ```{r view_ts_8a, eval=FALSE}
 fem_timeseries
 ```
 
-
-
-
-We can see that each observation point has been numbered in order, and we have a value for each observation (the number of femicides recorded in each month). Sometimes the time series data set that you have may have been collected at regular intervals that were less than one year, for example, monthly or quarterly. In this case, you can specify the number of times that data was collected per year by using the `frequency` parameter in the `ts()` function. For monthly time series data, you set `frequency = 12`, while for quarterly time series data, you set `frequency = 4`
-
-You can also specify the first year that the data was collected, and the first interval in that year by using the `start` parameter in the `ts()` function. So, in our case, we would do as follows:
+We can see that each observation point has been numbered in order, and we have a value for each observation (the number of femicides recorded in each month). Sometimes the time series data set that you have may have been collected at regular intervals that were less than one year, for example, monthly or quarterly. In this case, you can specify the number of times that data was collected per year by using the `frequency` parameter in the `ts()` function. For monthly time series data, you set `frequency = 12`, while for quarterly time series data, you set `frequency = 4`. You can also specify the first year that the data was collected, and the first interval in that year by using the `start` parameter in the `ts()` function. So, in our case, we would do as follows:
 
 ```{r define_ts_8a, eval = FALSE}
 
 # transform into time series
-fem_timeseries <- ts(femicidos %>% 
+fem_timeseries <- ts(femicidios %>% 
                        select(femicidios), # specify dataframe selecting column
                      frequency=12,  # specify monthly frequency
                      start=c(2003,1)) # specify start time (January 2003)
@@ -311,7 +276,7 @@ fem_timeseries <- ts(femicidos %>%
 ```{r echo=FALSE}
 
 # transform into time series
-fem_timeseries <- ts(femicidos %>% 
+fem_timeseries <- ts(femicidios %>% 
                        dplyr::select(femicidios), # specify dataframe selecting column
                      frequency=12,  # specify monthly frequency
                      start=c(2003,1) # specify start time (January 2003)
@@ -327,18 +292,9 @@ plot.ts(fem_timeseries)
 
 ```
 
-This plot should look similar to the one we created using ggplot2 above, however our observations are now treated as a continuous variable, labeled "Time". We can of course also use `ggplot2`to plot a time series like the one we just did but here we would need a variable encoding the date (and preferably a full date, not just month and year as here).
+This plot should look similar to the one we created using ggplot2 above, however our observations are now treated as a continuous variable, labeled "Time". We can of course also use `ggplot2`to plot a time series like the one we just did but here we would need a variable encoding the date (and preferably a full date, not just month and year as here). As you can see it is very noisy. Fortunately, the annual count for intimate partner femicides is low in Spain. There seems to be some seasonality too. But what more can we do with plotting time series objects? 
 
-
-As you can see it is very noisy. Fortunately, the annual count for intimate partner femicides is low in Spain. There seems to be some seasonality too. But what more can we do with plotting time series objects? 
-
-A seasonal time series consists of a trend component, a seasonal component and an irregular component. Decomposing the time series means separating the time series into these three components: that is, using statistics to estimate these three components.
-
-To estimate the trend component and seasonal component of a seasonal time series that can be described using an additive model, we can use the `decompose()` function in R. This function estimates the trend, seasonal, and irregular components of a time series using moving averages. It deals with additive or multiplicative seasonal components (the default is additive). 
-
-The function `decompose()` returns a list object as its result, where the estimates of the seasonal component, trend component and irregular component are stored in named elements of that list objects, called “seasonal”, “trend”, and “random” respectively.
-
-Let's now decompose this time series to estimate the trend, seasonal and irregular components. 
+A seasonal time series consists of a trend component, a seasonal component and an irregular component. Decomposing the time series means separating the time series into these three components: that is, using statistics to estimate these three components. To estimate the trend component and seasonal component of a seasonal time series that can be described using an additive model, we can use the `decompose()` function in R. This function estimates the trend, seasonal, and irregular components of a time series using moving averages. It deals with additive or multiplicative seasonal components (the default is additive). The function `decompose()` returns a list object as its result, where the estimates of the seasonal component, trend component and irregular component are stored in named elements of that list objects, called “seasonal”, “trend”, and “random” respectively. Let's now decompose this time series to estimate the trend, seasonal and irregular components. 
 
 ```{r decompose_8c}
 
@@ -403,9 +359,7 @@ We have now covered a quick overview of ways of making sense of temporal data. O
 
 ## Spatio-temporal data visualisation
 
-For the next set of exercises we are going to look at temporal variations on burglary across Greater Manchester. We are going to focus on wards as the unit of analysis. Accordingly, we will need to import another data set, this time a geojson which contains the wards (administrative boundaries) for Manchester, and the monthly burglary count for each ward in 2018. 
-
-To load the ward geometries for Manchester into a `sf` object we use code we had already used in previous Chapters.
+For the next set of exercises we are going to look at temporal variations on burglary across Greater Manchester. We are going to focus on wards as the unit of analysis. Accordingly, we will need to import another data set, this time a geojson which contains the wards (administrative boundaries) for Manchester, and the monthly burglary count for each ward in 2018. To load the ward geometries for Manchester into a `sf` object we use code we had already used in previous Chapters.
 
 ```{r, results='hide'}
 
@@ -429,7 +383,6 @@ So this is something we're already familiar with. But how can we map the tempora
 
 ### Small multiples to show temporal variation
 
-
 As noted by @Pebesma_2012, spatio-temporal data often come in the form of single tables expressed in one of the three following formats:
 
 - *time-wide* where different columns reflect different moments in time,
@@ -437,7 +390,6 @@ As noted by @Pebesma_2012, spatio-temporal data often come in the form of single
 - *long formats* where each record reflects a single time and space combination.
 
 What we have in the `mcr_burglary` object if we view the data frame is a table expressed in the long format, where each row represents a single month and ward combination. We can see as well this is not simply a data table but a `sf` object which embeds the geographical information that allow us to place it in a map. We can now try to produce the small multiples with the `tm_facets()` function. (Note: if you wanted to use `ggplot2` instead of `tmap` you can look up the function `facet_wrap()` to achieve the same result). 
-
 
 ```{r, fig.cap='Small multiples of burglary across Manchester by month'}
 
@@ -449,7 +401,6 @@ tm_shape(mcr_burglary) +
 ```
 
 So this is one way to visualise temporal variation. What are some more? 
-
 
 ### Spaghetti plots
 
@@ -464,7 +415,6 @@ ggplot(mcr_burglary, aes(x = month, y = burglaries, group = ward_name)) +
 
 ```
 
-
 This is quite the mess. So in what situation may this be useful? Well maybe you want to compare the variation here with some central tendency. For this we can "grey out" the lines (by changing the colour) and add some summary such as the median let's say, by using the `stat_summary()` function. 
 
 ```{r, warning=FALSE, fig.cap='Spaghetti plot of burgaries by ward showing variation around central tendency measure'}
@@ -478,10 +428,7 @@ ggplot(mcr_burglary, aes(x = month,  y = burglaries, group = ward_name)) +
   theme_minimal()
 ```
 
-
-This way we can show something like the median trajectory compared with the individual observations' trajectories. 
-
-We could also use colour to highlight a specific area compared to the rest of the wards. For example,  if we are interested in Fallowfield ward, we might highlight that as an additional layer in our spaghetti pile:
+This way we can show something like the median trajectory compared with the individual observations' trajectories. We could also use colour to highlight a specific area compared to the rest of the wards. For example,  if we are interested in Fallowfield ward, we might highlight that as an additional layer in our spaghetti pile:
 
 ```{r, warning=FALSE, fig.cap='Spaghetti plot to highlight burglaries in Fallowfield ward'}
 
@@ -501,12 +448,7 @@ We can now maybe draw some conclusions about Fallowfield's burglary trajectory c
 
 ### Animations
 
-The final way we will present here to visualise time and place together is through the use of animations. This feature is brought to `ggplot2` thanks to the `gganimate` extension.
-
-The idea behind this display is really similar to that behind the small multiples, introduced earlier. A separate map is created for each month, and these are displayed near one another in order to show the change over time. However, instead of side by side, these maps are sequential - they appear in the same place but one after another, in order to present change. 
-
-
-So first thing we do is to load the `gganimate` package: 
+The final way we will present here to visualise time and place together is through the use of animations. This feature is brought to `ggplot2` thanks to the `gganimate` extension. The idea behind this display is really similar to that behind the small multiples, introduced earlier. A separate map is created for each month, and these are displayed near one another in order to show the change over time. However, instead of side by side, these maps are sequential - they appear in the same place but one after another, in order to present change. So first thing we do is to load the `gganimate` package: 
 
 ```{r}
 
@@ -515,11 +457,7 @@ library(gganimate)
 ```
 
 
-Also, to apply `gganimate` to `sf` objects, you need to have a package called `transformr` installed. You don't need to load this, but make sure it is installed! If not, install with `install.packages(transformr)`. 
-
-Then, we need to make sure that our temporal variable is a date object. We can use the `ymd()` function, from the fantastic `lubridate` package (really I cannot praise this package enough, it makes handling dates so easy...!) to make sure that our month variable is a date object. 
-
-One thing you might notice looking at this data is that there is no date associated with each observation, only month and year.  How can we use `ymd()` which clearly requires **y**ear **m**onth and **d**ay! Well, one approach is to make this up, and just say that everything in our data happened on the 1st of the month. We can use the `paste0()` function to do this: 
+Also, to apply `gganimate` to `sf` objects, you need to have a package called `transformr` installed. You don't need to load this, but make sure it is installed! If not, install with `install.packages(transformr)`. Then, we need to make sure that our temporal variable is a date object. We can use the `ymd()` function, from the fantastic `lubridate` package (really I cannot praise this package enough, it makes handling dates so easy...!) to make sure that our month variable is a date object. One thing you might notice looking at this data is that there is no date associated with each observation, only month and year.  How can we use `ymd()` which clearly requires **y**ear **m**onth and **d**ay! Well, one approach is to make this up, and just say that everything in our data happened on the 1st of the month. We can use the `paste0()` function to do this: 
 
 ```{r}
 
@@ -556,8 +494,6 @@ In the print book, you will not see this result, so it's not very exciting, but 
 
 In this chapter we had a very brief introduction to temporal data, and considered how we can manipulate and wrangle this new type of data using packages such as `lubridate`. We then introduced some approaches to visualising temporal data, and finally, ways to visualise spatio-temporal variation as well. To read up on the importance of time, and specifically spatio-temporal crime analysis, we recommend @Ratcliffe_2010, @Wheeler_2016, and @Roth_2013. 
 
-
 While we did not get to go into any spatio-temporal analysis at this stage, visualisation is a good starting point to begin to engage with this important element of crime data. To move into spatio-temporal analysis would require a more thorough training in temporal data analysis first, and so we do not cover here. But we provide some resources for those interested. Notably @Hyndman_2021 is an excellent resource for this, and we can also recommend @Chatfield_2019. For those already comfortable with this, @Pebesma_2012 also offers a very thoughtful introduction to how spatio-temporal data layouts appear and useful graphs for spatio-temporal data. @Pebesma_2012 also introduces the R package `spacetime`, for handling such analyses. At the time of writing, functions in `spacetime` take as inputs older `sp` objects, but work on the emerging package `sftime`, to work with `sf` objects is ongoing.  For additional details in how to visualise space-time data with R we suggest @Perpinan_2014 and Chapter 2 of @Wikle_2019.
-
 
 As noted there are packages that provide functionality for better handling of dates and time. It is worth to go over the details of `lubridate` in the official page and the relevant chapter in @Wickham_2017 is also very helpful. There is a brand new package `clock` that aims to improve on `lubridate` and that is also worth exploring (for details see @Vaughan_2021). 
