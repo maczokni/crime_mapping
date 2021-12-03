@@ -63,7 +63,7 @@ Now we have all our data, let's plot to see how they look.
 
 ggplot() + 
   geom_sf(data = manhattan) + # boundary data
-  geom_sf(data = nyc_burg) +  # crime locations as points
+  geom_sf(data = nyc_burg, size = 0.5) +  # crime locations as points
   theme_void()
 
 ```
@@ -72,7 +72,7 @@ In the point pattern analysis literature each point is often referred to as an *
 
 ## Using the `spatstat` package
 
-The R package `spatstat` was created for spatial statistics with a strong focus on analysing spatial point patterns. `spatstat` is one of the largest contributed packages available for R. It is the result of 15 years’ development by leading researchers in spatial statistics. We highly recommend the book "Spatial Point Patterns: Methodology and Applications with R" to give a comprehensive overview of this package [@Baddeley_2016]. 
+The R package `spatstat` was created for spatial statistics with a strong focus on analysing spatial point patterns. It is the result of 15 years’ development by leading researchers in spatial statistics. We highly recommend the book "Spatial Point Patterns: Methodology and Applications with R" to give a comprehensive overview of this package [@Baddeley_2016]. 
 
 
 When working within the `spatstat` environment, we will be working with planar point pattern objects. This means that the first thing we need to do is to transform our `sf` object into a `ppp` (planar point pattern) object. This is how `spatstat` likes to store its point patterns. The components of a `ppp` object include the coordinates of the points and the observation window (defining the study area). 
@@ -146,7 +146,7 @@ bur_ppp <- ppp(x = sf_nyc_burg_coords[,1], y = sf_nyc_burg_coords[,2],
                    window = window, check = T)
 ```
 
-Notice the warning message about duplicated points? In spatial point pattern analysis an issue of significance is the presence of duplicates. The statistical methodology used for spatial point pattern processes is based largely on the assumption that processes are *simple*, that is, that the points cannot be coincident. That assumption may be unreasonable in many contexts (for example, the literature on repeat victimisation indeed suggests that we should expect the same households to be at a higher risk of being hit again). Even so, the point (no pun intended) is that *"when the data has coincidence points, some statistical procedures will be severely affected. So it is always strongly advisable to check for duplicate points and to decide on a strategy for dealing with them if they are present"* [@Baddeley_2016: p. 60].
+Notice the warning message about duplicated points? In spatial point pattern analysis an issue of significance is the presence of duplicates. The statistical methodology used for spatial point pattern processes is based largely on the assumption that processes are *simple*, that is, that the points cannot be coincident. That assumption may be unreasonable in many contexts (for example, the literature on repeat victimisation indeed suggests that we should expect the same addressess to be at a higher risk of being hit again). Even so, the point (no pun intended) is that *"when the data has coincidence points, some statistical procedures will be severely affected. So it is always strongly advisable to check for duplicate points and to decide on a strategy for dealing with them if they are present"* [@Baddeley_2016: p. 60].
 
 So how to perform this check? When creating the object above, we have already been warned this is an issue. But more generally we can check the duplication in a `ppp` object with the following syntax: it will return a logical indicating whether we have any duplication:
 
@@ -180,11 +180,11 @@ hist(multiplicity(bur_ppp))
 
 ```
 
-In the case of crime, as we have hinted some of this may be linked to the nature of crime itself. Hint: repeat victimisation. It is estimated that between 7 and 33 % of all burglaries in several western and developed countries are repeat offenses [@Chainey_2016]. Our 52% is quite high by those standards. In this particular situation, it likely is the result of geomasking (the introduction of small inaccuracies into their geocoded location) due to privacy reasons. Most police data stored in open data portals do not include the exact address of crime events. In the case of US police data, as noted by the documentation of CODE, relies on addresses geocoded to the nearest hundred block. So say "370 Gorse Avenue" could be rounded down and geooded to "300 Gorse Avenue". The same would happen to "307 Gorse Avenue", in the public release version of the data it would feature as "300 Gorse Avenue". In the UK there exist a pre-determined list of points that each crime event gets "snapped" to its nearest one. So, the coordinates provided in the open data are not the exact locations of crimes. This process is likely inflating the amount of duplication we may observe, because each snap point or hundred block address might have many crimes near it, resulting in those crimes being geo-coded to the same exact location. So keep in mind when analysing and working with this kind of data set that it may not be the same as working with the real locations. (If you are interested in the effects of this read the paper @Tompson_2015).
+In the case of crime, as we have hinted some of this may be linked to the nature of crime itself. Hint: repeat victimisation. It is estimated that between 7 and 33 % of all burglaries in several western and developed countries are repeat offenses [@Chainey_2016]. Our 52% is quite high by those standards. In this particular situation, it likely is the result of geomasking (the introduction of small inaccuracies into their geocoded location) due to privacy reasons. Most police data stored in open data portals do not include the exact address of crime events. In the case of US police data, as noted by the documentation of CODE, relies on addresses geocoded to the nearest hundred block. So say "370 Gorse Avenue" could be rounded down and geooded to "300 Gorse Avenue". The same would happen to "307 Gorse Avenue", in the public release version of the data it would feature as "300 Gorse Avenue". In the UK there exist a pre-determined list of points so that each crime event gets "snapped" to its nearest one. So, the coordinates provided in the open data are not the exact locations of crimes. This process is likely inflating the amount of duplication we may observe, because each snap point or hundred block address might have many crimes near it, resulting in those crimes being geo-coded to the same exact location. So keep it in mind when analysing and working with this kind of data set that it may not be the same as working with the real locations. (If you are interested in the effects of this read the paper @Tompson_2015).
 
 What to do about duplicates in spatial point pattern analysis is not always clear. You could simply delete the duplicates, but of course that may ignore issues such as repeat victimisation. You could also use *jittering*, which will add a small perturbation to the duplicate points so that they do not occupy the exact same space. Which again, may ignore things like repeat victimisation. Another alternative is to make each point "unique" and then attach the multiplicities of the points to the patterns as *marks*, as attributes of the points. Then you would need analytic techniques that take into account these marks.
 
-If you were to be doing this for real you would want access to the real thing, not this public version of the data, as well as access to the data producers to check that duplicates are not artificial, and then go for the latter solution suggested above (using multiplicities as marks once we adjust for any artificial inflation). We don't have access to the source data, so for the sake of simplicity and convenience at this point and so that we can illustrate how `spatstat` works we will first add some jittering to the data. For this we use `rjitter()`. 
+If you were to be doing this for real you would want access to the original source data, not this public version of the data, as well as access to the data producers to check that duplicates are not artificial, and then go for the latter solution suggested above (using multiplicities as marks once we adjust for any artificial inflation). We don't have access to the source data, so for the sake of simplicity and convenience at this point and so that we can illustrate how `spatstat` works we will first add some jittering to the data. For this we use `rjitter()`. 
 
 The first argument for the function is the object, `retry` asks whether we want the algorithm to have another go if the jittering places a point outside the window (we want this so that we don't loose points), and the `drop` argument is used to ensure we get a `ppp` object as a result of running this function (which we do). The argument `nsim` sets the number of simulated realisations to be generated. If we just want one `ppp` object we need to set this to one. You can also specify the scale of the perturbation, the points will be randomly relocated in a uniform way in a circle within this radius. The help file notes that there is a "sensible default" but it does not say much more about it, so you may want to set the argument yourself if you want to have more control over the results. Here we are specifying one meter and a half to minimise the effects of this random displacement.
 
@@ -269,7 +269,7 @@ A key concept in spatial point pattern analysis is the idea of  **complete spati
 We can generate data that conform to complete spatial randomness using the `rpoispp()` function  (in `spatstat`). The `r` at the beginning is used to denote we are simulating data (you will see this is common in R) and we are using a Poisson point process, a good probability distribution for these purposes. Let's generate 300 points in a random manner, and save this in the object `poisson_ppp`:
 
 ```{r generatecrs}
-set.seed(300) # Use this seed to ensure you get the same results as us
+set.seed(1) # Use this seed to ensure you get the same results as us
 poisson_ppp <- rpoispp(300)
 
 ```
@@ -288,7 +288,7 @@ In classical literature, the *homogeneous Poisson process* (CSR) is usually take
 
 ```{r, fig.cap='Count of our random points in quadrats'}
 
-q2 <- quadratcount(poisson_ppp, nx = 4, ny = 4)
+q2 <- quadratcount(poisson_ppp, nx = 6, ny = 6)
 plot(q2, main = "Quadrat Count")
 
 ```
@@ -298,13 +298,12 @@ These numbers are looking more even than they did with our burglaries, but to re
 
 ```{r quadrattest_randompoints}
 
-quadrat.test(poisson_ppp, nx = 4, ny = 4)
+quadrat.test(poisson_ppp, nx = 6, ny = 6)
 
 ```
 
 
 We can see this p-value is greater than the conventional alpha level of 0.05 and therefore we cannot reject the null hypothesis that our point patterns come from complete spatial randomness - which is great news, as they indeed do!
-
 
 How about our burglaries? Let's run the `quadrat.test()` function to tell us whether burglaries in Manhattan follow spatial randomness. 
 
@@ -317,7 +316,7 @@ quadrat.test(jitter_bur, nx = 1, ny = 6)
 
 Observing the results we see that the p value is well below conventional standards for rejection of the null hypothesis. Observing our data of burglary in Manhattan would be extremely rare if the null hypothesis of a homogeneous distribution was true. We can then conclude that the burglary data is not randomly distributed in the observed space. But no cop nor criminologist would really question this. They would rarely be surprised by your findings! We do know, through research, that crime is not randomly distributed in space. 
 
-Beware as well that this test would come out as significant if the point pattern violates the property of independence between the points. It is important to keep in mind that the null may be rejected either because the process is not homogeneous *or* because the points are not independent, but the test doesn't tell us the reason for the rejection. Equally, the power depend on the size of the quadrats (and they are not too large or too small). And the areas are not of equal size here in any case. So the test in many applications will be of limited use.
+Beware as well that this test would come out as significant *if the point pattern violates the property of independence between the points*. It is important to keep in mind that the null may be rejected either because the process is not homogeneous *or* because the points are not independent, but the test doesn't tell us the reason for the rejection. Equally, the power depend on the size of the quadrats (and they are not too large or too small). And the areas are not of equal size here in any case. So the test in many applications will be of limited use.
 
 ## Mapping intensity estimates with `spatstat`
 
@@ -333,9 +332,7 @@ Essentially this method uses a statistical technique (kernel density estimation)
 + *a moving three-dimensional function of a specified radius visits each cell and calculates weights for each point within the kernel’s radius. Points closer to the centre will receive a higher weight, and therefore contribute more to the cell’s total density value;*
 + *and final grid cell values are calculated by summing the values of all kernel estimates for each location”*
 
-The values that we attribute to the cells in crime mapping will typically refer to the number of crimes within the area’s unit of measurement (intensity).
-
-Let's produce one of this density maps, just with the default arguments of the `density.ppp()` function:
+The values that we attribute to the cells in crime mapping will typically refer to the number of crimes within the area’s unit of measurement (intensity). Let's produce one of this density maps, just with the default arguments of the `density.ppp()` function:
 
 ```{r density_6}
 ds <- density.ppp(jitter_bur)
@@ -359,9 +356,7 @@ The density function is estimating a kernel density estimate. The result of `den
 
 The defaults in `density.ppp()` are not necessarily the optimal ones for your application. When doing spatial density analysis there are a number of things you have to decide upon (e.g., bandwidth, kernel type, etc).
 
-To perform this analysis in R we need to define the **bandwidth** of the density estimation, which basically determines the area of influence of the estimation. There is no general rule to determine the correct bandwidth; generally speaking if the bandwidth is too small the estimate is too noisy, while if bandwidth is too high the estimate may miss crucial elements of the point pattern due to oversmoothing. 
-
-The key argument to pass to the `density.ppp()` is `sigma=`, which determines the bandwidth of the kernel. Sigma is the *standard deviation of the kernel* and you can enter a numeric value or a function that computes an appropriate value for it.
+To perform this analysis we need to define the **bandwidth** of the density estimation, which basically determines the area of influence of the estimation. There is no general rule to determine the correct bandwidth; generally speaking if the bandwidth is too small the estimate is too noisy, while if bandwidth is too high the estimate may miss crucial elements of the point pattern due to oversmoothing. The key argument to pass to the `density.ppp()` is `sigma=`, which determines the bandwidth of the kernel. Sigma is the *standard deviation of the kernel* and you can enter a numeric value or a function that computes an appropriate value for it.
 
 A great deal of research has been developed to produce algorithms that help in selecting the bandwidth (see @Baddeley_2016 and @Davies_2017 for details). In  the `spatstat` package the functions `bw.diggle()`, `bw.ppl()`, and `bw.scott()` can be used to estimate the bandwidth according to difference methods (mean square error cross validation, likelihood cross validation, and Scott's rule of thumb for bandwidth section in multidimensional smoothing respectively). The help files recommend the use of the first two. These functions run algorithms that aim to select an appropriate bandwidth.
 
@@ -405,7 +400,7 @@ plot(adaptive.density(jitter_bur, f=0.1, nrep=30, verbose=FALSE),
 
 ```
 
-Which bandwidth to use? @Chainey_2021 is critical of the various algorithms we have introduced. He suggests that  "they tend to produce large bandwidths, and are considered unsuitable for exploring local spatial patterns of the density distribution of crime." As we have seen with our example this is not necessarily the case, if anything both mean square error cross validation and likelihood cross validation produce small bandwidths in this example. When it comes to crime, @Neville_2013 suggests that the "best choice would be to produce an interpolation that fits the experience of the department and officers who travel an area. Again, experimentation and discussions with beat officers will be necessary to establish which bandwidth choice should be used in future interpolations" (p. 10.22). This is generally accepted by other authors in the field. I see no damage in using these algorithms as a starting point and then, as suggested by most authors (see as well @Chainey_2021), to engage in a discussion with the direct users (considering what the map will be used for) to set in a particular bandwidth that is not too spiky, nor oversmoothed.
+Which bandwidth to use? @Chainey_2021 is critical of the various algorithms we have introduced. He suggests that  "they tend to produce large bandwidths, and are considered unsuitable for exploring local spatial patterns of the density distribution of crime." As we have seen with our example this is not necessarily the case, if anything both mean square error cross validation and likelihood cross validation produce small bandwidths in this example. When it comes to crime, @Neville_2013 suggests that the "best choice would be to produce an interpolation that fits the experience of the department and officers who travel an area. Again, experimentation and discussions with beat officers will be necessary to establish which bandwidth choice should be used in future interpolations" (p. 10.22). This is generally accepted by other authors in the field. We see no damage in using these algorithms as a starting point and then, as suggested by most authors (see as well @Chainey_2021), to engage in a discussion with the direct users (considering what the map will be used for) to set in a particular bandwidth that is not too spiky, nor oversmoothed.
 
 ### Selecting the smoothing kernel
 
@@ -413,7 +408,7 @@ Apart from selecting the bandwidth we also need to specify the particular kernel
 
 > *“The normal distribution weighs all points in the study area, though near points are weighted more highly than distant points.  The other four techniques use a circumscribed circle around the grid cell.    The uniform distribution weighs all points within the circle equally.  The quartic function weighs near points more than far points, but the fall off is gradual. The triangular function weighs near points more than far points within the circle, but the fall off is more rapid. Finally, the negative exponential weighs near points much more highly than far points within the circle and the decay is very rapid.”* [@Levine_2013 Chapter 10, p. 10].
 
-Which one to use? @Levine_2013 produces the following guidance: *“The use of any of one of these depends on how much the user wants to weigh near points relative to far points.  Using a kernel function which has a big difference in the weights of near versus far points (e.g., the negative exponential or the triangular) tends to produce finer variations within the surface than functions which weight more evenly (e.g., the normal distribution, the quartic, or the uniform); these latter ones tend to smooth the distribution more*. However, @Silverman_1986 has argued that it does not make that much difference as long as the kernel is symmetrical. @Chainey_2013b suggests that in his experience most crime mappers prefer the quartic function, since it applies greater weight to crimes closer to the centre of the grid. The authors of the CrimeStat workbook @Smith_2008, on the other hand, suggest that the choice of the kernel should be based in our theoretical understanding of the data generating mechanisms. By this they mean that the processes behind spatial dependence may be different according to various crime patterns and that this is something that we may want to take into account when selecting a particular function. They provide a table with some examples that may help you to understand what they mean. For example, for Residential burglaries they recommend 1 mile with normally dispersed quartic or uniform interpolation, while for domestic violence 0.1 mile and tightly focused, negative exponential method [@Smith_2008]. 
+Which one to use? @Levine_2013 produces the following guidance: *“The use of any of one of these depends on how much the user wants to weigh near points relative to far points.  Using a kernel function which has a big difference in the weights of near versus far points (e.g., the negative exponential or the triangular) tends to produce finer variations within the surface than functions which weight more evenly (e.g., the normal distribution, the quartic, or the uniform); these latter ones tend to smooth the distribution more*. However, @Silverman_1986 has argued that it does not make that much difference as long as the kernel is symmetrical. @Chainey_2013b suggests that in his experience most crime mappers prefer the quartic function, since it applies greater weight to crimes closer to the centre of the grid. The authors of the CrimeStat workbook @Smith_2008, on the other hand, suggest that the choice of the kernel should be based in our theoretical understanding of the data generating mechanisms. By this they mean that the processes behind spatial dependence may be different according to various crime patterns and that this is something that we may want to take into account when selecting a particular function. They provide a table with some examples that may help you to understand what they mean. For example, for residential burglaries they recommend 1 mile with normally dispersed quartic or uniform interpolation, while for domestic violence 0.1 mile and tightly focused, negative exponential method [@Smith_2008]. 
 
 
 The default kernel in `density.ppp()` is `gaussian`. But there are other options. We can use the `epanechnikov`, `quartic` or `disc`. There are also further options for customisation. We can compare these kernels, whilst using the `ppl` algorithm for sigma (remember we set seed at 200 for this particular value):
@@ -479,9 +474,7 @@ values(r1) <- values(r1)*1000
 
 ```
 
-Now that we have the raster we can add it to a basemap. 
-
-Two-dimensional `RasterLayer` objects (from the `raster` package) can be turned into images and added to `Leaflet` maps using the `addRasterImage()` function. The `addRasterImage()` function works by projecting the `RasterLayer` object to EPSG:3857 and encoding each cell to an RGBA color, to produce a PNG image. That image is then embedded in the map widget. This is only suitable for small to medium sized rasters.
+Now that we have the raster we can add it to a basemap. Two-dimensional `RasterLayer` objects (from the `raster` package) can be turned into images and added to `Leaflet` maps using the `addRasterImage()` function. The `addRasterImage()` function works by projecting the `RasterLayer` object to EPSG:3857 and encoding each cell to an RGBA color, to produce a PNG image. That image is then embedded in the map widget. This is only suitable for small to medium sized rasters.
 
 It’s important that the `RasterLayer` object is tagged with a proper coordinate reference system, so that leaflet can then reproject to EPSG:3857. Many raster files contain this information, but some do not. Here is how you would tag a raster layer object `r1` which contains the EPSG:32118 data:
 
@@ -525,7 +518,7 @@ There are at least two problems with these maps. First, they are just a convenie
 
 There are a number of ways to adjust for background population at risk when producing density estimates. Many of these methods have been developed in spatial epidemiology. In criminology, the population at risk is generally available only at more aggregated (at some census geography level) than in many of those applications (where typically you have points representing individuals without a disease being contrasted with points representing individuals with a disease). So, although one could extract the centroids of these polygons representing census tracts or districts as points and mark them with a value (say population count or number of housing units), there isn´t a great advantage to go to all this trouble. In fact by locating all the mass of the population at risk in the centroids of the polygons you are introducing some distortion. So if you want to adjust for the population at risk, it is probably better to map out rates in the ways we described in previous chapters. We just need to be aware, then, that KDE surfaces in essence are simply mapping counts of crime. We therefore need to interpret density maps with this very significant caveat.
 
-The other problem we had is that a Poisson process under CSR can still result in a map that one could read as identifying hot spots, whereas all we have is noise. Remember the `poisson_ppp` object we created earlier, which demonstrated complete spatial randomness? Well, if we were thatway inclined, we could easily compute a KDE for this:
+The other problem we had is that a Poisson process under CSR can still result in a map that one could read as identifying hot spots, whereas all we have is noise. Remember the `poisson_ppp` object we created earlier, which demonstrated complete spatial randomness? Well, if we were that way inclined, we could easily compute a KDE for this:
 
 ```{r}
 
