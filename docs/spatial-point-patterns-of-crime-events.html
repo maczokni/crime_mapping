@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 8 Spatial point patterns of crime events | Crime Mapping and Spatial Data Analysis using R</title>
+  <meta name="description" content="Chapter 8 Spatial point patterns of crime events | Crime Mapping and Spatial Data Analysis using R" />
+  <meta name="generator" content="bookdown 0.22 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 8 Spatial point patterns of crime events | Crime Mapping and Spatial Data Analysis using R" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="Chapter 8 Spatial point patterns of crime events | Crime Mapping and Spatial Data Analysis using R" />
+  <meta name="github-repo" content="maczokni/crime_mapping" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 8 Spatial point patterns of crime events | Crime Mapping and Spatial Data Analysis using R" />
+  
+  <meta name="twitter:description" content="Chapter 8 Spatial point patterns of crime events | Crime Mapping and Spatial Data Analysis using R" />
+  
+
+<meta name="author" content="Juanjo Medina and Reka Solymosi" />
+
+
+<meta name="date" content="2022-01-21" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="time-matters.html"/>
+<link rel="next" href="crime-along-spatial-networks.html"/>
+<script src="libs/header-attrs/header-attrs.js"></script>
+<script src="libs/jquery/jquery.min.js"></script>
+<link href="libs/gitbook/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections/anchor-sections.css" rel="stylesheet" />
+<script src="libs/anchor-sections/anchor-sections.js"></script>
+<script src="libs/htmlwidgets/htmlwidgets.js"></script>
+<link href="libs/leaflet/leaflet.css" rel="stylesheet" />
+<script src="libs/leaflet/leaflet.js"></script>
+<link href="libs/leafletfix/leafletfix.css" rel="stylesheet" />
+<script src="libs/proj4/proj4.min.js"></script>
+<script src="libs/Proj4Leaflet/proj4leaflet.js"></script>
+<link href="libs/rstudio_leaflet/rstudio_leaflet.css" rel="stylesheet" />
+<script src="libs/leaflet-binding/leaflet.js"></script>
+<script src="libs/leaflet-providers/leaflet-providers_1.9.0.js"></script>
+<script src="libs/leaflet-providers-plugin/leaflet-providers-plugin.js"></script>
+<script src="libs/burglary_raster_cc_9107d3/data_stars_burglary_raster_cc983ce5.txt"></script>
+<script src="libs/joda/joda.js"></script>
+<script src="libs/joda/addImageQuery-bindings.js"></script>
+<script src="libs/clipboard/setClipboardText.js"></script>
+<link href="libs/HomeButton/home-button.css" rel="stylesheet" />
+<script src="libs/HomeButton/home-button.js"></script>
+<script src="libs/HomeButton/easy-button-src.min.js"></script>
+<link href="libs/mapviewCSS/mapview-popup.css" rel="stylesheet" />
+<link href="libs/mapviewCSS/mapview.css" rel="stylesheet" />
+<script src="libs/Leaflet.Sync/L.Map.Sync.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+<link rel="stylesheet" href="css/style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Crime Mapping and Spatial Data Analysis using R</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Preamble: how to use this book</a></li>
+<li class="chapter" data-level="2" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html"><i class="fa fa-check"></i><b>2</b> Producing your first crime map</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#introduction"><i class="fa fa-check"></i><b>2.1</b> Introduction</a></li>
+<li class="chapter" data-level="2.2" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#geospatial-perspective-key-terms-and-ideas"><i class="fa fa-check"></i><b>2.2</b> Geospatial Perspective: key terms and ideas</a>
+<ul>
+<li class="chapter" data-level="2.2.1" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#place"><i class="fa fa-check"></i><b>2.2.1</b> Place</a></li>
+<li class="chapter" data-level="2.2.2" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#attributes"><i class="fa fa-check"></i><b>2.2.2</b> Attributes</a></li>
+<li class="chapter" data-level="2.2.3" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#spatial-objects"><i class="fa fa-check"></i><b>2.2.3</b> Spatial objects</a></li>
+<li class="chapter" data-level="2.2.4" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#networks"><i class="fa fa-check"></i><b>2.2.4</b> Networks</a></li>
+</ul></li>
+<li class="chapter" data-level="2.3" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#maps-and-their-types"><i class="fa fa-check"></i><b>2.3</b> Maps and their types</a></li>
+<li class="chapter" data-level="2.4" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#map-projections-and-geographic-coordinate-systems"><i class="fa fa-check"></i><b>2.4</b> Map projections and geographic coordinate systems</a></li>
+<li class="chapter" data-level="2.5" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#key-terms-summary"><i class="fa fa-check"></i><b>2.5</b> Key terms summary</a></li>
+<li class="chapter" data-level="2.6" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#getting-started-with-crime-data"><i class="fa fa-check"></i><b>2.6</b> Getting started with crime data</a></li>
+<li class="chapter" data-level="2.7" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#from-dataframes-to-spatial-objects"><i class="fa fa-check"></i><b>2.7</b> From dataframes to spatial objects</a>
+<ul>
+<li class="chapter" data-level="2.7.1" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#the-point"><i class="fa fa-check"></i><b>2.7.1</b> The point</a></li>
+<li class="chapter" data-level="2.7.2" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#the-line"><i class="fa fa-check"></i><b>2.7.2</b> The line</a></li>
+<li class="chapter" data-level="2.7.3" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#the-polygon"><i class="fa fa-check"></i><b>2.7.3</b> The polygon</a></li>
+<li class="chapter" data-level="2.7.4" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#choosing-the-ideal-unit-of-analysis"><i class="fa fa-check"></i><b>2.7.4</b> Choosing the ideal unit of analysis</a></li>
+</ul></li>
+<li class="chapter" data-level="2.8" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#the-simple-features-framework"><i class="fa fa-check"></i><b>2.8</b> The simple features framework</a></li>
+<li class="chapter" data-level="2.9" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#plotting-data-with-ggplot2"><i class="fa fa-check"></i><b>2.9</b> Plotting data with ggplot2</a></li>
+<li class="chapter" data-level="2.10" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#mapping-crime-data-as-points"><i class="fa fa-check"></i><b>2.10</b> Mapping crime data as points</a></li>
+<li class="chapter" data-level="2.11" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#mapping-crime-data-as-polygons"><i class="fa fa-check"></i><b>2.11</b> Mapping crime data as polygons</a>
+<ul>
+<li class="chapter" data-level="2.11.1" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#finding-boundary-data"><i class="fa fa-check"></i><b>2.11.1</b> Finding boundary data</a></li>
+<li class="chapter" data-level="2.11.2" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#reading-shapefiles-into-r"><i class="fa fa-check"></i><b>2.11.2</b> Reading shapefiles into R</a></li>
+<li class="chapter" data-level="2.11.3" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#data-wrangling-with-dplyr"><i class="fa fa-check"></i><b>2.11.3</b> Data wrangling with dplyr</a></li>
+<li class="chapter" data-level="2.11.4" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#join-data-to-sf-object"><i class="fa fa-check"></i><b>2.11.4</b> Join data to sf object</a></li>
+<li class="chapter" data-level="2.11.5" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#putting-polygon-data-on-the-map"><i class="fa fa-check"></i><b>2.11.5</b> Putting polygon data on the map</a></li>
+</ul></li>
+<li class="chapter" data-level="2.12" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#summary-and-further-reading"><i class="fa fa-check"></i><b>2.12</b> Summary and further reading</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html"><i class="fa fa-check"></i><b>3</b> Basic geospatial operations in R</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#introduction-1"><i class="fa fa-check"></i><b>3.1</b> Introduction</a></li>
+<li class="chapter" data-level="3.2" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#exploring-the-relationship-between-alcohol-outlets-and-crime"><i class="fa fa-check"></i><b>3.2</b> Exploring the relationship between alcohol outlets and crime</a></li>
+<li class="chapter" data-level="3.3" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#acquiring-relevant-data"><i class="fa fa-check"></i><b>3.3</b> Acquiring relevant data</a>
+<ul>
+<li class="chapter" data-level="3.3.1" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#reading-in-crime-data"><i class="fa fa-check"></i><b>3.3.1</b> Reading in crime data</a></li>
+<li class="chapter" data-level="3.3.2" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#meet-a-new-format-geojson"><i class="fa fa-check"></i><b>3.3.2</b> Meet a new format: geoJSON</a></li>
+<li class="chapter" data-level="3.3.3" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#open-street-map-and-points-of-interest"><i class="fa fa-check"></i><b>3.3.3</b> Open Street Map and points of interest</a></li>
+</ul></li>
+<li class="chapter" data-level="3.4" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#attribute-operations"><i class="fa fa-check"></i><b>3.4</b> Attribute operations</a></li>
+<li class="chapter" data-level="3.5" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#spatial-operations"><i class="fa fa-check"></i><b>3.5</b> Spatial operations</a>
+<ul>
+<li class="chapter" data-level="3.5.1" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#reprojecting-coordinates"><i class="fa fa-check"></i><b>3.5.1</b> Reprojecting coordinates</a></li>
+<li class="chapter" data-level="3.5.2" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#subsetting-points"><i class="fa fa-check"></i><b>3.5.2</b> Subsetting points</a></li>
+<li class="chapter" data-level="3.5.3" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#building-buffers"><i class="fa fa-check"></i><b>3.5.3</b> Building buffers</a></li>
+<li class="chapter" data-level="3.5.4" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#counting-points-within-a-polygon"><i class="fa fa-check"></i><b>3.5.4</b> Counting Points within a Polygon</a></li>
+<li class="chapter" data-level="3.5.5" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#distances-finding-the-nearest-point"><i class="fa fa-check"></i><b>3.5.5</b> Distances: Finding the nearest point</a></li>
+<li class="chapter" data-level="3.5.6" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#measuring-distances"><i class="fa fa-check"></i><b>3.5.6</b> Measuring distances</a></li>
+</ul></li>
+<li class="chapter" data-level="3.6" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#plotting-interactive-maps-with-leaflet"><i class="fa fa-check"></i><b>3.6</b> Plotting interactive maps with leaflet</a></li>
+<li class="chapter" data-level="3.7" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#geocoding"><i class="fa fa-check"></i><b>3.7</b> Geocoding</a></li>
+<li class="chapter" data-level="3.8" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#measuring-distance-more-thoroughly"><i class="fa fa-check"></i><b>3.8</b> Measuring distance more thoroughly</a>
+<ul>
+<li class="chapter" data-level="3.8.1" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#how-far-are-police-stations-in-madrid"><i class="fa fa-check"></i><b>3.8.1</b> How far are police stations in Madrid?</a></li>
+<li class="chapter" data-level="3.8.2" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#distance-in-geographical-space"><i class="fa fa-check"></i><b>3.8.2</b> Distance in geographical space</a></li>
+<li class="chapter" data-level="3.8.3" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#a-practical-example-to-evaluate-distance"><i class="fa fa-check"></i><b>3.8.3</b> A practical example to evaluate distance</a></li>
+</ul></li>
+<li class="chapter" data-level="3.9" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#summary-and-further-reading-1"><i class="fa fa-check"></i><b>3.9</b> Summary and further reading</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="mapping-rates-and-counts.html"><a href="mapping-rates-and-counts.html"><i class="fa fa-check"></i><b>4</b> Mapping rates and counts</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="mapping-rates-and-counts.html"><a href="mapping-rates-and-counts.html#introduction-2"><i class="fa fa-check"></i><b>4.1</b> Introduction</a></li>
+<li class="chapter" data-level="4.2" data-path="mapping-rates-and-counts.html"><a href="mapping-rates-and-counts.html#thematic-maps-key-terms-and-ideas"><i class="fa fa-check"></i><b>4.2</b> Thematic maps: key terms and ideas</a>
+<ul>
+<li class="chapter" data-level="4.2.1" data-path="mapping-rates-and-counts.html"><a href="mapping-rates-and-counts.html#choropleth-maps"><i class="fa fa-check"></i><b>4.2.1</b> Choropleth maps</a></li>
+<li class="chapter" data-level="4.2.2" data-path="mapping-rates-and-counts.html"><a href="mapping-rates-and-counts.html#what-do-we-use-choropleth-maps-for"><i class="fa fa-check"></i><b>4.2.2</b> What do we use choropleth maps for?</a></li>
+<li class="chapter" data-level="4.2.3" data-path="mapping-rates-and-counts.html"><a href="mapping-rates-and-counts.html#proportional-and-graduate-symbol-maps-mapping-crime-counts"><i class="fa fa-check"></i><b>4.2.3</b> Proportional and graduate symbol maps: mapping crime counts</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="mapping-rates-and-counts.html"><a href="mapping-rates-and-counts.html#creating-proportional-symbol-maps"><i class="fa fa-check"></i><b>4.3</b> Creating proportional symbol maps</a></li>
+<li class="chapter" data-level="4.4" data-path="mapping-rates-and-counts.html"><a href="mapping-rates-and-counts.html#mapping-rates-rather-than-counts"><i class="fa fa-check"></i><b>4.4</b> Mapping rates rather than counts</a>
+<ul>
+<li class="chapter" data-level="4.4.1" data-path="mapping-rates-and-counts.html"><a href="mapping-rates-and-counts.html#generating-the-rates"><i class="fa fa-check"></i><b>4.4.1</b> Generating the rates</a></li>
+<li class="chapter" data-level="4.4.2" data-path="mapping-rates-and-counts.html"><a href="mapping-rates-and-counts.html#creating-a-choropleth-map-with-tmap"><i class="fa fa-check"></i><b>4.4.2</b> Creating a choropleth map with tmap</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="mapping-rates-and-counts.html"><a href="mapping-rates-and-counts.html#classification-systems-for-thematic-maps"><i class="fa fa-check"></i><b>4.5</b> Classification systems for thematic maps</a></li>
+<li class="chapter" data-level="4.6" data-path="mapping-rates-and-counts.html"><a href="mapping-rates-and-counts.html#interactive-mapping-with-tmap"><i class="fa fa-check"></i><b>4.6</b> Interactive mapping with tmap</a></li>
+<li class="chapter" data-level="4.7" data-path="mapping-rates-and-counts.html"><a href="mapping-rates-and-counts.html#smoothing-rates-adjusting-for-small-sample-noise"><i class="fa fa-check"></i><b>4.7</b> Smoothing rates: adjusting for small sample noise</a></li>
+<li class="chapter" data-level="4.8" data-path="mapping-rates-and-counts.html"><a href="mapping-rates-and-counts.html#summary-and-further-reading-2"><i class="fa fa-check"></i><b>4.8</b> Summary and further reading</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html"><i class="fa fa-check"></i><b>5</b> Variations of thematic mapping</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#introduction-3"><i class="fa fa-check"></i><b>5.1</b> Introduction</a></li>
+<li class="chapter" data-level="5.2" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#binning-points"><i class="fa fa-check"></i><b>5.2</b> Binning points</a>
+<ul>
+<li class="chapter" data-level="5.2.1" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#the-binning-process"><i class="fa fa-check"></i><b>5.2.1</b> The Binning Process</a></li>
+<li class="chapter" data-level="5.2.2" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#different-binning-techniques"><i class="fa fa-check"></i><b>5.2.2</b> Different Binning Techniques</a></li>
+<li class="chapter" data-level="5.2.3" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#benefits-of-binning"><i class="fa fa-check"></i><b>5.2.3</b> Benefits of Binning</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#transforming-polygons-cartograms"><i class="fa fa-check"></i><b>5.3</b> Transforming polygons: cartograms</a>
+<ul>
+<li class="chapter" data-level="5.3.1" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#dorling-cartogram"><i class="fa fa-check"></i><b>5.3.1</b> Dorling Cartogram</a></li>
+</ul></li>
+<li class="chapter" data-level="5.4" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#bivariate-maps"><i class="fa fa-check"></i><b>5.4</b> Bivariate Maps</a>
+<ul>
+<li class="chapter" data-level="5.4.1" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#step-1-bin-our-variables-of-interest"><i class="fa fa-check"></i><b>5.4.1</b> Step 1: Bin our variables of interest</a></li>
+<li class="chapter" data-level="5.4.2" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#step-2-new-variable"><i class="fa fa-check"></i><b>5.4.2</b> Step 2: New variable</a></li>
+<li class="chapter" data-level="5.4.3" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#step-3-create-colour-scheme"><i class="fa fa-check"></i><b>5.4.3</b> Step 3: Create colour scheme</a></li>
+<li class="chapter" data-level="5.4.4" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#step-4-join-colour-scheme"><i class="fa fa-check"></i><b>5.4.4</b> Step 4: Join colour scheme</a></li>
+<li class="chapter" data-level="5.4.5" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#step-5-create-legend"><i class="fa fa-check"></i><b>5.4.5</b> Step 5: Create legend</a></li>
+<li class="chapter" data-level="5.4.6" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#step-6-map"><i class="fa fa-check"></i><b>5.4.6</b> Step 6: Map</a></li>
+</ul></li>
+<li class="chapter" data-level="5.5" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#a-note-of-caution-maup"><i class="fa fa-check"></i><b>5.5</b> A note of caution: MAUP</a>
+<ul>
+<li class="chapter" data-level="5.5.1" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#why-does-maup-matter"><i class="fa fa-check"></i><b>5.5.1</b> Why does MAUP matter?</a></li>
+<li class="chapter" data-level="5.5.2" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#what-can-we-do"><i class="fa fa-check"></i><b>5.5.2</b> What can we do?</a></li>
+</ul></li>
+<li class="chapter" data-level="5.6" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#summary-and-further-reading-3"><i class="fa fa-check"></i><b>5.6</b> Summary and further reading</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="basics-of-cartographic-design-elements-of-a-map.html"><a href="basics-of-cartographic-design-elements-of-a-map.html"><i class="fa fa-check"></i><b>6</b> Basics of cartographic design: elements of a map</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="basics-of-cartographic-design-elements-of-a-map.html"><a href="basics-of-cartographic-design-elements-of-a-map.html#introduction-4"><i class="fa fa-check"></i><b>6.1</b> Introduction</a></li>
+<li class="chapter" data-level="6.2" data-path="basics-of-cartographic-design-elements-of-a-map.html"><a href="basics-of-cartographic-design-elements-of-a-map.html#data-representation"><i class="fa fa-check"></i><b>6.2</b> Data representation</a>
+<ul>
+<li class="chapter" data-level="6.2.1" data-path="basics-of-cartographic-design-elements-of-a-map.html"><a href="basics-of-cartographic-design-elements-of-a-map.html#thematic-maps"><i class="fa fa-check"></i><b>6.2.1</b> Thematic maps</a></li>
+<li class="chapter" data-level="6.2.2" data-path="basics-of-cartographic-design-elements-of-a-map.html"><a href="basics-of-cartographic-design-elements-of-a-map.html#symbols"><i class="fa fa-check"></i><b>6.2.2</b> Symbols</a></li>
+<li class="chapter" data-level="6.2.3" data-path="basics-of-cartographic-design-elements-of-a-map.html"><a href="basics-of-cartographic-design-elements-of-a-map.html#rate-vs-count"><i class="fa fa-check"></i><b>6.2.3</b> Rate vs count</a></li>
+</ul></li>
+<li class="chapter" data-level="6.3" data-path="basics-of-cartographic-design-elements-of-a-map.html"><a href="basics-of-cartographic-design-elements-of-a-map.html#colour"><i class="fa fa-check"></i><b>6.3</b> Colour</a></li>
+<li class="chapter" data-level="6.4" data-path="basics-of-cartographic-design-elements-of-a-map.html"><a href="basics-of-cartographic-design-elements-of-a-map.html#text"><i class="fa fa-check"></i><b>6.4</b> Text</a>
+<ul>
+<li class="chapter" data-level="6.4.1" data-path="basics-of-cartographic-design-elements-of-a-map.html"><a href="basics-of-cartographic-design-elements-of-a-map.html#titles-and-subtitles"><i class="fa fa-check"></i><b>6.4.1</b> Titles and subtitles</a></li>
+<li class="chapter" data-level="6.4.2" data-path="basics-of-cartographic-design-elements-of-a-map.html"><a href="basics-of-cartographic-design-elements-of-a-map.html#legend"><i class="fa fa-check"></i><b>6.4.2</b> Legend</a></li>
+<li class="chapter" data-level="6.4.3" data-path="basics-of-cartographic-design-elements-of-a-map.html"><a href="basics-of-cartographic-design-elements-of-a-map.html#annotation"><i class="fa fa-check"></i><b>6.4.3</b> Annotation</a></li>
+<li class="chapter" data-level="6.4.4" data-path="basics-of-cartographic-design-elements-of-a-map.html"><a href="basics-of-cartographic-design-elements-of-a-map.html#production-notes"><i class="fa fa-check"></i><b>6.4.4</b> Production notes</a></li>
+</ul></li>
+<li class="chapter" data-level="6.5" data-path="basics-of-cartographic-design-elements-of-a-map.html"><a href="basics-of-cartographic-design-elements-of-a-map.html#composition"><i class="fa fa-check"></i><b>6.5</b> Composition</a>
+<ul>
+<li class="chapter" data-level="6.5.1" data-path="basics-of-cartographic-design-elements-of-a-map.html"><a href="basics-of-cartographic-design-elements-of-a-map.html#orientation-indicators"><i class="fa fa-check"></i><b>6.5.1</b> Orientation indicators</a></li>
+<li class="chapter" data-level="6.5.2" data-path="basics-of-cartographic-design-elements-of-a-map.html"><a href="basics-of-cartographic-design-elements-of-a-map.html#scale-indicators"><i class="fa fa-check"></i><b>6.5.2</b> Scale indicators</a></li>
+</ul></li>
+<li class="chapter" data-level="6.6" data-path="basics-of-cartographic-design-elements-of-a-map.html"><a href="basics-of-cartographic-design-elements-of-a-map.html#context"><i class="fa fa-check"></i><b>6.6</b> Context</a>
+<ul>
+<li class="chapter" data-level="6.6.1" data-path="basics-of-cartographic-design-elements-of-a-map.html"><a href="basics-of-cartographic-design-elements-of-a-map.html#basemap"><i class="fa fa-check"></i><b>6.6.1</b> Basemap</a></li>
+<li class="chapter" data-level="6.6.2" data-path="basics-of-cartographic-design-elements-of-a-map.html"><a href="basics-of-cartographic-design-elements-of-a-map.html#inset-maps"><i class="fa fa-check"></i><b>6.6.2</b> Inset maps</a></li>
+</ul></li>
+<li class="chapter" data-level="6.7" data-path="basics-of-cartographic-design-elements-of-a-map.html"><a href="basics-of-cartographic-design-elements-of-a-map.html#summary-and-further-reading-4"><i class="fa fa-check"></i><b>6.7</b> Summary and further reading</a></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="time-matters.html"><a href="time-matters.html"><i class="fa fa-check"></i><b>7</b> Time matters</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="time-matters.html"><a href="time-matters.html#introduction-5"><i class="fa fa-check"></i><b>7.1</b> Introduction</a></li>
+<li class="chapter" data-level="7.2" data-path="time-matters.html"><a href="time-matters.html#temporal-data-in-crime-analysis"><i class="fa fa-check"></i><b>7.2</b> Temporal data in crime analysis</a></li>
+<li class="chapter" data-level="7.3" data-path="time-matters.html"><a href="time-matters.html#temporal-data-wrangling"><i class="fa fa-check"></i><b>7.3</b> Temporal data wrangling</a></li>
+<li class="chapter" data-level="7.4" data-path="time-matters.html"><a href="time-matters.html#visualising-time-data"><i class="fa fa-check"></i><b>7.4</b> Visualising time data</a>
+<ul>
+<li class="chapter" data-level="7.4.1" data-path="time-matters.html"><a href="time-matters.html#how-not-to-present-time"><i class="fa fa-check"></i><b>7.4.1</b> How (not) to present time</a></li>
+</ul></li>
+<li class="chapter" data-level="7.5" data-path="time-matters.html"><a href="time-matters.html#time-series-analysis"><i class="fa fa-check"></i><b>7.5</b> Time series analysis</a>
+<ul>
+<li class="chapter" data-level="7.5.1" data-path="time-matters.html"><a href="time-matters.html#plotting-time-series-data"><i class="fa fa-check"></i><b>7.5.1</b> Plotting time series data</a></li>
+</ul></li>
+<li class="chapter" data-level="7.6" data-path="time-matters.html"><a href="time-matters.html#spatio-temporal-data-visualisation"><i class="fa fa-check"></i><b>7.6</b> Spatio-temporal data visualisation</a>
+<ul>
+<li class="chapter" data-level="7.6.1" data-path="time-matters.html"><a href="time-matters.html#small-multiples-to-show-temporal-variation"><i class="fa fa-check"></i><b>7.6.1</b> Small multiples to show temporal variation</a></li>
+<li class="chapter" data-level="7.6.2" data-path="time-matters.html"><a href="time-matters.html#spaghetti-plots"><i class="fa fa-check"></i><b>7.6.2</b> Spaghetti plots</a></li>
+<li class="chapter" data-level="7.6.3" data-path="time-matters.html"><a href="time-matters.html#animations"><i class="fa fa-check"></i><b>7.6.3</b> Animations</a></li>
+</ul></li>
+<li class="chapter" data-level="7.7" data-path="time-matters.html"><a href="time-matters.html#summary-and-further-reading-5"><i class="fa fa-check"></i><b>7.7</b> Summary and further reading</a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="spatial-point-patterns-of-crime-events.html"><a href="spatial-point-patterns-of-crime-events.html"><i class="fa fa-check"></i><b>8</b> Spatial point patterns of crime events</a>
+<ul>
+<li class="chapter" data-level="8.1" data-path="spatial-point-patterns-of-crime-events.html"><a href="spatial-point-patterns-of-crime-events.html#mapping-crime-intensity-with-isarithmic-maps"><i class="fa fa-check"></i><b>8.1</b> Mapping crime intensity with isarithmic maps</a></li>
+<li class="chapter" data-level="8.2" data-path="spatial-point-patterns-of-crime-events.html"><a href="spatial-point-patterns-of-crime-events.html#burglaries-in-nyc"><i class="fa fa-check"></i><b>8.2</b> Burglaries in NYC</a></li>
+<li class="chapter" data-level="8.3" data-path="spatial-point-patterns-of-crime-events.html"><a href="spatial-point-patterns-of-crime-events.html#using-the-spatstat-package"><i class="fa fa-check"></i><b>8.3</b> Using the <code>spatstat</code> package</a></li>
+<li class="chapter" data-level="8.4" data-path="spatial-point-patterns-of-crime-events.html"><a href="spatial-point-patterns-of-crime-events.html#homogeneous-or-spatially-varying-intensity"><i class="fa fa-check"></i><b>8.4</b> Homogeneous or spatially varying intensity?</a></li>
+<li class="chapter" data-level="8.5" data-path="spatial-point-patterns-of-crime-events.html"><a href="spatial-point-patterns-of-crime-events.html#mapping-intensity-estimates-with-spatstat"><i class="fa fa-check"></i><b>8.5</b> Mapping intensity estimates with <code>spatstat</code></a>
+<ul>
+<li class="chapter" data-level="8.5.1" data-path="spatial-point-patterns-of-crime-events.html"><a href="spatial-point-patterns-of-crime-events.html#basics-of-kernel-density-estimation-kde"><i class="fa fa-check"></i><b>8.5.1</b> Basics of kernel density estimation (KDE)</a></li>
+<li class="chapter" data-level="8.5.2" data-path="spatial-point-patterns-of-crime-events.html"><a href="spatial-point-patterns-of-crime-events.html#selecting-the-appropriate-bandwith-for-kde"><i class="fa fa-check"></i><b>8.5.2</b> Selecting the appropriate bandwith for KDE</a></li>
+<li class="chapter" data-level="8.5.3" data-path="spatial-point-patterns-of-crime-events.html"><a href="spatial-point-patterns-of-crime-events.html#selecting-the-smoothing-kernel"><i class="fa fa-check"></i><b>8.5.3</b> Selecting the smoothing kernel</a></li>
+<li class="chapter" data-level="8.5.4" data-path="spatial-point-patterns-of-crime-events.html"><a href="spatial-point-patterns-of-crime-events.html#weighted-kernel-density-estimates"><i class="fa fa-check"></i><b>8.5.4</b> Weighted kernel density estimates</a></li>
+<li class="chapter" data-level="8.5.5" data-path="spatial-point-patterns-of-crime-events.html"><a href="spatial-point-patterns-of-crime-events.html#better-kde-maps-using-leaflet"><i class="fa fa-check"></i><b>8.5.5</b> Better KDE maps using <code>leaflet</code></a></li>
+<li class="chapter" data-level="8.5.6" data-path="spatial-point-patterns-of-crime-events.html"><a href="spatial-point-patterns-of-crime-events.html#problems-with-kde"><i class="fa fa-check"></i><b>8.5.6</b> Problems with KDE</a></li>
+<li class="chapter" data-level="8.5.7" data-path="spatial-point-patterns-of-crime-events.html"><a href="spatial-point-patterns-of-crime-events.html#other-packages-for-kde"><i class="fa fa-check"></i><b>8.5.7</b> Other packages for KDE</a></li>
+</ul></li>
+<li class="chapter" data-level="8.6" data-path="spatial-point-patterns-of-crime-events.html"><a href="spatial-point-patterns-of-crime-events.html#summary-and-further-reading-6"><i class="fa fa-check"></i><b>8.6</b> Summary and further reading</a></li>
+</ul></li>
+<li class="chapter" data-level="9" data-path="crime-along-spatial-networks.html"><a href="crime-along-spatial-networks.html"><i class="fa fa-check"></i><b>9</b> Crime along spatial networks</a>
+<ul>
+<li class="chapter" data-level="9.1" data-path="crime-along-spatial-networks.html"><a href="crime-along-spatial-networks.html#introduction-6"><i class="fa fa-check"></i><b>9.1</b> Introduction</a></li>
+<li class="chapter" data-level="9.2" data-path="crime-along-spatial-networks.html"><a href="crime-along-spatial-networks.html#constructing-and-storing-a-spatial-linear-network"><i class="fa fa-check"></i><b>9.2</b> Constructing and storing a spatial linear network</a></li>
+<li class="chapter" data-level="9.3" data-path="crime-along-spatial-networks.html"><a href="crime-along-spatial-networks.html#visualising-crime-distribution-along-networks"><i class="fa fa-check"></i><b>9.3</b> Visualising crime distribution along networks</a>
+<ul>
+<li class="chapter" data-level="9.3.1" data-path="crime-along-spatial-networks.html"><a href="crime-along-spatial-networks.html#selecting-relevant-crimes-for-micro-places"><i class="fa fa-check"></i><b>9.3.1</b> Selecting relevant crimes for micro-places</a></li>
+<li class="chapter" data-level="9.3.2" data-path="crime-along-spatial-networks.html"><a href="crime-along-spatial-networks.html#assigning-joining-crimes-to-micro-places"><i class="fa fa-check"></i><b>9.3.2</b> Assigning (joining) crimes to micro-places</a></li>
+<li class="chapter" data-level="9.3.3" data-path="crime-along-spatial-networks.html"><a href="crime-along-spatial-networks.html#calculating-a-crime-rate"><i class="fa fa-check"></i><b>9.3.3</b> Calculating a crime rate</a></li>
+<li class="chapter" data-level="9.3.4" data-path="crime-along-spatial-networks.html"><a href="crime-along-spatial-networks.html#hot-routes"><i class="fa fa-check"></i><b>9.3.4</b> Hot Routes</a></li>
+</ul></li>
+<li class="chapter" data-level="9.4" data-path="crime-along-spatial-networks.html"><a href="crime-along-spatial-networks.html#quantifying-crime-concentration-at-micro-places"><i class="fa fa-check"></i><b>9.4</b> Quantifying crime concentration at micro-places</a></li>
+<li class="chapter" data-level="9.5" data-path="crime-along-spatial-networks.html"><a href="crime-along-spatial-networks.html#street-profile-analysis"><i class="fa fa-check"></i><b>9.5</b> Street Profile Analysis</a>
+<ul>
+<li class="chapter" data-level="9.5.1" data-path="crime-along-spatial-networks.html"><a href="crime-along-spatial-networks.html#linking-data-to-nodes"><i class="fa fa-check"></i><b>9.5.1</b> Linking data to nodes</a></li>
+<li class="chapter" data-level="9.5.2" data-path="crime-along-spatial-networks.html"><a href="crime-along-spatial-networks.html#calculating-a-rate-for-nodes"><i class="fa fa-check"></i><b>9.5.2</b> Calculating a rate for nodes</a></li>
+<li class="chapter" data-level="9.5.3" data-path="crime-along-spatial-networks.html"><a href="crime-along-spatial-networks.html#visualising-with-street-profile-analysis"><i class="fa fa-check"></i><b>9.5.3</b> Visualising with Street Profile Analysis</a></li>
+</ul></li>
+<li class="chapter" data-level="9.6" data-path="crime-along-spatial-networks.html"><a href="crime-along-spatial-networks.html#density-estimation-along-networks"><i class="fa fa-check"></i><b>9.6</b> Density estimation along networks</a></li>
+<li class="chapter" data-level="9.7" data-path="crime-along-spatial-networks.html"><a href="crime-along-spatial-networks.html#summary-and-further-reading-7"><i class="fa fa-check"></i><b>9.7</b> Summary and further reading</a></li>
+</ul></li>
+<li class="chapter" data-level="10" data-path="spatial-dependence-and-autocorrelation.html"><a href="spatial-dependence-and-autocorrelation.html"><i class="fa fa-check"></i><b>10</b> Spatial dependence and autocorrelation</a>
+<ul>
+<li class="chapter" data-level="10.1" data-path="spatial-dependence-and-autocorrelation.html"><a href="spatial-dependence-and-autocorrelation.html#introduction-7"><i class="fa fa-check"></i><b>10.1</b> Introduction</a></li>
+<li class="chapter" data-level="10.2" data-path="spatial-dependence-and-autocorrelation.html"><a href="spatial-dependence-and-autocorrelation.html#exploring-spatial-dependence-in-point-pattern-data"><i class="fa fa-check"></i><b>10.2</b> Exploring spatial dependence in point pattern data</a>
+<ul>
+<li class="chapter" data-level="10.2.1" data-path="spatial-dependence-and-autocorrelation.html"><a href="spatial-dependence-and-autocorrelation.html#the-empirical-k-function"><i class="fa fa-check"></i><b>10.2.1</b> The empirical K function</a></li>
+<li class="chapter" data-level="10.2.2" data-path="spatial-dependence-and-autocorrelation.html"><a href="spatial-dependence-and-autocorrelation.html#homicide-in-buenos-aires"><i class="fa fa-check"></i><b>10.2.2</b> Homicide in Buenos Aires</a></li>
+<li class="chapter" data-level="10.2.3" data-path="spatial-dependence-and-autocorrelation.html"><a href="spatial-dependence-and-autocorrelation.html#estimating-and-plotting-the-k-function"><i class="fa fa-check"></i><b>10.2.3</b> Estimating and plotting the K-function</a></li>
+<li class="chapter" data-level="10.2.4" data-path="spatial-dependence-and-autocorrelation.html"><a href="spatial-dependence-and-autocorrelation.html#network-constrained-k-function"><i class="fa fa-check"></i><b>10.2.4</b> Network constrained K function</a></li>
+</ul></li>
+<li class="chapter" data-level="10.3" data-path="spatial-dependence-and-autocorrelation.html"><a href="spatial-dependence-and-autocorrelation.html#exploring-spatial-autocorrelation-in-lattice-data"><i class="fa fa-check"></i><b>10.3</b> Exploring spatial autocorrelation in lattice data</a>
+<ul>
+<li class="chapter" data-level="10.3.1" data-path="spatial-dependence-and-autocorrelation.html"><a href="spatial-dependence-and-autocorrelation.html#burglary-in-manchester"><i class="fa fa-check"></i><b>10.3.1</b> Burglary in Manchester</a></li>
+<li class="chapter" data-level="10.3.2" data-path="spatial-dependence-and-autocorrelation.html"><a href="spatial-dependence-and-autocorrelation.html#what-is-a-neighbour"><i class="fa fa-check"></i><b>10.3.2</b> What is a neighbour?</a></li>
+<li class="chapter" data-level="10.3.3" data-path="spatial-dependence-and-autocorrelation.html"><a href="spatial-dependence-and-autocorrelation.html#creating-a-list-of-neighbours-based-on-contiguity"><i class="fa fa-check"></i><b>10.3.3</b> Creating a list of neighbours based on contiguity</a></li>
+<li class="chapter" data-level="10.3.4" data-path="spatial-dependence-and-autocorrelation.html"><a href="spatial-dependence-and-autocorrelation.html#generating-the-weight-matrix"><i class="fa fa-check"></i><b>10.3.4</b> Generating the weight matrix</a></li>
+<li class="chapter" data-level="10.3.5" data-path="spatial-dependence-and-autocorrelation.html"><a href="spatial-dependence-and-autocorrelation.html#spatial-weight-matrix-based-on-distance"><i class="fa fa-check"></i><b>10.3.5</b> Spatial weight matrix based on distance</a></li>
+<li class="chapter" data-level="10.3.6" data-path="spatial-dependence-and-autocorrelation.html"><a href="spatial-dependence-and-autocorrelation.html#spatial-weight-matrix-based-on-k-neighbors"><i class="fa fa-check"></i><b>10.3.6</b> Spatial weight matrix based on k-neighbors</a></li>
+</ul></li>
+<li class="chapter" data-level="10.4" data-path="spatial-dependence-and-autocorrelation.html"><a href="spatial-dependence-and-autocorrelation.html#choosing-the-correct-matrix"><i class="fa fa-check"></i><b>10.4</b> Choosing the correct matrix</a>
+<ul>
+<li class="chapter" data-level="10.4.1" data-path="spatial-dependence-and-autocorrelation.html"><a href="spatial-dependence-and-autocorrelation.html#measuring-global-autocorrelation"><i class="fa fa-check"></i><b>10.4.1</b> Measuring global autocorrelation</a></li>
+<li class="chapter" data-level="10.4.2" data-path="spatial-dependence-and-autocorrelation.html"><a href="spatial-dependence-and-autocorrelation.html#the-rgeoda-and-sfweight-packages"><i class="fa fa-check"></i><b>10.4.2</b> The <code>rgeoda</code> and <code>sfweight</code> packages</a></li>
+</ul></li>
+<li class="chapter" data-level="10.5" data-path="spatial-dependence-and-autocorrelation.html"><a href="spatial-dependence-and-autocorrelation.html#further-reading"><i class="fa fa-check"></i><b>10.5</b> Further Reading</a></li>
+</ul></li>
+<li class="chapter" data-level="11" data-path="detecting-hot-spots-and-repeats.html"><a href="detecting-hot-spots-and-repeats.html"><i class="fa fa-check"></i><b>11</b> Detecting hot spots and repeats</a>
+<ul>
+<li class="chapter" data-level="11.1" data-path="detecting-hot-spots-and-repeats.html"><a href="detecting-hot-spots-and-repeats.html#introduction-8"><i class="fa fa-check"></i><b>11.1</b> Introduction</a>
+<ul>
+<li class="chapter" data-level="11.1.1" data-path="detecting-hot-spots-and-repeats.html"><a href="detecting-hot-spots-and-repeats.html#clusters-hot-spots-of-crime-and-near-repeat-victimisation"><i class="fa fa-check"></i><b>11.1.1</b> Clusters, hot spots of crime, and near repeat victimisation</a></li>
+<li class="chapter" data-level="11.1.2" data-path="detecting-hot-spots-and-repeats.html"><a href="detecting-hot-spots-and-repeats.html#burglaries-in-manchester"><i class="fa fa-check"></i><b>11.1.2</b> Burglaries in Manchester</a></li>
+</ul></li>
+<li class="chapter" data-level="11.2" data-path="detecting-hot-spots-and-repeats.html"><a href="detecting-hot-spots-and-repeats.html#using-raster-micro-grid-cells-to-spot-hot-spots"><i class="fa fa-check"></i><b>11.2</b> Using <code>raster</code> micro grid cells to spot hot spots</a></li>
+<li class="chapter" data-level="11.3" data-path="detecting-hot-spots-and-repeats.html"><a href="detecting-hot-spots-and-repeats.html#local-getis-ord"><i class="fa fa-check"></i><b>11.3</b> Local Getis-Ord</a></li>
+<li class="chapter" data-level="11.4" data-path="detecting-hot-spots-and-repeats.html"><a href="detecting-hot-spots-and-repeats.html#local-morans-i-and-moran-scaterplot"><i class="fa fa-check"></i><b>11.4</b> Local Moran’s I and Moran scaterplot</a>
+<ul>
+<li class="chapter" data-level="11.4.1" data-path="detecting-hot-spots-and-repeats.html"><a href="detecting-hot-spots-and-repeats.html#computing-the-local-morans-i"><i class="fa fa-check"></i><b>11.4.1</b> Computing the local Moran’s I</a></li>
+<li class="chapter" data-level="11.4.2" data-path="detecting-hot-spots-and-repeats.html"><a href="detecting-hot-spots-and-repeats.html#creating-a-lisa-map"><i class="fa fa-check"></i><b>11.4.2</b> Creating a LISA map</a></li>
+</ul></li>
+<li class="chapter" data-level="11.5" data-path="detecting-hot-spots-and-repeats.html"><a href="detecting-hot-spots-and-repeats.html#scan-satistics"><i class="fa fa-check"></i><b>11.5</b> Scan satistics</a>
+<ul>
+<li class="chapter" data-level="11.5.1" data-path="detecting-hot-spots-and-repeats.html"><a href="detecting-hot-spots-and-repeats.html#the-dcluster-package"><i class="fa fa-check"></i><b>11.5.1</b> The <code>DCluster</code> package</a></li>
+<li class="chapter" data-level="11.5.2" data-path="detecting-hot-spots-and-repeats.html"><a href="detecting-hot-spots-and-repeats.html#openshaws-gam"><i class="fa fa-check"></i><b>11.5.2</b> Openshaw’s GAM</a></li>
+<li class="chapter" data-level="11.5.3" data-path="detecting-hot-spots-and-repeats.html"><a href="detecting-hot-spots-and-repeats.html#kulldorfs-scan-statistic"><i class="fa fa-check"></i><b>11.5.3</b> Kulldorf’s Scan Statistic</a></li>
+</ul></li>
+<li class="chapter" data-level="11.6" data-path="detecting-hot-spots-and-repeats.html"><a href="detecting-hot-spots-and-repeats.html#exploring-near-repeat-victimisation"><i class="fa fa-check"></i><b>11.6</b> Exploring near repeat victimisation</a></li>
+<li class="chapter" data-level="11.7" data-path="detecting-hot-spots-and-repeats.html"><a href="detecting-hot-spots-and-repeats.html#further-reading-1"><i class="fa fa-check"></i><b>11.7</b> Further reading</a></li>
+</ul></li>
+<li class="chapter" data-level="12" data-path="spatial-regression-models.html"><a href="spatial-regression-models.html"><i class="fa fa-check"></i><b>12</b> Spatial regression models</a>
+<ul>
+<li class="chapter" data-level="12.1" data-path="spatial-regression-models.html"><a href="spatial-regression-models.html#introduction-9"><i class="fa fa-check"></i><b>12.1</b> Introduction</a></li>
+<li class="chapter" data-level="12.2" data-path="spatial-regression-models.html"><a href="spatial-regression-models.html#challenges-for-regression-with-spatial-data"><i class="fa fa-check"></i><b>12.2</b> Challenges for regression with spatial data</a></li>
+<li class="chapter" data-level="12.3" data-path="spatial-regression-models.html"><a href="spatial-regression-models.html#fitting-a-non-spatial-regression-model-with-r"><i class="fa fa-check"></i><b>12.3</b> Fitting a non-spatial regression model with R</a></li>
+<li class="chapter" data-level="12.4" data-path="spatial-regression-models.html"><a href="spatial-regression-models.html#looking-at-the-residuals-and-testing-for-spatial-autocorrelation-in-regression"><i class="fa fa-check"></i><b>12.4</b> Looking at the residuals and testing for spatial autocorrelation in regression</a></li>
+<li class="chapter" data-level="12.5" data-path="spatial-regression-models.html"><a href="spatial-regression-models.html#choosing-a-spatial-regression-model"><i class="fa fa-check"></i><b>12.5</b> Choosing a spatial regression model</a>
+<ul>
+<li class="chapter" data-level="12.5.1" data-path="spatial-regression-models.html"><a href="spatial-regression-models.html#the-basic-spatial-models"><i class="fa fa-check"></i><b>12.5.1</b> The basic spatial models</a></li>
+<li class="chapter" data-level="12.5.2" data-path="spatial-regression-models.html"><a href="spatial-regression-models.html#lagrange-multipliers-the-bottom-up-approach-to-select-a-model"><i class="fa fa-check"></i><b>12.5.2</b> Lagrange multipliers: the bottom-up approach to select a model</a></li>
+</ul></li>
+<li class="chapter" data-level="12.6" data-path="spatial-regression-models.html"><a href="spatial-regression-models.html#fitting-and-interpreting-a-spatial-error-model"><i class="fa fa-check"></i><b>12.6</b> Fitting and interpreting a spatial error model</a></li>
+<li class="chapter" data-level="12.7" data-path="spatial-regression-models.html"><a href="spatial-regression-models.html#fitting-and-interpreting-a-spatially-lagged-model"><i class="fa fa-check"></i><b>12.7</b> Fitting and interpreting a spatially lagged model</a></li>
+<li class="chapter" data-level="12.8" data-path="spatial-regression-models.html"><a href="spatial-regression-models.html#beyond-the-sar-and-sem-models"><i class="fa fa-check"></i><b>12.8</b> Beyond the SAR and SEM models</a></li>
+<li class="chapter" data-level="12.9" data-path="spatial-regression-models.html"><a href="spatial-regression-models.html#summary-and-further-reading-8"><i class="fa fa-check"></i><b>12.9</b> Summary and further reading</a></li>
+</ul></li>
+<li class="chapter" data-level="13" data-path="spatial-heterogeneity-and-regression.html"><a href="spatial-heterogeneity-and-regression.html"><i class="fa fa-check"></i><b>13</b> Spatial heterogeneity and regression</a>
+<ul>
+<li class="chapter" data-level="13.1" data-path="spatial-heterogeneity-and-regression.html"><a href="spatial-heterogeneity-and-regression.html#introduction-10"><i class="fa fa-check"></i><b>13.1</b> Introduction</a></li>
+<li class="chapter" data-level="13.2" data-path="spatial-heterogeneity-and-regression.html"><a href="spatial-heterogeneity-and-regression.html#spatial-regimes"><i class="fa fa-check"></i><b>13.2</b> Spatial regimes</a>
+<ul>
+<li class="chapter" data-level="13.2.1" data-path="spatial-heterogeneity-and-regression.html"><a href="spatial-heterogeneity-and-regression.html#fitting-the-constrained-and-the-unconstrained-models"><i class="fa fa-check"></i><b>13.2.1</b> Fitting the constrained and the unconstrained models</a></li>
+<li class="chapter" data-level="13.2.2" data-path="spatial-heterogeneity-and-regression.html"><a href="spatial-heterogeneity-and-regression.html#running-the-chow-test"><i class="fa fa-check"></i><b>13.2.2</b> Running the Chow test</a></li>
+<li class="chapter" data-level="13.2.3" data-path="spatial-heterogeneity-and-regression.html"><a href="spatial-heterogeneity-and-regression.html#spatial-dependence-with-spatial-heterogeneity"><i class="fa fa-check"></i><b>13.2.3</b> Spatial dependence with spatial heterogeneity</a></li>
+</ul></li>
+<li class="chapter" data-level="13.3" data-path="spatial-heterogeneity-and-regression.html"><a href="spatial-heterogeneity-and-regression.html#geographically-weighted-regression"><i class="fa fa-check"></i><b>13.3</b> Geographically Weighted Regression</a>
+<ul>
+<li class="chapter" data-level="13.3.1" data-path="spatial-heterogeneity-and-regression.html"><a href="spatial-heterogeneity-and-regression.html#calculate-kernel-bandwidth"><i class="fa fa-check"></i><b>13.3.1</b> Calculate kernel bandwidth</a></li>
+<li class="chapter" data-level="13.3.2" data-path="spatial-heterogeneity-and-regression.html"><a href="spatial-heterogeneity-and-regression.html#building-the-geographically-weighted-model"><i class="fa fa-check"></i><b>13.3.2</b> Building the geographically weighted model</a></li>
+<li class="chapter" data-level="13.3.3" data-path="spatial-heterogeneity-and-regression.html"><a href="spatial-heterogeneity-and-regression.html#using-gwr"><i class="fa fa-check"></i><b>13.3.3</b> Using GWR</a></li>
+</ul></li>
+<li class="chapter" data-level="13.4" data-path="spatial-heterogeneity-and-regression.html"><a href="spatial-heterogeneity-and-regression.html#summary-and-further-reading-9"><i class="fa fa-check"></i><b>13.4</b> Summary and further reading</a></li>
+</ul></li>
+<li class="chapter" data-level="14" data-path="appendix-a-quick-intro-to-r-and-rstudio.html"><a href="appendix-a-quick-intro-to-r-and-rstudio.html"><i class="fa fa-check"></i><b>14</b> Appendix: A quick intro to R and RStudio</a>
+<ul>
+<li class="chapter" data-level="14.1" data-path="appendix-a-quick-intro-to-r-and-rstudio.html"><a href="appendix-a-quick-intro-to-r-and-rstudio.html#exploring-rstudio"><i class="fa fa-check"></i><b>14.1</b> Exploring RStudio</a>
+<ul>
+<li class="chapter" data-level="14.1.1" data-path="appendix-a-quick-intro-to-r-and-rstudio.html"><a href="appendix-a-quick-intro-to-r-and-rstudio.html#the-four-panes-of-r-studio"><i class="fa fa-check"></i><b>14.1.1</b> The four panes of R Studio</a></li>
+</ul></li>
+<li class="chapter" data-level="14.2" data-path="appendix-a-quick-intro-to-r-and-rstudio.html"><a href="appendix-a-quick-intro-to-r-and-rstudio.html#customising-the-rstudio-look"><i class="fa fa-check"></i><b>14.2</b> Customising the RStudio look</a></li>
+<li class="chapter" data-level="14.3" data-path="appendix-a-quick-intro-to-r-and-rstudio.html"><a href="appendix-a-quick-intro-to-r-and-rstudio.html#elements-of-r-grammar"><i class="fa fa-check"></i><b>14.3</b> Elements of R grammar</a>
+<ul>
+<li class="chapter" data-level="14.3.1" data-path="appendix-a-quick-intro-to-r-and-rstudio.html"><a href="appendix-a-quick-intro-to-r-and-rstudio.html#functions"><i class="fa fa-check"></i><b>14.3.1</b> Functions</a></li>
+<li class="chapter" data-level="14.3.2" data-path="appendix-a-quick-intro-to-r-and-rstudio.html"><a href="appendix-a-quick-intro-to-r-and-rstudio.html#objects"><i class="fa fa-check"></i><b>14.3.2</b> Objects</a></li>
+<li class="chapter" data-level="14.3.3" data-path="appendix-a-quick-intro-to-r-and-rstudio.html"><a href="appendix-a-quick-intro-to-r-and-rstudio.html#types-of-objects"><i class="fa fa-check"></i><b>14.3.3</b> Types of objects</a></li>
+</ul></li>
+<li class="chapter" data-level="14.4" data-path="appendix-a-quick-intro-to-r-and-rstudio.html"><a href="appendix-a-quick-intro-to-r-and-rstudio.html#packages"><i class="fa fa-check"></i><b>14.4</b> Packages</a></li>
+<li class="chapter" data-level="14.5" data-path="appendix-a-quick-intro-to-r-and-rstudio.html"><a href="appendix-a-quick-intro-to-r-and-rstudio.html#exploring-data-with-r"><i class="fa fa-check"></i><b>14.5</b> Exploring data with R</a>
+<ul>
+<li class="chapter" data-level="14.5.1" data-path="appendix-a-quick-intro-to-r-and-rstudio.html"><a href="appendix-a-quick-intro-to-r-and-rstudio.html#playing-around-with-data"><i class="fa fa-check"></i><b>14.5.1</b> Playing around with data</a></li>
+</ul></li>
+<li class="chapter" data-level="14.6" data-path="appendix-a-quick-intro-to-r-and-rstudio.html"><a href="appendix-a-quick-intro-to-r-and-rstudio.html#getting-organised-r-projects"><i class="fa fa-check"></i><b>14.6</b> Getting organised: R Projects</a></li>
+<li class="chapter" data-level="14.7" data-path="appendix-a-quick-intro-to-r-and-rstudio.html"><a href="appendix-a-quick-intro-to-r-and-rstudio.html#summary-and-further-reading-10"><i class="fa fa-check"></i><b>14.7</b> Summary and further reading</a></li>
+</ul></li>
+<li class="chapter" data-level="15" data-path="appendix-b-regression-analysis-a-refresher.html"><a href="appendix-b-regression-analysis-a-refresher.html"><i class="fa fa-check"></i><b>15</b> Appendix B: Regression analysis (a refresher)</a>
+<ul>
+<li class="chapter" data-level="15.1" data-path="appendix-b-regression-analysis-a-refresher.html"><a href="appendix-b-regression-analysis-a-refresher.html#introduction-11"><i class="fa fa-check"></i><b>15.1</b> Introduction</a></li>
+<li class="chapter" data-level="15.2" data-path="appendix-b-regression-analysis-a-refresher.html"><a href="appendix-b-regression-analysis-a-refresher.html#motivating-regression"><i class="fa fa-check"></i><b>15.2</b> Motivating regression</a></li>
+<li class="chapter" data-level="15.3" data-path="appendix-b-regression-analysis-a-refresher.html"><a href="appendix-b-regression-analysis-a-refresher.html#fitting-a-simple-regression-model"><i class="fa fa-check"></i><b>15.3</b> Fitting a simple regression model</a></li>
+<li class="chapter" data-level="15.4" data-path="appendix-b-regression-analysis-a-refresher.html"><a href="appendix-b-regression-analysis-a-refresher.html#residuals-revisited-r-squared"><i class="fa fa-check"></i><b>15.4</b> Residuals revisited: R squared</a></li>
+<li class="chapter" data-level="15.5" data-path="appendix-b-regression-analysis-a-refresher.html"><a href="appendix-b-regression-analysis-a-refresher.html#inference-with-regression"><i class="fa fa-check"></i><b>15.5</b> Inference with regression</a></li>
+<li class="chapter" data-level="15.6" data-path="appendix-b-regression-analysis-a-refresher.html"><a href="appendix-b-regression-analysis-a-refresher.html#fitting-regression-with-categorical-predictors"><i class="fa fa-check"></i><b>15.6</b> Fitting regression with categorical predictors</a></li>
+<li class="chapter" data-level="15.7" data-path="appendix-b-regression-analysis-a-refresher.html"><a href="appendix-b-regression-analysis-a-refresher.html#motivating-multiple-regression"><i class="fa fa-check"></i><b>15.7</b> Motivating multiple regression</a></li>
+<li class="chapter" data-level="15.8" data-path="appendix-b-regression-analysis-a-refresher.html"><a href="appendix-b-regression-analysis-a-refresher.html#fitting-and-interpreting-a-multiple-regression-model"><i class="fa fa-check"></i><b>15.8</b> Fitting and interpreting a multiple regression model</a></li>
+<li class="chapter" data-level="15.9" data-path="appendix-b-regression-analysis-a-refresher.html"><a href="appendix-b-regression-analysis-a-refresher.html#presenting-your-regression-results."><i class="fa fa-check"></i><b>15.9</b> Presenting your regression results.</a></li>
+<li class="chapter" data-level="15.10" data-path="appendix-b-regression-analysis-a-refresher.html"><a href="appendix-b-regression-analysis-a-refresher.html#rescaling-input-variables-to-assist-interpretation"><i class="fa fa-check"></i><b>15.10</b> Rescaling input variables to assist interpretation</a></li>
+<li class="chapter" data-level="15.11" data-path="appendix-b-regression-analysis-a-refresher.html"><a href="appendix-b-regression-analysis-a-refresher.html#testing-conditional-hypothesis-interactions"><i class="fa fa-check"></i><b>15.11</b> Testing conditional hypothesis: interactions</a></li>
+<li class="chapter" data-level="15.12" data-path="appendix-b-regression-analysis-a-refresher.html"><a href="appendix-b-regression-analysis-a-refresher.html#model-building-and-variable-selection"><i class="fa fa-check"></i><b>15.12</b> Model building and variable selection</a></li>
+<li class="chapter" data-level="15.13" data-path="appendix-b-regression-analysis-a-refresher.html"><a href="appendix-b-regression-analysis-a-refresher.html#regression-assumptions"><i class="fa fa-check"></i><b>15.13</b> Regression assumptions</a></li>
+<li class="chapter" data-level="15.14" data-path="appendix-b-regression-analysis-a-refresher.html"><a href="appendix-b-regression-analysis-a-refresher.html#summary-and-further-reading-11"><i class="fa fa-check"></i><b>15.14</b> Summary and further reading</a></li>
+</ul></li>
+<li class="chapter" data-level="16" data-path="appendix-c-sourcing-geographical-data-for-crime-analysis.html"><a href="appendix-c-sourcing-geographical-data-for-crime-analysis.html"><i class="fa fa-check"></i><b>16</b> Appendix C: sourcing geographical data for crime analysis</a>
+<ul>
+<li class="chapter" data-level="16.1" data-path="appendix-c-sourcing-geographical-data-for-crime-analysis.html"><a href="appendix-c-sourcing-geographical-data-for-crime-analysis.html#the-rnaturalearth-package"><i class="fa fa-check"></i><b>16.1</b> The rnaturalearth package</a></li>
+<li class="chapter" data-level="16.2" data-path="appendix-c-sourcing-geographical-data-for-crime-analysis.html"><a href="appendix-c-sourcing-geographical-data-for-crime-analysis.html#data-from-apis"><i class="fa fa-check"></i><b>16.2</b> Data from APIs</a></li>
+<li class="chapter" data-level="16.3" data-path="appendix-c-sourcing-geographical-data-for-crime-analysis.html"><a href="appendix-c-sourcing-geographical-data-for-crime-analysis.html#data-from-data-repositories"><i class="fa fa-check"></i><b>16.3</b> Data from data repositories</a>
+<ul>
+<li class="chapter" data-level="16.3.1" data-path="appendix-c-sourcing-geographical-data-for-crime-analysis.html"><a href="appendix-c-sourcing-geographical-data-for-crime-analysis.html#international-resources"><i class="fa fa-check"></i><b>16.3.1</b> International resources</a></li>
+</ul></li>
+<li class="chapter" data-level="16.4" data-path="appendix-c-sourcing-geographical-data-for-crime-analysis.html"><a href="appendix-c-sourcing-geographical-data-for-crime-analysis.html#open-street-map"><i class="fa fa-check"></i><b>16.4</b> Open Street Map</a></li>
+<li class="chapter" data-level="16.5" data-path="appendix-c-sourcing-geographical-data-for-crime-analysis.html"><a href="appendix-c-sourcing-geographical-data-for-crime-analysis.html#summary-and-further-reading-12"><i class="fa fa-check"></i><b>16.5</b> Summary and further reading</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+<li class="divider"></li>
+<li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Crime Mapping and Spatial Data Analysis using R</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="spatial-point-patterns-of-crime-events" class="section level1" number="8">
+<h1><span class="header-section-number">Chapter 8</span> Spatial point patterns of crime events</h1>
+<div id="mapping-crime-intensity-with-isarithmic-maps" class="section level2" number="8.1">
+<h2><span class="header-section-number">8.1</span> Mapping crime intensity with isarithmic maps</h2>
+<p>A key piece of information we explore in environmental criminology is the “exact” location of crimes, typically in the form of street address in which a crime is recorded as having occurred. A key goal of the analysis of this type of mapped point data is to detect patterns, in particular to detect areas where crime locations appear as clustered and reflecting an increased likelihood of occurrence.</p>
+<p>In Chapter 1, we generated some maps with point locations representing crimes in Greater Manchester (UK) and we saw how the large volume of events made it difficult to discern any spatial pattern. In previous chapters we saw how we could deal with this via aggregation of the point data to enumeration areas such census tracts or by virtue of binning. In this chapter we will introduce techniques that are used as an alternative visualisations for point patterns and that are based on the mathematics of density estimation. They are used to produce isarithmic maps, these are the kind of maps you often see in the weather reports displaying temperature. What we are doing is creating an interpolated surface from discrete data points. Or in simpler terms we are “effectively inventing data values for the areas on the map for which you don’t have data or sample points” <span class="citation">(<a href="#ref-Field_2015" role="doc-biblioref">Field 2015</a>)</span>.</p>
+<p>Before we get to the detail of how we produce these maps we will briefly and very generally introduce the field of spatial point pattern analysis. The analysis of discrete locations are a subfield of spatial statistics. In this chapter we will introduce an R package called <code>spatstat</code>, that was developed for spatial point pattern analysis and modelling. It was written by Adrian Baddeley and Rolf Turner. There is a <a href="http://spatstat.org">webpage</a> and a book <span class="citation">(<a href="#ref-Baddeley_2016" role="doc-biblioref">Baddeley, Rubak, and Turner 2015</a>)</span> dedicated to this package. In our book we are only going to provide you with an introductory practical entry into this field of techniques. If this package is not installed in your machine, make sure you install it before we carry on. In this chapter we will also be using the package <code>crimedata</code> developed by our colleague Matt Ashby, which we introduced in the previous Chapter <span class="citation">(<a href="#ref-Ashby_2018" role="doc-biblioref">Ashby 2018</a>)</span>.</p>
+<div class="sourceCode" id="cb306"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb306-1"><a href="spatial-point-patterns-of-crime-events.html#cb306-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Packages for reading data and data carpentry</span></span>
+<span id="cb306-2"><a href="spatial-point-patterns-of-crime-events.html#cb306-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
+<span id="cb306-3"><a href="spatial-point-patterns-of-crime-events.html#cb306-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb306-4"><a href="spatial-point-patterns-of-crime-events.html#cb306-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb306-5"><a href="spatial-point-patterns-of-crime-events.html#cb306-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Packages for handling spatial data and for geospatial carpentry</span></span>
+<span id="cb306-6"><a href="spatial-point-patterns-of-crime-events.html#cb306-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
+<span id="cb306-7"><a href="spatial-point-patterns-of-crime-events.html#cb306-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(maptools)</span>
+<span id="cb306-8"><a href="spatial-point-patterns-of-crime-events.html#cb306-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(raster) <span class="co"># used for data represented in a raster model</span></span>
+<span id="cb306-9"><a href="spatial-point-patterns-of-crime-events.html#cb306-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb306-10"><a href="spatial-point-patterns-of-crime-events.html#cb306-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Specific packages for spatial point pattern analysis</span></span>
+<span id="cb306-11"><a href="spatial-point-patterns-of-crime-events.html#cb306-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(spatstat)</span>
+<span id="cb306-12"><a href="spatial-point-patterns-of-crime-events.html#cb306-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb306-13"><a href="spatial-point-patterns-of-crime-events.html#cb306-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Libraries for spatial visualisation</span></span>
+<span id="cb306-14"><a href="spatial-point-patterns-of-crime-events.html#cb306-14" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tmap)</span>
+<span id="cb306-15"><a href="spatial-point-patterns-of-crime-events.html#cb306-15" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb306-16"><a href="spatial-point-patterns-of-crime-events.html#cb306-16" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(leaflet)</span>
+<span id="cb306-17"><a href="spatial-point-patterns-of-crime-events.html#cb306-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb306-18"><a href="spatial-point-patterns-of-crime-events.html#cb306-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Libraries with relevant data for the chapter</span></span>
+<span id="cb306-19"><a href="spatial-point-patterns-of-crime-events.html#cb306-19" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(crimedata)</span></code></pre></div>
+</div>
+<div id="burglaries-in-nyc" class="section level2" number="8.2">
+<h2><span class="header-section-number">8.2</span> Burglaries in NYC</h2>
+<p>Like in Chapter 6, our data come from the <strong>Crime Open Database (CODE)</strong>, a service that makes it convenient to use crime data from multiple US cities in research on crime. All the data in CODE are available to use for free as long as you acknowledge the source of the data. The package <code>crimedata</code> was developed by Dr. Ashby to make it easier to read into R the data from this service. In the last chapter we provided the data in a csv format, but here we will actually make use of the package to show you how you might acquire such data yourself.</p>
+<p>The key function in <code>crimedata</code> is <code>get_crime_data()</code>. We will be using the crime data from New York City police and for 2010, and we want the data to be in <code>sf</code> format. We will also filter the data to only include residential burglaries in Brooklyn.</p>
+<div class="sourceCode" id="cb307"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb307-1"><a href="spatial-point-patterns-of-crime-events.html#cb307-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Large dataset, so it will take a while</span></span>
+<span id="cb307-2"><a href="spatial-point-patterns-of-crime-events.html#cb307-2" aria-hidden="true" tabindex="-1"></a>nyc_burg <span class="ot">&lt;-</span> <span class="fu">get_crime_data</span>(</span>
+<span id="cb307-3"><a href="spatial-point-patterns-of-crime-events.html#cb307-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">cities =</span> <span class="st">&quot;New York&quot;</span>, <span class="co">#specifies the city for which you want the data</span></span>
+<span id="cb307-4"><a href="spatial-point-patterns-of-crime-events.html#cb307-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">years =</span> <span class="dv">2010</span>,        <span class="co">#reads the appropriate year of data</span></span>
+<span id="cb307-5"><a href="spatial-point-patterns-of-crime-events.html#cb307-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">type =</span> <span class="st">&quot;extended&quot;</span>,   <span class="co">#select extended (a fuller set of fields)</span></span>
+<span id="cb307-6"><a href="spatial-point-patterns-of-crime-events.html#cb307-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">output =</span> <span class="st">&quot;sf&quot;</span>) <span class="sc">%&gt;%</span>        <span class="co">#return a sf object (vs tibble)</span></span>
+<span id="cb307-7"><a href="spatial-point-patterns-of-crime-events.html#cb307-7" aria-hidden="true" tabindex="-1"></a><span class="fu">filter</span>(offense_type <span class="sc">==</span> <span class="st">&quot;residential burglary/breaking &amp; entering&quot;</span> <span class="sc">&amp;</span></span>
+<span id="cb307-8"><a href="spatial-point-patterns-of-crime-events.html#cb307-8" aria-hidden="true" tabindex="-1"></a>           nyc_boro_nm <span class="sc">==</span> <span class="st">&quot;MANHATTAN&quot;</span>)</span></code></pre></div>
+<p>Additionally we will need a geometry of borough boundaries. We have downloaded this from the NYC open data portal, and is supplied with the data included with this book. The file is <code>manhattan.geojson</code>.</p>
+<div class="sourceCode" id="cb308"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb308-1"><a href="spatial-point-patterns-of-crime-events.html#cb308-1" aria-hidden="true" tabindex="-1"></a>manhattan <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="st">&quot;data/manhattan.geojson&quot;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb308-2"><a href="spatial-point-patterns-of-crime-events.html#cb308-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(BoroName <span class="sc">==</span> <span class="st">&quot;Manhattan&quot;</span>) <span class="co"># select only Manhattan</span></span></code></pre></div>
+<p>Now we have all our data, let’s plot to see how they look.</p>
+<div class="sourceCode" id="cb309"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb309-1"><a href="spatial-point-patterns-of-crime-events.html#cb309-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> </span>
+<span id="cb309-2"><a href="spatial-point-patterns-of-crime-events.html#cb309-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> manhattan) <span class="sc">+</span> <span class="co"># boundary data</span></span>
+<span id="cb309-3"><a href="spatial-point-patterns-of-crime-events.html#cb309-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> nyc_burg, <span class="at">size =</span> <span class="fl">0.5</span>) <span class="sc">+</span>  <span class="co"># crime locations as points</span></span>
+<span id="cb309-4"><a href="spatial-point-patterns-of-crime-events.html#cb309-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>()</span></code></pre></div>
+<div class="figure"><span id="fig:unnamed-chunk-200"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-200-1.png" alt="Plot Manhattan borough and crime locations as points" width="672" />
+<p class="caption">
+FIGURE 8.1: Plot Manhattan borough and crime locations as points
+</p>
+</div>
+<p>In the point pattern analysis literature each point is often referred to as an <strong>event</strong> and these events can have <strong>marks</strong>, attributes or characteristics that are also encoded in the data. In our spatial object one of these <em>marks</em> is the type of crime (although in this case it is of little interest since we have filtered on it). Others in this object include the date and time, the location category, victim sex and race, etc.</p>
+</div>
+<div id="using-the-spatstat-package" class="section level2" number="8.3">
+<h2><span class="header-section-number">8.3</span> Using the <code>spatstat</code> package</h2>
+<p>The R package <code>spatstat</code> was created for spatial statistics with a strong focus on analysing spatial point patterns. It is the result of 15 years’ development by leading researchers in spatial statistics. We highly recommend the book “Spatial Point Patterns: Methodology and Applications with R” to give a comprehensive overview of this package <span class="citation">(<a href="#ref-Baddeley_2016" role="doc-biblioref">Baddeley, Rubak, and Turner 2015</a>)</span>.</p>
+<p>When working within the <code>spatstat</code> environment, we will be working with planar point pattern objects. This means that the first thing we need to do is to transform our <code>sf</code> object into a <code>ppp</code> (planar point pattern) object. This is how <code>spatstat</code> likes to store its point patterns. The components of a <code>ppp</code> object include the coordinates of the points and the observation window (defining the study area).</p>
+<p>It is important to realise that a point pattern is defined as a series of events in a given area, or window, of observation. Therefore we need to precisely define this window. In <code>spatstat</code> the function <code>owin()</code> is used to set the observation window. However, the standard function takes the coordinates of a rectangle or of a polygon from a matrix, and therefore it may be a bit tricky to use with a <code>sf</code> object. Luckily the package <code>maptools</code> provides a way to transform a <code>SpatialPolygons</code> into an object of class <code>owin</code>, using the function <code>as.owin()</code>. Here are the steps.</p>
+<p>First, we transform the CRS of our Manhattan polygon into projected coordinates as opposed to the original geographic coordinates (WGS84), since only projected coordinates may be converted to <code>spatstat</code> class objects. As we saw in chapter 2, measuring distance in meters is a bit easier, so since with points a good deal of the analysis we subject them to involve measuring their distance from each other, moving to a projected system makes sense. For NYC the recommended projection is the New York State Plane Long Island Zone (EPSG 2263), that provides a high degree of accuracy and balances size and shape well. This projection, however, uses US feet (which will be deprecated in 2022), so instead we are going to use EPSG 32118, as an alternative that uses meters as unit of measurement. So first, transform our object using <code>st_transform()</code>:</p>
+<div class="sourceCode" id="cb310"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb310-1"><a href="spatial-point-patterns-of-crime-events.html#cb310-1" aria-hidden="true" tabindex="-1"></a>manhattan <span class="ot">&lt;-</span> <span class="fu">st_transform</span>(manhattan, <span class="dv">32118</span>)</span></code></pre></div>
+<p>Then we use the <code>as.owin()</code> function to define the window based on our <code>manhattan</code> object.</p>
+<div class="sourceCode" id="cb311"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb311-1"><a href="spatial-point-patterns-of-crime-events.html#cb311-1" aria-hidden="true" tabindex="-1"></a>window <span class="ot">&lt;-</span> <span class="fu">as.owin</span>(<span class="fu">st_geometry</span>(manhattan))</span></code></pre></div>
+<p>We can plot this window to see if it looks similar in shape to our polygon of Manhattan.</p>
+<div class="sourceCode" id="cb312"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb312-1"><a href="spatial-point-patterns-of-crime-events.html#cb312-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(window) <span class="co"># owin similar to polygon</span></span></code></pre></div>
+<div class="figure"><span id="fig:unnamed-chunk-201"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-201-1.png" alt="Plot window based on Manhattan polygon" width="672" />
+<p class="caption">
+FIGURE 8.2: Plot window based on Manhattan polygon
+</p>
+</div>
+<p>We can see this worked and created an <code>owin</code> object.</p>
+<div class="sourceCode" id="cb313"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb313-1"><a href="spatial-point-patterns-of-crime-events.html#cb313-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(window)</span></code></pre></div>
+<pre><code>## [1] &quot;owin&quot;</code></pre>
+<div class="sourceCode" id="cb315"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb315-1"><a href="spatial-point-patterns-of-crime-events.html#cb315-1" aria-hidden="true" tabindex="-1"></a>window</span></code></pre></div>
+<pre><code>## window: polygonal boundary
+## enclosing rectangle: [295965, 307869] x [57329, 79111] 
+## units</code></pre>
+<p>You can see it prints the units of measurement. But it does not identify them:</p>
+<div class="sourceCode" id="cb317"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb317-1"><a href="spatial-point-patterns-of-crime-events.html#cb317-1" aria-hidden="true" tabindex="-1"></a><span class="fu">unitname</span>(window)</span></code></pre></div>
+<pre><code>## unit / units</code></pre>
+<p>As noted above, EPGS:32118 uses meters. So we can pass this information to our <code>owin</code> object:</p>
+<div class="sourceCode" id="cb319"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb319-1"><a href="spatial-point-patterns-of-crime-events.html#cb319-1" aria-hidden="true" tabindex="-1"></a><span class="fu">unitname</span>(window) <span class="ot">&lt;-</span> <span class="st">&quot;Meter&quot;</span></span></code></pre></div>
+<p>Now that we have created the window as an <code>owin</code> object let’s get the points. In the first place we need to reproject to the same projected coordinate systems we have for our boundary data using the familiar <code>st_transform()</code> function from <code>sf</code>. Then we will extract the coordinates from our <code>sf</code> point data into a matrix using <code>unlist()</code> from base R, so that the functions from <code>statspat</code> can read the coordinates. If you remember <code>sf</code> objects have a column called <code>geometry</code> that stores these coordinates as a list. By unlisting we are flattening this list, taking the elements out of the list.</p>
+<div class="sourceCode" id="cb320"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb320-1"><a href="spatial-point-patterns-of-crime-events.html#cb320-1" aria-hidden="true" tabindex="-1"></a><span class="co"># first transform to projected CRS too to match our window </span></span>
+<span id="cb320-2"><a href="spatial-point-patterns-of-crime-events.html#cb320-2" aria-hidden="true" tabindex="-1"></a>nyc_burg <span class="ot">&lt;-</span> <span class="fu">st_transform</span>(nyc_burg, <span class="dv">32118</span>) </span>
+<span id="cb320-3"><a href="spatial-point-patterns-of-crime-events.html#cb320-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb320-4"><a href="spatial-point-patterns-of-crime-events.html#cb320-4" aria-hidden="true" tabindex="-1"></a><span class="co"># create matrix of coordinates</span></span>
+<span id="cb320-5"><a href="spatial-point-patterns-of-crime-events.html#cb320-5" aria-hidden="true" tabindex="-1"></a>sf_nyc_burg_coords <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">unlist</span>(nyc_burg<span class="sc">$</span>geometry), <span class="at">ncol =</span> <span class="dv">2</span>, <span class="at">byrow =</span> T)</span></code></pre></div>
+<p>Then we use the <code>ppp()</code> function from the <code>spatstat</code> package to create the object using the information from our matrix and the window that we created. The <code>check</code> argument is a logical that specifies whether we want to check that all points fall within the window of observation. It is recommended to set it to <code>TRUE</code>, unless you are absolutely sure that this is unnecessary.</p>
+<div class="sourceCode" id="cb321"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb321-1"><a href="spatial-point-patterns-of-crime-events.html#cb321-1" aria-hidden="true" tabindex="-1"></a>bur_ppp <span class="ot">&lt;-</span> <span class="fu">ppp</span>(<span class="at">x =</span> sf_nyc_burg_coords[,<span class="dv">1</span>], <span class="at">y =</span> sf_nyc_burg_coords[,<span class="dv">2</span>],</span>
+<span id="cb321-2"><a href="spatial-point-patterns-of-crime-events.html#cb321-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">window =</span> window, <span class="at">check =</span> T)</span></code></pre></div>
+<pre><code>## Warning: data contain duplicated points</code></pre>
+<p>Notice the warning message about duplicated points? In spatial point pattern analysis an issue of significance is the presence of duplicates. The statistical methodology used for spatial point pattern processes is based largely on the assumption that processes are <em>simple</em>, that is, that the points cannot be coincident. That assumption may be unreasonable in many contexts (for example, the literature on repeat victimisation indeed suggests that we should expect the same addressess to be at a higher risk of being hit again). Even so, the point (no pun intended) is that <em>“when the data has coincidence points, some statistical procedures will be severely affected. So it is always strongly advisable to check for duplicate points and to decide on a strategy for dealing with them if they are present”</em> <span class="citation">(<a href="#ref-Baddeley_2016" role="doc-biblioref">Baddeley, Rubak, and Turner 2015</a>: p. 60)</span>.</p>
+<p>So how to perform this check? When creating the object above, we have already been warned this is an issue. But more generally we can check the duplication in a <code>ppp</code> object with the following syntax: it will return a logical indicating whether we have any duplication:</p>
+<div class="sourceCode" id="cb323"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb323-1"><a href="spatial-point-patterns-of-crime-events.html#cb323-1" aria-hidden="true" tabindex="-1"></a><span class="fu">any</span>(<span class="fu">duplicated.ppp</span>(bur_ppp))</span></code></pre></div>
+<pre><code>## [1] TRUE</code></pre>
+<p>To count the number of coincidence points we use the <code>multiplicity()</code> function from the <code>spatstat</code> package. This will return a vector of integers, with one entry for each observation in our dataset, giving the number of points that are identical to the point in question (including itself).</p>
+<div class="sourceCode" id="cb325"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb325-1"><a href="spatial-point-patterns-of-crime-events.html#cb325-1" aria-hidden="true" tabindex="-1"></a><span class="fu">multiplicity</span>(bur_ppp)</span></code></pre></div>
+<p>If you suspect many duplicates, it may be better start asking how many there are. For this you can use:</p>
+<div class="sourceCode" id="cb326"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb326-1"><a href="spatial-point-patterns-of-crime-events.html#cb326-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">multiplicity</span>(bur_ppp) <span class="sc">&gt;</span> <span class="dv">1</span>)</span></code></pre></div>
+<pre><code>## [1] 915</code></pre>
+<p>That’s quite something! 915 points out of 1727 burglaries share the same coordinates. And we can plot this vector if we want to see the distribution of duplicates:</p>
+<div class="sourceCode" id="cb328"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb328-1"><a href="spatial-point-patterns-of-crime-events.html#cb328-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(<span class="fu">multiplicity</span>(bur_ppp))</span></code></pre></div>
+<div class="figure"><span id="fig:unnamed-chunk-202"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-202-1.png" alt="Histogram of incidents in overlapping coordinates (multiplicity)" width="672" />
+<p class="caption">
+FIGURE 8.3: Histogram of incidents in overlapping coordinates (multiplicity)
+</p>
+</div>
+<p>In the case of crime, as we have hinted some of this may be linked to the nature of crime itself. Hint: repeat victimisation. It is estimated that between 7 and 33 % of all burglaries in several western and developed countries are repeat offenses <span class="citation">(<a href="#ref-Chainey_2016" role="doc-biblioref">Chainey and Alves-da-Silva 2016</a>)</span>. Our 52% is quite high by those standards. In this particular situation, it likely is the result of geomasking (the introduction of small inaccuracies into their geocoded location) due to privacy reasons. Most police data stored in open data portals do not include the exact address of crime events. In the case of US police data, as noted by the documentation of CODE, relies on addresses geocoded to the nearest hundred block. So say “370 Gorse Avenue” could be rounded down and geooded to “300 Gorse Avenue.” The same would happen to “307 Gorse Avenue,” in the public release version of the data it would feature as “300 Gorse Avenue.” In the UK there exist a pre-determined list of points so that each crime event gets “snapped” to its nearest one. So, the coordinates provided in the open data are not the exact locations of crimes. This process is likely inflating the amount of duplication we may observe, because each snap point or hundred block address might have many crimes near it, resulting in those crimes being geo-coded to the same exact location. So keep it in mind when analysing and working with this kind of data set that it may not be the same as working with the real locations. (If you are interested in the effects of this read the paper <span class="citation"><a href="#ref-Tompson_2015" role="doc-biblioref">Tompson et al.</a> (<a href="#ref-Tompson_2015" role="doc-biblioref">2015</a>)</span>).</p>
+<p>What to do about duplicates in spatial point pattern analysis is not always clear. You could simply delete the duplicates, but of course that may ignore issues such as repeat victimisation. You could also use <em>jittering</em>, which will add a small perturbation to the duplicate points so that they do not occupy the exact same space. Which again, may ignore things like repeat victimisation. Another alternative is to make each point “unique” and then attach the multiplicities of the points to the patterns as <em>marks</em>, as attributes of the points. Then you would need analytic techniques that take into account these marks.</p>
+<p>If you were to be doing this for real you would want access to the original source data, not this public version of the data, as well as access to the data producers to check that duplicates are not artificial, and then go for the latter solution suggested above (using multiplicities as marks once we adjust for any artificial inflation). We don’t have access to the source data, so for the sake of simplicity and convenience at this point and so that we can illustrate how <code>spatstat</code> works we will first add some jittering to the data. For this we use <code>rjitter()</code>.</p>
+<p>The first argument for the function is the object, <code>retry</code> asks whether we want the algorithm to have another go if the jittering places a point outside the window (we want this so that we don’t loose points), and the <code>drop</code> argument is used to ensure we get a <code>ppp</code> object as a result of running this function (which we do). The argument <code>nsim</code> sets the number of simulated realisations to be generated. If we just want one <code>ppp</code> object we need to set this to one. You can also specify the scale of the perturbation, the points will be randomly relocated in a uniform way in a circle within this radius. The help file notes that there is a “sensible default” but it does not say much more about it, so you may want to set the argument yourself if you want to have more control over the results. Here we are specifying one meter and a half to minimise the effects of this random displacement.</p>
+<div class="sourceCode" id="cb329"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb329-1"><a href="spatial-point-patterns-of-crime-events.html#cb329-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">200</span>)</span>
+<span id="cb329-2"><a href="spatial-point-patterns-of-crime-events.html#cb329-2" aria-hidden="true" tabindex="-1"></a>jitter_bur <span class="ot">&lt;-</span> <span class="fu">rjitter</span>(bur_ppp, <span class="at">retry=</span><span class="cn">TRUE</span>, <span class="at">nsim=</span><span class="dv">1</span>, <span class="at">radius =</span> <span class="fl">1.5</span>, <span class="at">drop=</span><span class="cn">TRUE</span>)</span></code></pre></div>
+<p>And you can check duplicates with the resulting object:</p>
+<div class="sourceCode" id="cb330"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb330-1"><a href="spatial-point-patterns-of-crime-events.html#cb330-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">multiplicity</span>(jitter_bur) <span class="sc">&gt;</span> <span class="dv">1</span>)</span></code></pre></div>
+<pre><code>## [1] 0</code></pre>
+<p>Later we will demonstrate how to use the number of incidents in the same address as a <em>mark</em> or <em>weight</em> , so let’s create a new <code>ppp</code> object that includes this mark. We need to proceed in steps. First, we create a new <code>ppp</code>, just a duplicate of the one we have been using as a placeholder.</p>
+<div class="sourceCode" id="cb332"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb332-1"><a href="spatial-point-patterns-of-crime-events.html#cb332-1" aria-hidden="true" tabindex="-1"></a>bur_ppp_m <span class="ot">&lt;-</span> bur_ppp</span></code></pre></div>
+<p>Now we can assign to this <code>ppp</code> object the numerical vector created by the <code>multiplicity</code> function as the <em>mark</em> using the <code>marks</code> function.</p>
+<div class="sourceCode" id="cb333"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb333-1"><a href="spatial-point-patterns-of-crime-events.html#cb333-1" aria-hidden="true" tabindex="-1"></a><span class="fu">marks</span>(bur_ppp_m) <span class="ot">&lt;-</span> <span class="fu">multiplicity</span>(bur_ppp)</span></code></pre></div>
+<p>If you examine your environment you will be able to see the new object and that it has a 6th element, which is the mark we just assigned.</p>
+</div>
+<div id="homogeneous-or-spatially-varying-intensity" class="section level2" number="8.4">
+<h2><span class="header-section-number">8.4</span> Homogeneous or spatially varying intensity?</h2>
+<p>Central to our exploratory point pattern analysis is the notion of <strong>intensity</strong>, that is the average number of points per area. A key question that concern us is whether this intensity is homogeneous or uniform, or rather is spatially varying due, for example, to spatially varying risk factors. With <code>spatstats</code> you can produce a quick estimate of intensity for the whole study area if you assume a homogeneous distribution with <code>intensity.ppp()</code>.</p>
+<div class="sourceCode" id="cb334"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb334-1"><a href="spatial-point-patterns-of-crime-events.html#cb334-1" aria-hidden="true" tabindex="-1"></a><span class="fu">intensity.ppp</span>(jitter_bur)</span></code></pre></div>
+<pre><code>## [1] 2.92e-05</code></pre>
+<p>Meters are a small unit. So the value we get is very close to zero and hard to interpret. We can use the <code>rescale()</code> function (in <code>spatstat</code> package) to obtain the intensity per km instead. The second argument is the number we multiply our original units by:</p>
+<div class="sourceCode" id="cb336"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb336-1"><a href="spatial-point-patterns-of-crime-events.html#cb336-1" aria-hidden="true" tabindex="-1"></a><span class="fu">intensity.ppp</span>(<span class="fu">rescale</span>(jitter_bur, <span class="dv">1000</span>, <span class="st">&quot;km&quot;</span>))</span></code></pre></div>
+<pre><code>## [1] 29.2</code></pre>
+<p>We see this result that overall the intensity across our study space is about 29 burglaries per square kilometer. Does this sound right? Well Manhattan has roughly 59.1 Km<sup>2</sup>. If we divide 1727 incidents by this area we get around 29 burglaries per Km<sup>2</sup>. This estimate, let’s remember, assumes that the intensity is homogeneous across the study window.</p>
+<p>If we suspect the point pattern is spatially varying, we can start exploring this. One approach is to use <strong>quadrat counting</strong>. A <strong>quadrat</strong> refers to a small area - a term taken from ecology where quadrats are used to sample local distribution of plants or animals. One could divide the window of observation into quadrats and count the number of points into each of these quadrats. If the quadrats have an equal area and the process is spatially homogeneous, one would expect roughly the same number of incidents in each quadrat.</p>
+<p>For producing this counting we use the <code>quadratcount()</code> function (in <code>spatstat</code>). The <code>nx</code> and <code>ny</code> argument in this function control how many breaks you want alongside the X and Y coordinates to create the quadrats. So to create 6 quadrats from top to bottom of Manhattan we will set them to 1 and 6 respectively. The configuration along the X and Y and the number of quadrats is something you will have to choose according to what is convenient to you. Then we just use standard plotting functions from R base.</p>
+<div class="sourceCode" id="cb338"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb338-1"><a href="spatial-point-patterns-of-crime-events.html#cb338-1" aria-hidden="true" tabindex="-1"></a>q <span class="ot">&lt;-</span> <span class="fu">quadratcount</span>(jitter_bur, <span class="at">nx =</span> <span class="dv">1</span>, <span class="at">ny =</span> <span class="dv">6</span>)</span>
+<span id="cb338-2"><a href="spatial-point-patterns-of-crime-events.html#cb338-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(q, <span class="at">main =</span> <span class="st">&quot;Quadrat Count&quot;</span>)</span></code></pre></div>
+<div class="figure"><span id="fig:unnamed-chunk-203"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-203-1.png" alt="Count of burglaries in quadrats" width="672" />
+<p class="caption">
+FIGURE 8.4: Count of burglaries in quadrats
+</p>
+</div>
+<p>As you can see with its irregular shape it is difficult to divide Manhattan in equally shaped and sized quadrats and thus it is hard to assess if regions of equal area contain a similar number of points. Notice, however,how the third quadrat from the bottom seems to have less incidents than the ones that surround it. A good portion of this quadrat is taken by Central Park, where you would not expect a burglary.</p>
+<p>Instead, we can use other forms of tessellation, like hexagons by using the <code>hextess()</code> function (in <code>spatstat</code>). This is similar to the binning we introduced in Chapter 4, only using different functions. The numeric argument sets the size of the hexagons, you will need to play along to find an adequate value for your own applications. Rather than printing the numbers inside these hexagons (if you have many this will make it difficult to read in a plot) we can map a color to the intensity (the number of points per hexagon):</p>
+<div class="sourceCode" id="cb339"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb339-1"><a href="spatial-point-patterns-of-crime-events.html#cb339-1" aria-hidden="true" tabindex="-1"></a>hex <span class="ot">&lt;-</span> <span class="fu">hextess</span>(jitter_bur, <span class="dv">200</span>)</span>
+<span id="cb339-2"><a href="spatial-point-patterns-of-crime-events.html#cb339-2" aria-hidden="true" tabindex="-1"></a>q_hex <span class="ot">&lt;-</span> <span class="fu">quadratcount</span>(jitter_bur, <span class="at">tess =</span> hex)</span>
+<span id="cb339-3"><a href="spatial-point-patterns-of-crime-events.html#cb339-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">intensity</span>(q_hex, <span class="at">image =</span> <span class="cn">TRUE</span>), <span class="at">main =</span> <span class="st">&quot;Intensity map&quot;</span>)</span></code></pre></div>
+<div class="figure"><span id="fig:unnamed-chunk-204"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-204-1.png" alt="Intensity map of burglaries per hexagon" width="672" />
+<p class="caption">
+FIGURE 8.5: Intensity map of burglaries per hexagon
+</p>
+</div>
+<p>We can see more clearly now that areas of Manhattan, like Central Park, have understandably a very low intensity of burglaries, whereas others, like the Lower East Side and north of Washington Heights, have a higher intensity. So this map suggest to us that the process may not be homogeneous - hardly surprising when it comes to crime.</p>
+<p>A key concept in spatial point pattern analysis is the idea of <strong>complete spatial randomness</strong> (or CSR for short). When we look at a point pattern process the first step in the process is to ask whether it has been generated in a random manner. Under CSR, points are (1) independent of each other (<em>independence</em>) and (2) have the same propensity to be found at any location (<em>homogeneity</em>).</p>
+<p>We can generate data that conform to complete spatial randomness using the <code>rpoispp()</code> function (in <code>spatstat</code>). The <code>r</code> at the beginning is used to denote we are simulating data (you will see this is common in R) and we are using a Poisson point process, a good probability distribution for these purposes. Let’s generate 300 points in a random manner, and save this in the object <code>poisson_ppp</code>:</p>
+<div class="sourceCode" id="cb340"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb340-1"><a href="spatial-point-patterns-of-crime-events.html#cb340-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>) <span class="co"># Use this seed to ensure you get the same results as us</span></span>
+<span id="cb340-2"><a href="spatial-point-patterns-of-crime-events.html#cb340-2" aria-hidden="true" tabindex="-1"></a>poisson_ppp <span class="ot">&lt;-</span> <span class="fu">rpoispp</span>(<span class="dv">300</span>)</span></code></pre></div>
+<p>We can plot this, to see how it looks</p>
+<div class="sourceCode" id="cb341"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb341-1"><a href="spatial-point-patterns-of-crime-events.html#cb341-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(poisson_ppp, <span class="at">main =</span> <span class="st">&quot;Complete Spatial Randomness&quot;</span>)</span></code></pre></div>
+<div class="figure"><span id="fig:unnamed-chunk-205"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-205-1.png" alt="Simulated complete spatial randomness" width="672" />
+<p class="caption">
+FIGURE 8.6: Simulated complete spatial randomness
+</p>
+</div>
+<p>You will notice that the points in a homogeneous Poisson process are not ‘uniformly spread’: there are empty gaps and clusters of points. This is very important. Random may look like what you may think non random should look. There seems to be places with apparent “clustering” of points. Keep this in mind when observing maps of crime distributions. Run the previous command a few times. You will see the map generated is different each time.</p>
+<p>In classical literature, the <em>homogeneous Poisson process</em> (CSR) is usually taken as the appropriate ‘null’ model for a point pattern. Our basic task in analysing a point pattern is to find evidence against CSR. We can run a Chi Square test to check this in our data. So, for example, like we did above with Manhattan, we can split our area into quadrats.</p>
+<div class="sourceCode" id="cb342"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb342-1"><a href="spatial-point-patterns-of-crime-events.html#cb342-1" aria-hidden="true" tabindex="-1"></a>q2 <span class="ot">&lt;-</span> <span class="fu">quadratcount</span>(poisson_ppp, <span class="at">nx =</span> <span class="dv">6</span>, <span class="at">ny =</span> <span class="dv">6</span>)</span>
+<span id="cb342-2"><a href="spatial-point-patterns-of-crime-events.html#cb342-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(q2, <span class="at">main =</span> <span class="st">&quot;Quadrat Count&quot;</span>)</span></code></pre></div>
+<div class="figure"><span id="fig:unnamed-chunk-206"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-206-1.png" alt="Count of our random points in quadrats" width="672" />
+<p class="caption">
+FIGURE 8.7: Count of our random points in quadrats
+</p>
+</div>
+<p>These numbers are looking more even than they did with our burglaries, but to really put this to the test, we run the Chi Square test using the <code>quadrat.test()</code> function.</p>
+<div class="sourceCode" id="cb343"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb343-1"><a href="spatial-point-patterns-of-crime-events.html#cb343-1" aria-hidden="true" tabindex="-1"></a><span class="fu">quadrat.test</span>(poisson_ppp, <span class="at">nx =</span> <span class="dv">6</span>, <span class="at">ny =</span> <span class="dv">6</span>)</span></code></pre></div>
+<pre><code>## 
+##  Chi-squared test of CSR using quadrat counts
+## 
+## data:  poisson_ppp
+## X2 = 44, df = 35, p-value = 0.3
+## alternative hypothesis: two.sided
+## 
+## Quadrats: 6 by 6 grid of tiles</code></pre>
+<p>We can see this p-value is greater than the conventional alpha level of 0.05 and therefore we cannot reject the null hypothesis that our point patterns come from complete spatial randomness - which is great news, as they indeed do!</p>
+<p>How about our burglaries? Let’s run the <code>quadrat.test()</code> function to tell us whether burglaries in Manhattan follow spatial randomness.</p>
+<div class="sourceCode" id="cb345"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb345-1"><a href="spatial-point-patterns-of-crime-events.html#cb345-1" aria-hidden="true" tabindex="-1"></a><span class="fu">quadrat.test</span>(jitter_bur, <span class="at">nx =</span> <span class="dv">1</span>, <span class="at">ny =</span> <span class="dv">6</span>)</span></code></pre></div>
+<pre><code>## 
+##  Chi-squared test of CSR using quadrat counts
+## 
+## data:  jitter_bur
+## X2 = 238, df = 5, p-value &lt;2e-16
+## alternative hypothesis: two.sided
+## 
+## Quadrats: 6 tiles (irregular windows)</code></pre>
+<p>Observing the results we see that the p value is well below conventional standards for rejection of the null hypothesis. Observing our data of burglary in Manhattan would be extremely rare if the null hypothesis of a homogeneous distribution was true. We can then conclude that the burglary data is not randomly distributed in the observed space. But no cop nor criminologist would really question this. They would rarely be surprised by your findings! We do know, through research, that crime is not randomly distributed in space.</p>
+<p>Beware as well that this test would come out as significant <em>if the point pattern violates the property of independence between the points</em>. It is important to keep in mind that the null may be rejected either because the process is not homogeneous <em>or</em> because the points are not independent, but the test doesn’t tell us the reason for the rejection. Equally, the power depend on the size of the quadrats (and they are not too large or too small). And the areas are not of equal size here in any case. So the test in many applications will be of limited use.</p>
+</div>
+<div id="mapping-intensity-estimates-with-spatstat" class="section level2" number="8.5">
+<h2><span class="header-section-number">8.5</span> Mapping intensity estimates with <code>spatstat</code></h2>
+<div id="basics-of-kernel-density-estimation-kde" class="section level3" number="8.5.1">
+<h3><span class="header-section-number">8.5.1</span> Basics of kernel density estimation (KDE)</h3>
+<p>One of the most common methods to visualise hot spots of crime, when we are working with point pattern data, is to use kernel density estimates. <strong>Kernel density estimation</strong> involves applying a function (known as a “kernel”) to each data point, which averages the location of that point with respect to the location of other data points. The surface that results from this model allows us to produce <strong>isarithmic maps</strong>. It is essentially a more sophisticated way of visualising intensity (points per area) than the tessellations we have covered so far.</p>
+<p>Kernel density estimation maps are very popular among crime analysts. According to <span class="citation"><a href="#ref-Chainey_2013a" role="doc-biblioref">Chainey</a> (<a href="#ref-Chainey_2013a" role="doc-biblioref">2013a</a>)</span>, 9 out of 10 intelligence professionals prefer it to other techniques for hot spot analysis. As compared to visualisations of crime that relies on point maps or thematic maps of geographic administrative units (such as LSOAs), kernel density estimation maps are considered best for location, size, shape and orientation of the hotspot. <span class="citation"><a href="#ref-Chainey_2008" role="doc-biblioref">Chainey, Tompson, and Uhlig</a> (<a href="#ref-Chainey_2008" role="doc-biblioref">2013</a>)</span> have also suggested that this method produces some of the best prediction accuracy. The areas identified as hotspots by KDE (using historical data) tend to be the ones that better identify the areas that will have high levels of crime in the future. Yet, producing these maps (as with any map, really) requires you to take a number of decisions that will significantly affect the resulting product and the conveyed message. Like any other data visualisation technique they can be powerful, but they have to be handled with great care.</p>
+<p>Essentially this method uses a statistical technique (kernel density estimation) to generate a smooth continuous surface aiming to represent the intensity or volume of crimes across the target area. The technique, in one of its implementations (quartic kernel), is described in this way by <span class="citation"><a href="#ref-Chainey_2013b" role="doc-biblioref">Chainey</a> (<a href="#ref-Chainey_2013b" role="doc-biblioref">2013b</a>)</span>:</p>
+<ul>
+<li><em>“a fine grid is generated over the point distribution;</em></li>
+<li><em>a moving three-dimensional function of a specified radius visits each cell and calculates weights for each point within the kernel’s radius. Points closer to the centre will receive a higher weight, and therefore contribute more to the cell’s total density value;</em></li>
+<li><em>and final grid cell values are calculated by summing the values of all kernel estimates for each location”</em></li>
+</ul>
+<p>The values that we attribute to the cells in crime mapping will typically refer to the number of crimes within the area’s unit of measurement (intensity). Let’s produce one of this density maps, just with the default arguments of the <code>density.ppp()</code> function:</p>
+<div class="sourceCode" id="cb347"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb347-1"><a href="spatial-point-patterns-of-crime-events.html#cb347-1" aria-hidden="true" tabindex="-1"></a>ds <span class="ot">&lt;-</span> <span class="fu">density.ppp</span>(jitter_bur)</span>
+<span id="cb347-2"><a href="spatial-point-patterns-of-crime-events.html#cb347-2" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(ds)</span></code></pre></div>
+<pre><code>## [1] &quot;im&quot;</code></pre>
+<p>The resulting object is of class <code>im</code>, a pixel image, a grid of spatial locations with values attached to them. You can visualise this image as a map (using <code>plot()</code>), contour plots (using <code>contour()</code>), or as a perspective plot (using <code>persp()</code>).</p>
+<div class="sourceCode" id="cb349"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb349-1"><a href="spatial-point-patterns-of-crime-events.html#cb349-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">3</span>))</span>
+<span id="cb349-2"><a href="spatial-point-patterns-of-crime-events.html#cb349-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(ds, <span class="at">main=</span><span class="st">&#39;Pixel image&#39;</span>)</span>
+<span id="cb349-3"><a href="spatial-point-patterns-of-crime-events.html#cb349-3" aria-hidden="true" tabindex="-1"></a><span class="fu">contour</span>(ds, <span class="at">main =</span> <span class="st">&#39;Contour plot&#39;</span>)</span>
+<span id="cb349-4"><a href="spatial-point-patterns-of-crime-events.html#cb349-4" aria-hidden="true" tabindex="-1"></a><span class="fu">persp</span>(ds, <span class="at">main =</span> <span class="st">&#39;Perspective plot&#39;</span>)</span></code></pre></div>
+<div class="figure"><span id="fig:unnamed-chunk-207"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-207-1.png" alt="Visualisations of intensity of burglary in Manhattan" width="672" />
+<p class="caption">
+FIGURE 8.8: Visualisations of intensity of burglary in Manhattan
+</p>
+</div>
+<p>The density function is estimating a kernel density estimate. The result of <code>density.ppp()</code> <em>is not a probability density</em>. It is an estimate of the intensity function of the point process that generated the point pattern. The units of intensity are “points per unit area.” Density, in this context, is nothing but the number of points per unit area. This method computes the intensity continuously across the study area and the object returns a raster image. Depending what package you use to generate the estimation (e.g., <code>spatstat</code>, <code>SpatialKDE</code>, etc) you can set a different metric.</p>
+</div>
+<div id="selecting-the-appropriate-bandwith-for-kde" class="section level3" number="8.5.2">
+<h3><span class="header-section-number">8.5.2</span> Selecting the appropriate bandwith for KDE</h3>
+<p>The defaults in <code>density.ppp()</code> are not necessarily the optimal ones for your application. When doing spatial density analysis there are a number of things you have to decide upon (e.g., bandwidth, kernel type, etc).</p>
+<p>To perform this analysis we need to define the <strong>bandwidth</strong> of the density estimation, which basically determines the area of influence of the estimation. There is no general rule to determine the correct bandwidth; generally speaking if the bandwidth is too small the estimate is too noisy, while if bandwidth is too high the estimate may miss crucial elements of the point pattern due to oversmoothing. The key argument to pass to the <code>density.ppp()</code> is <code>sigma=</code>, which determines the bandwidth of the kernel. Sigma is the <em>standard deviation of the kernel</em> and you can enter a numeric value or a function that computes an appropriate value for it.</p>
+<p>A great deal of research has been developed to produce algorithms that help in selecting the bandwidth (see <span class="citation"><a href="#ref-Baddeley_2016" role="doc-biblioref">Baddeley, Rubak, and Turner</a> (<a href="#ref-Baddeley_2016" role="doc-biblioref">2015</a>)</span> and <span class="citation"><a href="#ref-Davies_2017" role="doc-biblioref">Tilman Davies, Marshall, and Hazelton</a> (<a href="#ref-Davies_2017" role="doc-biblioref">2017</a>)</span> for details). In the <code>spatstat</code> package the functions <code>bw.diggle()</code>, <code>bw.ppl()</code>, and <code>bw.scott()</code> can be used to estimate the bandwidth according to difference methods (mean square error cross validation, likelihood cross validation, and Scott’s rule of thumb for bandwidth section in multidimensional smoothing respectively). The help files recommend the use of the first two. These functions run algorithms that aim to select an appropriate bandwidth.</p>
+<div class="sourceCode" id="cb350"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb350-1"><a href="spatial-point-patterns-of-crime-events.html#cb350-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">200</span>) <span class="co"># We set this seed to ensure you get this same results when running</span></span>
+<span id="cb350-2"><a href="spatial-point-patterns-of-crime-events.html#cb350-2" aria-hidden="true" tabindex="-1"></a>              <span class="co"># these algorithms</span></span>
+<span id="cb350-3"><a href="spatial-point-patterns-of-crime-events.html#cb350-3" aria-hidden="true" tabindex="-1"></a><span class="fu">bw.diggle</span>(jitter_bur)</span></code></pre></div>
+<pre><code>## sigma 
+## 2.912</code></pre>
+<div class="sourceCode" id="cb352"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb352-1"><a href="spatial-point-patterns-of-crime-events.html#cb352-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bw.ppl</span>(jitter_bur)</span></code></pre></div>
+<pre><code>## sigma 
+## 73.06</code></pre>
+<div class="sourceCode" id="cb354"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb354-1"><a href="spatial-point-patterns-of-crime-events.html#cb354-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bw.scott</span>(jitter_bur)</span></code></pre></div>
+<pre><code>## sigma.x sigma.y 
+##   608.4  1447.6</code></pre>
+<p>Scott’s rule generally provides larger bandwidth than the other methods. Don’t be surprised if your results do not match exactly the ones we provide if you do not use the same seed, the computation means that they will vary every time we run these functions. Keep in mind these values will be expressed in the unit of the projected coordinate system you use (in this case meters). We can visualise how they influence the appearance of ‘hot spots’:</p>
+<div class="sourceCode" id="cb356"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb356-1"><a href="spatial-point-patterns-of-crime-events.html#cb356-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">200</span>)</span>
+<span id="cb356-2"><a href="spatial-point-patterns-of-crime-events.html#cb356-2" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">3</span>))</span>
+<span id="cb356-3"><a href="spatial-point-patterns-of-crime-events.html#cb356-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density.ppp</span>(jitter_bur, <span class="at">sigma =</span> <span class="fu">bw.diggle</span>(jitter_bur),<span class="at">edge=</span>T),</span>
+<span id="cb356-4"><a href="spatial-point-patterns-of-crime-events.html#cb356-4" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">&quot;Diggle&quot;</span>)</span>
+<span id="cb356-5"><a href="spatial-point-patterns-of-crime-events.html#cb356-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb356-6"><a href="spatial-point-patterns-of-crime-events.html#cb356-6" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density.ppp</span>(jitter_bur, <span class="at">sigma =</span> <span class="fu">bw.ppl</span>(jitter_bur),<span class="at">edge=</span>T),</span>
+<span id="cb356-7"><a href="spatial-point-patterns-of-crime-events.html#cb356-7" aria-hidden="true" tabindex="-1"></a>     <span class="at">main=</span><span class="st">&quot;PPL&quot;</span>)</span>
+<span id="cb356-8"><a href="spatial-point-patterns-of-crime-events.html#cb356-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb356-9"><a href="spatial-point-patterns-of-crime-events.html#cb356-9" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density.ppp</span>(jitter_bur, <span class="at">sigma =</span> <span class="fu">bw.scott</span>(jitter_bur) ,<span class="at">edge=</span>T),</span>
+<span id="cb356-10"><a href="spatial-point-patterns-of-crime-events.html#cb356-10" aria-hidden="true" tabindex="-1"></a>     <span class="at">main=</span><span class="st">&quot;Scott&quot;</span>)</span></code></pre></div>
+<div class="figure"><span id="fig:unnamed-chunk-208"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-208-1.png" alt="Kernel density maps with different bandwidth estimation algorightms" width="672" />
+<p class="caption">
+FIGURE 8.9: Kernel density maps with different bandwidth estimation algorightms
+</p>
+</div>
+<p>When looking for clusters, <span class="citation"><a href="#ref-Baddeley_2016" role="doc-biblioref">Baddeley, Rubak, and Turner</a> (<a href="#ref-Baddeley_2016" role="doc-biblioref">2015</a>)</span> suggest the use of the <code>bw.ppl()</code> algorithm because in their experience it tends to produce the more appropriate values when the pattern consists predominantly of tight clusters. But they also insist that if your purpose it to detect a single tight cluster in the midst of random noise then the <code>bw.diggle()</code> method seems to work best.</p>
+<p>All these methods use a fixed bandwidth: they use the same bandwidth for all locations. As noted by <span class="citation"><a href="#ref-Baddeley_2016" role="doc-biblioref">Baddeley, Rubak, and Turner</a> (<a href="#ref-Baddeley_2016" role="doc-biblioref">2015</a>)</span> a “fixed smoothing bandwidth is unsatisfactory if the true intensity varies greatly across the spatial domain, because it is likely to cause oversmoothing in the high-intensity areas and undersmoothing in the low intensity areas” (p. 174). When using these methods in areas of high point density, the resulting bandwidth will be small, while in areas of low point density the resulting bandwidth will be large. This allow us to reduce smoothing in parts of the window where there are many points so that we capture more detail in the density estimates there, whilst at the same time increasing the smoothing in areas where there are less points.</p>
+<p>With <code>spatstat</code> we can use an adaptive bandwidth method, were (1) a fraction of the points are selected at random and used to construct a tessellation; (2) a quadrat counting estimate of the intensity is produced; and (3) the process is repeated a set number of times and an average is computed. The <code>adaptive.density()</code> function (in <code>spatstat</code>) takes as arguments the fraction of points to be sampled (<code>f</code>) and the number of samples to be taken (<code>nrep</code>). The logical argument <code>verbose</code> when set to <code>FALSE</code> (not the default) means we won’t see a message in the console informing of the steps in the simulation.</p>
+<div class="sourceCode" id="cb357"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb357-1"><a href="spatial-point-patterns-of-crime-events.html#cb357-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">adaptive.density</span>(jitter_bur, <span class="at">f=</span><span class="fl">0.1</span>, <span class="at">nrep=</span><span class="dv">30</span>, <span class="at">verbose=</span><span class="cn">FALSE</span>), </span>
+<span id="cb357-2"><a href="spatial-point-patterns-of-crime-events.html#cb357-2" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">&quot;adaptive bandwidth method&quot;</span>)</span></code></pre></div>
+<div class="figure"><span id="fig:unnamed-chunk-209"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-209-1.png" alt="Adaptive bandwidth method for estimating bandwidth for KDE map" width="672" />
+<p class="caption">
+FIGURE 8.10: Adaptive bandwidth method for estimating bandwidth for KDE map
+</p>
+</div>
+<p>Which bandwidth to use? <span class="citation"><a href="#ref-Chainey_2021" role="doc-biblioref">Chainey</a> (<a href="#ref-Chainey_2021" role="doc-biblioref">2021</a>)</span> is critical of the various algorithms we have introduced. He suggests that “they tend to produce large bandwidths, and are considered unsuitable for exploring local spatial patterns of the density distribution of crime.” As we have seen with our example this is not necessarily the case, if anything both mean square error cross validation and likelihood cross validation produce small bandwidths in this example. When it comes to crime, <span class="citation"><a href="#ref-Neville_2013" role="doc-biblioref">Neville</a> (<a href="#ref-Neville_2013" role="doc-biblioref">2013</a>)</span> suggests that the “best choice would be to produce an interpolation that fits the experience of the department and officers who travel an area. Again, experimentation and discussions with beat officers will be necessary to establish which bandwidth choice should be used in future interpolations” (p. 10.22). This is generally accepted by other authors in the field. We see no damage in using these algorithms as a starting point and then, as suggested by most authors (see as well <span class="citation"><a href="#ref-Chainey_2021" role="doc-biblioref">Chainey</a> (<a href="#ref-Chainey_2021" role="doc-biblioref">2021</a>)</span>), to engage in a discussion with the direct users (considering what the map will be used for) to set in a particular bandwidth that is not too spiky, nor oversmoothed.</p>
+</div>
+<div id="selecting-the-smoothing-kernel" class="section level3" number="8.5.3">
+<h3><span class="header-section-number">8.5.3</span> Selecting the smoothing kernel</h3>
+<p>Apart from selecting the bandwidth we also need to specify the particular kernel we will use. In density estimation there are different types of kernel. This relates to the type of kernel drawn around each point in the process of counting points around each point. The use of these functions will result in slightly different estimations. They relate to the way we weight points within the radius:</p>
+<blockquote>
+<p><em>“The normal distribution weighs all points in the study area, though near points are weighted more highly than distant points. The other four techniques use a circumscribed circle around the grid cell. The uniform distribution weighs all points within the circle equally. The quartic function weighs near points more than far points, but the fall off is gradual. The triangular function weighs near points more than far points within the circle, but the fall off is more rapid. Finally, the negative exponential weighs near points much more highly than far points within the circle and the decay is very rapid.”</em> <span class="citation">(<a href="#ref-Levine_2013" role="doc-biblioref">Levine 2013</a> Chapter 10, p. 10)</span>.</p>
+</blockquote>
+<p>Which one to use? <span class="citation"><a href="#ref-Levine_2013" role="doc-biblioref">Levine</a> (<a href="#ref-Levine_2013" role="doc-biblioref">2013</a>)</span> produces the following guidance: <em>“The use of any of one of these depends on how much the user wants to weigh near points relative to far points. Using a kernel function which has a big difference in the weights of near versus far points (e.g., the negative exponential or the triangular) tends to produce finer variations within the surface than functions which weight more evenly (e.g., the normal distribution, the quartic, or the uniform); these latter ones tend to smooth the distribution more</em>. However, <span class="citation"><a href="#ref-Silverman_1986" role="doc-biblioref">Silverman</a> (<a href="#ref-Silverman_1986" role="doc-biblioref">1986</a>)</span> has argued that it does not make that much difference as long as the kernel is symmetrical. <span class="citation"><a href="#ref-Chainey_2013b" role="doc-biblioref">Chainey</a> (<a href="#ref-Chainey_2013b" role="doc-biblioref">2013b</a>)</span> suggests that in his experience most crime mappers prefer the quartic function, since it applies greater weight to crimes closer to the centre of the grid. The authors of the CrimeStat workbook <span class="citation"><a href="#ref-Smith_2008" role="doc-biblioref">S. Smith and Bruce</a> (<a href="#ref-Smith_2008" role="doc-biblioref">2008</a>)</span>, on the other hand, suggest that the choice of the kernel should be based in our theoretical understanding of the data generating mechanisms. By this they mean that the processes behind spatial dependence may be different according to various crime patterns and that this is something that we may want to take into account when selecting a particular function. They provide a table with some examples that may help you to understand what they mean. For example, for residential burglaries they recommend 1 mile with normally dispersed quartic or uniform interpolation, while for domestic violence 0.1 mile and tightly focused, negative exponential method <span class="citation">(<a href="#ref-Smith_2008" role="doc-biblioref">S. Smith and Bruce 2008</a>)</span>.</p>
+<p>The default kernel in <code>density.ppp()</code> is <code>gaussian</code>. But there are other options. We can use the <code>epanechnikov</code>, <code>quartic</code> or <code>disc</code>. There are also further options for customisation. We can compare these kernels, whilst using the <code>ppl</code> algorithm for sigma (remember we set seed at 200 for this particular value):</p>
+<div class="sourceCode" id="cb358"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb358-1"><a href="spatial-point-patterns-of-crime-events.html#cb358-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>))</span>
+<span id="cb358-2"><a href="spatial-point-patterns-of-crime-events.html#cb358-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Gaussian kernel function (the default)</span></span>
+<span id="cb358-3"><a href="spatial-point-patterns-of-crime-events.html#cb358-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density.ppp</span>(jitter_bur, <span class="at">sigma =</span> <span class="fu">bw.ppl</span>(jitter_bur), <span class="at">edge=</span><span class="cn">TRUE</span>), <span class="at">main=</span><span class="st">&quot;Gaussian&quot;</span>)</span>
+<span id="cb358-4"><a href="spatial-point-patterns-of-crime-events.html#cb358-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb358-5"><a href="spatial-point-patterns-of-crime-events.html#cb358-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Epanechnikov (parabolic) kernel function</span></span>
+<span id="cb358-6"><a href="spatial-point-patterns-of-crime-events.html#cb358-6" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density.ppp</span>(jitter_bur, <span class="at">kernel =</span> <span class="st">&quot;epanechnikov&quot;</span>, <span class="at">sigma =</span> <span class="fu">bw.ppl</span>(jitter_bur),</span>
+<span id="cb358-7"><a href="spatial-point-patterns-of-crime-events.html#cb358-7" aria-hidden="true" tabindex="-1"></a>                 <span class="at">edge=</span><span class="cn">TRUE</span>), <span class="at">main=</span><span class="st">&quot;epanechnikov&quot;</span>)</span>
+<span id="cb358-8"><a href="spatial-point-patterns-of-crime-events.html#cb358-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb358-9"><a href="spatial-point-patterns-of-crime-events.html#cb358-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Quartic kernel function</span></span>
+<span id="cb358-10"><a href="spatial-point-patterns-of-crime-events.html#cb358-10" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density.ppp</span>(jitter_bur, <span class="at">kernel =</span> <span class="st">&quot;quartic&quot;</span>, <span class="at">sigma =</span> <span class="fu">bw.ppl</span>(jitter_bur), <span class="at">edge=</span><span class="cn">TRUE</span>),</span>
+<span id="cb358-11"><a href="spatial-point-patterns-of-crime-events.html#cb358-11" aria-hidden="true" tabindex="-1"></a>     <span class="at">main=</span><span class="st">&quot;Quartic&quot;</span>)</span>
+<span id="cb358-12"><a href="spatial-point-patterns-of-crime-events.html#cb358-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb358-13"><a href="spatial-point-patterns-of-crime-events.html#cb358-13" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density.ppp</span>(jitter_bur, <span class="at">kernel =</span> <span class="st">&quot;disc&quot;</span>, <span class="at">sigma =</span> <span class="fu">bw.ppl</span>(jitter_bur), <span class="at">edge=</span><span class="cn">TRUE</span>), </span>
+<span id="cb358-14"><a href="spatial-point-patterns-of-crime-events.html#cb358-14" aria-hidden="true" tabindex="-1"></a>     <span class="at">main=</span><span class="st">&quot;Disc&quot;</span>)</span></code></pre></div>
+<div class="figure"><span id="fig:unnamed-chunk-210"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-210-1.png" alt="KDE maps created with different kernel shapes" width="672" />
+<p class="caption">
+FIGURE 8.11: KDE maps created with different kernel shapes
+</p>
+</div>
+<p>You can see how the choice of the kernel has less of an impact than the choice of the bandwidth. In practical terms choice of the specific kernel is of secondary importance to the bandwidth.</p>
+<p>Equally, you may have noticed an argument in <code>density.ppp()</code> we have not discussed <code>edge = TRUE</code>. What is this? When estimating the density we are not observing points outside our window. In the case of an island like Manhattan perhaps this is not an issue. But often when computing estimates for a given jurisdiction we need to think about what is happening in the jurisdiction next door to us. Our algorithm does not see the crimes in jurisdiction neighbouring ours and so the estimation around the edges of our boundaries receive fewer contributions in the computation. By setting <code>edge = TRUE</code> we are effectively applying a correction that tries to compensate for this negative bias.</p>
+</div>
+<div id="weighted-kernel-density-estimates" class="section level3" number="8.5.4">
+<h3><span class="header-section-number">8.5.4</span> Weighted kernel density estimates</h3>
+<p>In the past examples we used the un-weighted version of the estimation methods, but if the points are weighted (like for example by multiplicity) we can use weighted versions of these methods. We simply need to pass an argument that specifies the weights.</p>
+<div class="sourceCode" id="cb359"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb359-1"><a href="spatial-point-patterns-of-crime-events.html#cb359-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">200</span>)</span>
+<span id="cb359-2"><a href="spatial-point-patterns-of-crime-events.html#cb359-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density.ppp</span>(bur_ppp_m, <span class="at">sigma =</span> <span class="fu">bw.ppl</span>(bur_ppp_m), <span class="at">edge =</span> T, </span>
+<span id="cb359-3"><a href="spatial-point-patterns-of-crime-events.html#cb359-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">kernel =</span> <span class="st">&quot;quartic&quot;</span>, <span class="at">weights =</span> <span class="fu">marks</span>(bur_ppp_m)), </span>
+<span id="cb359-4"><a href="spatial-point-patterns-of-crime-events.html#cb359-4" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">&quot;Weighted Points&quot;</span>)</span></code></pre></div>
+<div class="figure"><span id="fig:unnamed-chunk-211"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-211-1.png" alt="Weighting KDE estimates" width="672" />
+<p class="caption">
+FIGURE 8.12: Weighting KDE estimates
+</p>
+</div>
+</div>
+<div id="better-kde-maps-using-leaflet" class="section level3" number="8.5.5">
+<h3><span class="header-section-number">8.5.5</span> Better KDE maps using <code>leaflet</code></h3>
+<p>The plots produced by <code>spatstat</code> are good for initial exploration, but if you want to present this to an audience you may to use one of the various packages we have covered so far for visualising spatial data. Here we show how to use <code>leaflet</code> for ploting densities. Hot spot analysis often have an exploratory character and the interactivity provided by <code>leaflet</code> is particularly helpful, since it allow us to zoom in and out and check the details of the areas with high intensities.</p>
+<p>Often it is convenient to use a basemap to provide context. In order to do that we first need to turn the image object generated by the <code>spatstat</code> package into a raster object, a more generic format for raster image used in R. Remember rasters from the first chapter? Now we finally get to use them a bit! First we store the density estimates produced by <code>density.ppp()</code> into an object (which will be of class <code>im</code>, a two dimensional pixel image) and then using the <code>raster()</code> function from the <code>raster</code> package we generate a raster object.</p>
+<div class="sourceCode" id="cb360"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb360-1"><a href="spatial-point-patterns-of-crime-events.html#cb360-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">200</span>)</span>
+<span id="cb360-2"><a href="spatial-point-patterns-of-crime-events.html#cb360-2" aria-hidden="true" tabindex="-1"></a>dmap1 <span class="ot">&lt;-</span> <span class="fu">density.ppp</span>(jitter_bur, <span class="at">kernel =</span> <span class="st">&quot;quartic&quot;</span>, <span class="at">sigma =</span> <span class="fu">bw.ppl</span>(jitter_bur), <span class="at">edge=</span>T)</span>
+<span id="cb360-3"><a href="spatial-point-patterns-of-crime-events.html#cb360-3" aria-hidden="true" tabindex="-1"></a><span class="co"># create raster object from im object</span></span>
+<span id="cb360-4"><a href="spatial-point-patterns-of-crime-events.html#cb360-4" aria-hidden="true" tabindex="-1"></a>r1 <span class="ot">&lt;-</span> <span class="fu">raster</span>(dmap1)</span>
+<span id="cb360-5"><a href="spatial-point-patterns-of-crime-events.html#cb360-5" aria-hidden="true" tabindex="-1"></a><span class="co"># plot the raster object</span></span>
+<span id="cb360-6"><a href="spatial-point-patterns-of-crime-events.html#cb360-6" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(r1, <span class="at">main =</span> <span class="st">&quot;Raster&quot;</span>)</span></code></pre></div>
+<div class="figure"><span id="fig:unnamed-chunk-212"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-212-1.png" alt="Raster image of KDE output" width="672" />
+<p class="caption">
+FIGURE 8.13: Raster image of KDE output
+</p>
+</div>
+<p>We can remove the areas with very low density of burglaries for better reading of the map:</p>
+<div class="sourceCode" id="cb361"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb361-1"><a href="spatial-point-patterns-of-crime-events.html#cb361-1" aria-hidden="true" tabindex="-1"></a><span class="co">#remove very low density values</span></span>
+<span id="cb361-2"><a href="spatial-point-patterns-of-crime-events.html#cb361-2" aria-hidden="true" tabindex="-1"></a>r1[r1 <span class="sc">&lt;</span> <span class="fl">0.00010</span> ] <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb361-3"><a href="spatial-point-patterns-of-crime-events.html#cb361-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb361-4"><a href="spatial-point-patterns-of-crime-events.html#cb361-4" aria-hidden="true" tabindex="-1"></a><span class="co">#multiply by 1000 to re-express intensity in terms of burglaries per km</span></span>
+<span id="cb361-5"><a href="spatial-point-patterns-of-crime-events.html#cb361-5" aria-hidden="true" tabindex="-1"></a><span class="fu">values</span>(r1) <span class="ot">&lt;-</span> <span class="fu">values</span>(r1)<span class="sc">*</span><span class="dv">1000</span></span></code></pre></div>
+<p>Now that we have the raster we can add it to a basemap. Two-dimensional <code>RasterLayer</code> objects (from the <code>raster</code> package) can be turned into images and added to <code>Leaflet</code> maps using the <code>addRasterImage()</code> function. The <code>addRasterImage()</code> function works by projecting the <code>RasterLayer</code> object to EPSG:3857 and encoding each cell to an RGBA color, to produce a PNG image. That image is then embedded in the map widget. This is only suitable for small to medium sized rasters.</p>
+<p>It’s important that the <code>RasterLayer</code> object is tagged with a proper coordinate reference system, so that leaflet can then reproject to EPSG:3857. Many raster files contain this information, but some do not. Here is how you would tag a raster layer object <code>r1</code> which contains the EPSG:32118 data:</p>
+<div class="sourceCode" id="cb362"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb362-1"><a href="spatial-point-patterns-of-crime-events.html#cb362-1" aria-hidden="true" tabindex="-1"></a><span class="co">#make sure we have right CRS, which in this case is the New York 32118</span></span>
+<span id="cb362-2"><a href="spatial-point-patterns-of-crime-events.html#cb362-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb362-3"><a href="spatial-point-patterns-of-crime-events.html#cb362-3" aria-hidden="true" tabindex="-1"></a>epsg32118 <span class="ot">&lt;-</span> <span class="st">&quot;+proj=lcc +lat_1=41.03333333333333 +lat_2=40.66666666666666 +lat_0=40.16666666666666 +lon_0=-74 +x_0=300000 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs&quot;</span> </span>
+<span id="cb362-4"><a href="spatial-point-patterns-of-crime-events.html#cb362-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb362-5"><a href="spatial-point-patterns-of-crime-events.html#cb362-5" aria-hidden="true" tabindex="-1"></a><span class="co">#use the CRS function from the sp package to assign coordinate system</span></span>
+<span id="cb362-6"><a href="spatial-point-patterns-of-crime-events.html#cb362-6" aria-hidden="true" tabindex="-1"></a><span class="fu">crs</span>(r1) <span class="ot">&lt;-</span> sp<span class="sc">::</span><span class="fu">CRS</span>(epsg32118) </span></code></pre></div>
+<p>You may be wondering what is all that gibberish that we are assigning to the “epsg32118” object. Remember when we talked about coordinate systems? There are different ways in which the information that identifies a CRS are stored. Three common formats include EPSG, PROJ4, and WKT formats. What you see above is the PROJ4 format. You can find how these different formats apply to each coordinate system in the <a href="https://spatialreference.org/">spatialreference.org</a> online archive.</p>
+<p>Now we are ready to plot, although first we will create a more suitable colour palette and, since the values in the scale are quite close to 0 will multiple by a constant, to make the labels more readable. For this we use the <code>values()</code> function from the <code>raster</code> package that allows us to manipulate the values in a raster object:</p>
+<div class="sourceCode" id="cb363"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb363-1"><a href="spatial-point-patterns-of-crime-events.html#cb363-1" aria-hidden="true" tabindex="-1"></a>pal <span class="ot">&lt;-</span> <span class="fu">colorNumeric</span>(<span class="st">&quot;Reds&quot;</span>, <span class="fu">values</span>(r1),</span>
+<span id="cb363-2"><a href="spatial-point-patterns-of-crime-events.html#cb363-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">na.color =</span> <span class="st">&quot;transparent&quot;</span>) <span class="co">#Create color palette</span></span>
+<span id="cb363-3"><a href="spatial-point-patterns-of-crime-events.html#cb363-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb363-4"><a href="spatial-point-patterns-of-crime-events.html#cb363-4" aria-hidden="true" tabindex="-1"></a><span class="co">#and then make map!</span></span>
+<span id="cb363-5"><a href="spatial-point-patterns-of-crime-events.html#cb363-5" aria-hidden="true" tabindex="-1"></a><span class="fu">leaflet</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb363-6"><a href="spatial-point-patterns-of-crime-events.html#cb363-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">addTiles</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb363-7"><a href="spatial-point-patterns-of-crime-events.html#cb363-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">addProviderTiles</span>(providers<span class="sc">$</span>Stamen.TonerLite) <span class="sc">%&gt;%</span></span>
+<span id="cb363-8"><a href="spatial-point-patterns-of-crime-events.html#cb363-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">addRasterImage</span>(r1, <span class="at">colors =</span> pal, <span class="at">opacity =</span> <span class="fl">0.7</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb363-9"><a href="spatial-point-patterns-of-crime-events.html#cb363-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">addLegend</span>(<span class="at">pal =</span> pal, <span class="at">values =</span> <span class="fu">values</span>(r1),</span>
+<span id="cb363-10"><a href="spatial-point-patterns-of-crime-events.html#cb363-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">&quot;Burglary map&quot;</span>) </span></code></pre></div>
+<div class="figure"><span id="fig:unnamed-chunk-213"></span>
+<div id="htmlwidget-db3f5302d1966716e80a" style="width:672px;height:480px;" class="leaflet html-widget"></div>
+<script type="application/json" data-for="htmlwidget-db3f5302d1966716e80a">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addTiles","args":["//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",null,null,{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false,"attribution":"&copy; <a href=\"http://openstreetmap.org\">OpenStreetMap<\/a> contributors, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA<\/a>"}]},{"method":"addProviderTiles","args":["Stamen.TonerLite",null,null,{"errorTileUrl":"","noWrap":false,"detectRetina":false}]},{"method":"addRasterImage","args":["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAIRUlEQVR4nO2deWwU5xnGn28WU8AUHxjjIxgIDiYcgVJKCFGVJm0UeqSXWqFURVH/aCMnatIrDW2qVqUpKW2VpmlToqhVFYJALVFoE6mlIpflHpbADTQccXyBF5tde30sPsD2zjz9wwe7xth7zO7M+Ht/f4FYDyM9z/u87/f5m1lFEoK+GE7fgOAsYgDNEQNojhhAc8QAmiMGmKn0dcW1vBMDeJ2ewLjQw5Uf51uFN9Dcu5OYn6/i+XExgNfJLYoRWgHwVf4sLvEBQMlGkEfpaiXyS0eE7usi+nuAxTfGLfwYYoCZQF9X3JE/EWkBHoONtbT+8EPynaqrlZuk+AAwy5a7EjKC+fQjxE1roKCg1t2RtOjRiAG8QjhIAPB98mu2CD+GtAAP0PuJD/HxhavAFr/t15YEcDnmnkrO+8ZD+J7xOxi3rLf9+pIALsf32F4F3yyo2bOA1Ztg1bxi67JNloEux6o+RFW+AbjcB6uuFsbKjVArNto2B0gCuBir+hBP3Pcd9N6/HYgMA4Ct4gMyA7ie4YgFDkagVm5WvpWbbb++tADNkRbgMDxd7WgFSgJojiSAi7CO/Y2sq8loRYoBXIaq2GLrlD/t/yctQG8kATRHDKA5YgAH6f/8Vnbfvo68WO9YHxYDOIgxJwt5h18FAs1wygRiAAeZe6BKYVYWYBGq+Kbx6T/yyGcyZgZZBWiOJIDmiAEyTXcgNnKDTbRq/kqE22UG0IK8osl3+nIKM7oDOIbMAGmAre9Sla5KXNBAA1FUnlEjSALYCGuPsG3TzRzcWQk2/jfx9X2GxQfEALbBE68RSqHomd3gUAQAYpZ2bkVagE2woZaYmw02nYIqKIa6+fbExO8JkN0BqOUbpAV4EVX+QQUocHgQ5nM/B1vrpq2s8RYRaCTDIWD2nLTf50TEADaiSitGqjcSufrnqT4/1iKKVijAQlKDY4pIC9AcSYA0Ye1/kkNfvYfoOO/qCpMESAPmG/tp5BWCQ4Mwbr3X1SsBSYA04LvrywrKN6n4/N+btPY9QbSfG6m8iVvDGUaeDEoTasNHp678wmUK7efIyDCUYVC2gjWFbe9Rlax0rE2IATRHWoAdhINEzuLrV3G4ndbRA2DdKajyChjbH3XNYChDoB1MJf44BLKyYNyzI/33kwDSAtxIT4AT3wCaLiQBpsF68Qmaex9LrEq620j/meQrK0PiA2KAuPBV7klMEAIYujzlR6x/H6a17ydTHwUL+cnmk2mNaBkCp8HY8YPEqzG/RKn8kjg+qMaPglnVh6jKVkHlLgYiQ8DCGxQAqOXr05oGMgOMYv35l0QkAuNLOx2Z0GMMkMFNIUmAKMbF7+0k3r8wMyKE/IRlwvjwF2Un0Gl48g0ivwhqyerMiRHyE8oA5mQD2blyJtBpMir+OHREfEBnA/Rc+1s4tf6u9IgwyaRvvfQrsrWOKFiixgY+J9DXANOttUN+Wi/sIjpbU+uRoRZy4NKk/xTPsbFoWH+M5o+/QvpP29a3ZQicjoWlqVVnQZma7ALGF76Z9HXVkjW2JYYMgZqjbwsQAIgB0oL5m2+zd9smsvYfV+O1J0ir6k/k20ddFbkyA6QNgoMD4ME9xLIKqOLlAAD1gbtdcxYAkBkgrVj/eploqQeWVcC47bOuEn4MMYDmyAygOWIAzREDaI4YQHPEAJojBtAcMYDmiAE0Z2YZYCAcs6vFC2dj/95ySna9JjBzdgIvhYgFBe7bbg13EDmL3Hdfo8wcA6SbSx3EAvcKmSxiAM2ZGTNAsFlcnCTeNkB/D62aVzjyMJ6QDN41QPs5MtAENJ0FFt8443pzpvD0DMCG41Tlm0T8FPC0AYTU8WYL6O8mjx+51rl9XeLmBPHuoVAFsK2OaG0EchcB2TlQ2blO35XncHUCsK6G5vOPEyF/bGVn5ym1fN2ED9Ox793xMq5OAFWxRaHq1WtjPdBIDl2BKlujUFLhwJ3NHLw1BPZ2ko1vg1cGYGz5dMLVTv9pwrKglq6TpBjF1S3geiQj/hgifiyeMYD5zLdo/vq7UBs+FpeAbH039lfB/jM0dz+Kvk9tplV9yEOxl15cPQNE43v4qYQqd9KvX5mdhezn98PJlzO7DW/NANMRbicG+4HZc8Gmk0BBKVTZWhF7CjzTApJBxJ8e9yfAQJjmb3dC3foRGHdsF0Ftxv0JMC9H+R7aDYxJn8C3bNN/huhqc7nDncX9CZAkbDlFmBGo+XnAoqWSHNfB/QkAwPz77zn8wDaa378vMbcSAAmeeJ3DD2xjcPNqmk89PDMdnySeSQC+U0Xr5T/C9/WfAvnxvbmLLafJC/VAZwDG1nsBWuDQFWAgDDlHMIK7E6DjPK/suJNdW9eSx9+C8bn7Jxe/tzPGxebRF2i+eYBqQQFwvg6DBw+Cre8BhgEoJeJH4W4DLFqq3rf7WeS9dBgAoW65c3Lhol/sHGwi/vk6xs8JEoA1+rP5pUoVl4v4UXijBVxsIOIVLthE89kfwbfrRRE6DrxhgFTpOE9ZCUyOu1vAVHRf5JRHwC51EBhZDjLQDGv/k2RL1Dt2JzxHqCueMwDrjzF02xpGdj0IzM+PqWrWHqH52r4RYUcf41JlaxVGU06VRb1jd16OJAI82ALYcJxqfj5QFPUsQLCZHLo8sukDAnklU4pL/xk6870A7sN7Brhwlhi8DLVi47UCdl8k8opF2ATwnAEEe/HcDDCG9Z+/0PzFg0T7OXFwCnjWAOMULpPITwFpAZrj/QQQUkIMoDliAM0RA2iOGEBzxACaIwbQHDGA5ogBNEcMoDliAM0RA2iOGEBzxACaIwbQHDGA5ogBNOf/CIw5gh1r9g8AAAAASUVORK5CYII=",[[40.8790811679207,-74.0478668756263],[40.6828903040327,-73.9066478133121]],0.7,null,null,null]},{"method":"addLegend","args":[{"colors":["#FFF5F0 , #FCBCA2 24.6720447064787%, #FB6C4C 49.3976143065736%, #CD1B1E 74.1231839066685%, #6C010E 98.8487535067635%, #67000D "],"labels":["0.15","0.20","0.25","0.30"],"na_color":null,"na_label":"NA","opacity":0.5,"position":"topright","type":"numeric","title":"Burglary map","extra":{"p_1":0.246720447064787,"p_n":0.988487535067635},"layerId":null,"className":"info legend","group":null}]}],"limits":{"lat":[40.6828903040327,40.8790811679207],"lng":[-74.0478668756263,-73.9066478133121]}},"evals":[],"jsHooks":[]}</script>
+<p class="caption">
+FIGURE 8.14: Leaflet map for exploring KDE layer of burglaries in Manhattan
+</p>
+</div>
+<p>And there you have it. Perhaps those familiar with Manhattan have some guesses as to what may be going on there?</p>
+</div>
+<div id="problems-with-kde" class="section level3" number="8.5.6">
+<h3><span class="header-section-number">8.5.6</span> Problems with KDE</h3>
+<p>There are at least two problems with these maps. First, they are just a convenient visualisation to represent the location of crime incidents. But they are not adjusting by the population at risk. If all you care is where most crimes are taking place, that may then be ok. But if you are interested in relative risk, intensity adjusting by population at risk, then you are bound to be misled by these methods, which usually will plot very well the distribution of the population at risk. Second, the Poisson process, as we saw, creates what may appear as areas with more points than others, even though it is a random process. In other words, you may just be capturing random noise with these maps.</p>
+<p>There are a number of ways to adjust for background population at risk when producing density estimates. Many of these methods have been developed in spatial epidemiology. In criminology, the population at risk is generally available only at more aggregated (at some census geography level) than in many of those applications (where typically you have points representing individuals without a disease being contrasted with points representing individuals with a disease). So, although one could extract the centroids of these polygons representing census tracts or districts as points and mark them with a value (say population count or number of housing units), there isn´t a great advantage to go to all this trouble. In fact by locating all the mass of the population at risk in the centroids of the polygons you are introducing some distortion. So if you want to adjust for the population at risk, it is probably better to map out rates in the ways we described in previous chapters. We just need to be aware, then, that KDE surfaces in essence are simply mapping counts of crime. We therefore need to interpret density maps with this very significant caveat.</p>
+<p>The other problem we had is that a Poisson process under CSR can still result in a map that one could read as identifying hot spots, whereas all we have is noise. Remember the <code>poisson_ppp</code> object we created earlier, which demonstrated complete spatial randomness? Well, if we were that way inclined, we could easily compute a KDE for this:</p>
+<div class="sourceCode" id="cb364"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb364-1"><a href="spatial-point-patterns-of-crime-events.html#cb364-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">200</span>)</span>
+<span id="cb364-2"><a href="spatial-point-patterns-of-crime-events.html#cb364-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb364-3"><a href="spatial-point-patterns-of-crime-events.html#cb364-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density.ppp</span>(poisson_ppp, <span class="at">kernel =</span> <span class="st">&quot;quartic&quot;</span>, <span class="at">sigma =</span> <span class="fu">bw.diggle</span>(poisson_ppp), </span>
+<span id="cb364-4"><a href="spatial-point-patterns-of-crime-events.html#cb364-4" aria-hidden="true" tabindex="-1"></a>                 <span class="at">edge=</span>T), <span class="at">main =</span> <span class="st">&quot;KDE for random poisson point process&quot;</span>)</span></code></pre></div>
+<p><img src="crime_mapping_files/figure-html/unnamed-chunk-214-1.png" width="672" /></p>
+<p>And there you go, you could come to the view looking at this density map that the intensity is driven by some underlying external risk factor when in fact the process is purely random. In subsequent chapters we will learn about methods that can be used to ensure we don’t map out hot spots that may be the product of random noise.</p>
+</div>
+<div id="other-packages-for-kde" class="section level3" number="8.5.7">
+<h3><span class="header-section-number">8.5.7</span> Other packages for KDE</h3>
+<p>In this chapter we have focused on <code>spatstat</code> for it provides a comprehensive suite of tools for working with spatial point patterns. The snippets of code and examples we have used here only provide a superficial glimpse into the full potential of this package. But <code>spatstat</code> is by no means the only package that can be used for generating spatial density estimates. We need to mention at least two alternatives: <code>SpatialKDE</code> and <code>sparr</code>.</p>
+<p><code>SpatialKDE</code> implements kernel density estimation for spatial data with all the required settings, including the selection of bandwidth, kernel type, and cell size (which was computed automatically by <code>density.ppp()</code>). It is based in an algorithm used in QGIS, the best free GIS system relying primarily on a point and click interface. Unlike <code>spatstat</code>, <code>SpatialKDE</code> can work with <code>sf</code> objects. But it also finds it more convenient to have the data on a projected coordinate systems, so that it can compute distances on metres rather than with decimal degrees.</p>
+<p>The package <code>sparr</code> focuses on methods to compare densities and thus estimate relative risk, even at a spatiotemporal scale. It is written in such a way as to allow compatibility with <code>spatstat</code>. The basic functionality allows to estimate KDE maps through the <code>bivariate.density()</code> function. This function can take a <code>ppp</code> object and produce a KDE map. In some ways it gives the analyst more flexibility than <code>density.ppp()</code>: allowing to modulate the resolution of the grid, allows for two different methods to control for edge effects, the type of estimate produced (intensity or density, that integrates to 1), etc. This package also introduces various methods for estimating the bandwidth different to those existing in <code>spatstat</code>. Critically, it introduces a function that allows for spatiotemporal kernel density estimation: <code>spattemp.density()</code>. For more details see the help files for <code>sparr</code>, and the tutorial by <span class="citation"><a href="#ref-Davies_2017" role="doc-biblioref">Tilman Davies, Marshall, and Hazelton</a> (<a href="#ref-Davies_2017" role="doc-biblioref">2017</a>)</span>.</p>
+</div>
+</div>
+<div id="summary-and-further-reading-6" class="section level2" number="8.6">
+<h2><span class="header-section-number">8.6</span> Summary and further reading</h2>
+<p>For a deeper understanding of the issues discussed here we recommend the following reading. The documentation manual for CrimeStat (Chapter 10) has a detailed technical discussion of density estimation that is suited for crime analysts <span class="citation">(<a href="#ref-Levine_2013" role="doc-biblioref">Levine 2013</a>)</span>. Other manuals written for crime analysts also provide appropriate introductions <span class="citation"><a href="#ref-Gorr_2012" role="doc-biblioref">Gorr and Kurland</a> (<a href="#ref-Gorr_2012" role="doc-biblioref">2012</a>)</span>. Chapter 7 of <span class="citation"><a href="#ref-Bivand_2013" role="doc-biblioref">Bivand, Pebesma, and Gómez-Rubio</a> (<a href="#ref-Bivand_2013" role="doc-biblioref">2013</a>)</span> also provides a good introduction to spatial pattern analysis with R. For a fuller coverage of this kind of analysis with R, nothing can replace <span class="citation"><a href="#ref-Baddeley_2016" role="doc-biblioref">Baddeley, Rubak, and Turner</a> (<a href="#ref-Baddeley_2016" role="doc-biblioref">2015</a>)</span>. This book, at 810 pages, is dedicated to <code>spacestat</code> and it provides a comprehensive discussion of spatial pattern analysis well beyond what we cover in this chapter. For a discussion of alternatives to KDE so that the method do not assign probabilities of occurrence where this is not feasible see <span class="citation"><a href="#ref-Woodworth_2014" role="doc-biblioref">Woodworth et al.</a> (<a href="#ref-Woodworth_2014" role="doc-biblioref">2014</a>)</span> (though beware this has not yet being implemented into R). In the next chapter we will discover much of what we have learnt in this one has to be adapted when working with crime data, for this data typically only appears along street networks.</p>
+
+</div>
+</div>
+<h3>References</h3>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-Ashby_2018" class="csl-entry">
+Ashby, Matthew. 2018. <span>“Studying Crime and Place with the Crime Open Database.”</span> SocArXiv pre-print. <a href="https://doi.org/10.31235/osf.io/9y7qz">https://doi.org/10.31235/osf.io/9y7qz</a>.
+</div>
+<div id="ref-Baddeley_2016" class="csl-entry">
+Baddeley, Adrian, Ege Rubak, and Rolf Turner. 2015. <em>Spatial Point Patterns: Methodology and Applications with r</em>. Boca Ratón: CRC Press.
+</div>
+<div id="ref-Bivand_2013" class="csl-entry">
+Bivand, Roger, Edzer Pebesma, and Virgilio Gómez-Rubio. 2013. <em>Applied Spatial Data Analysis with r</em>. 2nd ed. New York: Springer.
+</div>
+<div id="ref-Chainey_2013a" class="csl-entry">
+Chainey, Spencer. 2013a. <span>“Examining the Influence of Cell Size and Bandwidth Size on Kernel Density Estimation Crime Hotspot Maps for Predicting Spatial Patterns of Crime.”</span> <em>Bulletin of the Geographical Society of Liege</em> 60: 7–19.
+</div>
+<div id="ref-Chainey_2013b" class="csl-entry">
+———. 2013b. <span>“Methods and Techniques for Understanding Crime Hot Spots.”</span> In <em>Mapping Crime: Understanding Hot Spots</em>, edited by John Eck, Spencer Chainey, James Cameron, Michael Leitner, and Ronald Wilson, 15–34. Washington DC: National Institute of Justice.
+</div>
+<div id="ref-Chainey_2021" class="csl-entry">
+———. 2021. <em>Understanding Crime: Analyzing the Geography of Crime</em>. Redlands, CA: ESRI Press.
+</div>
+<div id="ref-Chainey_2016" class="csl-entry">
+Chainey, Spencer, and Braulio-Figueiredo Alves-da-Silva. 2016. <span>“Examining the Extent of Repeat and Near Repeat Victimisation of Domestic Burglaries in Belo Horizonte, Brazil.”</span> <em>Crime Science</em> 5 (1): 1–10.
+</div>
+<div id="ref-Chainey_2008" class="csl-entry">
+Chainey, Spencer, Lisa Tompson, and Sebastian Uhlig. 2013. <span>“The Utility of Hotspot Mapping for Predicting Spatial Patterns of Crime.”</span> <em>Security Journal</em> 21: 4–28.
+</div>
+<div id="ref-Davies_2017" class="csl-entry">
+Davies, Tilman, Jonathan Marshall, and Martin Hazelton. 2017. <span>“Tutorial on Kernel Estimation of Continuous Spatial and Spatiotemporal Relative Risk with Accompanying Instruction in r.”</span>
+</div>
+<div id="ref-Field_2015" class="csl-entry">
+———. 2015. <span>“When Is a Heat Map Not a Heat Map.”</span> <a href="http://cartonerd.blogspot.com/2015/02/when-is-heat-map-not-heat-map.html">http://cartonerd.blogspot.com/2015/02/when-is-heat-map-not-heat-map.html</a>.
+</div>
+<div id="ref-Gorr_2012" class="csl-entry">
+Gorr, Wilpen, and Kristen Kurland. 2012. <em>GIT Tutorial for Crime Analysis</em>. Redland, CA: ESRI Press.
+</div>
+<div id="ref-Levine_2013" class="csl-entry">
+Levine, Ned. 2013. <em>Crime Stat IV: A Spatial Statistics Program for the Analysis of Crime Incident Locations</em>. Washington, DC: National Institute of Justice.
+</div>
+<div id="ref-Neville_2013" class="csl-entry">
+Neville, Ned. 2013. <span>“CrimeStat IV. A Spatial Statistical Program for the Analysis of Incident Locations.”</span> Software Documentation. National Institute of Justice.
+</div>
+<div id="ref-Silverman_1986" class="csl-entry">
+Silverman, BW. 1986. <span>“3 the Kernel Method for Univariate Data.”</span> In <em>Density Estimation for Statistics and Data Analysis</em>, edited by BW Silverman, 34–74. London: Chapman &amp; Hall/CRC.
+</div>
+<div id="ref-Smith_2008" class="csl-entry">
+Smith, Susan, and Christopher Bruce. 2008. <em>CrimeStat III. User Workbook</em>. Washington, DC: National Institute of Justice.
+</div>
+<div id="ref-Tompson_2015" class="csl-entry">
+Tompson, Lisa, Shane Johnson, Matthew Ashby, Chloe Perkins, and Philip Edwards. 2015. <span>“UK Open Source Crime Data: Accuracy and Possibilities for Research.”</span> <em>Cartography and Geographic Information Science</em> 42 (2): 97–111.
+</div>
+<div id="ref-Woodworth_2014" class="csl-entry">
+Woodworth, JT, GO Moehler, AL Bertozzi, and PJ Brantingham. 2014. <span>“Non-Local Crime Density Estimation Incorporating Housing Information.”</span> <em>Philosophical Transactions of the Royal Society</em> 372 (2028).
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="time-matters.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="crime-along-spatial-networks.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook/js/app.min.js"></script>
+<script src="libs/gitbook/js/lunr.js"></script>
+<script src="libs/gitbook/js/clipboard.min.js"></script>
+<script src="libs/gitbook/js/plugin-search.js"></script>
+<script src="libs/gitbook/js/plugin-sharing.js"></script>
+<script src="libs/gitbook/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook/js/jquery.highlight.js"></script>
+<script src="libs/gitbook/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": true,
+"facebook": false,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/yihui/bookdown-crc/edit/master/07-spatial_point_patterns.Rmd",
+"text": "Edit"
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": ["crime_mapping.pdf", "crime_mapping.epub"],
+"toc": {
+"collapse": "none"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

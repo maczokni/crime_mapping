@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 12 Spatial regression models | Crime Mapping and Spatial Data Analysis using R</title>
+  <meta name="description" content="Chapter 12 Spatial regression models | Crime Mapping and Spatial Data Analysis using R" />
+  <meta name="generator" content="bookdown 0.22 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 12 Spatial regression models | Crime Mapping and Spatial Data Analysis using R" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="Chapter 12 Spatial regression models | Crime Mapping and Spatial Data Analysis using R" />
+  <meta name="github-repo" content="maczokni/crime_mapping" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 12 Spatial regression models | Crime Mapping and Spatial Data Analysis using R" />
+  
+  <meta name="twitter:description" content="Chapter 12 Spatial regression models | Crime Mapping and Spatial Data Analysis using R" />
+  
+
+<meta name="author" content="Juanjo Medina and Reka Solymosi" />
+
+
+<meta name="date" content="2022-01-21" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="detecting-hot-spots-and-repeats.html"/>
+<link rel="next" href="spatial-heterogeneity-and-regression.html"/>
+<script src="libs/header-attrs/header-attrs.js"></script>
+<script src="libs/jquery/jquery.min.js"></script>
+<link href="libs/gitbook/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections/anchor-sections.css" rel="stylesheet" />
+<script src="libs/anchor-sections/anchor-sections.js"></script>
+<script src="libs/htmlwidgets/htmlwidgets.js"></script>
+<link href="libs/leaflet/leaflet.css" rel="stylesheet" />
+<script src="libs/leaflet/leaflet.js"></script>
+<link href="libs/leafletfix/leafletfix.css" rel="stylesheet" />
+<script src="libs/proj4/proj4.min.js"></script>
+<script src="libs/Proj4Leaflet/proj4leaflet.js"></script>
+<link href="libs/rstudio_leaflet/rstudio_leaflet.css" rel="stylesheet" />
+<script src="libs/leaflet-binding/leaflet.js"></script>
+<script src="libs/leaflet-providers/leaflet-providers_1.9.0.js"></script>
+<script src="libs/leaflet-providers-plugin/leaflet-providers-plugin.js"></script>
+<script src="libs/burglary_raster_cc_9107d3/data_stars_burglary_raster_cc983ce5.txt"></script>
+<script src="libs/joda/joda.js"></script>
+<script src="libs/joda/addImageQuery-bindings.js"></script>
+<script src="libs/clipboard/setClipboardText.js"></script>
+<link href="libs/HomeButton/home-button.css" rel="stylesheet" />
+<script src="libs/HomeButton/home-button.js"></script>
+<script src="libs/HomeButton/easy-button-src.min.js"></script>
+<link href="libs/mapviewCSS/mapview-popup.css" rel="stylesheet" />
+<link href="libs/mapviewCSS/mapview.css" rel="stylesheet" />
+<script src="libs/Leaflet.Sync/L.Map.Sync.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+<link rel="stylesheet" href="css/style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Crime Mapping and Spatial Data Analysis using R</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Preamble: how to use this book</a></li>
+<li class="chapter" data-level="2" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html"><i class="fa fa-check"></i><b>2</b> Producing your first crime map</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#introduction"><i class="fa fa-check"></i><b>2.1</b> Introduction</a></li>
+<li class="chapter" data-level="2.2" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#geospatial-perspective-key-terms-and-ideas"><i class="fa fa-check"></i><b>2.2</b> Geospatial Perspective: key terms and ideas</a>
+<ul>
+<li class="chapter" data-level="2.2.1" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#place"><i class="fa fa-check"></i><b>2.2.1</b> Place</a></li>
+<li class="chapter" data-level="2.2.2" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#attributes"><i class="fa fa-check"></i><b>2.2.2</b> Attributes</a></li>
+<li class="chapter" data-level="2.2.3" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#spatial-objects"><i class="fa fa-check"></i><b>2.2.3</b> Spatial objects</a></li>
+<li class="chapter" data-level="2.2.4" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#networks"><i class="fa fa-check"></i><b>2.2.4</b> Networks</a></li>
+</ul></li>
+<li class="chapter" data-level="2.3" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#maps-and-their-types"><i class="fa fa-check"></i><b>2.3</b> Maps and their types</a></li>
+<li class="chapter" data-level="2.4" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#map-projections-and-geographic-coordinate-systems"><i class="fa fa-check"></i><b>2.4</b> Map projections and geographic coordinate systems</a></li>
+<li class="chapter" data-level="2.5" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#key-terms-summary"><i class="fa fa-check"></i><b>2.5</b> Key terms summary</a></li>
+<li class="chapter" data-level="2.6" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#getting-started-with-crime-data"><i class="fa fa-check"></i><b>2.6</b> Getting started with crime data</a></li>
+<li class="chapter" data-level="2.7" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#from-dataframes-to-spatial-objects"><i class="fa fa-check"></i><b>2.7</b> From dataframes to spatial objects</a>
+<ul>
+<li class="chapter" data-level="2.7.1" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#the-point"><i class="fa fa-check"></i><b>2.7.1</b> The point</a></li>
+<li class="chapter" data-level="2.7.2" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#the-line"><i class="fa fa-check"></i><b>2.7.2</b> The line</a></li>
+<li class="chapter" data-level="2.7.3" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#the-polygon"><i class="fa fa-check"></i><b>2.7.3</b> The polygon</a></li>
+<li class="chapter" data-level="2.7.4" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#choosing-the-ideal-unit-of-analysis"><i class="fa fa-check"></i><b>2.7.4</b> Choosing the ideal unit of analysis</a></li>
+</ul></li>
+<li class="chapter" data-level="2.8" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#the-simple-features-framework"><i class="fa fa-check"></i><b>2.8</b> The simple features framework</a></li>
+<li class="chapter" data-level="2.9" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#plotting-data-with-ggplot2"><i class="fa fa-check"></i><b>2.9</b> Plotting data with ggplot2</a></li>
+<li class="chapter" data-level="2.10" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#mapping-crime-data-as-points"><i class="fa fa-check"></i><b>2.10</b> Mapping crime data as points</a></li>
+<li class="chapter" data-level="2.11" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#mapping-crime-data-as-polygons"><i class="fa fa-check"></i><b>2.11</b> Mapping crime data as polygons</a>
+<ul>
+<li class="chapter" data-level="2.11.1" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#finding-boundary-data"><i class="fa fa-check"></i><b>2.11.1</b> Finding boundary data</a></li>
+<li class="chapter" data-level="2.11.2" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#reading-shapefiles-into-r"><i class="fa fa-check"></i><b>2.11.2</b> Reading shapefiles into R</a></li>
+<li class="chapter" data-level="2.11.3" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#data-wrangling-with-dplyr"><i class="fa fa-check"></i><b>2.11.3</b> Data wrangling with dplyr</a></li>
+<li class="chapter" data-level="2.11.4" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#join-data-to-sf-object"><i class="fa fa-check"></i><b>2.11.4</b> Join data to sf object</a></li>
+<li class="chapter" data-level="2.11.5" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#putting-polygon-data-on-the-map"><i class="fa fa-check"></i><b>2.11.5</b> Putting polygon data on the map</a></li>
+</ul></li>
+<li class="chapter" data-level="2.12" data-path="producing-your-first-crime-map.html"><a href="producing-your-first-crime-map.html#summary-and-further-reading"><i class="fa fa-check"></i><b>2.12</b> Summary and further reading</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html"><i class="fa fa-check"></i><b>3</b> Basic geospatial operations in R</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#introduction-1"><i class="fa fa-check"></i><b>3.1</b> Introduction</a></li>
+<li class="chapter" data-level="3.2" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#exploring-the-relationship-between-alcohol-outlets-and-crime"><i class="fa fa-check"></i><b>3.2</b> Exploring the relationship between alcohol outlets and crime</a></li>
+<li class="chapter" data-level="3.3" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#acquiring-relevant-data"><i class="fa fa-check"></i><b>3.3</b> Acquiring relevant data</a>
+<ul>
+<li class="chapter" data-level="3.3.1" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#reading-in-crime-data"><i class="fa fa-check"></i><b>3.3.1</b> Reading in crime data</a></li>
+<li class="chapter" data-level="3.3.2" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#meet-a-new-format-geojson"><i class="fa fa-check"></i><b>3.3.2</b> Meet a new format: geoJSON</a></li>
+<li class="chapter" data-level="3.3.3" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#open-street-map-and-points-of-interest"><i class="fa fa-check"></i><b>3.3.3</b> Open Street Map and points of interest</a></li>
+</ul></li>
+<li class="chapter" data-level="3.4" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#attribute-operations"><i class="fa fa-check"></i><b>3.4</b> Attribute operations</a></li>
+<li class="chapter" data-level="3.5" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#spatial-operations"><i class="fa fa-check"></i><b>3.5</b> Spatial operations</a>
+<ul>
+<li class="chapter" data-level="3.5.1" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#reprojecting-coordinates"><i class="fa fa-check"></i><b>3.5.1</b> Reprojecting coordinates</a></li>
+<li class="chapter" data-level="3.5.2" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#subsetting-points"><i class="fa fa-check"></i><b>3.5.2</b> Subsetting points</a></li>
+<li class="chapter" data-level="3.5.3" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#building-buffers"><i class="fa fa-check"></i><b>3.5.3</b> Building buffers</a></li>
+<li class="chapter" data-level="3.5.4" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#counting-points-within-a-polygon"><i class="fa fa-check"></i><b>3.5.4</b> Counting Points within a Polygon</a></li>
+<li class="chapter" data-level="3.5.5" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#distances-finding-the-nearest-point"><i class="fa fa-check"></i><b>3.5.5</b> Distances: Finding the nearest point</a></li>
+<li class="chapter" data-level="3.5.6" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#measuring-distances"><i class="fa fa-check"></i><b>3.5.6</b> Measuring distances</a></li>
+</ul></li>
+<li class="chapter" data-level="3.6" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#plotting-interactive-maps-with-leaflet"><i class="fa fa-check"></i><b>3.6</b> Plotting interactive maps with leaflet</a></li>
+<li class="chapter" data-level="3.7" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#geocoding"><i class="fa fa-check"></i><b>3.7</b> Geocoding</a></li>
+<li class="chapter" data-level="3.8" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#measuring-distance-more-thoroughly"><i class="fa fa-check"></i><b>3.8</b> Measuring distance more thoroughly</a>
+<ul>
+<li class="chapter" data-level="3.8.1" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#how-far-are-police-stations-in-madrid"><i class="fa fa-check"></i><b>3.8.1</b> How far are police stations in Madrid?</a></li>
+<li class="chapter" data-level="3.8.2" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#distance-in-geographical-space"><i class="fa fa-check"></i><b>3.8.2</b> Distance in geographical space</a></li>
+<li class="chapter" data-level="3.8.3" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#a-practical-example-to-evaluate-distance"><i class="fa fa-check"></i><b>3.8.3</b> A practical example to evaluate distance</a></li>
+</ul></li>
+<li class="chapter" data-level="3.9" data-path="basic-geospatial-operations-in-r.html"><a href="basic-geospatial-operations-in-r.html#summary-and-further-reading-1"><i class="fa fa-check"></i><b>3.9</b> Summary and further reading</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="mapping-rates-and-counts.html"><a href="mapping-rates-and-counts.html"><i class="fa fa-check"></i><b>4</b> Mapping rates and counts</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="mapping-rates-and-counts.html"><a href="mapping-rates-and-counts.html#introduction-2"><i class="fa fa-check"></i><b>4.1</b> Introduction</a></li>
+<li class="chapter" data-level="4.2" data-path="mapping-rates-and-counts.html"><a href="mapping-rates-and-counts.html#thematic-maps-key-terms-and-ideas"><i class="fa fa-check"></i><b>4.2</b> Thematic maps: key terms and ideas</a>
+<ul>
+<li class="chapter" data-level="4.2.1" data-path="mapping-rates-and-counts.html"><a href="mapping-rates-and-counts.html#choropleth-maps"><i class="fa fa-check"></i><b>4.2.1</b> Choropleth maps</a></li>
+<li class="chapter" data-level="4.2.2" data-path="mapping-rates-and-counts.html"><a href="mapping-rates-and-counts.html#what-do-we-use-choropleth-maps-for"><i class="fa fa-check"></i><b>4.2.2</b> What do we use choropleth maps for?</a></li>
+<li class="chapter" data-level="4.2.3" data-path="mapping-rates-and-counts.html"><a href="mapping-rates-and-counts.html#proportional-and-graduate-symbol-maps-mapping-crime-counts"><i class="fa fa-check"></i><b>4.2.3</b> Proportional and graduate symbol maps: mapping crime counts</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="mapping-rates-and-counts.html"><a href="mapping-rates-and-counts.html#creating-proportional-symbol-maps"><i class="fa fa-check"></i><b>4.3</b> Creating proportional symbol maps</a></li>
+<li class="chapter" data-level="4.4" data-path="mapping-rates-and-counts.html"><a href="mapping-rates-and-counts.html#mapping-rates-rather-than-counts"><i class="fa fa-check"></i><b>4.4</b> Mapping rates rather than counts</a>
+<ul>
+<li class="chapter" data-level="4.4.1" data-path="mapping-rates-and-counts.html"><a href="mapping-rates-and-counts.html#generating-the-rates"><i class="fa fa-check"></i><b>4.4.1</b> Generating the rates</a></li>
+<li class="chapter" data-level="4.4.2" data-path="mapping-rates-and-counts.html"><a href="mapping-rates-and-counts.html#creating-a-choropleth-map-with-tmap"><i class="fa fa-check"></i><b>4.4.2</b> Creating a choropleth map with tmap</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="mapping-rates-and-counts.html"><a href="mapping-rates-and-counts.html#classification-systems-for-thematic-maps"><i class="fa fa-check"></i><b>4.5</b> Classification systems for thematic maps</a></li>
+<li class="chapter" data-level="4.6" data-path="mapping-rates-and-counts.html"><a href="mapping-rates-and-counts.html#interactive-mapping-with-tmap"><i class="fa fa-check"></i><b>4.6</b> Interactive mapping with tmap</a></li>
+<li class="chapter" data-level="4.7" data-path="mapping-rates-and-counts.html"><a href="mapping-rates-and-counts.html#smoothing-rates-adjusting-for-small-sample-noise"><i class="fa fa-check"></i><b>4.7</b> Smoothing rates: adjusting for small sample noise</a></li>
+<li class="chapter" data-level="4.8" data-path="mapping-rates-and-counts.html"><a href="mapping-rates-and-counts.html#summary-and-further-reading-2"><i class="fa fa-check"></i><b>4.8</b> Summary and further reading</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html"><i class="fa fa-check"></i><b>5</b> Variations of thematic mapping</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#introduction-3"><i class="fa fa-check"></i><b>5.1</b> Introduction</a></li>
+<li class="chapter" data-level="5.2" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#binning-points"><i class="fa fa-check"></i><b>5.2</b> Binning points</a>
+<ul>
+<li class="chapter" data-level="5.2.1" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#the-binning-process"><i class="fa fa-check"></i><b>5.2.1</b> The Binning Process</a></li>
+<li class="chapter" data-level="5.2.2" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#different-binning-techniques"><i class="fa fa-check"></i><b>5.2.2</b> Different Binning Techniques</a></li>
+<li class="chapter" data-level="5.2.3" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#benefits-of-binning"><i class="fa fa-check"></i><b>5.2.3</b> Benefits of Binning</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#transforming-polygons-cartograms"><i class="fa fa-check"></i><b>5.3</b> Transforming polygons: cartograms</a>
+<ul>
+<li class="chapter" data-level="5.3.1" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#dorling-cartogram"><i class="fa fa-check"></i><b>5.3.1</b> Dorling Cartogram</a></li>
+</ul></li>
+<li class="chapter" data-level="5.4" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#bivariate-maps"><i class="fa fa-check"></i><b>5.4</b> Bivariate Maps</a>
+<ul>
+<li class="chapter" data-level="5.4.1" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#step-1-bin-our-variables-of-interest"><i class="fa fa-check"></i><b>5.4.1</b> Step 1: Bin our variables of interest</a></li>
+<li class="chapter" data-level="5.4.2" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#step-2-new-variable"><i class="fa fa-check"></i><b>5.4.2</b> Step 2: New variable</a></li>
+<li class="chapter" data-level="5.4.3" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#step-3-create-colour-scheme"><i class="fa fa-check"></i><b>5.4.3</b> Step 3: Create colour scheme</a></li>
+<li class="chapter" data-level="5.4.4" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#step-4-join-colour-scheme"><i class="fa fa-check"></i><b>5.4.4</b> Step 4: Join colour scheme</a></li>
+<li class="chapter" data-level="5.4.5" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#step-5-create-legend"><i class="fa fa-check"></i><b>5.4.5</b> Step 5: Create legend</a></li>
+<li class="chapter" data-level="5.4.6" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#step-6-map"><i class="fa fa-check"></i><b>5.4.6</b> Step 6: Map</a></li>
+</ul></li>
+<li class="chapter" data-level="5.5" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#a-note-of-caution-maup"><i class="fa fa-check"></i><b>5.5</b> A note of caution: MAUP</a>
+<ul>
+<li class="chapter" data-level="5.5.1" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#why-does-maup-matter"><i class="fa fa-check"></i><b>5.5.1</b> Why does MAUP matter?</a></li>
+<li class="chapter" data-level="5.5.2" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#what-can-we-do"><i class="fa fa-check"></i><b>5.5.2</b> What can we do?</a></li>
+</ul></li>
+<li class="chapter" data-level="5.6" data-path="variations-of-thematic-mapping.html"><a href="variations-of-thematic-mapping.html#summary-and-further-reading-3"><i class="fa fa-check"></i><b>5.6</b> Summary and further reading</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="basics-of-cartographic-design-elements-of-a-map.html"><a href="basics-of-cartographic-design-elements-of-a-map.html"><i class="fa fa-check"></i><b>6</b> Basics of cartographic design: elements of a map</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="basics-of-cartographic-design-elements-of-a-map.html"><a href="basics-of-cartographic-design-elements-of-a-map.html#introduction-4"><i class="fa fa-check"></i><b>6.1</b> Introduction</a></li>
+<li class="chapter" data-level="6.2" data-path="basics-of-cartographic-design-elements-of-a-map.html"><a href="basics-of-cartographic-design-elements-of-a-map.html#data-representation"><i class="fa fa-check"></i><b>6.2</b> Data representation</a>
+<ul>
+<li class="chapter" data-level="6.2.1" data-path="basics-of-cartographic-design-elements-of-a-map.html"><a href="basics-of-cartographic-design-elements-of-a-map.html#thematic-maps"><i class="fa fa-check"></i><b>6.2.1</b> Thematic maps</a></li>
+<li class="chapter" data-level="6.2.2" data-path="basics-of-cartographic-design-elements-of-a-map.html"><a href="basics-of-cartographic-design-elements-of-a-map.html#symbols"><i class="fa fa-check"></i><b>6.2.2</b> Symbols</a></li>
+<li class="chapter" data-level="6.2.3" data-path="basics-of-cartographic-design-elements-of-a-map.html"><a href="basics-of-cartographic-design-elements-of-a-map.html#rate-vs-count"><i class="fa fa-check"></i><b>6.2.3</b> Rate vs count</a></li>
+</ul></li>
+<li class="chapter" data-level="6.3" data-path="basics-of-cartographic-design-elements-of-a-map.html"><a href="basics-of-cartographic-design-elements-of-a-map.html#colour"><i class="fa fa-check"></i><b>6.3</b> Colour</a></li>
+<li class="chapter" data-level="6.4" data-path="basics-of-cartographic-design-elements-of-a-map.html"><a href="basics-of-cartographic-design-elements-of-a-map.html#text"><i class="fa fa-check"></i><b>6.4</b> Text</a>
+<ul>
+<li class="chapter" data-level="6.4.1" data-path="basics-of-cartographic-design-elements-of-a-map.html"><a href="basics-of-cartographic-design-elements-of-a-map.html#titles-and-subtitles"><i class="fa fa-check"></i><b>6.4.1</b> Titles and subtitles</a></li>
+<li class="chapter" data-level="6.4.2" data-path="basics-of-cartographic-design-elements-of-a-map.html"><a href="basics-of-cartographic-design-elements-of-a-map.html#legend"><i class="fa fa-check"></i><b>6.4.2</b> Legend</a></li>
+<li class="chapter" data-level="6.4.3" data-path="basics-of-cartographic-design-elements-of-a-map.html"><a href="basics-of-cartographic-design-elements-of-a-map.html#annotation"><i class="fa fa-check"></i><b>6.4.3</b> Annotation</a></li>
+<li class="chapter" data-level="6.4.4" data-path="basics-of-cartographic-design-elements-of-a-map.html"><a href="basics-of-cartographic-design-elements-of-a-map.html#production-notes"><i class="fa fa-check"></i><b>6.4.4</b> Production notes</a></li>
+</ul></li>
+<li class="chapter" data-level="6.5" data-path="basics-of-cartographic-design-elements-of-a-map.html"><a href="basics-of-cartographic-design-elements-of-a-map.html#composition"><i class="fa fa-check"></i><b>6.5</b> Composition</a>
+<ul>
+<li class="chapter" data-level="6.5.1" data-path="basics-of-cartographic-design-elements-of-a-map.html"><a href="basics-of-cartographic-design-elements-of-a-map.html#orientation-indicators"><i class="fa fa-check"></i><b>6.5.1</b> Orientation indicators</a></li>
+<li class="chapter" data-level="6.5.2" data-path="basics-of-cartographic-design-elements-of-a-map.html"><a href="basics-of-cartographic-design-elements-of-a-map.html#scale-indicators"><i class="fa fa-check"></i><b>6.5.2</b> Scale indicators</a></li>
+</ul></li>
+<li class="chapter" data-level="6.6" data-path="basics-of-cartographic-design-elements-of-a-map.html"><a href="basics-of-cartographic-design-elements-of-a-map.html#context"><i class="fa fa-check"></i><b>6.6</b> Context</a>
+<ul>
+<li class="chapter" data-level="6.6.1" data-path="basics-of-cartographic-design-elements-of-a-map.html"><a href="basics-of-cartographic-design-elements-of-a-map.html#basemap"><i class="fa fa-check"></i><b>6.6.1</b> Basemap</a></li>
+<li class="chapter" data-level="6.6.2" data-path="basics-of-cartographic-design-elements-of-a-map.html"><a href="basics-of-cartographic-design-elements-of-a-map.html#inset-maps"><i class="fa fa-check"></i><b>6.6.2</b> Inset maps</a></li>
+</ul></li>
+<li class="chapter" data-level="6.7" data-path="basics-of-cartographic-design-elements-of-a-map.html"><a href="basics-of-cartographic-design-elements-of-a-map.html#summary-and-further-reading-4"><i class="fa fa-check"></i><b>6.7</b> Summary and further reading</a></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="time-matters.html"><a href="time-matters.html"><i class="fa fa-check"></i><b>7</b> Time matters</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="time-matters.html"><a href="time-matters.html#introduction-5"><i class="fa fa-check"></i><b>7.1</b> Introduction</a></li>
+<li class="chapter" data-level="7.2" data-path="time-matters.html"><a href="time-matters.html#temporal-data-in-crime-analysis"><i class="fa fa-check"></i><b>7.2</b> Temporal data in crime analysis</a></li>
+<li class="chapter" data-level="7.3" data-path="time-matters.html"><a href="time-matters.html#temporal-data-wrangling"><i class="fa fa-check"></i><b>7.3</b> Temporal data wrangling</a></li>
+<li class="chapter" data-level="7.4" data-path="time-matters.html"><a href="time-matters.html#visualising-time-data"><i class="fa fa-check"></i><b>7.4</b> Visualising time data</a>
+<ul>
+<li class="chapter" data-level="7.4.1" data-path="time-matters.html"><a href="time-matters.html#how-not-to-present-time"><i class="fa fa-check"></i><b>7.4.1</b> How (not) to present time</a></li>
+</ul></li>
+<li class="chapter" data-level="7.5" data-path="time-matters.html"><a href="time-matters.html#time-series-analysis"><i class="fa fa-check"></i><b>7.5</b> Time series analysis</a>
+<ul>
+<li class="chapter" data-level="7.5.1" data-path="time-matters.html"><a href="time-matters.html#plotting-time-series-data"><i class="fa fa-check"></i><b>7.5.1</b> Plotting time series data</a></li>
+</ul></li>
+<li class="chapter" data-level="7.6" data-path="time-matters.html"><a href="time-matters.html#spatio-temporal-data-visualisation"><i class="fa fa-check"></i><b>7.6</b> Spatio-temporal data visualisation</a>
+<ul>
+<li class="chapter" data-level="7.6.1" data-path="time-matters.html"><a href="time-matters.html#small-multiples-to-show-temporal-variation"><i class="fa fa-check"></i><b>7.6.1</b> Small multiples to show temporal variation</a></li>
+<li class="chapter" data-level="7.6.2" data-path="time-matters.html"><a href="time-matters.html#spaghetti-plots"><i class="fa fa-check"></i><b>7.6.2</b> Spaghetti plots</a></li>
+<li class="chapter" data-level="7.6.3" data-path="time-matters.html"><a href="time-matters.html#animations"><i class="fa fa-check"></i><b>7.6.3</b> Animations</a></li>
+</ul></li>
+<li class="chapter" data-level="7.7" data-path="time-matters.html"><a href="time-matters.html#summary-and-further-reading-5"><i class="fa fa-check"></i><b>7.7</b> Summary and further reading</a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="spatial-point-patterns-of-crime-events.html"><a href="spatial-point-patterns-of-crime-events.html"><i class="fa fa-check"></i><b>8</b> Spatial point patterns of crime events</a>
+<ul>
+<li class="chapter" data-level="8.1" data-path="spatial-point-patterns-of-crime-events.html"><a href="spatial-point-patterns-of-crime-events.html#mapping-crime-intensity-with-isarithmic-maps"><i class="fa fa-check"></i><b>8.1</b> Mapping crime intensity with isarithmic maps</a></li>
+<li class="chapter" data-level="8.2" data-path="spatial-point-patterns-of-crime-events.html"><a href="spatial-point-patterns-of-crime-events.html#burglaries-in-nyc"><i class="fa fa-check"></i><b>8.2</b> Burglaries in NYC</a></li>
+<li class="chapter" data-level="8.3" data-path="spatial-point-patterns-of-crime-events.html"><a href="spatial-point-patterns-of-crime-events.html#using-the-spatstat-package"><i class="fa fa-check"></i><b>8.3</b> Using the <code>spatstat</code> package</a></li>
+<li class="chapter" data-level="8.4" data-path="spatial-point-patterns-of-crime-events.html"><a href="spatial-point-patterns-of-crime-events.html#homogeneous-or-spatially-varying-intensity"><i class="fa fa-check"></i><b>8.4</b> Homogeneous or spatially varying intensity?</a></li>
+<li class="chapter" data-level="8.5" data-path="spatial-point-patterns-of-crime-events.html"><a href="spatial-point-patterns-of-crime-events.html#mapping-intensity-estimates-with-spatstat"><i class="fa fa-check"></i><b>8.5</b> Mapping intensity estimates with <code>spatstat</code></a>
+<ul>
+<li class="chapter" data-level="8.5.1" data-path="spatial-point-patterns-of-crime-events.html"><a href="spatial-point-patterns-of-crime-events.html#basics-of-kernel-density-estimation-kde"><i class="fa fa-check"></i><b>8.5.1</b> Basics of kernel density estimation (KDE)</a></li>
+<li class="chapter" data-level="8.5.2" data-path="spatial-point-patterns-of-crime-events.html"><a href="spatial-point-patterns-of-crime-events.html#selecting-the-appropriate-bandwith-for-kde"><i class="fa fa-check"></i><b>8.5.2</b> Selecting the appropriate bandwith for KDE</a></li>
+<li class="chapter" data-level="8.5.3" data-path="spatial-point-patterns-of-crime-events.html"><a href="spatial-point-patterns-of-crime-events.html#selecting-the-smoothing-kernel"><i class="fa fa-check"></i><b>8.5.3</b> Selecting the smoothing kernel</a></li>
+<li class="chapter" data-level="8.5.4" data-path="spatial-point-patterns-of-crime-events.html"><a href="spatial-point-patterns-of-crime-events.html#weighted-kernel-density-estimates"><i class="fa fa-check"></i><b>8.5.4</b> Weighted kernel density estimates</a></li>
+<li class="chapter" data-level="8.5.5" data-path="spatial-point-patterns-of-crime-events.html"><a href="spatial-point-patterns-of-crime-events.html#better-kde-maps-using-leaflet"><i class="fa fa-check"></i><b>8.5.5</b> Better KDE maps using <code>leaflet</code></a></li>
+<li class="chapter" data-level="8.5.6" data-path="spatial-point-patterns-of-crime-events.html"><a href="spatial-point-patterns-of-crime-events.html#problems-with-kde"><i class="fa fa-check"></i><b>8.5.6</b> Problems with KDE</a></li>
+<li class="chapter" data-level="8.5.7" data-path="spatial-point-patterns-of-crime-events.html"><a href="spatial-point-patterns-of-crime-events.html#other-packages-for-kde"><i class="fa fa-check"></i><b>8.5.7</b> Other packages for KDE</a></li>
+</ul></li>
+<li class="chapter" data-level="8.6" data-path="spatial-point-patterns-of-crime-events.html"><a href="spatial-point-patterns-of-crime-events.html#summary-and-further-reading-6"><i class="fa fa-check"></i><b>8.6</b> Summary and further reading</a></li>
+</ul></li>
+<li class="chapter" data-level="9" data-path="crime-along-spatial-networks.html"><a href="crime-along-spatial-networks.html"><i class="fa fa-check"></i><b>9</b> Crime along spatial networks</a>
+<ul>
+<li class="chapter" data-level="9.1" data-path="crime-along-spatial-networks.html"><a href="crime-along-spatial-networks.html#introduction-6"><i class="fa fa-check"></i><b>9.1</b> Introduction</a></li>
+<li class="chapter" data-level="9.2" data-path="crime-along-spatial-networks.html"><a href="crime-along-spatial-networks.html#constructing-and-storing-a-spatial-linear-network"><i class="fa fa-check"></i><b>9.2</b> Constructing and storing a spatial linear network</a></li>
+<li class="chapter" data-level="9.3" data-path="crime-along-spatial-networks.html"><a href="crime-along-spatial-networks.html#visualising-crime-distribution-along-networks"><i class="fa fa-check"></i><b>9.3</b> Visualising crime distribution along networks</a>
+<ul>
+<li class="chapter" data-level="9.3.1" data-path="crime-along-spatial-networks.html"><a href="crime-along-spatial-networks.html#selecting-relevant-crimes-for-micro-places"><i class="fa fa-check"></i><b>9.3.1</b> Selecting relevant crimes for micro-places</a></li>
+<li class="chapter" data-level="9.3.2" data-path="crime-along-spatial-networks.html"><a href="crime-along-spatial-networks.html#assigning-joining-crimes-to-micro-places"><i class="fa fa-check"></i><b>9.3.2</b> Assigning (joining) crimes to micro-places</a></li>
+<li class="chapter" data-level="9.3.3" data-path="crime-along-spatial-networks.html"><a href="crime-along-spatial-networks.html#calculating-a-crime-rate"><i class="fa fa-check"></i><b>9.3.3</b> Calculating a crime rate</a></li>
+<li class="chapter" data-level="9.3.4" data-path="crime-along-spatial-networks.html"><a href="crime-along-spatial-networks.html#hot-routes"><i class="fa fa-check"></i><b>9.3.4</b> Hot Routes</a></li>
+</ul></li>
+<li class="chapter" data-level="9.4" data-path="crime-along-spatial-networks.html"><a href="crime-along-spatial-networks.html#quantifying-crime-concentration-at-micro-places"><i class="fa fa-check"></i><b>9.4</b> Quantifying crime concentration at micro-places</a></li>
+<li class="chapter" data-level="9.5" data-path="crime-along-spatial-networks.html"><a href="crime-along-spatial-networks.html#street-profile-analysis"><i class="fa fa-check"></i><b>9.5</b> Street Profile Analysis</a>
+<ul>
+<li class="chapter" data-level="9.5.1" data-path="crime-along-spatial-networks.html"><a href="crime-along-spatial-networks.html#linking-data-to-nodes"><i class="fa fa-check"></i><b>9.5.1</b> Linking data to nodes</a></li>
+<li class="chapter" data-level="9.5.2" data-path="crime-along-spatial-networks.html"><a href="crime-along-spatial-networks.html#calculating-a-rate-for-nodes"><i class="fa fa-check"></i><b>9.5.2</b> Calculating a rate for nodes</a></li>
+<li class="chapter" data-level="9.5.3" data-path="crime-along-spatial-networks.html"><a href="crime-along-spatial-networks.html#visualising-with-street-profile-analysis"><i class="fa fa-check"></i><b>9.5.3</b> Visualising with Street Profile Analysis</a></li>
+</ul></li>
+<li class="chapter" data-level="9.6" data-path="crime-along-spatial-networks.html"><a href="crime-along-spatial-networks.html#density-estimation-along-networks"><i class="fa fa-check"></i><b>9.6</b> Density estimation along networks</a></li>
+<li class="chapter" data-level="9.7" data-path="crime-along-spatial-networks.html"><a href="crime-along-spatial-networks.html#summary-and-further-reading-7"><i class="fa fa-check"></i><b>9.7</b> Summary and further reading</a></li>
+</ul></li>
+<li class="chapter" data-level="10" data-path="spatial-dependence-and-autocorrelation.html"><a href="spatial-dependence-and-autocorrelation.html"><i class="fa fa-check"></i><b>10</b> Spatial dependence and autocorrelation</a>
+<ul>
+<li class="chapter" data-level="10.1" data-path="spatial-dependence-and-autocorrelation.html"><a href="spatial-dependence-and-autocorrelation.html#introduction-7"><i class="fa fa-check"></i><b>10.1</b> Introduction</a></li>
+<li class="chapter" data-level="10.2" data-path="spatial-dependence-and-autocorrelation.html"><a href="spatial-dependence-and-autocorrelation.html#exploring-spatial-dependence-in-point-pattern-data"><i class="fa fa-check"></i><b>10.2</b> Exploring spatial dependence in point pattern data</a>
+<ul>
+<li class="chapter" data-level="10.2.1" data-path="spatial-dependence-and-autocorrelation.html"><a href="spatial-dependence-and-autocorrelation.html#the-empirical-k-function"><i class="fa fa-check"></i><b>10.2.1</b> The empirical K function</a></li>
+<li class="chapter" data-level="10.2.2" data-path="spatial-dependence-and-autocorrelation.html"><a href="spatial-dependence-and-autocorrelation.html#homicide-in-buenos-aires"><i class="fa fa-check"></i><b>10.2.2</b> Homicide in Buenos Aires</a></li>
+<li class="chapter" data-level="10.2.3" data-path="spatial-dependence-and-autocorrelation.html"><a href="spatial-dependence-and-autocorrelation.html#estimating-and-plotting-the-k-function"><i class="fa fa-check"></i><b>10.2.3</b> Estimating and plotting the K-function</a></li>
+<li class="chapter" data-level="10.2.4" data-path="spatial-dependence-and-autocorrelation.html"><a href="spatial-dependence-and-autocorrelation.html#network-constrained-k-function"><i class="fa fa-check"></i><b>10.2.4</b> Network constrained K function</a></li>
+</ul></li>
+<li class="chapter" data-level="10.3" data-path="spatial-dependence-and-autocorrelation.html"><a href="spatial-dependence-and-autocorrelation.html#exploring-spatial-autocorrelation-in-lattice-data"><i class="fa fa-check"></i><b>10.3</b> Exploring spatial autocorrelation in lattice data</a>
+<ul>
+<li class="chapter" data-level="10.3.1" data-path="spatial-dependence-and-autocorrelation.html"><a href="spatial-dependence-and-autocorrelation.html#burglary-in-manchester"><i class="fa fa-check"></i><b>10.3.1</b> Burglary in Manchester</a></li>
+<li class="chapter" data-level="10.3.2" data-path="spatial-dependence-and-autocorrelation.html"><a href="spatial-dependence-and-autocorrelation.html#what-is-a-neighbour"><i class="fa fa-check"></i><b>10.3.2</b> What is a neighbour?</a></li>
+<li class="chapter" data-level="10.3.3" data-path="spatial-dependence-and-autocorrelation.html"><a href="spatial-dependence-and-autocorrelation.html#creating-a-list-of-neighbours-based-on-contiguity"><i class="fa fa-check"></i><b>10.3.3</b> Creating a list of neighbours based on contiguity</a></li>
+<li class="chapter" data-level="10.3.4" data-path="spatial-dependence-and-autocorrelation.html"><a href="spatial-dependence-and-autocorrelation.html#generating-the-weight-matrix"><i class="fa fa-check"></i><b>10.3.4</b> Generating the weight matrix</a></li>
+<li class="chapter" data-level="10.3.5" data-path="spatial-dependence-and-autocorrelation.html"><a href="spatial-dependence-and-autocorrelation.html#spatial-weight-matrix-based-on-distance"><i class="fa fa-check"></i><b>10.3.5</b> Spatial weight matrix based on distance</a></li>
+<li class="chapter" data-level="10.3.6" data-path="spatial-dependence-and-autocorrelation.html"><a href="spatial-dependence-and-autocorrelation.html#spatial-weight-matrix-based-on-k-neighbors"><i class="fa fa-check"></i><b>10.3.6</b> Spatial weight matrix based on k-neighbors</a></li>
+</ul></li>
+<li class="chapter" data-level="10.4" data-path="spatial-dependence-and-autocorrelation.html"><a href="spatial-dependence-and-autocorrelation.html#choosing-the-correct-matrix"><i class="fa fa-check"></i><b>10.4</b> Choosing the correct matrix</a>
+<ul>
+<li class="chapter" data-level="10.4.1" data-path="spatial-dependence-and-autocorrelation.html"><a href="spatial-dependence-and-autocorrelation.html#measuring-global-autocorrelation"><i class="fa fa-check"></i><b>10.4.1</b> Measuring global autocorrelation</a></li>
+<li class="chapter" data-level="10.4.2" data-path="spatial-dependence-and-autocorrelation.html"><a href="spatial-dependence-and-autocorrelation.html#the-rgeoda-and-sfweight-packages"><i class="fa fa-check"></i><b>10.4.2</b> The <code>rgeoda</code> and <code>sfweight</code> packages</a></li>
+</ul></li>
+<li class="chapter" data-level="10.5" data-path="spatial-dependence-and-autocorrelation.html"><a href="spatial-dependence-and-autocorrelation.html#further-reading"><i class="fa fa-check"></i><b>10.5</b> Further Reading</a></li>
+</ul></li>
+<li class="chapter" data-level="11" data-path="detecting-hot-spots-and-repeats.html"><a href="detecting-hot-spots-and-repeats.html"><i class="fa fa-check"></i><b>11</b> Detecting hot spots and repeats</a>
+<ul>
+<li class="chapter" data-level="11.1" data-path="detecting-hot-spots-and-repeats.html"><a href="detecting-hot-spots-and-repeats.html#introduction-8"><i class="fa fa-check"></i><b>11.1</b> Introduction</a>
+<ul>
+<li class="chapter" data-level="11.1.1" data-path="detecting-hot-spots-and-repeats.html"><a href="detecting-hot-spots-and-repeats.html#clusters-hot-spots-of-crime-and-near-repeat-victimisation"><i class="fa fa-check"></i><b>11.1.1</b> Clusters, hot spots of crime, and near repeat victimisation</a></li>
+<li class="chapter" data-level="11.1.2" data-path="detecting-hot-spots-and-repeats.html"><a href="detecting-hot-spots-and-repeats.html#burglaries-in-manchester"><i class="fa fa-check"></i><b>11.1.2</b> Burglaries in Manchester</a></li>
+</ul></li>
+<li class="chapter" data-level="11.2" data-path="detecting-hot-spots-and-repeats.html"><a href="detecting-hot-spots-and-repeats.html#using-raster-micro-grid-cells-to-spot-hot-spots"><i class="fa fa-check"></i><b>11.2</b> Using <code>raster</code> micro grid cells to spot hot spots</a></li>
+<li class="chapter" data-level="11.3" data-path="detecting-hot-spots-and-repeats.html"><a href="detecting-hot-spots-and-repeats.html#local-getis-ord"><i class="fa fa-check"></i><b>11.3</b> Local Getis-Ord</a></li>
+<li class="chapter" data-level="11.4" data-path="detecting-hot-spots-and-repeats.html"><a href="detecting-hot-spots-and-repeats.html#local-morans-i-and-moran-scaterplot"><i class="fa fa-check"></i><b>11.4</b> Local Moran’s I and Moran scaterplot</a>
+<ul>
+<li class="chapter" data-level="11.4.1" data-path="detecting-hot-spots-and-repeats.html"><a href="detecting-hot-spots-and-repeats.html#computing-the-local-morans-i"><i class="fa fa-check"></i><b>11.4.1</b> Computing the local Moran’s I</a></li>
+<li class="chapter" data-level="11.4.2" data-path="detecting-hot-spots-and-repeats.html"><a href="detecting-hot-spots-and-repeats.html#creating-a-lisa-map"><i class="fa fa-check"></i><b>11.4.2</b> Creating a LISA map</a></li>
+</ul></li>
+<li class="chapter" data-level="11.5" data-path="detecting-hot-spots-and-repeats.html"><a href="detecting-hot-spots-and-repeats.html#scan-satistics"><i class="fa fa-check"></i><b>11.5</b> Scan satistics</a>
+<ul>
+<li class="chapter" data-level="11.5.1" data-path="detecting-hot-spots-and-repeats.html"><a href="detecting-hot-spots-and-repeats.html#the-dcluster-package"><i class="fa fa-check"></i><b>11.5.1</b> The <code>DCluster</code> package</a></li>
+<li class="chapter" data-level="11.5.2" data-path="detecting-hot-spots-and-repeats.html"><a href="detecting-hot-spots-and-repeats.html#openshaws-gam"><i class="fa fa-check"></i><b>11.5.2</b> Openshaw’s GAM</a></li>
+<li class="chapter" data-level="11.5.3" data-path="detecting-hot-spots-and-repeats.html"><a href="detecting-hot-spots-and-repeats.html#kulldorfs-scan-statistic"><i class="fa fa-check"></i><b>11.5.3</b> Kulldorf’s Scan Statistic</a></li>
+</ul></li>
+<li class="chapter" data-level="11.6" data-path="detecting-hot-spots-and-repeats.html"><a href="detecting-hot-spots-and-repeats.html#exploring-near-repeat-victimisation"><i class="fa fa-check"></i><b>11.6</b> Exploring near repeat victimisation</a></li>
+<li class="chapter" data-level="11.7" data-path="detecting-hot-spots-and-repeats.html"><a href="detecting-hot-spots-and-repeats.html#further-reading-1"><i class="fa fa-check"></i><b>11.7</b> Further reading</a></li>
+</ul></li>
+<li class="chapter" data-level="12" data-path="spatial-regression-models.html"><a href="spatial-regression-models.html"><i class="fa fa-check"></i><b>12</b> Spatial regression models</a>
+<ul>
+<li class="chapter" data-level="12.1" data-path="spatial-regression-models.html"><a href="spatial-regression-models.html#introduction-9"><i class="fa fa-check"></i><b>12.1</b> Introduction</a></li>
+<li class="chapter" data-level="12.2" data-path="spatial-regression-models.html"><a href="spatial-regression-models.html#challenges-for-regression-with-spatial-data"><i class="fa fa-check"></i><b>12.2</b> Challenges for regression with spatial data</a></li>
+<li class="chapter" data-level="12.3" data-path="spatial-regression-models.html"><a href="spatial-regression-models.html#fitting-a-non-spatial-regression-model-with-r"><i class="fa fa-check"></i><b>12.3</b> Fitting a non-spatial regression model with R</a></li>
+<li class="chapter" data-level="12.4" data-path="spatial-regression-models.html"><a href="spatial-regression-models.html#looking-at-the-residuals-and-testing-for-spatial-autocorrelation-in-regression"><i class="fa fa-check"></i><b>12.4</b> Looking at the residuals and testing for spatial autocorrelation in regression</a></li>
+<li class="chapter" data-level="12.5" data-path="spatial-regression-models.html"><a href="spatial-regression-models.html#choosing-a-spatial-regression-model"><i class="fa fa-check"></i><b>12.5</b> Choosing a spatial regression model</a>
+<ul>
+<li class="chapter" data-level="12.5.1" data-path="spatial-regression-models.html"><a href="spatial-regression-models.html#the-basic-spatial-models"><i class="fa fa-check"></i><b>12.5.1</b> The basic spatial models</a></li>
+<li class="chapter" data-level="12.5.2" data-path="spatial-regression-models.html"><a href="spatial-regression-models.html#lagrange-multipliers-the-bottom-up-approach-to-select-a-model"><i class="fa fa-check"></i><b>12.5.2</b> Lagrange multipliers: the bottom-up approach to select a model</a></li>
+</ul></li>
+<li class="chapter" data-level="12.6" data-path="spatial-regression-models.html"><a href="spatial-regression-models.html#fitting-and-interpreting-a-spatial-error-model"><i class="fa fa-check"></i><b>12.6</b> Fitting and interpreting a spatial error model</a></li>
+<li class="chapter" data-level="12.7" data-path="spatial-regression-models.html"><a href="spatial-regression-models.html#fitting-and-interpreting-a-spatially-lagged-model"><i class="fa fa-check"></i><b>12.7</b> Fitting and interpreting a spatially lagged model</a></li>
+<li class="chapter" data-level="12.8" data-path="spatial-regression-models.html"><a href="spatial-regression-models.html#beyond-the-sar-and-sem-models"><i class="fa fa-check"></i><b>12.8</b> Beyond the SAR and SEM models</a></li>
+<li class="chapter" data-level="12.9" data-path="spatial-regression-models.html"><a href="spatial-regression-models.html#summary-and-further-reading-8"><i class="fa fa-check"></i><b>12.9</b> Summary and further reading</a></li>
+</ul></li>
+<li class="chapter" data-level="13" data-path="spatial-heterogeneity-and-regression.html"><a href="spatial-heterogeneity-and-regression.html"><i class="fa fa-check"></i><b>13</b> Spatial heterogeneity and regression</a>
+<ul>
+<li class="chapter" data-level="13.1" data-path="spatial-heterogeneity-and-regression.html"><a href="spatial-heterogeneity-and-regression.html#introduction-10"><i class="fa fa-check"></i><b>13.1</b> Introduction</a></li>
+<li class="chapter" data-level="13.2" data-path="spatial-heterogeneity-and-regression.html"><a href="spatial-heterogeneity-and-regression.html#spatial-regimes"><i class="fa fa-check"></i><b>13.2</b> Spatial regimes</a>
+<ul>
+<li class="chapter" data-level="13.2.1" data-path="spatial-heterogeneity-and-regression.html"><a href="spatial-heterogeneity-and-regression.html#fitting-the-constrained-and-the-unconstrained-models"><i class="fa fa-check"></i><b>13.2.1</b> Fitting the constrained and the unconstrained models</a></li>
+<li class="chapter" data-level="13.2.2" data-path="spatial-heterogeneity-and-regression.html"><a href="spatial-heterogeneity-and-regression.html#running-the-chow-test"><i class="fa fa-check"></i><b>13.2.2</b> Running the Chow test</a></li>
+<li class="chapter" data-level="13.2.3" data-path="spatial-heterogeneity-and-regression.html"><a href="spatial-heterogeneity-and-regression.html#spatial-dependence-with-spatial-heterogeneity"><i class="fa fa-check"></i><b>13.2.3</b> Spatial dependence with spatial heterogeneity</a></li>
+</ul></li>
+<li class="chapter" data-level="13.3" data-path="spatial-heterogeneity-and-regression.html"><a href="spatial-heterogeneity-and-regression.html#geographically-weighted-regression"><i class="fa fa-check"></i><b>13.3</b> Geographically Weighted Regression</a>
+<ul>
+<li class="chapter" data-level="13.3.1" data-path="spatial-heterogeneity-and-regression.html"><a href="spatial-heterogeneity-and-regression.html#calculate-kernel-bandwidth"><i class="fa fa-check"></i><b>13.3.1</b> Calculate kernel bandwidth</a></li>
+<li class="chapter" data-level="13.3.2" data-path="spatial-heterogeneity-and-regression.html"><a href="spatial-heterogeneity-and-regression.html#building-the-geographically-weighted-model"><i class="fa fa-check"></i><b>13.3.2</b> Building the geographically weighted model</a></li>
+<li class="chapter" data-level="13.3.3" data-path="spatial-heterogeneity-and-regression.html"><a href="spatial-heterogeneity-and-regression.html#using-gwr"><i class="fa fa-check"></i><b>13.3.3</b> Using GWR</a></li>
+</ul></li>
+<li class="chapter" data-level="13.4" data-path="spatial-heterogeneity-and-regression.html"><a href="spatial-heterogeneity-and-regression.html#summary-and-further-reading-9"><i class="fa fa-check"></i><b>13.4</b> Summary and further reading</a></li>
+</ul></li>
+<li class="chapter" data-level="14" data-path="appendix-a-quick-intro-to-r-and-rstudio.html"><a href="appendix-a-quick-intro-to-r-and-rstudio.html"><i class="fa fa-check"></i><b>14</b> Appendix: A quick intro to R and RStudio</a>
+<ul>
+<li class="chapter" data-level="14.1" data-path="appendix-a-quick-intro-to-r-and-rstudio.html"><a href="appendix-a-quick-intro-to-r-and-rstudio.html#exploring-rstudio"><i class="fa fa-check"></i><b>14.1</b> Exploring RStudio</a>
+<ul>
+<li class="chapter" data-level="14.1.1" data-path="appendix-a-quick-intro-to-r-and-rstudio.html"><a href="appendix-a-quick-intro-to-r-and-rstudio.html#the-four-panes-of-r-studio"><i class="fa fa-check"></i><b>14.1.1</b> The four panes of R Studio</a></li>
+</ul></li>
+<li class="chapter" data-level="14.2" data-path="appendix-a-quick-intro-to-r-and-rstudio.html"><a href="appendix-a-quick-intro-to-r-and-rstudio.html#customising-the-rstudio-look"><i class="fa fa-check"></i><b>14.2</b> Customising the RStudio look</a></li>
+<li class="chapter" data-level="14.3" data-path="appendix-a-quick-intro-to-r-and-rstudio.html"><a href="appendix-a-quick-intro-to-r-and-rstudio.html#elements-of-r-grammar"><i class="fa fa-check"></i><b>14.3</b> Elements of R grammar</a>
+<ul>
+<li class="chapter" data-level="14.3.1" data-path="appendix-a-quick-intro-to-r-and-rstudio.html"><a href="appendix-a-quick-intro-to-r-and-rstudio.html#functions"><i class="fa fa-check"></i><b>14.3.1</b> Functions</a></li>
+<li class="chapter" data-level="14.3.2" data-path="appendix-a-quick-intro-to-r-and-rstudio.html"><a href="appendix-a-quick-intro-to-r-and-rstudio.html#objects"><i class="fa fa-check"></i><b>14.3.2</b> Objects</a></li>
+<li class="chapter" data-level="14.3.3" data-path="appendix-a-quick-intro-to-r-and-rstudio.html"><a href="appendix-a-quick-intro-to-r-and-rstudio.html#types-of-objects"><i class="fa fa-check"></i><b>14.3.3</b> Types of objects</a></li>
+</ul></li>
+<li class="chapter" data-level="14.4" data-path="appendix-a-quick-intro-to-r-and-rstudio.html"><a href="appendix-a-quick-intro-to-r-and-rstudio.html#packages"><i class="fa fa-check"></i><b>14.4</b> Packages</a></li>
+<li class="chapter" data-level="14.5" data-path="appendix-a-quick-intro-to-r-and-rstudio.html"><a href="appendix-a-quick-intro-to-r-and-rstudio.html#exploring-data-with-r"><i class="fa fa-check"></i><b>14.5</b> Exploring data with R</a>
+<ul>
+<li class="chapter" data-level="14.5.1" data-path="appendix-a-quick-intro-to-r-and-rstudio.html"><a href="appendix-a-quick-intro-to-r-and-rstudio.html#playing-around-with-data"><i class="fa fa-check"></i><b>14.5.1</b> Playing around with data</a></li>
+</ul></li>
+<li class="chapter" data-level="14.6" data-path="appendix-a-quick-intro-to-r-and-rstudio.html"><a href="appendix-a-quick-intro-to-r-and-rstudio.html#getting-organised-r-projects"><i class="fa fa-check"></i><b>14.6</b> Getting organised: R Projects</a></li>
+<li class="chapter" data-level="14.7" data-path="appendix-a-quick-intro-to-r-and-rstudio.html"><a href="appendix-a-quick-intro-to-r-and-rstudio.html#summary-and-further-reading-10"><i class="fa fa-check"></i><b>14.7</b> Summary and further reading</a></li>
+</ul></li>
+<li class="chapter" data-level="15" data-path="appendix-b-regression-analysis-a-refresher.html"><a href="appendix-b-regression-analysis-a-refresher.html"><i class="fa fa-check"></i><b>15</b> Appendix B: Regression analysis (a refresher)</a>
+<ul>
+<li class="chapter" data-level="15.1" data-path="appendix-b-regression-analysis-a-refresher.html"><a href="appendix-b-regression-analysis-a-refresher.html#introduction-11"><i class="fa fa-check"></i><b>15.1</b> Introduction</a></li>
+<li class="chapter" data-level="15.2" data-path="appendix-b-regression-analysis-a-refresher.html"><a href="appendix-b-regression-analysis-a-refresher.html#motivating-regression"><i class="fa fa-check"></i><b>15.2</b> Motivating regression</a></li>
+<li class="chapter" data-level="15.3" data-path="appendix-b-regression-analysis-a-refresher.html"><a href="appendix-b-regression-analysis-a-refresher.html#fitting-a-simple-regression-model"><i class="fa fa-check"></i><b>15.3</b> Fitting a simple regression model</a></li>
+<li class="chapter" data-level="15.4" data-path="appendix-b-regression-analysis-a-refresher.html"><a href="appendix-b-regression-analysis-a-refresher.html#residuals-revisited-r-squared"><i class="fa fa-check"></i><b>15.4</b> Residuals revisited: R squared</a></li>
+<li class="chapter" data-level="15.5" data-path="appendix-b-regression-analysis-a-refresher.html"><a href="appendix-b-regression-analysis-a-refresher.html#inference-with-regression"><i class="fa fa-check"></i><b>15.5</b> Inference with regression</a></li>
+<li class="chapter" data-level="15.6" data-path="appendix-b-regression-analysis-a-refresher.html"><a href="appendix-b-regression-analysis-a-refresher.html#fitting-regression-with-categorical-predictors"><i class="fa fa-check"></i><b>15.6</b> Fitting regression with categorical predictors</a></li>
+<li class="chapter" data-level="15.7" data-path="appendix-b-regression-analysis-a-refresher.html"><a href="appendix-b-regression-analysis-a-refresher.html#motivating-multiple-regression"><i class="fa fa-check"></i><b>15.7</b> Motivating multiple regression</a></li>
+<li class="chapter" data-level="15.8" data-path="appendix-b-regression-analysis-a-refresher.html"><a href="appendix-b-regression-analysis-a-refresher.html#fitting-and-interpreting-a-multiple-regression-model"><i class="fa fa-check"></i><b>15.8</b> Fitting and interpreting a multiple regression model</a></li>
+<li class="chapter" data-level="15.9" data-path="appendix-b-regression-analysis-a-refresher.html"><a href="appendix-b-regression-analysis-a-refresher.html#presenting-your-regression-results."><i class="fa fa-check"></i><b>15.9</b> Presenting your regression results.</a></li>
+<li class="chapter" data-level="15.10" data-path="appendix-b-regression-analysis-a-refresher.html"><a href="appendix-b-regression-analysis-a-refresher.html#rescaling-input-variables-to-assist-interpretation"><i class="fa fa-check"></i><b>15.10</b> Rescaling input variables to assist interpretation</a></li>
+<li class="chapter" data-level="15.11" data-path="appendix-b-regression-analysis-a-refresher.html"><a href="appendix-b-regression-analysis-a-refresher.html#testing-conditional-hypothesis-interactions"><i class="fa fa-check"></i><b>15.11</b> Testing conditional hypothesis: interactions</a></li>
+<li class="chapter" data-level="15.12" data-path="appendix-b-regression-analysis-a-refresher.html"><a href="appendix-b-regression-analysis-a-refresher.html#model-building-and-variable-selection"><i class="fa fa-check"></i><b>15.12</b> Model building and variable selection</a></li>
+<li class="chapter" data-level="15.13" data-path="appendix-b-regression-analysis-a-refresher.html"><a href="appendix-b-regression-analysis-a-refresher.html#regression-assumptions"><i class="fa fa-check"></i><b>15.13</b> Regression assumptions</a></li>
+<li class="chapter" data-level="15.14" data-path="appendix-b-regression-analysis-a-refresher.html"><a href="appendix-b-regression-analysis-a-refresher.html#summary-and-further-reading-11"><i class="fa fa-check"></i><b>15.14</b> Summary and further reading</a></li>
+</ul></li>
+<li class="chapter" data-level="16" data-path="appendix-c-sourcing-geographical-data-for-crime-analysis.html"><a href="appendix-c-sourcing-geographical-data-for-crime-analysis.html"><i class="fa fa-check"></i><b>16</b> Appendix C: sourcing geographical data for crime analysis</a>
+<ul>
+<li class="chapter" data-level="16.1" data-path="appendix-c-sourcing-geographical-data-for-crime-analysis.html"><a href="appendix-c-sourcing-geographical-data-for-crime-analysis.html#the-rnaturalearth-package"><i class="fa fa-check"></i><b>16.1</b> The rnaturalearth package</a></li>
+<li class="chapter" data-level="16.2" data-path="appendix-c-sourcing-geographical-data-for-crime-analysis.html"><a href="appendix-c-sourcing-geographical-data-for-crime-analysis.html#data-from-apis"><i class="fa fa-check"></i><b>16.2</b> Data from APIs</a></li>
+<li class="chapter" data-level="16.3" data-path="appendix-c-sourcing-geographical-data-for-crime-analysis.html"><a href="appendix-c-sourcing-geographical-data-for-crime-analysis.html#data-from-data-repositories"><i class="fa fa-check"></i><b>16.3</b> Data from data repositories</a>
+<ul>
+<li class="chapter" data-level="16.3.1" data-path="appendix-c-sourcing-geographical-data-for-crime-analysis.html"><a href="appendix-c-sourcing-geographical-data-for-crime-analysis.html#international-resources"><i class="fa fa-check"></i><b>16.3.1</b> International resources</a></li>
+</ul></li>
+<li class="chapter" data-level="16.4" data-path="appendix-c-sourcing-geographical-data-for-crime-analysis.html"><a href="appendix-c-sourcing-geographical-data-for-crime-analysis.html#open-street-map"><i class="fa fa-check"></i><b>16.4</b> Open Street Map</a></li>
+<li class="chapter" data-level="16.5" data-path="appendix-c-sourcing-geographical-data-for-crime-analysis.html"><a href="appendix-c-sourcing-geographical-data-for-crime-analysis.html#summary-and-further-reading-12"><i class="fa fa-check"></i><b>16.5</b> Summary and further reading</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+<li class="divider"></li>
+<li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Crime Mapping and Spatial Data Analysis using R</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="spatial-regression-models" class="section level1" number="12">
+<h1><span class="header-section-number">Chapter 12</span> Spatial regression models</h1>
+<div id="introduction-9" class="section level2" number="12.1">
+<h2><span class="header-section-number">12.1</span> Introduction</h2>
+<p>In science one of our main concerns is to develop models of the world, models that help us to understand the world a bit better or to predict how things will develop better. Crime analysis also is interested in understanding the processes that may drive crime. This is a key element in the SARA process (<em>analysis</em>) that form part of the problem oriented policing approach <span class="citation">(<a href="#ref-Eck_1997" role="doc-biblioref">Eck and Spelman 1997</a>)</span>. Statistics provides a set of tools that help researchers build and test scientific models, and to develop predictions. Our models can be simple. We can think that unemployment is a factor that may help us to understand why cities differ in their level of violent crime. We could express such a model like this:</p>
+<div class="figure"><span id="fig:unnamed-chunk-339"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-339-1.png" alt="A simple model" width="672" />
+<p class="caption">
+FIGURE 12.1: A simple model
+</p>
+</div>
+<p>Surely we know the world is complex and likely there are other things that may help us to understand why some cities have more crime than others. So, we may want to have tools that allow us to examine such models. Like, for example, the one below:</p>
+<div class="figure"><span id="fig:unnamed-chunk-340"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-340-1.png" alt="A slightly less simple model" width="672" />
+<p class="caption">
+FIGURE 12.2: A slightly less simple model
+</p>
+</div>
+<p>In this chapter we cover regression analysis for spatial data, a key tool for testing models. Regression is a flexible technique that allows you to “explain” or “predict” a given outcome, variously called your outcome, response or dependent variable, as a function of a number of what is variously called inputs, features or independent, explanatory, or predictive variables. We assume that you have covered regression analysis in previous training. If that is not the case or you want a quick refresher, we suggest you consult <em>Appendix B: Regression analysis (a refresher)</em> in the website for this book. Our focus in this chapter will be in a series of regression models that are appropriate when your data has a spatial structure.</p>
+<p>There is a large and developing field, spatial econometrics, dedicated to develop this kind of models. Traditionally these models were fit using maximum likelihood, whereas in the last few years we have seen the development of new approaches. There has also been some parallel developments in different disciplines, some of which have emphasised <strong>simultaneous autoregressive models</strong> and others (such as disease mapping) that have emphasised <strong>conditional autoregressive models</strong>. If these terms are not clear, do not worry, we will come back to them later on. This is a practical R focused introductory text and, therefore, we cannot cover all the nuisance associated with some of these differences and the richness of spatial econometrics. Here we will just simply introduce some of the key concepts and more basic models for cross sectional spatial data, illustrate them through a practical example, and later on will provide guidance to more in depth literature.</p>
+<p>We need to load the libraries we will use in this chapter. Although there are various packages that can be used to fit spatial regression models, particularly if you are willing to embrace a Bayesian approach, our focus in this chapter will be on <code>spatialreg</code>. This package contains the estimation functions for spatial cross sectional models that before were shipped as part of <code>spdep</code>, <code>sphet</code>, and <code>spse</code>. There are various ways of thinking about spatial regression, here we will focus in those that rely on frequentist methods and a spatial weight matrix (to articulate the spatial nature of the data).</p>
+<div class="sourceCode" id="cb538"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb538-1"><a href="spatial-regression-models.html#cb538-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Packages for handling spatial data and for geospatial carpentry</span></span>
+<span id="cb538-2"><a href="spatial-regression-models.html#cb538-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
+<span id="cb538-3"><a href="spatial-regression-models.html#cb538-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sp)</span>
+<span id="cb538-4"><a href="spatial-regression-models.html#cb538-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(spdep)</span>
+<span id="cb538-5"><a href="spatial-regression-models.html#cb538-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Packages for regression and spatial regression</span></span>
+<span id="cb538-6"><a href="spatial-regression-models.html#cb538-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(arm)</span>
+<span id="cb538-7"><a href="spatial-regression-models.html#cb538-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(effects)</span>
+<span id="cb538-8"><a href="spatial-regression-models.html#cb538-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(spatialreg)</span>
+<span id="cb538-9"><a href="spatial-regression-models.html#cb538-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Packages for mapping and visualisation</span></span>
+<span id="cb538-10"><a href="spatial-regression-models.html#cb538-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tmap)</span>
+<span id="cb538-11"><a href="spatial-regression-models.html#cb538-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb538-12"><a href="spatial-regression-models.html#cb538-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Packages with spatial datasets</span></span>
+<span id="cb538-13"><a href="spatial-regression-models.html#cb538-13" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(geodaData)</span></code></pre></div>
+<p>Here we will return to the “ncovr” data we have used in previous chapters. This dataset was produced as part of the National Consortium on Violence Research (NCOVR) agenda, a National Science Foundation initiative that was led by Al Blumstein. A piece of work that resulted from this initiative was the paper led by Robert Baller in <em>Criminology</em>, for which this data was compiled <span class="citation">(<a href="#ref-Baller_2001" role="doc-biblioref">Baller et al. 2001</a>)</span>. This paper co-authored by Luc Anselin, one of the key figures in the field of spatial econometrics, run and describes spatial regression models of the kind we cover in this chapter with this dataset. It would be helpful, thus, to read that piece in parallel to this chapter.</p>
+<div class="sourceCode" id="cb539"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb539-1"><a href="spatial-regression-models.html#cb539-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;ncovr&quot;</span>)</span></code></pre></div>
+</div>
+<div id="challenges-for-regression-with-spatial-data" class="section level2" number="12.2">
+<h2><span class="header-section-number">12.2</span> Challenges for regression with spatial data</h2>
+<p>There are a number of issues when it comes to fitting regression with spatial data. We will highlight three: validity, spatial dependence, and spatial heterogeneity. One, validity, is common to regression in general, although with spatial data it acquires particular relevance. The other two (spatial dependence and spatial heterogeneity) are typical of spatial data.</p>
+<p>The most important assumption of regression is that of <strong>validity</strong>. The data should be appropriate for the question that you are trying to answer. As noted by <span class="citation"><a href="#ref-Gelman_2007" role="doc-biblioref">Gelman and Hill</a> (<a href="#ref-Gelman_2007" role="doc-biblioref">2007</a>)</span>:</p>
+<blockquote>
+<p>“Optimally, this means that the outcome measure should accurately reflect the phenomenon of interest, the model should include all relevant predictors, and the model should generalize to all cases to which it will be applied… Data used in empirical research rarely meet all (if any) of these criteria precisely. However, keeping these goals in mind can help you be precise about the types of questions you can and cannot answer reliably”</p>
+</blockquote>
+<p>Although validity is a key assumption for regression, whether spatial or not, it is the case that the features of spatial data make it particularly challenging (as discussed in detail by <span class="citation"><a href="#ref-Haining_2003" role="doc-biblioref">Haining</a> (<a href="#ref-Haining_2003" role="doc-biblioref">2003</a>)</span>).</p>
+<p>The second challenge is <strong>spatial dependence</strong>. A key assumption of regression analysis is the independence between the observations. That is, a regression model is formally assuming that what happens in area <span class="math inline">\(X_i\)</span> is not in any way related (it is independent) of what happens in area <span class="math inline">\(X_{ii}\)</span>. But if those two areas are adjacent or proximal in geographical space we know that there is a good chance that this assumption may be violated. Values that are close together in space are unlikely to be independent. Crime levels, for example, tend to be similar in areas that are close to each other. The problem for regression is not so much autocorrelation in the response or dependent variable, but the remaining autocorrelation in the residuals. If the spatial autocorrelation of our outcome <span class="math inline">\(y\)</span> is fully accounted by the spatial structure of the observed predictor variables in our model, we don´t really have a problem. On the other hand, when the residuals of your model display spatial autocorrelation you are violating an assumption of the standard regression model, and you need to find a solution for this.</p>
+<p>When positive spatial autocorrelation is observed, using a regression model that assumes independent errors will lead to an underestimation of the uncertainty around your parameters (or overestimation if the autocorrelation is negative). With positive spatial autocorrelation you will be more likely to engage in a Type I error (concluding the coefficient for a given predictor is not zero when this decision is not justified). Essentially, we have less degrees of freedom, as <span class="citation"><a href="#ref-Haining_2020" role="doc-biblioref">Haining and Li</a> (<a href="#ref-Haining_2020" role="doc-biblioref">2020</a>)</span> notes for positive spatial autocorrelation (the most common case in crime analysis and social science):</p>
+<blockquote>
+<p>“Underlying the results… is the fact that ´less information´ about the parameter of interest… is contained in a dataset where observations are positively autocorrelated… The term ´effective´ sample size has been coined and used to measure the information content in a set of autocorrelated data. Compared with the case of N independent observations, if we have N autocorrelated data values then the effective sample size is less than N (how much less depends on how strongly autocorrelated values are). The effective sample size can be thought of as the <em>equivalent number of independent observations available for estimating the parameter</em>… It is this reduction in the information content of the data that increases the uncertainty of the parameter estimate… This arises because each observation contains what might call ´overlapping´ or ´duplicate´ information about other observations” (p. 7)</p>
+</blockquote>
+<p>In previous weeks we covered formal tests for spatial autocorrelation, which allow us to test whether this is a feature of our dependent (or predictor) variable. So before we fit a regression model with spatial data we need to explore the issue of autocorrelation in the attributes of interest, but critically what we need to establish is whether there is spatial autocorrelation in the residuals. In this session, we will see that there are two basic ways of adjusting for spatial autocorrelation: through a spatial lag model or through a spatial error model. Although there are multiple types of spatial regression models (see <span class="citation"><a href="#ref-Anselin_2014" role="doc-biblioref">Anselin and Rey</a> (<a href="#ref-Anselin_2014" role="doc-biblioref">2014</a>)</span>, <span class="citation"><a href="#ref-Bivand_2021" role="doc-biblioref">Bivand, Millo, and Piras</a> (<a href="#ref-Bivand_2021" role="doc-biblioref">2021</a>)</span>, <span class="citation"><a href="#ref-Chi_2020" role="doc-biblioref">Chi and Zhu</a> (<a href="#ref-Chi_2020" role="doc-biblioref">2020</a>)</span>, and <span class="citation"><a href="#ref-Beale_2010" role="doc-biblioref">Beale et al.</a> (<a href="#ref-Beale_2010" role="doc-biblioref">2010</a>)</span>, specifically for a review of their relative performance), these are the two basic forms that you probably (particularly if your previous statistical training sits in the frequentist tradition) need to understand before you get into other types.</p>
+<p>A third challenge for regression models with spatial data is <strong>spatial heterogeneity</strong> (also referred to as <strong>non-stationarity</strong>). We already discussed the concept of spatial homogeneity when introducing the study of point patterns. In that context we defined spatial homogeneity as the homogeneous intensity of the point pattern across the study surface. But spatial homogeneity is a more general concept that applies to other statistical properties. In the context of lattice or area level data it may refer to the mean value of an attribute (such as crime rate) across areas but it could also refer to how other variables are related to our outcome of interest across the study region. It could be the case, for example, that some predictors display spatial structure in how they affect the outcome. It could be, for example, that presence of licensed premises to sell alcohol have a different impact on the level of violent crime in different types of communities in our study region. If there is spatial heterogeneity in these relationships we need to account for it. We could deal with this challenge through some form of data partition, spatial regime, or local regression model (where we allow the regression coefficient to be area specific) such as geographically weighted regression. We will discuss this third challenge to regression in greater detail in the next chapter.</p>
+<p>Not so much a challenge but an important limitation is the presence of missing data. Unlike in standard data analysis where you have a sample of <span class="math inline">\(n\)</span> observations and there are a number of approaches to impute missing data. In the context of spatial econometrics, you only have <strong>one</strong> realisation of the data generating mechanism. As such, if there is missing data for some of the areas, the models cannot be estimated, although some solutions have been proposed when the percentage of missing cases is very small (see <span class="citation"><a href="#ref-Floch_2018" role="doc-biblioref">Floch and LeSaout</a> (<a href="#ref-Floch_2018" role="doc-biblioref">2018</a>)</span>).</p>
+<p>In general, the development of a spatial regression model requires taking into account these challenges. There are various aspects that building the model will require <span class="citation">(<a href="#ref-Kopczewska_2021" role="doc-biblioref">Kopczewska 2021</a>)</span>; selecting the right model for the data at hand, the estimation method, and the model specification (variables to include).</p>
+</div>
+<div id="fitting-a-non-spatial-regression-model-with-r" class="section level2" number="12.3">
+<h2><span class="header-section-number">12.3</span> Fitting a non-spatial regression model with R</h2>
+<p>The standard approach traditionally was to start with a non-spatial linear regression model and then to test whether or not this baseline model needs to be extended with spatial effects <span class="citation">(<a href="#ref-Elhorst_2014" role="doc-biblioref">Elhorst 2014</a>)</span>. Given we need to check autocorrelation in residuals, part of the workflow for modelling through regression spatial data will involve fitting a non spatial regression model. In order to fit the model we use the <code>stats::lm()</code> function using the formula specification <code>(Y ~ X)</code>. Typically you want to store your regression model in a “variable,” let’s call it “fit1_90.” Here we model homicide rate in the 1990s (<code>HR90</code>) using, to start with, just two variables of interest, <code>RD90</code>- Resource Deprivation/Affluence, and <code>SOUTH</code> - Counties in the southern region scored 1.</p>
+<div class="sourceCode" id="cb540"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb540-1"><a href="spatial-regression-models.html#cb540-1" aria-hidden="true" tabindex="-1"></a>ncovr<span class="sc">$</span>SOUTH_f <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(ncovr<span class="sc">$</span>SOUTH) <span class="co"># specify this is a categorical variable</span></span>
+<span id="cb540-2"><a href="spatial-regression-models.html#cb540-2" aria-hidden="true" tabindex="-1"></a>fit1_90 <span class="ot">&lt;-</span> <span class="fu">lm</span>(HR90 <span class="sc">~</span> RD90 <span class="sc">+</span> SOUTH_f, <span class="at">data=</span>ncovr)</span></code></pre></div>
+<p>You will see in your R Studio global environment space that there is a new object called <code>fit1_90</code> with 13 elements on it. We can get a sense for what this object is and includes using the functions we introduced in previous weeks:</p>
+<div class="sourceCode" id="cb541"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb541-1"><a href="spatial-regression-models.html#cb541-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(fit1_90)</span>
+<span id="cb541-2"><a href="spatial-regression-models.html#cb541-2" aria-hidden="true" tabindex="-1"></a><span class="fu">attributes</span>(fit1_90)</span></code></pre></div>
+<p>R is telling us that this is an object of class <code>lm</code> and that it includes a number of attributes. One of the beauties of R is that you are producing all the results from running the model, putting them in an object, and then giving you the opportunity for using them later on. If you want to simply see the basic results from running the model you can use the standard <code>summary()</code> function.</p>
+<div class="sourceCode" id="cb542"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb542-1"><a href="spatial-regression-models.html#cb542-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit1_90)</span></code></pre></div>
+<pre><code>## 
+## Call:
+## lm(formula = HR90 ~ RD90 + SOUTH_f, data = ncovr)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+## -16.48  -3.00  -0.58   2.22  68.15 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)    4.727      0.139    33.9   &lt;2e-16 ***
+## RD90           2.965      0.111    26.8   &lt;2e-16 ***
+## SOUTH_f1       3.181      0.222    14.3   &lt;2e-16 ***
+## ---
+## Signif. codes:  
+## 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 5.3 on 3082 degrees of freedom
+## Multiple R-squared:  0.365,  Adjusted R-squared:  0.364 
+## F-statistic:  884 on 2 and 3082 DF,  p-value: &lt;2e-16</code></pre>
+<p>The coefficients suggest that, according to our fitted model, when comparing two counties with the same level of resource deprivation, the homicide rate on average will be about 3 points higher in the Southern counties than in the Northern counties. And when comparing counties “adjusting” for their location, the homicide rate will be also around 3 points higher for every one unit increase in the measure of resource deprivation. Although it is tempting to talk of the “effect” of these variables in the outcome (homicide rate), this can mislead yourself and your reader about the capacity of your analysis to establish causality, so it is safer to interpret regression coefficients as comparisons <span class="citation">(<a href="#ref-Gelman_2020" role="doc-biblioref">Gelman, Hill, and Vehtari 2020</a>)</span>.</p>
+<p>With more than one input, you need to ask yourself whether all of the regression coefficients are zero. This hypothesis is tested with a F test. Again we are assuming the residuals are normally distributed, though with large samples the F statistics approximates the F distribution. You see the F test printed at the bottom of the summary output and the associated p value, which in this case is way below the conventional .05 that we use to declare statistical significance and reject the null hypothesis. At least one of our inputs must be related to our response variable. Notice that the table printed also reports a t test for each of the predictors. These are testing whether each of these predictors is associated with the response variable when adjusting for the other variables in the model. They report the “partial effect of adding that variable to the model” <span class="citation">(<a href="#ref-James_2013" role="doc-biblioref">James et al. 2013</a>: 77)</span>. In this case we can see that all inputs seem to be significantly associated with the output.</p>
+<p>The interpretation or regression coefficients is sensitive to the scale of measurement of the predictors. This means one cannot compare the magnitude of the coefficients to compare the relevance of variables to predict the response variable. One way of dealing with this is by rescaling the input variables. A common method involves subtracting the mean and dividing by the standard deviation of each numerical input. The coefficients in these models is the expected difference in the response variable, comparing units that differ by one standard deviation in the predictor while adjusting for other predictors in the model. Instead, <span class="citation"><a href="#ref-Gelman_2008" role="doc-biblioref">Gelman</a> (<a href="#ref-Gelman_2008" role="doc-biblioref">2008</a>)</span> has proposed dividing each numeric variables <em>by two times its standard deviation</em>, so that the generic comparison is with inputs equal to plus/minus one standard deviation. As Gelman explains the resulting coefficients are then comparable to untransformed binary predictors. The implementation of this approach in the <code>arm</code> package subtract the mean of each binary input while it subtract the mean and divide by two standard deviations for every numeric input. The way we would obtain these rescaled inputs uses the <code>standardize()</code> function of the <code>arm</code> package, that takes as an argument the name of the stored fit model.</p>
+<div class="sourceCode" id="cb544"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb544-1"><a href="spatial-regression-models.html#cb544-1" aria-hidden="true" tabindex="-1"></a><span class="fu">standardize</span>(fit1_90)</span></code></pre></div>
+<pre><code>## 
+## Call:
+## lm(formula = HR90 ~ z.RD90 + c.SOUTH_f, data = ncovr)
+## 
+## Coefficients:
+## (Intercept)       z.RD90    c.SOUTH_f  
+##        6.18         5.93         3.18</code></pre>
+<p>Notice the main change affects the numerical predictors. The unstandardised coefficients are influenced by the degree of variability in your predictors, which means that typically they will be larger for your binary inputs. With unstandardised coefficients you are comparing complete change in one variable (whether one is a Southern county or not) with one-unit changes in your numerical variable, which may not amount to much change. So, by putting in a comparable scale, you avoid this problem. Standardising in the way described here will help you to make fairer comparisons. This standardised coefficients are comparable in a way that the unstandardised coefficients are not. We can now see what inputs have a comparatively stronger effect. It is very important to realise, though, that one <strong>should not</strong> compare standardised coefficients <em>across different models</em>.</p>
+<p>In the social sciences there is a great interest in what are called conditional hypothesis or interactions. Many of our theories do not assume simply <strong>additive effects</strong> but <strong>multiplicative effects</strong>. For example, you may think that a particular crime prevention programme may work in some environments but not in others. The interest in this kind of conditional hypothesis is growing. One of the assumptions of the regression model is that the relationship between the response variable and your predictors is additive. That is, if you have two predictors <span class="math inline">\(x_1\)</span> and <span class="math inline">\(x_2\)</span>. Regression assumes that the effect of <span class="math inline">\(x1\)</span> on <span class="math inline">\(y\)</span> is the same at all levels of <span class="math inline">\(x_2\)</span>. If that is not the case, you are then violating one of the assumptions of regression. This is in fact one of the most important assumptions of regression, even if researchers often overlook it.</p>
+<p>One way of extending our model to accommodate for interaction effects is to add additional terms to our model, a third predictor <span class="math inline">\(x_3\)</span>, where <span class="math inline">\(x_3\)</span> is simply the product of multiplying <span class="math inline">\(x_1\)</span> by <span class="math inline">\(x_2\)</span>. Notice we keep a term for each of the <strong>main effects</strong> (the original predictors) as well as a new term for the interaction effect. “Analysts should include all constitutive terms when specifying multiplicative interaction models except in very rare circumstances” <span class="citation">(<a href="#ref-Brambor_2006" role="doc-biblioref">Brambor, Clark, and Golder 2006</a>: 66)</span>.</p>
+<p>How do we do this in R? One way is to use the following notation in the formula argument. Notice how we have added a third term <code>RD90:SOUTH_f</code>, which is asking R to test the conditional hypothesis that resource deprivation may have a different impact on homicide for southern and northern counties.</p>
+<div class="sourceCode" id="cb546"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb546-1"><a href="spatial-regression-models.html#cb546-1" aria-hidden="true" tabindex="-1"></a>fit2_90 <span class="ot">&lt;-</span> <span class="fu">lm</span>(HR90 <span class="sc">~</span> RD90 <span class="sc">+</span> SOUTH_f <span class="sc">+</span> RD90<span class="sc">:</span>SOUTH_f , <span class="at">data=</span>ncovr)</span>
+<span id="cb546-2"><a href="spatial-regression-models.html#cb546-2" aria-hidden="true" tabindex="-1"></a><span class="co"># which is equivalent to: </span></span>
+<span id="cb546-3"><a href="spatial-regression-models.html#cb546-3" aria-hidden="true" tabindex="-1"></a><span class="co"># fit_2 &lt;- lm(HR90 ~ RD90 * SOUTH_f , data=ncovr)</span></span>
+<span id="cb546-4"><a href="spatial-regression-models.html#cb546-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit2_90)</span></code></pre></div>
+<pre><code>## 
+## Call:
+## lm(formula = HR90 ~ RD90 + SOUTH_f + RD90:SOUTH_f, data = ncovr)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+## -17.05  -3.00  -0.57   2.23  68.14 
+## 
+## Coefficients:
+##               Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)      4.548      0.159   28.68   &lt;2e-16 ***
+## RD90             2.581      0.196   13.15   &lt;2e-16 ***
+## SOUTH_f1         3.261      0.225   14.51   &lt;2e-16 ***
+## RD90:SOUTH_f1    0.562      0.238    2.37    0.018 *  
+## ---
+## Signif. codes:  
+## 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 5.29 on 3081 degrees of freedom
+## Multiple R-squared:  0.366,  Adjusted R-squared:  0.365 
+## F-statistic:  592 on 3 and 3081 DF,  p-value: &lt;2e-16</code></pre>
+<p>You see here that essentially you have only two inputs (resource deprivation and south) but several regression coefficients. <span class="citation"><a href="#ref-Gelman_2007" role="doc-biblioref">Gelman and Hill</a> (<a href="#ref-Gelman_2007" role="doc-biblioref">2007</a>)</span> suggest reserving the term input for the variables encoding the information and to use the term predictor to refer to each of the terms in the model. So here we have two inputs and three predictors (one for SOUTH, another for resource deprivation, and a final one for the interaction effect). In this case the test for the interaction effect is significant, which suggests there may be such an interaction. Let’s visualise the results with the <code>effects</code> package:</p>
+<div class="sourceCode" id="cb548"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb548-1"><a href="spatial-regression-models.html#cb548-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">allEffects</span>(fit2_90), <span class="at">ask=</span><span class="cn">FALSE</span>)</span></code></pre></div>
+<div class="figure"><span id="fig:unnamed-chunk-348"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-348-1.png" alt="Effect plots for effect if South varaible on relationship between homicide rate and resource deprivation" width="672" />
+<p class="caption">
+FIGURE 12.3: Effect plots for effect if South varaible on relationship between homicide rate and resource deprivation
+</p>
+</div>
+<p>Notice that essentially what we are doing is running two regression lines and testing whether the slope is different for the two groups. The intercept is different, we know that Southern counties are more violent, but what we are testing here is whether the level of homicide goes up in a steeper fashion (and in the same direction) for one or the other group as the level of resource deprivation goes up. We see that’s the case here. The estimated lines are almost parallel, but the slope is a bit steeper in the Southern counties. In Southern counties resource deprivation seems to have more of an impact on homicide than in Northern counties. This is related to one of the issues we raised earlier regarding spatial regression, that of hetereogeneity. Here what we see is that there some evidence of non-stationarity in the relationship between our predictors and our outcome.</p>
+<p>A word of warning about interactions, the moment you introduce an interaction effect the meaning of the coefficients for the other predictors changes (what it is often referred as to the “main effects” as opposed to the interaction effect). You cannot retain the interpretation we introduced earlier. Now, for example, the coefficient for the <code>SOUTH</code> variable relates the marginal effect of this variable when <code>RD90</code> equals zero. The typical table of results helps you to understand whether the effects are significant but offers little of interest that will help you to meaningfully interpret what the effects are. For this is better you use some of the graphical displays we have covered.</p>
+<p>Essentially what happens is that the regression coefficients that get printed are interpretable only for certain groups. So now:</p>
+<ul>
+<li><p>The intercept still represents the predicted score of homicide for southern counties and have a score of 0 in resource deprivation (as before).</p></li>
+<li><p>The coefficient of <em>SOUTH_f1</em> now can be thought of as the difference between the predicted score of homicide rate for northern counties <em>that have a score of 0 in resource deprivation</em> and northern counties <em>that have a score of 0 in resource deprivation</em>.</p></li>
+<li><p>The coefficient of <em>RD90</em> now becomes the comparison of mean homicide rate <em>for Southern</em> counties who differ by one point in resource deprivation.</p></li>
+<li><p>The coefficient for the interaction term represents the difference in the slope for <em>RD90</em> comparing Southern and Northern counties, the difference in the slope of the two lines that we visualised above.</p></li>
+</ul>
+<p>Models with interaction terms are too often misinterpreted. We strongly recommend you read <span class="citation"><a href="#ref-Brambor_2006" role="doc-biblioref">Brambor, Clark, and Golder</a> (<a href="#ref-Brambor_2006" role="doc-biblioref">2006</a>)</span> to understand some of the issues involved.</p>
+</div>
+<div id="looking-at-the-residuals-and-testing-for-spatial-autocorrelation-in-regression" class="section level2" number="12.4">
+<h2><span class="header-section-number">12.4</span> Looking at the residuals and testing for spatial autocorrelation in regression</h2>
+<p>Residuals measure the distance between our observed Y values, <span class="math inline">\(Y\)</span>, and the predicted Y values, <span class="math inline">\(\hat{Y}\)</span>. So in essence they are deviations of observed reality from your model. Your regression line (or hyperplane in the case of multiple regression) is optimised to be the one that best represent your data if the assumptions of the model are met. Residuals are very helpful to diagnose, then, whether your model is a good representation of reality or not. Most diagnostics of the assumptions for regression rely on exploring the residuals.</p>
+<p>Now that we have fitted the model we can extract the residuals. If you look at the “fit_1” object in your RStudio environment or if you run the <code>str()</code> function to look inside this object you will see that this object is a list with different elements, one of which is the residuals. An element of this object then includes the residual for each of your observations (the difference between the observed value and the value predicted by your model). We can extract the residuals using the <code>residuals()</code> function and add them to our spatial data set. Let´s fit a model with all the key predictors available in the dataset and inspect the residuals.</p>
+<div class="sourceCode" id="cb549"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb549-1"><a href="spatial-regression-models.html#cb549-1" aria-hidden="true" tabindex="-1"></a><span class="co"># write model into object to save typing later</span></span>
+<span id="cb549-2"><a href="spatial-regression-models.html#cb549-2" aria-hidden="true" tabindex="-1"></a>eq1_90 <span class="ot">&lt;-</span> HR90 <span class="sc">~</span> RD90 <span class="sc">+</span> PS90 <span class="sc">+</span> MA90 <span class="sc">+</span> DV90 <span class="sc">+</span> UE90 <span class="sc">+</span> SOUTH_f</span>
+<span id="cb549-3"><a href="spatial-regression-models.html#cb549-3" aria-hidden="true" tabindex="-1"></a>fit3_90 <span class="ot">&lt;-</span> <span class="fu">lm</span>(eq1_90, <span class="at">data=</span>ncovr)</span>
+<span id="cb549-4"><a href="spatial-regression-models.html#cb549-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit3_90)</span></code></pre></div>
+<pre><code>## 
+## Call:
+## lm(formula = eq1_90, data = ncovr)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+## -17.64  -2.61  -0.70   1.65  68.51 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)   6.5165     1.0240    6.36  2.3e-10 ***
+## RD90          3.8723     0.1427   27.13  &lt; 2e-16 ***
+## PS90          1.3529     0.1003   13.49  &lt; 2e-16 ***
+## MA90         -0.1011     0.0274   -3.69  0.00023 ***
+## DV90          0.5829     0.0545   10.69  &lt; 2e-16 ***
+## UE90         -0.3059     0.0409   -7.47  1.0e-13 ***
+## SOUTH_f1      2.1941     0.2205    9.95  &lt; 2e-16 ***
+## ---
+## Signif. codes:  
+## 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 4.99 on 3078 degrees of freedom
+## Multiple R-squared:  0.436,  Adjusted R-squared:  0.435 
+## F-statistic:  397 on 6 and 3078 DF,  p-value: &lt;2e-16</code></pre>
+<div class="sourceCode" id="cb551"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb551-1"><a href="spatial-regression-models.html#cb551-1" aria-hidden="true" tabindex="-1"></a>ncovr<span class="sc">$</span>res_fit3 <span class="ot">&lt;-</span> <span class="fu">residuals</span>(fit3_90)</span></code></pre></div>
+<p>If you now look at the dataset you will see that there is a new variable with the residuals. In those cases where the residual is negative this is telling us that the observed value is lower than the predicted (that is, our model is <em>overpredicting</em> the level of homicide for that observation) when the residual is positive the observed value is higher than the predicted (that is, our model is <em>underpredicting</em> the level of homicide for that observation).</p>
+<p>We could also extract the predicted values if we wanted. We would use the <code>fitted()</code> function.</p>
+<div class="sourceCode" id="cb552"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb552-1"><a href="spatial-regression-models.html#cb552-1" aria-hidden="true" tabindex="-1"></a>ncovr<span class="sc">$</span>fitted_fit3 <span class="ot">&lt;-</span> <span class="fu">fitted</span>(fit3_90)</span></code></pre></div>
+<p>Now look, for example, at the second county in the dataset: the county of Ferry in Washington. It had a homicide rate in 1990 of 15.89. This is the observed value. If we look at the new column we have created (“fitted_fit1”), our model predicts a homicide rate of 2.42. That is, knowing the level of resource deprivation and all the other explanatory variables (and assuming they are related in an additive manner to the outcome), we are predicting a homicide rate of 2.42. Now, this is lower than the observed value, so our model is underpredicting the level of homicide in this case. If you observed the residual you will see that it has a value of 11.56, which is simply the difference between the observed (15.89) and the predicted value (2.42). This is normal. The world is too complex to be encapsulated by our models and their predictions will depart from the observed world.</p>
+<p>With spatial data one useful thing to do is to look at any spatial patterning in the distribution of the residuals. Notice that the residuals are the difference between the observed values for homicide and the predicted values for homicide, so you want your residual to not display any spatial patterning. If, on the other hand, your model display a patterning in the areas of the study region where it predicts badly, then you may have a problem. This is telling your model is not a good representation of the social phenomena you are studying across the full study area: there is systematically more distortion in some areas than in others.</p>
+<p>We are going to produce a choropleth map for the residuals, but we will use a common classification method we haven’t covered yet: standard deviations. Standard deviation is a statistical technique type of map based on how much the data differs from the mean. You measure the mean and standard deviation for your data. Then, each standard deviation becomes a class in your choropleth maps. In order to do that we will compute the mean and the standard deviation for the variable we want to plot and break the variable according to these values. The following code creates a new variable in which we will express the residuals in terms of standard deviations away from the mean. So, for each observation, we substract the mean and divide by the standard deviation. Remember, this is exactly what the <code>scale</code> function does:</p>
+<div class="sourceCode" id="cb553"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb553-1"><a href="spatial-regression-models.html#cb553-1" aria-hidden="true" tabindex="-1"></a><span class="co"># because scale is made for matrices, we just need to get the first column using [,1]</span></span>
+<span id="cb553-2"><a href="spatial-regression-models.html#cb553-2" aria-hidden="true" tabindex="-1"></a>ncovr<span class="sc">$</span>sd_breaks <span class="ot">&lt;-</span> <span class="fu">scale</span>(ncovr<span class="sc">$</span>res_fit3)[,<span class="dv">1</span>] </span>
+<span id="cb553-3"><a href="spatial-regression-models.html#cb553-3" aria-hidden="true" tabindex="-1"></a><span class="co"># this is equal to (ncovr$res_fit1 - mean(ncovr$res_fit1)) / sd(ncovr$res_fit1)</span></span>
+<span id="cb553-4"><a href="spatial-regression-models.html#cb553-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(ncovr<span class="sc">$</span>sd_breaks)</span></code></pre></div>
+<pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##  -3.537  -0.524  -0.140   0.000   0.331  13.741</code></pre>
+<p>Next we use a new style, <code>fixed</code>, within the <code>tm_fill</code> function. When we break the variable into classes using the <code>fixed</code> argument we need to specify the boundaries of the classes. We do this using the breaks argument. In this case we are going to ask R to create 7 classes based on standard deviations away from the mean. Remember that a value of 1 would be 1 standard deviation higher than the mean, and -1 respectively lower. If we assume normal distribution, then 68% of all counties should lie within the middle band from -1 to +1.</p>
+<div class="sourceCode" id="cb555"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb555-1"><a href="spatial-regression-models.html#cb555-1" aria-hidden="true" tabindex="-1"></a>my_breaks <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">14</span>,<span class="sc">-</span><span class="dv">3</span>,<span class="sc">-</span><span class="dv">2</span>,<span class="sc">-</span><span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">14</span>)</span>
+<span id="cb555-2"><a href="spatial-regression-models.html#cb555-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(ncovr) <span class="sc">+</span> </span>
+<span id="cb555-3"><a href="spatial-regression-models.html#cb555-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_fill</span>(<span class="st">&quot;sd_breaks&quot;</span>, <span class="at">title =</span> <span class="st">&quot;Residuals&quot;</span>, <span class="at">style =</span> <span class="st">&quot;fixed&quot;</span>, </span>
+<span id="cb555-4"><a href="spatial-regression-models.html#cb555-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">breaks =</span> my_breaks, <span class="at">palette =</span> <span class="st">&quot;-RdBu&quot;</span>) <span class="sc">+</span></span>
+<span id="cb555-5"><a href="spatial-regression-models.html#cb555-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>
+<span id="cb555-6"><a href="spatial-regression-models.html#cb555-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_layout</span>(<span class="at">main.title =</span> <span class="st">&quot;Residuals&quot;</span>, <span class="at">main.title.size =</span> <span class="fl">0.7</span> ,</span>
+<span id="cb555-7"><a href="spatial-regression-models.html#cb555-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">legend.position =</span> <span class="fu">c</span>(<span class="st">&quot;right&quot;</span>, <span class="st">&quot;bottom&quot;</span>), <span class="at">legend.title.size =</span> <span class="fl">0.8</span>)</span></code></pre></div>
+<div class="figure"><span id="fig:unnamed-chunk-352"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-352-1.png" alt="Map of regression model residuals" width="672" />
+<p class="caption">
+FIGURE 12.4: Map of regression model residuals
+</p>
+</div>
+<p>Notice the spatial patterning of areas of over-prediction (negative residuals, or blue tones) and under-prediction (positive residuals, or reddish tones). This visual inspection of the residuals is suggesting you that spatial autocorrelation in the residuals may be present here. This, however, would require a more formal test.</p>
+<p>Remember from Chapter 9 that in order to do this first we need to turn our <code>sf</code> object into a <code>sp</code> class object and then create the spatial weight matrix. We cannot examine spatial dependence without making assumptions about the structure of the spatial relations among the units in our study. For this illustration we are going to follow <span class="citation"><a href="#ref-Baller_2001" role="doc-biblioref">Baller et al.</a> (<a href="#ref-Baller_2001" role="doc-biblioref">2001</a>)</span> and use 10 nearest neighbors to define the matrix to codify these spatial relations. If the code below and what it does is not clear to you, revise the notes from Chapter 9, when we first introduced it.</p>
+<div class="sourceCode" id="cb556"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb556-1"><a href="spatial-regression-models.html#cb556-1" aria-hidden="true" tabindex="-1"></a><span class="co"># We coerce the sf object into a new sp object</span></span>
+<span id="cb556-2"><a href="spatial-regression-models.html#cb556-2" aria-hidden="true" tabindex="-1"></a>ncovr_sp <span class="ot">&lt;-</span> <span class="fu">as</span>(ncovr, <span class="st">&quot;Spatial&quot;</span>)</span>
+<span id="cb556-3"><a href="spatial-regression-models.html#cb556-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Then we create a list of neighbours using 10 nearest neighbours criteria</span></span>
+<span id="cb556-4"><a href="spatial-regression-models.html#cb556-4" aria-hidden="true" tabindex="-1"></a>xy <span class="ot">&lt;-</span> <span class="fu">coordinates</span>(ncovr_sp)</span>
+<span id="cb556-5"><a href="spatial-regression-models.html#cb556-5" aria-hidden="true" tabindex="-1"></a>nb_k10 <span class="ot">&lt;-</span> <span class="fu">knn2nb</span>(<span class="fu">knearneigh</span>(xy, <span class="at">k =</span> <span class="dv">10</span>))</span>
+<span id="cb556-6"><a href="spatial-regression-models.html#cb556-6" aria-hidden="true" tabindex="-1"></a>rwm <span class="ot">&lt;-</span> <span class="fu">nb2mat</span>(nb_k10, <span class="at">style=</span><span class="st">&#39;W&#39;</span>)</span>
+<span id="cb556-7"><a href="spatial-regression-models.html#cb556-7" aria-hidden="true" tabindex="-1"></a>rwm <span class="ot">&lt;-</span> <span class="fu">mat2listw</span>(rwm, <span class="at">style=</span><span class="st">&#39;W&#39;</span>)</span></code></pre></div>
+<p>We obtain the Moran’s test for regression residuals using the function <code>lm.morantest()</code> as below. It is important to realize that the Moran’s I test statistic for residual spatial autocorrelation takes into account the fact that the variable under consideration is a residual, computed from a regression. The usual Moran’s I test statistic does not. It is therefore incorrect to simply apply a Moran’s I test to the residuals from the regression without correcting for the fact that these are residuals.</p>
+<div class="sourceCode" id="cb557"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb557-1"><a href="spatial-regression-models.html#cb557-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lm.morantest</span>(fit3_90, rwm, <span class="at">alternative=</span><span class="st">&quot;two.sided&quot;</span>)</span></code></pre></div>
+<pre><code>## 
+##  Global Moran I for regression residuals
+## 
+## data:  
+## model: lm(formula = eq1_90, data = ncovr)
+## weights: rwm
+## 
+## Moran I statistic standard deviate = 12, p-value
+## &lt;2e-16
+## alternative hypothesis: two.sided
+## sample estimates:
+## Observed Moran I      Expectation         Variance 
+##        9.544e-02       -1.382e-03        6.029e-05</code></pre>
+<p>You will notice we obtain a statistically significant value for Moran’s I. If we diagnose that spatial autocorrelation is an issue, that is, that the errors (the residuals) are related systematically among themselves, then we likely have a problem and we may need to use a more appropriate approach: a spatial regression model. Before going down that road it is important to check this autocorrelation is not the result of an incorrectly specified model. It may appear when estimating a non-linear relationship with a linear model. In this scenario, <span class="citation"><a href="#ref-Kopczewska_2021" role="doc-biblioref">Kopczewska</a> (<a href="#ref-Kopczewska_2021" role="doc-biblioref">2021</a>)</span> suggests checking the remainders from the OLS estimated model on variable logarithms. It is also worth considering it may be the result of other forms of model mis-specification, such as omission of covariates or wongful inclusion of predictors.</p>
+</div>
+<div id="choosing-a-spatial-regression-model" class="section level2" number="12.5">
+<h2><span class="header-section-number">12.5</span> Choosing a spatial regression model</h2>
+<div id="the-basic-spatial-models" class="section level3" number="12.5.1">
+<h3><span class="header-section-number">12.5.1</span> The basic spatial models</h3>
+<p>If the test is significant (as in this case), then we possibly need to think of a more suitable model to represent our data: a spatial regression model. Remember spatial dependence means that (more typically) there will be areas of spatial clustering for the residuals in our regression model. So our predicted line (or hyperplane) will systematically under-predict or over-predict in areas that are close to each other. That’s not good. We want a better model that does not display any spatial clustering in the residuals.</p>
+<p>There are two traditional general ways of incorporating spatial dependence in a regression model, through what we called a <strong>spatial error model</strong> or by means of a <strong>spatially lagged model</strong> . The Moran test doesn´t provide information to help us choose, which is why <span class="citation"><a href="#ref-Anselin_1998" role="doc-biblioref">Anselin and Bera</a> (<a href="#ref-Anselin_1998" role="doc-biblioref">1998</a>)</span> introduced the <strong>Lagrange Multiplier tests</strong>, which we will examine shortly.</p>
+<p>The difference between these two models is both technical and conceptual. The <strong>spatial error model</strong> treats the spatial autocorrelation as a nuisance that needs to be dealt with. It includes a spatial lag of the error in the model
+(<code>lambda</code> in the R output). A spatial error model basically implies that the:</p>
+<blockquote>
+<p>“spatial dependence observed in our data does not reflect a truly spatial process, but merely the geographical clustering of the sources of the behaviour of interest. For example, citizens in adjoining neighbohoods may favour the same (political) candidate not because they talk to their neighbors, but because citizens with similar incomes tend to cluster geographically, and income also predicts vote choice. Such spatial dependence can be termed attributional dependence” <span class="citation">(<a href="#ref-Darmofal_2015" role="doc-biblioref">Darmofal 2015</a> p: 4)</span></p>
+</blockquote>
+<p>In the example we are using the spatial error model “evaluates the extent to which the clustering of homicide rates not explained by <strong>measured independent variables</strong> can be accounted for with reference to the clustering of error terms. In this sense, <strong>it captures the spatial influence of unmeasured independent variables</strong>” <span class="citation">(<a href="#ref-Baller_2001" role="doc-biblioref">Baller et al. 2001</a>: 567, the emphasis is ours)</span>. As <span class="citation"><a href="#ref-Kopczewska_2021" role="doc-biblioref">Kopczewska</a> (<a href="#ref-Kopczewska_2021" role="doc-biblioref">2021</a>)</span> suggests this spatial effect allows us to model “invisible or hardly measurable supra-regional characteristics, occurring more broadly than regional boundaries (e.g., cultural variables, soil fertility, weather, pollution, etc.).” (p. 218).</p>
+<p>The <strong>spatially lagged model</strong> o <strong>spatially autoregressive model</strong>, on the other hand, incorporates spatial dependence by adding a “spatially lagged” variable <span class="math inline">\(y\)</span> on the right hand side of our regression equation (this will be denoted as <code>rho</code> in the R output). Its distinctive characteristic is that it includes a spatially lagged measure of our outcome as an endogenous explanatory factor (a variable that measures the value of our outcome of interest, say crime rate, in the neighbouring areas, as defined by our spatial weight matrix). It is basically explicitly saying that the values of <span class="math inline">\(y\)</span> in the neighbouring areas of observation <span class="math inline">\(n_i\)</span> is an important predictor of <span class="math inline">\(y_i\)</span> on each individual area <span class="math inline">\(n_i\)</span> . This is one way of saying that the spatial dependence may be produced by a spatial process such as the diffusion of behaviour between neighboring units:</p>
+<blockquote>
+<p>“If so the behaviour is likely to be highly social in nature, and understanding the interactions between interdependent units is critical to understanding the behaviour in question. For example, citizens may discuss politics across adjoining neighbours such that an increase in support for a candidate in one neighbourhood directly leads to an increase in support for the candidate in adjoining neighbourhoods”* <span class="citation">(<a href="#ref-Darmofal_2015" role="doc-biblioref">Darmofal 2015</a> p: 4)</span>.</p>
+</blockquote>
+<p>So, in our example, what we are saying is that homicide rates in one county may be affecting the level of homicide in nearby (however we define “nearby”) counties.</p>
+<p>As noted by <span class="citation"><a href="#ref-Baller_2001" role="doc-biblioref">Baller et al.</a> (<a href="#ref-Baller_2001" role="doc-biblioref">2001</a>)</span>: 567:</p>
+<blockquote>
+<p>“It is important to recognize that these models for spatial lag and spatial
+error processes are designed to yield indirect evidence of diffusion in
+cross-sectional data. However, any diffusion process ultimately requires
+“vectors of transmission,” i.e., identifiable mechanisms through which
+events in a given place at a given time influence events in another place at
+a later time. The spatial lag model, as such, is not able to discover these
+mechanisms.“ Rather, it depicts a spatial imprint at a given instant of time
+that would be expected to emerge if the phenomenon under investigation
+were to be characterized by a diffusion process. The observation of spatial
+effects thus indicates that further inquiry into diffusion is warranted,
+whereas the failure to observe such effects implies that such inquiry is
+likely to be unfruitful."</p>
+</blockquote>
+<p>A third basic model is the one that allows for autocorrelation in the predictors (<strong>Durbin factor</strong>). Here we allow for exogenous interaction effects, where the dependent variable of a given area is influenced by independent explanatory variables of other areas. In this case we include in the model a spatial lag of the predictors. These, however, have been less commonly used in practice.</p>
+<p>These three models only have one spatial component, but this could be combined. In the last 15 years interest in models with more than one spatial component has grown. You could have models with two spatial components and even consider together the three ways of spatial interaction (in the error, in the predictors, and the dependent variable). <span class="citation"><a href="#ref-Elhorst_2010" role="doc-biblioref">Elhorst</a> (<a href="#ref-Elhorst_2010" role="doc-biblioref">2010</a>)</span> classified the different models according to the spatial interactions included.</p>
+<table>
+<caption><span id="tab:unnamed-chunk-355">TABLE 12.1: </span>Models classified according to the spatial interactions included</caption>
+<colgroup>
+<col width="22%" />
+<col width="77%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Models</th>
+<th align="left">Features</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Manski (GNS Model)</td>
+<td align="left">Includes spatial lag of dependent and explatory variables, and autocorrelated errors</td>
+</tr>
+<tr class="even">
+<td align="left">Kelejian/Prucha (SAC or SARAR Model)</td>
+<td align="left">Includes spatial lag of dependent model and autocorrelated errors, often call a spatial autoregressive-autoregressive model</td>
+</tr>
+<tr class="odd">
+<td align="left">Spatial Durbin Model (SDM)</td>
+<td align="left">Allows for spatial lag of dependent variable and explanatory variables</td>
+</tr>
+<tr class="even">
+<td align="left">Spatial Durbin Error Model (SDEM)</td>
+<td align="left">Allows for lag of explanatory variables and autocorrelated errors</td>
+</tr>
+<tr class="odd">
+<td align="left">Spatial Lag Model (SAR)</td>
+<td align="left">The traditional spatial lag of the dependent variable model, orspatial autoregressive model</td>
+</tr>
+<tr class="even">
+<td align="left">Spatial Error Model (SEM)</td>
+<td align="left">The traditional model with autocorrelated errors</td>
+</tr>
+</tbody>
+</table>
+<p>In practice, issues with overspecification mean you rarely find applications that allow for interaction at the three levels (the so-called <strong>Manski model</strong> or <strong>general nesting model</strong>, GNS for short) simultaneously. But it still useful for testing the right specification.</p>
+</div>
+<div id="lagrange-multipliers-the-bottom-up-approach-to-select-a-model" class="section level3" number="12.5.2">
+<h3><span class="header-section-number">12.5.2</span> Lagrange multipliers: the bottom-up approach to select a model</h3>
+<p>The Moran’s I test statistic has high power against a range of spatial alternatives. However, it does not provide much help in terms of which alternative model would be most appropriate. Until a few years ago, the main solution was to look at a series of tests that were developed by <span class="citation"><a href="#ref-Anselin_1998" role="doc-biblioref">Anselin and Bera</a> (<a href="#ref-Anselin_1998" role="doc-biblioref">1998</a>)</span> for this purpose: the Lagrange multipliers. The Lagrange multiplier test statistics do allow a distinction between spatial error models and spatial lag models, which was the key concern before interest developed in models with more than one type of spatial effect. The Lagrange multipliers also allow to evaluate if the Kelejian/Prucha (SAC) model is appropriate. This approach, starting with a baseline OLS model, test residuals, run Lagrange multipliers, and then select the SAC or SEM model is what is referred to as the <em>bottoms-up</em> or <em>specific to general</em> approach and was the dominant workflow until recently.</p>
+<p>Both Lagrange multiplier tests (for the error and the lagged models, <code>LMerr</code> and <code>LMlag</code> respectively), as well as their robust forms (<code>RLMerr</code> and <code>RLMLag</code>, also respectively) are included in the <code>lm.LMtests()</code> function. Again, a regression object and a spatial <code>listw</code> object must be passed as arguments. In addition, the tests must be specified as a character vector (the default is only <code>LMerror</code>), using the <code>c( )</code> operator (concatenate), as illustrated below. Alternatively one could ask to display all tests with <code>test="all"</code>. This would also run a test for the so called SARMA model, but Anselin advises against its use. For sparser reporting we may wrap this function within a <code>summary()</code> function.</p>
+<div class="sourceCode" id="cb559"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb559-1"><a href="spatial-regression-models.html#cb559-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">lm.LMtests</span>(fit3_90, rwm, <span class="at">test =</span> <span class="fu">c</span>(<span class="st">&quot;LMerr&quot;</span>,<span class="st">&quot;LMlag&quot;</span>,<span class="st">&quot;RLMerr&quot;</span>,<span class="st">&quot;RLMlag&quot;</span>)))</span></code></pre></div>
+<pre><code>##  Lagrange multiplier diagnostics for spatial
+##  dependence
+## data:  
+## model: lm(formula = eq1_90, data = ncovr)
+## weights: rwm
+##  
+##        statistic parameter p.value    
+## LMerr     148.80         1 &lt; 2e-16 ***
+## LMlag     116.36         1 &lt; 2e-16 ***
+## RLMerr     35.41         1 2.7e-09 ***
+## RLMlag      2.97         1   0.085 .  
+## ---
+## Signif. codes:  
+## 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p>How do we interpret the Lagrange multipliers? The interpretation of these tests focuses on their significance level. First we look at the standard multipliers (<code>LMerr</code> and <code>LMlag</code>). <strong>If both</strong> are below the .05 level, like here, this means we need to have a look at the robust version of these tests (Robust LM).</p>
+<p>If the non-robust version is not significant, the mathematical properties of the robust tests may not hold, so we don’t look at them in those scenarios. It is fairly common to find that both the lag (<code>LMlag</code>) and the error (<code>LMerr</code>) non-robust LM are significant. If only one of them were: problem solved. We would choose a spatial lag or a spatial error model according to this (i.e., if the lag LM was significant and the error LM was not we would run a spatial lag model or viceversa). Here we see that both are significant, thus, we need to inspect their robust versions.</p>
+<p>When we look at the robust Lagrange multipliers (<code>RLMlag</code> and <code>RLMerr</code>) here we can see only the Lagrange for the error model is significant, which suggest we need to fit a spatial error model. But there may be occasions when both are as well significant. What do we do then? Luc Anselin (2008: 199-200) proposes the following criteria:</p>
+<p><em>“When both LM test statistics reject the null hypothesis, proceed to the bottom part of the graph and consider the Robust forms of the test statistics. Typically, only one of them will be significant, or one will be orders of magnitude more significant than the other (e.g., p &lt; 0.00000 compared to p &lt; 0.03). In that case the decision is simple: estimate the spatial regression model matching the (most) significant” robust “statistic. In the rare instance that both would be highly significant, go with the model with the largest value for the test statistic. However, in this situation, some caution is needed, since there may be other sources of misspecification. One obvious action to take is to consider the results for different spatial weight and/or change the basic (i.e., not the spatial part) specification of the model. There are also rare instances where neither of the Robust LM test statistics are significant. In those cases, more serious specification problems are likely present and those should be addressed first.”</em></p>
+<p>By other specification errors Prof. Anselin refers to problems with some of the other assumptions of regression that you should be familiar with.</p>
+<p>As noted, this way of selecting the “correct” model (the <em>bottoms-up approach</em>), using the Lagrange multipliers, was the most popular until about 15 years ago or so. It was attractive because it relied on observing the residuals in the non spatial model; it was computationally very efficient; and when the correct model was the spatial error or the spatial lag model simulation studies had shown it was the most effective approach <span class="citation">(<a href="#ref-Floch_2018" role="doc-biblioref">Floch and LeSaout 2018</a>)</span>. Later we will explore other approaches. Also, since the spatial error and the spatial lag model are not nested, you could not compare them using likelihood ratio tests <span class="citation">(<a href="#ref-Bivand_2021" role="doc-biblioref">Bivand, Millo, and Piras 2021</a>)</span>.</p>
+</div>
+</div>
+<div id="fitting-and-interpreting-a-spatial-error-model" class="section level2" number="12.6">
+<h2><span class="header-section-number">12.6</span> Fitting and interpreting a spatial error model</h2>
+<p>We just saw that for the case of homicide in the 90s the bottoms up approach suggested that the spatial error model was more appropriate when using our particular definition of the spatial weight matrix. In this case then, we can run a spatial error model. Maximum likelihood estimation of the spatial error model is implemented in the <code>spatialreg::errorsarlm()</code> function. The formula, data set and a <code>listw</code> spatial weights object must be specified, as illustrated below. We are still using the 10 nearest neighbours definition. When thinking about the spatial weight matrix to use in spatial regression analysis, it is worth considering <span class="citation"><a href="#ref-Smith_2009" role="doc-biblioref">T. Smith</a> (<a href="#ref-Smith_2009" role="doc-biblioref">2009</a>)</span> suggestions. His work showed that highly connected matrices may result in downward bias for the coefficients when using maximum likelihood.</p>
+<div class="sourceCode" id="cb561"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb561-1"><a href="spatial-regression-models.html#cb561-1" aria-hidden="true" tabindex="-1"></a>fit3_90_sem <span class="ot">&lt;-</span> <span class="fu">errorsarlm</span>(eq1_90, <span class="at">data=</span>ncovr, rwm)</span>
+<span id="cb561-2"><a href="spatial-regression-models.html#cb561-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit3_90_sem)</span></code></pre></div>
+<pre><code>## 
+## Call:
+## errorsarlm(formula = eq1_90, data = ncovr, listw = rwm)
+## 
+## Residuals:
+##       Min        1Q    Median        3Q       Max 
+## -15.84281  -2.49313  -0.69615   1.60685  68.82483 
+## 
+## Type: error 
+## Coefficients: (asymptotic standard errors) 
+##              Estimate Std. Error z value  Pr(&gt;|z|)
+## (Intercept)  3.820726   1.147279  3.3302 0.0008677
+## RD90         3.753935   0.159813 23.4895 &lt; 2.2e-16
+## PS90         1.245862   0.119091 10.4615 &lt; 2.2e-16
+## MA90        -0.044778   0.030298 -1.4779 0.1394353
+## DV90         0.588880   0.062825  9.3734 &lt; 2.2e-16
+## UE90        -0.195440   0.046141 -4.2357 2.279e-05
+## SOUTH_f1     2.126187   0.297569  7.1452 8.988e-13
+## 
+## Lambda: 0.3661, LR test value: 113.9, p-value: &lt; 2.22e-16
+## Asymptotic standard error: 0.03254
+##     z-value: 11.25, p-value: &lt; 2.22e-16
+## Wald statistic: 126.6, p-value: &lt; 2.22e-16
+## 
+## Log likelihood: -9276 for error model
+## ML residual variance (sigma squared): 23.62, (sigma: 4.86)
+## Number of observations: 3085 
+## Number of parameters estimated: 9 
+## AIC: 18571, (AIC for lm: 18683)</code></pre>
+<p>The spatial lag model is probably the most common specification and maybe the most generally useful way to think about spatial dependence. But we can also enter the spatial dependence as, we mentioned trough the error term in our regression equation. Whereas the spatial lag model sees the spatial dependence as substantively meaningful (in that <span class="math inline">\(y\)</span>, say homicide, in county <span class="math inline">\(i\)</span> is influenced by homicide in its neighbours), the spatial error model simply treats the spatial dependence as capturing the effect of unobserved variables. It is beyond the scope of this introductory course to cover the mathematical details and justification of this procedure, though you can use the suggested reading (particularly the highly accessible <span class="citation"><a href="#ref-Ward_2008" role="doc-biblioref">Ward and Gleditsch</a> (<a href="#ref-Ward_2008" role="doc-biblioref">2008</a>)</span>, book or the more recent <span class="citation"><a href="#ref-Darmofal_2015" role="doc-biblioref">Darmofal</a> (<a href="#ref-Darmofal_2015" role="doc-biblioref">2015</a>)</span>) or some of the other materials we discussed at the end of the chapter.</p>
+<p>How do you interpret these results? First you need to look at the general measures of fit of the model. I know what you are thinking. Look at the R Square and compare them, right? Well, don’t. This R Square is not a real R Square, but a pseudo-R Square and therefore is not comparable to the one we obtain from the OLS regression model. Instead we can look at the Akaike Information Criterion (AIC). We can see the AIC is better for the spatial model (18571) than for the non spatial model (18683).</p>
+<p>In this case, you can compare the regression coefficients with those from the OLS model, since we don’t have a spatial lag capturing some of their effect. Notice how one of the most notable differences is the fact that median age is no longer significant in the new model.</p>
+<p>We are using here the 10 nearest neighbours (following the original analysis of this data), but in real practice you would need to explore whether this is the best definition and one that makes theoretical sense. Various authors, such as <span class="citation"><a href="#ref-Chi_2020" role="doc-biblioref">Chi and Zhu</a> (<a href="#ref-Chi_2020" role="doc-biblioref">2020</a>)</span>, suggest that you would want to run the models with several specifications of the spatial weight matrix and find out how robust the findings are to various specifications. They even propose a particular method to pick up the “best” specification of the weight matrix. <span class="citation"><a href="#ref-Kopczewska_2021" role="doc-biblioref">Kopczewska</a> (<a href="#ref-Kopczewska_2021" role="doc-biblioref">2021</a>)</span> provides R code and an example of checking for sensitivity of results to various specifications of the matrix.</p>
+</div>
+<div id="fitting-and-interpreting-a-spatially-lagged-model" class="section level2" number="12.7">
+<h2><span class="header-section-number">12.7</span> Fitting and interpreting a spatially lagged model</h2>
+<p>We saw that in the previous case a spatial error model was perhaps more appropriate, but we also saw earlier in one of the simpler models that there was an interaction between the variable indicating whether the county is in the South and one of the explanatory variables. This is suggestive of the kind of spatial heterogeneity we were discussing a the outset of the chapter. When the relationship of the explanatory variables is not constant across the study area we need to take this into account. Fitting the same model for the whole country may not be appropriate and there are so many interaction terms you can include before things get a difficult to interpret. A fairly crude approach, instead of adding multiple interaction terms, is to partition the data. We could, in this example, partition the data into Southern and Northern counties and run separate models for this two subsets of the data. For the next illustration, we are going to focus on the Southern countries and in a different decade, in which the lag model (as we will see) is more appropriate.</p>
+<div class="sourceCode" id="cb563"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb563-1"><a href="spatial-regression-models.html#cb563-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Let´s look at southern counties</span></span>
+<span id="cb563-2"><a href="spatial-regression-models.html#cb563-2" aria-hidden="true" tabindex="-1"></a>ncovr_s_sf <span class="ot">&lt;-</span> <span class="fu">subset</span>(ncovr, SOUTH <span class="sc">==</span> <span class="dv">1</span>)</span>
+<span id="cb563-3"><a href="spatial-regression-models.html#cb563-3" aria-hidden="true" tabindex="-1"></a><span class="co"># We coerce the sf object into a new sp object</span></span>
+<span id="cb563-4"><a href="spatial-regression-models.html#cb563-4" aria-hidden="true" tabindex="-1"></a>ncovr_s_sp <span class="ot">&lt;-</span> <span class="fu">as</span>(ncovr_s_sf, <span class="st">&quot;Spatial&quot;</span>)</span>
+<span id="cb563-5"><a href="spatial-regression-models.html#cb563-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Then we create a list of neighbours using 10 nearest neighbours criteria</span></span>
+<span id="cb563-6"><a href="spatial-regression-models.html#cb563-6" aria-hidden="true" tabindex="-1"></a>xy_s <span class="ot">&lt;-</span> <span class="fu">coordinates</span>(ncovr_s_sp)</span>
+<span id="cb563-7"><a href="spatial-regression-models.html#cb563-7" aria-hidden="true" tabindex="-1"></a>nb_s_k10 <span class="ot">&lt;-</span> <span class="fu">knn2nb</span>(<span class="fu">knearneigh</span>(xy_s, <span class="at">k =</span> <span class="dv">10</span>))</span>
+<span id="cb563-8"><a href="spatial-regression-models.html#cb563-8" aria-hidden="true" tabindex="-1"></a>rwm_s <span class="ot">&lt;-</span> <span class="fu">nb2mat</span>(nb_s_k10, <span class="at">style=</span><span class="st">&#39;W&#39;</span>)</span>
+<span id="cb563-9"><a href="spatial-regression-models.html#cb563-9" aria-hidden="true" tabindex="-1"></a>rwm_s <span class="ot">&lt;-</span> <span class="fu">mat2listw</span>(rwm_s, <span class="at">style=</span><span class="st">&#39;W&#39;</span>)</span>
+<span id="cb563-10"><a href="spatial-regression-models.html#cb563-10" aria-hidden="true" tabindex="-1"></a><span class="co"># We create new equation, this time excluding the southern dummy</span></span>
+<span id="cb563-11"><a href="spatial-regression-models.html#cb563-11" aria-hidden="true" tabindex="-1"></a>eq2_70_S <span class="ot">&lt;-</span> HR70 <span class="sc">~</span> RD70 <span class="sc">+</span> PS70 <span class="sc">+</span> MA70 <span class="sc">+</span> DV70 <span class="sc">+</span> UE70</span>
+<span id="cb563-12"><a href="spatial-regression-models.html#cb563-12" aria-hidden="true" tabindex="-1"></a>fit4_70 <span class="ot">&lt;-</span> <span class="fu">lm</span>(eq2_70_S, <span class="at">data=</span>ncovr_s_sf)</span>
+<span id="cb563-13"><a href="spatial-regression-models.html#cb563-13" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">lm.LMtests</span>(fit4_70, rwm_s, <span class="at">test =</span> <span class="fu">c</span>(<span class="st">&quot;LMerr&quot;</span>,<span class="st">&quot;LMlag&quot;</span>,<span class="st">&quot;RLMerr&quot;</span>,<span class="st">&quot;RLMlag&quot;</span>)))</span></code></pre></div>
+<pre><code>##  Lagrange multiplier diagnostics for spatial
+##  dependence
+## data:  
+## model: lm(formula = eq2_70_S, data = ncovr_s_sf)
+## weights: rwm_s
+##  
+##        statistic parameter p.value    
+## LMerr   1.47e+02         1  &lt;2e-16 ***
+## LMlag   1.75e+02         1  &lt;2e-16 ***
+## RLMerr  1.55e-03         1    0.97    
+## RLMlag  2.86e+01         1   9e-08 ***
+## ---
+## Signif. codes:  
+## 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p>Maximum Likelihood (ML) estimation of the spatial lag model is carried out with the <code>spatreg::lagsarlm()</code> function. The required arguments are again a regression “formula,” a data set and a <code>listw</code> spatial weights object. The default method uses Ord’s eigenvalue decomposition of the spatial weights matrix.</p>
+<div class="sourceCode" id="cb565"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb565-1"><a href="spatial-regression-models.html#cb565-1" aria-hidden="true" tabindex="-1"></a>fit4_70_sar <span class="ot">&lt;-</span> <span class="fu">lagsarlm</span>(eq2_70_S, <span class="at">data=</span>ncovr_s_sf, rwm_s)</span>
+<span id="cb565-2"><a href="spatial-regression-models.html#cb565-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit4_70_sar)</span></code></pre></div>
+<pre><code>## 
+## Call:
+## lagsarlm(formula = eq2_70_S, data = ncovr_s_sf, listw = rwm_s)
+## 
+## Residuals:
+##       Min        1Q    Median        3Q       Max 
+## -17.13387  -4.09583  -0.95433   2.85297  65.93842 
+## 
+## Type: lag 
+## Coefficients: (asymptotic standard errors) 
+##              Estimate Std. Error z value  Pr(&gt;|z|)
+## (Intercept)  7.437000   1.413763  5.2604 1.437e-07
+## RD70         2.247458   0.244104  9.2070 &lt; 2.2e-16
+## PS70         0.603290   0.256056  2.3561  0.018469
+## MA70        -0.091496   0.041144 -2.2238  0.026160
+## DV70         0.633473   0.211198  2.9994  0.002705
+## UE70        -0.485272   0.099684 -4.8681 1.127e-06
+## 
+## Rho: 0.4523, LR test value: 114.8, p-value: &lt; 2.22e-16
+## Asymptotic standard error: 0.04111
+##     z-value: 11, p-value: &lt; 2.22e-16
+## Wald statistic: 121, p-value: &lt; 2.22e-16
+## 
+## Log likelihood: -4769 for lag model
+## ML residual variance (sigma squared): 49.18, (sigma: 7.013)
+## Number of observations: 1412 
+## Number of parameters estimated: 8 
+## AIC: 9555, (AIC for lm: 9668)
+## LM test for residual autocorrelation
+## test value: 7.662, p-value: 0.0056391</code></pre>
+<p>Remember what we said earlier in the spatial lag model we are simply adding as an additional explanatory variable the values of <span class="math inline">\(y\)</span> in the surrounding area. What we mean by “surrounding” will be defined by our spatial weight matrix. It’s important to emphasise again that one has to think very carefully and explore appropriate definitions of “surrounding.”</p>
+<p>In our spatial lag model you will notice that there is a new term <span class="math inline">\(Rho\)</span>. What is this? This is our spatial lag. It is a variable that measures the homicide rate in the counties that are defined as surrounding each county in our spatial weight matrix. We are simply using this variable as an additional explanatory variable to our model, so that we can appropriately take into account the spatial clustering detected by our Moran’s I test. You will notice that the estimated coefficient for this term is both positive and statistically significant. In other words, when the homicide rate in surrounding areas increases, so does the homicide rate in each country, even when we adjust for the other explanatory variables in our model.</p>
+<p>You also see at the bottom further tests for spatial dependence, a likelihood ratio test. This is not a test for residual spatial autocorrelation after we introduce our spatial lag. What you want is for this test to be significant because in essence is further evidence that the spatial lag model is a good fit.</p>
+<p>How about the coefficients? It may be tempting to look at the regression coefficients for the other explanatory variables for the original OLS model and compare them to those in the spatial lag model. But you should be careful when doing this. Their meaning now has changed:</p>
+<p><em>“Interpreting the substantive effects of each predictor in a spatial lag model is much more complex than in a nonspatial model (or in a spatial error model) because of the presence of the spatial multiplier that links the independent variables to the dependent. In the nonspatial model, it does not matter which unit is experiencing the change on the independent variable. The effect” in the dependent variable “of a change” in the value of an independent variable “is constant across all observations”</em> (Darmofal, 2015: 107).</p>
+<p>Remember we say, when interpreting a regression coefficient for variable <span class="math inline">\(x_i\)</span>, that they indicate how much <span class="math inline">\(y\)</span> goes up or down for every one unit increase in <span class="math inline">\(x_i\)</span> when holding all other variables in the model constant. In our example, for the nonspatial model this “effect” is the same for every county in our dataset. But in the spatial lag model things are not the same. We cannot interpret the regression coefficients for the substantive predictors in the same way because the “substantive effects of the independent variables vary by observation as a result of the different neighbors for each unit in the data” <span class="citation">(<a href="#ref-Darmofal_2015" role="doc-biblioref">Darmofal 2015</a>: 107)</span>.</p>
+<p>In the standard OLS regression model, the coefficients for any of the explanatory variables measure the absolute “impact” of these variables. It is a simpler scenario. We look at the “effect” of <span class="math inline">\(x\)</span> in <span class="math inline">\(y\)</span> within each county. So <span class="math inline">\(x\)</span> in county A affects <span class="math inline">\(y\)</span> in count A. In the spatial lag model there are two components to how <span class="math inline">\(x\)</span> affect <span class="math inline">\(y\)</span>. The predictor <span class="math inline">\(x\)</span> affects <span class="math inline">\(y\)</span> within each county directly but remember we are also including the spatial lag, the measure of <span class="math inline">\(y\)</span> in the surrounding counties (call them B, C, and D). By virtues of including the spatial lag (a measure of <span class="math inline">\(y\)</span> in county B, C and D) we are indirectly incorporating as well the “effects” that <span class="math inline">\(x\)</span> has on <span class="math inline">\(y\)</span> in counties B, C, and D. So the “effect” of a covariate (independent variable) is the sum of two particular “effects”: a direct, local effect of the covariate in that unit, and an indirect, spillover “effect” due to the spatial lag.</p>
+<p>In, other words, in the spatial lag model, the coefficients only focus on the “short-run impact” of <span class="math inline">\(x_i\)</span> on <span class="math inline">\(y_i\)</span> , rather than the net “effect.” As <span class="citation"><a href="#ref-Ward_2008" role="doc-biblioref">Ward and Gleditsch</a> (<a href="#ref-Ward_2008" role="doc-biblioref">2008</a>)</span> explain “Since the value of <span class="math inline">\(y_i\)</span> will influence the level of” homicide “in other” counties <span class="math inline">\(y_j\)</span> and these <span class="math inline">\(y_j\)</span> , in turn, feedback on to <span class="math inline">\(y_i\)</span> , we need to take into account the additional effects that the short impact of <span class="math inline">\(x_i\)</span> exerts on <span class="math inline">\(y_i\)</span> through its impact on the level of" homicide “in other” counties. You can still read the coefficients in the same way but need to keep in mind that they are not measuring the net “effect.” Part of their “effect” will be captured by the spatial lag. Yet, you may still want to have a look at whether things change dramatically, particularly in terms of their significance (which is not the case in this example).</p>
+<p>In sum, this implies that a change in the <span class="math inline">\(ith\)</span> region’s predictor can affect the <span class="math inline">\(jth\)</span> region’s outcome. We have 2 situations: (a) the direct impact of an observation’s predictor on its own outcome, and (b) the indirect impact of an observation’s neighbor’s predictor on its outcome. This leads to three quantities that we want to know:</p>
+<ul>
+<li>Average Direct Impact, which is similar to a traditional interpretation</li>
+<li>Average Total impact, which would be the total of direct and indirect impacts of a predictor on one’s outcome</li>
+<li>Average Indirect impact, which would be the average impact of one’s neighbors on one’s outcome</li>
+</ul>
+<p>These quantities can be found using the <code>impacts()</code> function in the <code>spdep</code> library. We follow the example that converts the spatial weight matrix into a “sparse” matrix, and power it up using the <code>trW()</code> function. This follows the approximation methods described in <span class="citation"><a href="#ref-LeSage_2009" role="doc-biblioref">LeSage and Pace</a> (<a href="#ref-LeSage_2009" role="doc-biblioref">2009</a>)</span>. Here, we use Monte Carlo simulation to obtain simulated distributions of the various impacts.</p>
+<div class="sourceCode" id="cb567"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb567-1"><a href="spatial-regression-models.html#cb567-1" aria-hidden="true" tabindex="-1"></a>W <span class="ot">&lt;-</span> <span class="fu">as</span>(rwm_s, <span class="st">&quot;CsparseMatrix&quot;</span>)</span>
+<span id="cb567-2"><a href="spatial-regression-models.html#cb567-2" aria-hidden="true" tabindex="-1"></a>trMC <span class="ot">&lt;-</span> <span class="fu">trW</span>(W, <span class="at">type=</span><span class="st">&quot;MC&quot;</span>)</span>
+<span id="cb567-3"><a href="spatial-regression-models.html#cb567-3" aria-hidden="true" tabindex="-1"></a>fit4_70_sar.im <span class="ot">&lt;-</span> <span class="fu">impacts</span>(fit4_70_sar, <span class="at">tr=</span>trMC, <span class="at">R=</span><span class="dv">100</span>)</span>
+<span id="cb567-4"><a href="spatial-regression-models.html#cb567-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit4_70_sar.im, <span class="at">zstats=</span><span class="cn">TRUE</span>, <span class="at">short=</span><span class="cn">TRUE</span>)</span></code></pre></div>
+<pre><code>## Impact measures (lag, trace):
+##        Direct Indirect   Total
+## RD70  2.30369  1.79942  4.1031
+## PS70  0.61838  0.48302  1.1014
+## MA70 -0.09379 -0.07326 -0.1670
+## DV70  0.64932  0.50719  1.1565
+## UE70 -0.49741 -0.38853 -0.8859
+## ========================================================
+## Simulation results ( variance matrix):
+## ========================================================
+## Simulated standard errors
+##       Direct Indirect   Total
+## RD70 0.23328  0.27135 0.40515
+## PS70 0.27102  0.22932 0.49148
+## MA70 0.04071  0.03240 0.07195
+## DV70 0.21484  0.19467 0.39866
+## UE70 0.10801  0.09425 0.18968
+## 
+## Simulated z-values:
+##      Direct Indirect  Total
+## RD70  9.776    6.664 10.092
+## PS70  2.336    2.199  2.314
+## MA70 -2.188   -2.165 -2.213
+## DV70  3.147    2.775  3.051
+## UE70 -4.541   -4.118 -4.632
+## 
+## Simulated p-values:
+##      Direct  Indirect Total  
+## RD70 &lt; 2e-16 2.7e-11  &lt; 2e-16
+## PS70 0.0195  0.0279   0.0207 
+## MA70 0.0287  0.0304   0.0269 
+## DV70 0.0017  0.0055   0.0023 
+## UE70 5.6e-06 3.8e-05  3.6e-06</code></pre>
+<p>We see that all the variables have significant direct, indirect and total effects. You may want to have a look at how things differ when you just run a non spatial model.</p>
+</div>
+<div id="beyond-the-sar-and-sem-models" class="section level2" number="12.8">
+<h2><span class="header-section-number">12.8</span> Beyond the SAR and SEM models</h2>
+<p>Given the “galaxy” of spatial models, newer approaches to select the one to run have been proposed. <span class="citation"><a href="#ref-LeSage_2009" role="doc-biblioref">LeSage and Pace</a> (<a href="#ref-LeSage_2009" role="doc-biblioref">2009</a>)</span> proposes a <em>top-down</em> approach that involved starting with the spatial Durbin model (SDM) and based on likelihood ratio tests to select the best model. <span class="citation"><a href="#ref-Elhorst_2010" role="doc-biblioref">Elhorst</a> (<a href="#ref-Elhorst_2010" role="doc-biblioref">2010</a>)</span>, on the other hand, proposes to start with the OLS model, run the Lagrange multipliers, and then run a likelihood ratio test to see if the spatial Durbin model would be more appropriate. Why the Durbin model? Why not Manski or the SAR model? <span class="citation"><a href="#ref-Elhorst_2010" role="doc-biblioref">Elhorst</a> (<a href="#ref-Elhorst_2010" role="doc-biblioref">2010</a>)</span> corroborates that the Manski model can be estimated but the parameters cannot be interpreted in a meaningful way (the endogenous and exogenous effects cannot be distinguished from each other) and the SAR or Kelejian/Prucha model “will suffer from omitted variables bias if the true data-generation process is a spatial Durbin or a spatial Durbin error model” and that similarly the same happens for the spatial Durbin error model" (p. 14).</p>
+<p>If you paid attention the summary of the lag model we ran in the previous section included at the bottom a test for remaining residual spatial autocorrelation. This means our model is still not filtering all the spatial dependency that is present here. Perhaps here, and following the workflow proposed by <span class="citation"><a href="#ref-Elhorst_2010" role="doc-biblioref">Elhorst</a> (<a href="#ref-Elhorst_2010" role="doc-biblioref">2010</a>)</span>, we need to consider if the spatial Durbin model (SDM) would be more appropriate. We can run this model and then contrast it with the SAR model.</p>
+<div class="sourceCode" id="cb569"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb569-1"><a href="spatial-regression-models.html#cb569-1" aria-hidden="true" tabindex="-1"></a>fit4_70_sdm <span class="ot">&lt;-</span> <span class="fu">lagsarlm</span>(eq2_70_S, <span class="at">data=</span>ncovr_s_sf, rwm_s, <span class="at">Durbin =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb569-2"><a href="spatial-regression-models.html#cb569-2" aria-hidden="true" tabindex="-1"></a>                        <span class="at">method =</span><span class="st">&quot;LU&quot;</span>)</span>
+<span id="cb569-3"><a href="spatial-regression-models.html#cb569-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit4_70_sdm)</span></code></pre></div>
+<pre><code>## 
+## Call:
+## lagsarlm(formula = eq2_70_S, data = ncovr_s_sf, listw = rwm_s, 
+##     Durbin = TRUE, method = &quot;LU&quot;)
+## 
+## Residuals:
+##       Min        1Q    Median        3Q       Max 
+## -18.09108  -4.13069  -0.88963   2.84179  67.03240 
+## 
+## Type: mixed 
+## Coefficients: (asymptotic standard errors) 
+##              Estimate Std. Error z value  Pr(&gt;|z|)
+## (Intercept)  9.996665   2.080609  4.8047 1.550e-06
+## RD70         2.266521   0.350632  6.4641 1.019e-10
+## PS70         0.297629   0.312080  0.9537 0.3402394
+## MA70        -0.066899   0.055596 -1.2033 0.2288603
+## DV70         0.819995   0.244796  3.3497 0.0008090
+## UE70        -0.185133   0.129563 -1.4289 0.1530326
+## lag.RD70     0.262121   0.515226  0.5087 0.6109276
+## lag.PS70     1.071509   0.518284  2.0674 0.0386949
+## lag.MA70    -0.023245   0.088356 -0.2631 0.7924840
+## lag.DV70    -0.414450   0.429808 -0.9643 0.3349117
+## lag.UE70    -0.737893   0.202560 -3.6428 0.0002697
+## 
+## Rho: 0.415, LR test value: 79.91, p-value: &lt; 2.22e-16
+## Asymptotic standard error: 0.04542
+##     z-value: 9.138, p-value: &lt; 2.22e-16
+## Wald statistic: 83.5, p-value: &lt; 2.22e-16
+## 
+## Log likelihood: -4759 for mixed model
+## ML residual variance (sigma squared): 48.66, (sigma: 6.976)
+## Number of observations: 1412 
+## Number of parameters estimated: 13 
+## AIC: 9544, (AIC for lm: 9622)
+## LM test for residual autocorrelation
+## test value: 13.98, p-value: 0.00018426</code></pre>
+<p>We can then compare the nested models using information criteria with `<code>AIC()</code> and <code>BIC()</code>. Using this information criteria, we choose the model with the lowest AIC and BIC.</p>
+<div class="sourceCode" id="cb571"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb571-1"><a href="spatial-regression-models.html#cb571-1" aria-hidden="true" tabindex="-1"></a>output_1 <span class="ot">&lt;-</span> <span class="fu">AIC</span>(fit4_70, fit4_70_sar, fit4_70_sdm)</span>
+<span id="cb571-2"><a href="spatial-regression-models.html#cb571-2" aria-hidden="true" tabindex="-1"></a>output_2 <span class="ot">&lt;-</span> <span class="fu">BIC</span>(fit4_70, fit4_70_sar, fit4_70_sdm)</span>
+<span id="cb571-3"><a href="spatial-regression-models.html#cb571-3" aria-hidden="true" tabindex="-1"></a>table_1 <span class="ot">&lt;-</span> <span class="fu">cbind</span>(output_1, output_2)</span>
+<span id="cb571-4"><a href="spatial-regression-models.html#cb571-4" aria-hidden="true" tabindex="-1"></a>table_1</span></code></pre></div>
+<pre><code>##             df  AIC df  BIC
+## fit4_70      7 9668  7 9704
+## fit4_70_sar  8 9555  8 9597
+## fit4_70_sdm 13 9544 13 9613</code></pre>
+<p>Our results indicate that AIC favours the SDM model whereas the BIC favours the simpler SAR model. We can also run a likelihood ratio test to compare the two spatial nested models using <code>spatialreg::LR.Sarlm()</code> (that deprecates <code>spded::LR.sarlm()</code> you may still see mentioned in other textbooks). Here we look for the model with the highest log likelihood:</p>
+<div class="sourceCode" id="cb573"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb573-1"><a href="spatial-regression-models.html#cb573-1" aria-hidden="true" tabindex="-1"></a><span class="fu">LR.Sarlm</span>(fit4_70_sdm, fit4_70_sar)</span></code></pre></div>
+<pre><code>## 
+##  Likelihood ratio for spatial linear models
+## 
+## data:  
+## Likelihood ratio = 21, df = 5, p-value = 0.001
+## sample estimates:
+## Log likelihood of fit4_70_sdm 
+##                         -4759 
+## Log likelihood of fit4_70_sar 
+##                         -4769</code></pre>
+<p>The LR test is significant suggesting we should favour the spatial Durbin model. If it had been insignificant we would have had to choose the more parsimonious model.</p>
+<p>As with the spatial lag model, here we need to be careful when interpreting the regression coefficients. We also need to estimate the “impacts” in a similar manner we illustrated above.</p>
+<div class="sourceCode" id="cb575"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb575-1"><a href="spatial-regression-models.html#cb575-1" aria-hidden="true" tabindex="-1"></a>fit4_70_sdm.im <span class="ot">&lt;-</span> <span class="fu">impacts</span>(fit4_70_sdm, <span class="at">tr=</span>trMC, <span class="at">R=</span><span class="dv">100</span>)</span>
+<span id="cb575-2"><a href="spatial-regression-models.html#cb575-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit4_70_sdm.im, <span class="at">zstats=</span><span class="cn">TRUE</span>, <span class="at">short=</span><span class="cn">TRUE</span>)</span></code></pre></div>
+<pre><code>## Impact measures (mixed, trace):
+##       Direct Indirect   Total
+## RD70  2.3255  1.99733  4.3228
+## PS70  0.3562  1.98440  2.3406
+## MA70 -0.0694 -0.08471 -0.1541
+## DV70  0.8164 -0.12307  0.6933
+## UE70 -0.2251 -1.35289 -1.5779
+## ========================================================
+## Simulation results ( variance matrix):
+## ========================================================
+## Simulated standard errors
+##       Direct Indirect  Total
+## RD70 0.33699   0.6104 0.5620
+## PS70 0.28707   0.7468 0.7160
+## MA70 0.05647   0.1280 0.1125
+## DV70 0.26317   0.5919 0.6133
+## UE70 0.11748   0.2657 0.2460
+## 
+## Simulated z-values:
+##      Direct Indirect  Total
+## RD70  6.867  3.20389  7.597
+## PS70  1.210  2.75708  3.361
+## MA70 -1.256 -0.67123 -1.394
+## DV70  3.209 -0.08795  1.292
+## UE70 -1.916 -5.10435 -6.429
+## 
+## Simulated p-values:
+##      Direct  Indirect Total  
+## RD70 6.6e-12 0.0014   3.0e-14
+## PS70 0.2261  0.0058   0.00078
+## MA70 0.2092  0.5021   0.16332
+## DV70 0.0013  0.9299   0.19627
+## UE70 0.0554  3.3e-07  1.3e-10</code></pre>
+<p>Notice how in this model only three inputs remain significant, resource deprivation, population structure, and unemployment. The sign of the coefficients remain the same for all the inputs. In most circumstances we see that when the direct effect is positive the indirect effect is also positive, and when the direct is negative the indirect is negative. Only for the insignificant effect of divorce we see a positive direct effect and a negative indirect effect.</p>
+<p>As suggested by <span class="citation"><a href="#ref-Kopczewska_2021" role="doc-biblioref">Kopczewska</a> (<a href="#ref-Kopczewska_2021" role="doc-biblioref">2021</a>)</span>, we can also examine the proportion of the direct effect in the total effect:</p>
+<div class="sourceCode" id="cb577"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb577-1"><a href="spatial-regression-models.html#cb577-1" aria-hidden="true" tabindex="-1"></a>direct <span class="ot">&lt;-</span> fit4_70_sdm.im<span class="sc">$</span>res<span class="sc">$</span>direct  </span>
+<span id="cb577-2"><a href="spatial-regression-models.html#cb577-2" aria-hidden="true" tabindex="-1"></a>indirect <span class="ot">&lt;-</span> fit4_70_sdm.im<span class="sc">$</span>res<span class="sc">$</span>indirect </span>
+<span id="cb577-3"><a href="spatial-regression-models.html#cb577-3" aria-hidden="true" tabindex="-1"></a>total <span class="ot">&lt;-</span> fit4_70_sdm.im<span class="sc">$</span>res<span class="sc">$</span>total    </span>
+<span id="cb577-4"><a href="spatial-regression-models.html#cb577-4" aria-hidden="true" tabindex="-1"></a>direct<span class="sc">/</span>total                     </span></code></pre></div>
+<pre><code>##   RD70   PS70   MA70   DV70   UE70 
+## 0.5380 0.1522 0.4503 1.1775 0.1426</code></pre>
+<p>The proportion of the (significant) direct effect ranges from 14% (for unemployment), fairly marginal, to 54% (for resource deprivation), about half of it. Another way of looking at it is by relation of the direct to the indirect effect by looking at its ratio in absolute values:</p>
+<div class="sourceCode" id="cb579"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb579-1"><a href="spatial-regression-models.html#cb579-1" aria-hidden="true" tabindex="-1"></a><span class="fu">abs</span>(direct)<span class="sc">/</span><span class="fu">abs</span>(indirect)</span></code></pre></div>
+<pre><code>##   RD70   PS70   MA70   DV70   UE70 
+## 1.1643 0.1795 0.8193 6.6332 0.1663</code></pre>
+<p>When the ratio is greater than 1 this suggest that the direct effect prevails, as we see for resource deprivation. With a score lower than 1 this indicates that the spillover effect is greater than that of internalisation as we see for population structure and unemployment.</p>
+</div>
+<div id="summary-and-further-reading-8" class="section level2" number="12.9">
+<h2><span class="header-section-number">12.9</span> Summary and further reading</h2>
+<p>This chapter has introduced some of the issues associated with spatial regression. We have deliberately avoided mathematical detail and focused instead on providing a general and more superficial introduction of some of the issues associated with fitting, choosing, and interpreting basic spatial regression models in R. We have also favoured the kind of models that have been previously discussed in the criminological literature, those relying on the frequentist tradition, use of maximum likelihood, simultaneous autoregressive models, and the incorporation of the spatial structure through a neighbourhood matrix. These are not the only ways of fitting spatial regression, though. The functions of <code>spatialreg</code>, for example, allow for newer generalized method of moments (GMM) estimators. On the other hand, other scientific fields have emphasised conditional autoregressive models (see <span class="citation"><a href="#ref-Wall_2004" role="doc-biblioref">Wall</a> (<a href="#ref-Wall_2004" role="doc-biblioref">2004</a>)</span> for the difference between CAR and SAR) and there is too a greater reliance, for example in spatial epidemiology, on Bayesian approaches. Equally we have only focused on cross sectional models, without any panel or spatio-temporal dimension to them. As Ralph Sockman was attributed to say “the larger the island of knowledge, the longer the shoreline of wonder.” Learning more about spatial analysis only leads to discovering there is much more to learn. This chapter mostly aims to make you realise this about spatial regression and hopefully tempt you into wanting to continue this journey. In what follows we offer suggestions for this path.</p>
+<p>There are a number of accessible, if somehow dated, introductory discussions of spatial regression for criminologists: <span class="citation"><a href="#ref-Tita_2010" role="doc-biblioref">Tita and Radil</a> (<a href="#ref-Tita_2010" role="doc-biblioref">2010</a>)</span> and <span class="citation"><a href="#ref-Bernasco_2010" role="doc-biblioref">Bernasco and Elffers</a> (<a href="#ref-Bernasco_2010" role="doc-biblioref">2010</a>)</span>. The books by <span class="citation"><a href="#ref-Ward_2008" role="doc-biblioref">Ward and Gleditsch</a> (<a href="#ref-Ward_2008" role="doc-biblioref">2008</a>)</span>, <span class="citation"><a href="#ref-Darmofal_2015" role="doc-biblioref">Darmofal</a> (<a href="#ref-Darmofal_2015" role="doc-biblioref">2015</a>)</span>, and <span class="citation"><a href="#ref-Chi_2020" role="doc-biblioref">Chi and Zhu</a> (<a href="#ref-Chi_2020" role="doc-biblioref">2020</a>)</span> expand this treatment with the social student in mind. Pitched at a similar level is <span class="citation"><a href="#ref-Anselin_2014" role="doc-biblioref">Anselin and Rey</a> (<a href="#ref-Anselin_2014" role="doc-biblioref">2014</a>)</span>. More mathematically detailed treatment and a wider diversity of models, including those appropriate for panel data, is provided in several spatial econometric books such as <span class="citation"><a href="#ref-LeSage_2009" role="doc-biblioref">LeSage and Pace</a> (<a href="#ref-LeSage_2009" role="doc-biblioref">2009</a>)</span>, <span class="citation"><a href="#ref-Elhorst_2014" role="doc-biblioref">Elhorst</a> (<a href="#ref-Elhorst_2014" role="doc-biblioref">2014</a>)</span> or <span class="citation"><a href="#ref-Kelejian_2017" role="doc-biblioref">Kelejian and Piras</a> (<a href="#ref-Kelejian_2017" role="doc-biblioref">2017</a>)</span>. In these econometric books you will also find more details about a newer approaches to estimation, such as GMM. If you are interested in exploring the Bayesian approach to modeling spatial lattice data, we suggest you start with <span class="citation"><a href="#ref-Haining_2020" role="doc-biblioref">Haining and Li</a> (<a href="#ref-Haining_2020" role="doc-biblioref">2020</a>)</span>.</p>
+<p>There are also a number of resources that focus on R capabilities for spatial regression and that have inspired our writing. It is important to highlight that many of these, even the more recent ones, do not account properly for how <code>spatialreg</code> has deprecated the regression functionality of <code>spdep</code>, even if they still provide useful instruction (for the basic architecture of the functions that have migrated to <code>spatialreg</code> has not being started from scratch). <span class="citation"><a href="#ref-Anselin_2007" role="doc-biblioref">Anselin</a> (<a href="#ref-Anselin_2007" role="doc-biblioref">2007</a>)</span> workbook offers a detailed explanation of the spatial regression capabilities through <code>spdep</code>, most of which is still transferable to the equivalent functions in <code>spatialreg</code>. This workbook indeed uses the “ncovr” dataset and may be a useful continuation point for what we have introduced here. <span class="citation"><a href="#ref-Kopczewska_2021" role="doc-biblioref">Kopczewska</a> (<a href="#ref-Kopczewska_2021" role="doc-biblioref">2021</a>)</span> provides one of the most up to date discussions of spatial regression with R also pitched at a level the reader of this book should find accessible. <span class="citation"><a href="#ref-Bivand_2021" role="doc-biblioref">Bivand, Millo, and Piras</a> (<a href="#ref-Bivand_2021" role="doc-biblioref">2021</a>)</span> offers a more technical, up to date, and systematic review of the evolution of the software available for spatial econometrics in R. It is definitely a must read. For Bayesian approaches to spatial regression using R, which we have not had the space to cover in this volume, we recommend <span class="citation"><a href="#ref-Lawson_2021a" role="doc-biblioref">Lawson</a> (<a href="#ref-Lawson_2021a" role="doc-biblioref">2021a</a>)</span>, <span class="citation"><a href="#ref-Lawson_2021b" role="doc-biblioref">Lawson</a> (<a href="#ref-Lawson_2021b" role="doc-biblioref">2021c</a>)</span>, <span class="citation"><a href="#ref-Gomez_2005" role="doc-biblioref">Gomez-Rubio, Ferrandiz, and Lopez</a> (<a href="#ref-Gomez_2005" role="doc-biblioref">2005</a>)</span>, and <span class="citation"><a href="#ref-Blangiardo_2015" role="doc-biblioref">Blangiardo and Cameletii</a> (<a href="#ref-Blangiardo_2015" role="doc-biblioref">2015</a>)</span>, all with a focus on health data.</p>
+<p>Aside from these reading resources, there are two series of lectures available in YouTube that provide good introductions to the field of spatial econometric. <a href="https://tinyurl.com/mwnxpknb">Prof. Mark Burkey spatial econometric reboot</a> and Luc Anselin lectures in the GeoDa Software channel.</p>
+<p>Although the focus of this chapter has been on spatial regression, there are other approaches that are used within crime analysis for the purpose of predicting crime a particular areas such as risk terrain modeling or the use of other machine learning algorithms for prediction purposes. Those are well beyond the scope of this book. Risk terrain modeling <span class="citation">(<a href="#ref-Caplan_2016" role="doc-biblioref">Caplan and Kennedy 2016</a>)</span> is generally actioned through the RTDMx sofware commercialised by its proponents. In a recent paper <span class="citation"><a href="#ref-Wheeler_2021" role="doc-biblioref">Wheeler and Steenbeek</a> (<a href="#ref-Wheeler_2021" role="doc-biblioref">2021</a>)</span> illustrate how random forest, a popular machine learning algorithm, can also be used to generate crime predictions at micro places. <span class="citation">(Dr. Gio Circo is currently developing a package (<code>quickGrid</code>) to apply the methods proposed by <a href="#ref-Wheeler_2021" role="doc-biblioref">Wheeler and Steenbeek 2021</a>)</span>(<a href="https://github.com/gmcirco/quickGrid" class="uri">https://github.com/gmcirco/quickGrid</a>).</p>
+
+</div>
+</div>
+<h3>References</h3>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-Anselin_2007" class="csl-entry">
+———. 2007. <em>Spatial Regression Analysis in r: A Workbook</em>. Center for Spatially Integrated Social Science.
+</div>
+<div id="ref-Anselin_1998" class="csl-entry">
+Anselin, Luc, and Anil Bera. 1998. <span>“Spatial Dependence in Linear Regression Models with an Introduction to Spatial Econometrics.”</span> In <em>Hanbook of Applied Economic Statistics</em>, edited by A Ullah and D Giles, 237–89. New York: Marcel Dekker.
+</div>
+<div id="ref-Anselin_2014" class="csl-entry">
+Anselin, Luc, and Sergio Rey. 2014. <em>Modern Spatial Econometrics in Practice</em>. Chicago: GeoDa Press.
+</div>
+<div id="ref-Baller_2001" class="csl-entry">
+Baller, Robert, Luc Anselin, Steven Messner, Glenn Deane, and Darnell Hawkins. 2001. <span>“Structural Covariates of US County Homicide Rates: Incorporating Spatial Effects.”</span> <em>Criminology</em> 39 (3): 561–88.
+</div>
+<div id="ref-Beale_2010" class="csl-entry">
+Beale, Colin, Jack Lennon, John Yearsley, Mark Brewer, and David Elston. 2010. <span>“Regression Analysis of Spatial Data.”</span> <em>Ecology Letters</em> 13 (2): 246–64.
+</div>
+<div id="ref-Bernasco_2010" class="csl-entry">
+Bernasco, Wim, and Henk Elffers. 2010. <span>“Statistical Analysis of Spatial Crime Data.”</span> In <em>Handbook of Quantitative Criminology</em>, edited by Alex Piquero and David Weisburd, 699–724. New York: Springer.
+</div>
+<div id="ref-Bivand_2021" class="csl-entry">
+Bivand, Roger, Giovanni Millo, and Gianfranco Piras. 2021. <span>“A Review of Software for Spatial Econometrics in r.”</span> <em>Mathematics</em> 9 (11).
+</div>
+<div id="ref-Blangiardo_2015" class="csl-entry">
+Blangiardo, Marta, and Michela Cameletii. 2015. <em>Spatial and Spatio-Temporal Bayesian Models with r-INLA</em>. Chichester: John Wiley; Sons.
+</div>
+<div id="ref-Brambor_2006" class="csl-entry">
+Brambor, Thomas, William Clark, and Matt Golder. 2006. <span>“Understanding Interaction Models: Improving Empirical Analyses.”</span> <em>Political Analysis</em> 14 (1): 63–82.
+</div>
+<div id="ref-Caplan_2016" class="csl-entry">
+Caplan, Joel, and Leslie Kennedy. 2016. <em>Risk Terrain Modeling: Crime Prediction and Risk Reduction</em>. University of California Press.
+</div>
+<div id="ref-Chi_2020" class="csl-entry">
+Chi, Guangqing, and Jun Zhu. 2020. <em>Spatial Regression Models for the Social Sciences</em>. Thousand Oaks, CA: Sage.
+</div>
+<div id="ref-Darmofal_2015" class="csl-entry">
+Darmofal, David. 2015. <em>Spatial Analysis for the Social Sciences</em>. New York, NY: Cambridge University Press.
+</div>
+<div id="ref-Eck_1997" class="csl-entry">
+Eck, John, and William Spelman. 1997. <span>“Problem Solving: Problem-Oriented Policing in Newport News.”</span> Research Report. Police Executive Research Forum.
+</div>
+<div id="ref-Elhorst_2010" class="csl-entry">
+Elhorst, Paul. 2010. <span>“Applied Spatial Econometrics: Raising the Bar.”</span> <em>Spatial Economic Analysis</em> 5 (1): 9–28.
+</div>
+<div id="ref-Elhorst_2014" class="csl-entry">
+———. 2014. <em>Spatial Econometrics: From Cross-Sectional Data to Spatial Panels</em>. Heildeberg: Springer.
+</div>
+<div id="ref-Floch_2018" class="csl-entry">
+Floch, Jean-Michel, and Ronan LeSaout. 2018. <span>“Spatial Econometrics : Common Models.”</span> In <em>Handbook of Spatial Analysis: Theory and Application with r</em>, edited by Vincent Loonis and Marie-Pierre de Bellefon, 149–77. Montrouge: Institut national de la statistique et des études économiques.
+</div>
+<div id="ref-Gelman_2008" class="csl-entry">
+Gelman, Andrew. 2008. <span>“Scaling Regression Inputs by Dividing by Two Standard Deviations.”</span> <em>Statistics in Medicine</em> 27: 2865–73.
+</div>
+<div id="ref-Gelman_2007" class="csl-entry">
+Gelman, Andrew, and Jenniffer Hill. 2007. <em>Data Analysis Using Regression and Multilevel/Hierarchical Models</em>. Cambridge: Cambridge University Press.
+</div>
+<div id="ref-Gelman_2020" class="csl-entry">
+Gelman, Andrew, Jenniffer Hill, and Aki Vehtari. 2020. <em>Regression and Other Stories</em>. Cambridge: Cambridge University Press.
+</div>
+<div id="ref-Gomez_2005" class="csl-entry">
+Gomez-Rubio, Virgilio, Juan Ferrandiz, and Antonio Lopez. 2005. <span>“Detecting Clusters of Disease with r.”</span> <em>Journal of Geographical Systems</em> 7: 189–206.
+</div>
+<div id="ref-Haining_2003" class="csl-entry">
+Haining, Robert. 2003. <em>Spatial Data Analysis: Theory and Practice</em>. Cambridge: Cambridge University Press.
+</div>
+<div id="ref-Haining_2020" class="csl-entry">
+Haining, Robert, and Guangquan Li. 2020. <em>Modelling Spatial and Spatial-Temporal Data: A Bayesian Approach</em>. Boca Raton, FL: CRC Press.
+</div>
+<div id="ref-James_2013" class="csl-entry">
+James, Gareth, Daniela Witten, Trevor Hastie, and Robert Tibshirani. 2013. <em>An Introduction to Statistical Learning with Applications in r</em>. New York: Springer.
+</div>
+<div id="ref-Kelejian_2017" class="csl-entry">
+Kelejian, Harry, and Gianfranco Piras. 2017. <em>Spatial Econometrics</em>. London, UK: Academic Press.
+</div>
+<div id="ref-Kopczewska_2021" class="csl-entry">
+Kopczewska, Katarzyna. 2021. <em>Applied Spatial Statistics and Econometrics: Data Analysis in r</em>. Milton Park: Routledge.
+</div>
+<div id="ref-Lawson_2021a" class="csl-entry">
+Lawson, Andrew. 2021a. <em>Bayesian Disease Mapping</em>. 3rd ed. Boca Raton, CA: CRC Press.
+</div>
+<div id="ref-Lawson_2021b" class="csl-entry">
+———. 2021c. <em>Using r for Bayesian Spatial and Spatio-Temporal Health Modeling</em>. Boca Raton, CA: CRC Press.
+</div>
+<div id="ref-LeSage_2009" class="csl-entry">
+LeSage, James, and Kelley Pace. 2009. <em>Introduction to Spatial Econometrics</em>. Boca Ratón: CRC Press.
+</div>
+<div id="ref-Smith_2009" class="csl-entry">
+Smith, Tony. 2009. <span>“Estimation Bias in Spatial Models with Strongly Connected Weight Matrices.”</span> <em>Geographical Analysis</em> 41 (3): 307–32.
+</div>
+<div id="ref-Tita_2010" class="csl-entry">
+Tita, George, and Steven Radil. 2010. <span>“Spatial Regression Models in Criminology: Modeling Social Processes in the Spatial Weights Matrix.”</span> In <em>Handbook of Quantitative Criminology</em>, edited by Alex Piquero and David Weisburd, 101–21. New York: Springer.
+</div>
+<div id="ref-Wall_2004" class="csl-entry">
+Wall, Melanie. 2004. <span>“A Close Look at the Spatial Structure Implied by the CAR and SAR Model.”</span> <em>Journal of Statistical Planning and Inference</em> 121: 311–24.
+</div>
+<div id="ref-Ward_2008" class="csl-entry">
+Ward, Michael, and Kristian Gleditsch. 2008. <em>Spatial Regression Models</em>. Thousand Oakds: Sage.
+</div>
+<div id="ref-Wheeler_2021" class="csl-entry">
+Wheeler, Andrew, and Wouter Steenbeek. 2021. <span>“Mapping the Risk Terrain for Crime Using Machine Learning.”</span> <em>Journal of Quantitative Criminology</em> 37: 445–80.
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="detecting-hot-spots-and-repeats.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="spatial-heterogeneity-and-regression.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook/js/app.min.js"></script>
+<script src="libs/gitbook/js/lunr.js"></script>
+<script src="libs/gitbook/js/clipboard.min.js"></script>
+<script src="libs/gitbook/js/plugin-search.js"></script>
+<script src="libs/gitbook/js/plugin-sharing.js"></script>
+<script src="libs/gitbook/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook/js/jquery.highlight.js"></script>
+<script src="libs/gitbook/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": true,
+"facebook": false,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/yihui/bookdown-crc/edit/master/11-spatial_regression.Rmd",
+"text": "Edit"
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": ["crime_mapping.pdf", "crime_mapping.epub"],
+"toc": {
+"collapse": "none"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
