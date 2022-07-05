@@ -482,14 +482,11 @@ It’s important that the `RasterLayer` object is tagged with a proper coordinat
 
 #make sure we have right CRS, which in this case is the New York 32118
 
-epsg32118 <- "+proj=lcc +lat_1=41.03333333333333 +lat_2=40.66666666666666 +lat_0=40.16666666666666 +lon_0=-74 +x_0=300000 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs" 
-
-#use the CRS function from the sp package to assign coordinate system
-crs(r1) <- sp::CRS(epsg32118) 
+crs(r1) <- "EPSG:32118"
 
 ```
 
-You may be wondering what is all that gibberish that we are assigning to the "epsg32118" object. Remember when we talked about coordinate systems? There are different ways in which the information that identifies a CRS are stored. Three common formats include EPSG, PROJ4, and WKT formats. What you see above is the PROJ4 format. You can find how these different formats apply to each coordinate system in the [spatialreference.org](https://spatialreference.org/) online archive.
+The way we assign the CRS above is using the now most accepted PROJ6 format. You can find how these different formats apply to each coordinate system in the [spatialreference.org](https://spatialreference.org/) online archive.
 
 
 Now we are ready to plot, although first we will create a more suitable colour palette and, since the values in the scale are quite close to 0 will multiple by a constant, to make the labels more readable. For this we use the `values()` function from the `raster` package that allows us to manipulate the values in a raster object:
