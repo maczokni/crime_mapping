@@ -69,7 +69,7 @@ The first difficulty one encounters when wanting to do analysis along spatial ne
 
 Below we show how to obtain this data for Kensington, a popular neighbourhood in Toronto city centre through `osmdata` and for Manhattan using `tigris`. As we're querying data from Open Street Map, first we draw a bounding box around the area we are interested in, then select "highways" as the feature to extract (see *Appendix C* for details on building OSM queries). As discussed by @Abad_2019, the `osmdata` package turns streets that form loops into polygons, to ensure we end up with lines we use `osm_poly2line`. 
 
-```{r, results='hide'}
+```{r get_heswall, results='hide'}
 # using osm data
 highways_heswall <- opq("Heswall, UK") %>% 
   add_osm_feature(key = "highway") %>% 
@@ -83,7 +83,7 @@ heswall_lines <- highways_heswall$osm_lines
 Now let's use the `tigris` package to get TIGER/Line shapefiles from the United States Census Bureau. The `roads()` function returns the content of the all roads shapefile - which includes primary roads, secondary roads, local neighborhood roads, rural roads, city streets, vehicular trails (4WD), ramps, service drives, walkways, stairways, alleys, and private roads. It returns these as an `sf` object. 
 
 
-```{r, results='hide'}
+```{r get_manhattan, results='hide'}
 # using tigris
 manhattan_roads <- roads("NY", "New York")
 
@@ -111,7 +111,7 @@ This can be done by virtue of manual editing, which in large networks may be pro
 We quickly below show the `as_sfnetwork()` function with the road network in Kensington (which will generate an object of class `sfnetwork`) so that you get a sense for the look of a spatial network, but for further details on network construction and pre-processing it is important you see the documentation, as well as the other materials cited above.
 
 
-```{r, fig.cap='Kengsinton as a spatial network'}
+```{r, fig.cap='Heswall as a spatial network'}
 heswall_ntwk <- as_sfnetwork(heswall_lines)
 plot(heswall_ntwk)
 ```
@@ -137,7 +137,7 @@ The `linnet` object will represent the network of a set of line segments, contai
 We will show here how to transform a `SpatialLines` object into `linnet` and how, then, we generate a `lpp` object. 
 
 
-```{r}
+```{r create_heswall_linnett}
 
 # transform to projected coordinages (British National Grid)
 heswall_lines <- st_transform(heswall_lines, crs = 27700)
@@ -145,15 +145,13 @@ heswall_lines <- st_transform(heswall_lines, crs = 27700)
 heswall_roads_sp <- as(heswall_lines, 'Spatial')
 # turn into line network (linnet)
 heswall_roads_linnet <- as.linnet.SpatialLines(heswall_roads_sp)
-# plot
-plot(heswall_roads_linnet, style = "none", main = "Heswall")
 
 ```
 
 Now let's get some crime data to link to this line network. We can find this from the open data portal data.police.uk and choose to get data from Merseyside police, who cover this area. For the sake of practice here, one years' worth of data is included with the datasets available with this textbook (see preamble). The file is `merseyside_asb.csv`.
 
 
-```{r}
+```{r getheswallcrimedata, fig.cap='All shoplifting incidents in Merseyside May 2019 - April 2020'}
 
 # read in asb data
 shoplifting <- read_csv("data/merseyside_shoplifting.csv")
@@ -173,24 +171,18 @@ ggplot() +
 We can see that Merseyside Police cover a lot more than just Heswall, so we can use the bounding box around the roads to subset our crime data: 
 
 
-```{r}
+```{r createbbandsubsetheswallshoplift}
 
 # create a bounding box around the heswall lines geometry
 heswall_bb <- st_bbox(heswall_lines) %>% st_as_sfc()
 # subset using the bounding box
 heswall_shoplifting <- st_intersection(shoplifting_sf, heswall_bb)
-# now plot again
-ggplot() + 
-  geom_sf(data = heswall_lines) + 
-  geom_sf(data = heswall_shoplifting, colour = "red") + 
-  geom_sf(data = heswall_bb, colour = "blue", fill = NA) + 
-  theme_void()
 
 ```
 
 Now we have the line network and the shoplifting incidents in heswall we can create our lpp object. First we create a ppp (point pattern) object, following the steps we learned in the previuos chapter on spatial point patterns:
 
-```{r}
+```{r make_shoplifting_ppp}
 
 # create a window
 window <- as.owin(heswall_roads_linnet)
@@ -203,7 +195,7 @@ shoplifting_ppp <- ppp(x = shoplifting_coords[,1], y = shoplifting_coords[,2],
 
 Now that we have the `ppp` object we can use it to create our `lpp` object (notice that, as noted above, there are other ways to input your points when creating a `lpp` object) and then plot it. There are a 264 locations, some of which represent up to 6 incidents. This is likely the result of geomasking due to privacy concerns [@Tompson_2015].
 
-```{r}
+```{r makeshopliftinglpp}
 # now use this and previously created linnet to make lpp object
 shoplifting_lpp <- lpp(shoplifting_ppp, heswall_roads_linnet, window = window)
 
@@ -212,7 +204,7 @@ shoplifting_lpp <- lpp(shoplifting_ppp, heswall_roads_linnet, window = window)
 
 Now we can calculate the density and visualise. Like we did before, we can estimate the density of data points along the networks using Kernel estimation with `density.lpp()`. This is an area of `spatstat` that has seen significant development in the latest release. Depending on the arguments passed to the function a different algorithm will be employed to estimate the density.  
 
-```{r}
+```{r densitylpp, fig.cap='Network density map with defaults'}
 
 # calculate density
 d100 <- density.lpp(shoplifting_lpp, 100, finespacing=FALSE)
@@ -223,7 +215,7 @@ plot(d100)
 
 ```{r}
 
-plot(d100, style="width")
+plot(d100, style="width", fig.cap='Network density map with defaults with line width')
 
 ```
 
@@ -233,7 +225,7 @@ The visual inspection of the map suggest that the intensity of crime along the n
 
 The Okabe-Suhigara method was the first to be developed for this kind of applications and can be invoked with `densityEqualSplit()`. We can specify the kernel (the default is `epanechnikov`) and the smoothing bandwidth, sigma (the standard deviation of the kernel). Above, we used 100 meters for illustration, but see *Chapter 7: Spatial point patterns of crime events* in this book for details on these parameters). There are two versions of this algorithm, the continuous that is excruciatingly slow (particularly for larger datasets) and the discontinuous that is a bit quicker but has less desirable statistical properties.  We are using the number of events per point as the weight for computation, and wrapping everything on `system.time()` to provide a notion of computation time. We will only show the discontinuous version.
 
-```{r}
+```{r densityEqualSplit}
 system.time(d_okabe <- densityEqualSplit(shoplifting_lpp, 
                                          weights = marks(shoplifting_lpp), 
                                          sigma = 100,
@@ -253,7 +245,7 @@ plot(d_okabe, main="Okabe-Suhigara (disc.)")
 
 @McSwiggan_2016 subsequently developed an algorithm that is equivalent to the Okabe-Suhigara method using the continuous rule applied to the Gaussian kernel, and therefore has more desirable properties than the equal split discontinuous, but that runs faster (than the Okabe-Suhigara equal split continuous version).
 
-```{r}
+```{r densityHeat.lpp}
 system.time(d_mcswiggan <- densityHeat.lpp(shoplifting_lpp, 
                                     weights = marks(shoplifting_lpp), 
                                     sigma = 100, 
@@ -271,7 +263,7 @@ plot(d_mcswiggan, main="McSwiggan")
 Finally, as noted above, @Rakshit_2019 developed a fast algorithm, using a convolution method, that is particularly helpful with large datasets. The analysis of the authors suggest this estimator "is consistent, and its statistical efficiency is only slightly suboptimal" [@Rakshit_2019]. 
 
 
-```{r}
+```{r densityQuick.lpp}
 system.time(d_rakshit <- densityQuick.lpp(shoplifting_lpp, 
                                     weights = marks(shoplifting_lpp), 
                                     sigma = 100,
@@ -295,7 +287,7 @@ So these are some ways in which we can create a density map of crime along netwo
 
 Another thing you might like to do is add some context to explore where these hotspots are. Similar to how we did this with our KDE in continuous space in chapter 7, we can use the raster and leaflet packages here too. One difference, we must also use the `as.im()` function to make sure our heatmap is of class "im". 
 
-```{r}
+```{r add_leaflet_base_heswall, fig.cap='Add interactive basemap to explore hotspots'}
 
 # convert to raster wrapped inside as.im() function
 r1 <- raster(as.im(d_mcswiggan))
@@ -324,7 +316,7 @@ leaflet() %>%
 
 To demonstrate some simpler approaches to visualising crime distribution along networks, we can zoom in a little bit on Heswall town centre. The coordinates for that are: 53.3281041,-3.1025683. Let's build a buffer. 
 
-```{r}
+```{r heswalltc}
 # create a df of one central point
 heswall_tc <- data.frame(longitude = -3.1025683, 
                          latitude = 53.3281041)
@@ -336,19 +328,10 @@ heswall_tc_buffer <- st_as_sf(heswall_tc,
   st_transform(., 27700) %>% # project to BNG (for meters)
   st_buffer(., 1000)  # build 1km buffer
 
-
-# Plot the results
-ggplot() + 
-  geom_sf(data = heswall_lines) + 
-  geom_sf(data = heswall_shoplifting, col = "red") + 
-  geom_sf(data = heswall_tc_buffer, col = "blue", fill = NA) + 
-  theme_void()
-
 ```
 
-<!-- HERE NOW, FOCUS ON TOWN CENTRE, DO HOT ROUTES, FOCUS ON ST, DO ST PROFILE -->
 
-```{r}
+```{r, fig.cap='Narrow focus on Heswall town centre'}
 # select roads that go through town centre
 heswall_tc <- st_intersects(heswall_tc_buffer, heswall_lines)
 heswall_tc <- heswall_lines[unlist(heswall_tc),]
@@ -378,7 +361,7 @@ We can follow those steps here.
 
 #### Preparing the network layer
 
-The pre-requisite to visualising hot routes is to have a network layer which meets certain conditions. For exmaple, @Tompson2009 advise that since network layers typically contain streets of unequal length, longer segments might show up as hot simply because they have more space to contain more crimes. Therefore in such cases it is advisable in this analysis to use equal length street segments, where possible. To address this they segment their studiy area into 1 meter length segments using a grid overlay. Another approach is to calculate a rate per meter, instead of count, so that's the approach we will take here. 
+The pre-requisite to visualising hot routes is to have a network layer which meets certain conditions. For exmaple, @Tompson_2009 advise that since network layers typically contain streets of unequal length, longer segments might show up as hot simply because they have more space to contain more crimes. Therefore in such cases it is advisable in this analysis to use equal length street segments, where possible. To address this they segment their studiy area into 1 meter length segments using a grid overlay. Another approach is to calculate a rate per meter, instead of count, so that's the approach we will take here. 
 
 Another requirement is that the network layer has a unique identifier for each segment. One quick way to do this, if your data don't already contain such a column is to create a column that just numbers each row from 1 to the number of observations (rows) in the dataframe. Even if you have such a unique id, having the row name to a numeric column is required for joining the crimes to the street segments in the next step. 
 
@@ -435,7 +418,7 @@ heswall_tc <- left_join(heswall_tc,
 
 We can produce a quick visialisation to check that everything linked OK before moving on to compute a rate normalising for length of street segment. 
 
-```{r}
+```{r, fig.cap='Check that crimes are linked to street segments'}
 ggplot() + 
   geom_sf(data = heswall_tc, 
           aes(colour = Freq), lwd = 0.5) + 
@@ -487,9 +470,9 @@ Now we have a measure of incidents per meter. Finally we can move to visualise t
 
 Very similar to how we carried out a visual check earlier, but this time using our rate as the value to present.
 
-```{r}
+```{r, fig.cap='Hot routes map displaying rate of crimes per meter for each segment'}
 
-p1 <- ggplot() + 
+ggplot() + 
   geom_sf(data = heswall_tc, aes(colour = shoplifting_rate), 
           lwd = 0.5, alpha = 0.8) + 
   theme_void() +
@@ -498,19 +481,18 @@ p1 <- ggplot() +
                          low = "#2166ac", mid = "#d1e5f0", 
                          high = "#b2182b")
 
-p1
 
 ```
 
 We can now see that that longer road there (Telegraph Road) is no longer so dominant once we've controlled for length. 
 
-Now this might also be as if it's a long road it will have a bigger denominator, and as we're dealing with few crimes here, it might be that artifically dilutes the crime rate. If you suspect this might be the case, then the segmentation might be a better approach, and then refer back to the paper by @Tompson2009 for guidance on that. 
+Now this might also be as if it's a long road it will have a bigger denominator, and as we're dealing with few crimes here, it might be that artifically dilutes the crime rate. If you suspect this might be the case, then the segmentation might be a better approach, and then refer back to the paper by @Tompson_2009 for guidance on that. 
 
 In any case, we have now created a hot routes visualisation, that helps us map where crime rates are higher along a network. We can add some variations to this if we like, for example we could adjust the width of the segments as well as the colour, although this doesn't always look the best as it distorts the street network: 
 
 ```{r, fig.cap= "Hot routes map displaying rate of crimes per meter for each segment with line width as well as colour"}
 
-p2 <- ggplot() + 
+ggplot() + 
   geom_sf(data = heswall_tc, aes(colour = shoplifting_rate, size = shoplifting_rate), alpha = 0.8) + 
   theme_void() +
   scale_colour_gradient2(name = "Shoplifting incidents per meter", 
@@ -519,7 +501,6 @@ p2 <- ggplot() +
                          high = "#b2182b") +
   scale_size_continuous(name = "Rate of crimes per meter (width)") 
 
-p2
 
 
 
@@ -539,7 +520,7 @@ Visualising crime along networks presents an important first step in identifying
 
 #### Prepare the network layer
 
-The strength of this approach is to focus in on one area of interest. Here let's choose Telegraph Road. It is a long street which runs through the town centre. To subset it, we can use the names provided by the volunteers of Open Street Map, available in the `` column: 
+The strength of this approach is to focus in on one area of interest. Here let's choose Telegraph Road. It is a long street which runs through the town centre. To subset it, we can use the names provided by the volunteers of Open Street Map, available in the `name` column: 
 
 
 ```{r}
@@ -547,11 +528,9 @@ The strength of this approach is to focus in on one area of interest. Here let's
 telegraph_rd <- heswall_tc %>% filter(name == "Telegraph Road") 
 
 ```
+The geometry we have is already separated into 7 segments. This is just how we downloaded from OSM. We see there are 7 segments, but they don't necessarily correspond to anything specific. In Street Profile Analysis we want to be conscious about how we divide up the segment. In their paper, @Spicer_2016 just segment into 100m lengths. Another thing we might be interested in is to slice into segments wherever there is an intersection with another road. Here let's use the intersections as a way to divide our street into segments. 
 
-
-7 segments
-
-intersection
+To do this, we create an object of the intersecting streets, let's call this object `tr_intersects`.
 
 ```{r}
 
@@ -564,9 +543,9 @@ tr_intersects <- tr_intersects %>% filter(name != "Telegraph Road")
 ```
 
 
-plot
+We can plot our segments to see whether they correspond to these intersections: 
 
-```{r}
+```{r, fig.cap='Default OSM segments of Telegraph Road vs intersections'}
 
 ggplot() + 
   geom_sf(data = tr_intersects, lwd = 0.5) + 
@@ -574,30 +553,38 @@ ggplot() +
   theme_void() + theme(legend.position = "none")
 
 ```
-Some long, some short... 
+
+
+We can see that they do not correspond to all the intersections. Unfortunately, we will have to carry out some data cleaning. To do this, first we unite the entire street into one, and then use the intersections to divide into the appropriate segments. 
+
 
 ```{r}
 
+# unite the segments into one long street
 telegraph_rd_u <- telegraph_rd %>% 
   group_by(name) %>%
   st_union() %>% 
   st_cast("LINESTRING")
 
+# use st_split and st_combine to split into parts by intersecting roads
 library(lwgeom)
-
 parts <- st_split(telegraph_rd_u, st_combine(tr_intersects$geometry)) %>% st_collection_extract("LINESTRING")
 
-parts
-
+# combine the parts into one shapefile
 datalist = list()
 for (i in 1:length(parts)) {
   
   datalist[[i]] <- st_as_sf(data.frame(section = i), geometry = st_geometry(parts[i]))
   
 }
-
 tr_sections <- do.call(rbind, datalist)
+```
 
+In the above code we do a lot but it means we end up with a geometry where the segments were defined by us, with the rationale that we should segment at each intersection. Whether you use this method, or divide at some set interval like every 100m is up to you, but as long as there is a decision made and justified is usually better than relying on defaults, such as the segments from OSM. 
+
+Let's plot the new segments to see if they correspond to intersections.
+
+```{r, fig.cap = "Telegraph Road segmented at each intersection"}
 ggplot() + 
   geom_sf(data = tr_intersects, lwd = 0.5) + 
   geom_sf(data = tr_sections, aes(colour = as.character(section)), lwd = 1.5, alpha = 0.8) + 
@@ -606,7 +593,11 @@ ggplot() +
 ```
 
 
+Looks good. Now we can move to the next step and link our shoplifting incidents to these segments. 
+
 #### Linking events to street segments
+
+To link the shoplifting incidents first we should filter those crimes which will be relevant. For this we build a 400m buffer around the road, and include only those shoplifting incidents which fall within this buffer (for more about buffers see *Chapter 2 Basic geospatial operations in R*).
 
 
 ```{r}
@@ -616,11 +607,22 @@ tr_buffer <- st_buffer(telegraph_rd_u, 400)
 # select shoplifting incidents in town centre
 tr_shoplifting <- st_intersects(tr_buffer, tc_shoplifting)
 tr_shoplifting <- tc_shoplifting[unlist(tr_shoplifting),]
+```
 
+
+The strength of street profiles comes out in comparing different sources of data, so let's split our shoplifting incidents by season. Let's compare summer and winter. 
+
+```{r}
 # split seasonally (to compare later) let's focus on winter and summer
 summer_sl <- tr_shoplifting %>% filter(month %in% c("2019-06", "2019-07", "2019-08"))
 winter_sl <- tr_shoplifting %>% filter(month %in% c("2019-12", "2020-01", "2020-02"))
+```
 
+
+Then, the steps for linking the crimes are the same as we followed for hot routes above, using the `st_nearest_feature()` function. 
+
+
+```{r}
 # attach summer shoplifting incidents
 nearest_segments_summer <- st_nearest_feature(summer_sl, tr_sections)
 nearest_freq_summer <- as.data.frame(table(nearest_segments_summer))
@@ -648,10 +650,10 @@ tr_sections <- left_join(tr_sections,
 ```
 
 
-Visualisation to check
+Similarly to how we did with hot routes, we can carry out a visual check to make sure they linked OK. We can also try to compare the two seasons on these side-by-side maps. 
 
 
-```{r}
+```{r, fig.cap='Shoplifting in summer and winter months'}
 p1 <- ggplot() + 
   geom_sf(data = tr_sections, aes(colour = summer_sl), lwd = 0.5) + 
   theme_void() +
@@ -671,7 +673,7 @@ gridExtra::grid.arrange(p1,p2, nrow = 1)
 ```
 
 
-Here we can see there may be some differences between winter and summer, but it is unclear how much. 
+We can see there may be some differences between winter and summer, but it is unclear how much. 
 
 #### Calculating a rate.
 
@@ -688,9 +690,9 @@ tr_sections$winter_rate <- as.numeric(tr_sections$winter_sl / tr_sections$length
 
 #### Visualise
 
-To do this, we need to find the "Point A" location, which will serve as our starting point to travel down Telegraph Road. Most likely you will have to do this manually. In the case of a bus or railway route, you know the terminus stations, so you can use these. In the case of street segments, it might be more arbitrary. Here I have identified "section 3" as our starting point. Note that it's not section 1 or 20, which means that the segments are not numbered sequentially. This means we will have to assign an order. 
+Finally, we reach the visualisation stage. To do this, we need to find the "Point A" location, which will serve as our starting point to travel down Telegraph Road. Most likely you will have to do this manually. In the case of a bus or railway route, you know the terminus stations, so you can use these. In the case of street segments, it might be more arbitrary. Here I have identified "section 3" as our starting point. Note that it's not section 1 or 20, which means that the segments are not numbered sequentially. This means we will have to assign an order. 
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, fig.cap='Find starting point "point a" on the street'}
 
 ggplot() + 
   geom_sf(data = tr_intersects, lwd = 0.1) + 
@@ -725,10 +727,10 @@ tr_sections$dist_from_a[tr_sections$section == 3] <- -1
 
 Now we can arrange the segments in order from point A to point B. 
 
-Let's plot the summer shoplifting incidents
+Let's plot the summer shoplifting incidents using the street profile approach. This is a ggplot where the x-axis is the sequence of segments, and the y-axis is the crime rate we want to portray. 
 
 
-```{r}
+```{r, fig.cap='Street profile with unlabelled segments'}
 
 ggplot(tr_sections, aes(x = reorder(as.character(section), 
                                   dist_from_a), 
@@ -744,13 +746,15 @@ ggplot(tr_sections, aes(x = reorder(as.character(section),
 
 ```
 
-
+You might notice here that the labels are not very meaningful. We could manually recode each one to something better, or another approach is to try to get the name of the intersecting road in order to give some meaning. To do this, we can use a little loop below which will cycle through each segment, and find the nearest intersecting road from the `tr_intersects` object. 
 
 ```{r}
 
+# label the cross streests from 1 to n
 x_streets <- tr_intersects %>% 
    mutate(xst_id = 1:nrow(.))
 
+# loop through each segment and find the nearest intersecting road
 datalist <- list()
 i <- 1
 for(segment_id in tr_sections$section){
@@ -760,9 +764,10 @@ for(segment_id in tr_sections$section){
                         filter(section == segment_id), x_streets))
 i <- i + 1  
 }
+# bind into a df
 nearest_matrix <- do.call(rbind, datalist)
 
-
+# join the intersections to the street dataframe
 nearest_matrix <- left_join(nearest_matrix,
                             x_streets %>% 
                               dplyr::select(xst_id, name) %>%
@@ -772,7 +777,11 @@ tr_sections <- left_join(tr_sections, nearest_matrix,
                        by = c("section" = "section")) %>% 
   mutate(name = make.unique(name))
 
+```
 
+Once this is done, we can use this label on the x axis instead of the segment id, to provide a little more context. 
+
+```{r, fig.cap = 'Street profile using intersecting roads on x axis'}
 ggplot(tr_sections, aes(x = reorder(name, 
                                   dist_from_a), 
                       y = summer_rate, 
@@ -792,7 +801,7 @@ Now you may notice that there are some repeated names (e.g. "Thurstaston Road" a
 
 Finally, the power of the street profile analysis comes from the ease of comparison of data across the route. For example, here we can compare shoplifting between winter and summer: 
 
-```{r}
+```{r, fig.cap = 'Street profile comparing summer and winter months'}
 
 ggplot() + 
   geom_point(data = tr_sections, aes(x = reorder(name, 
