@@ -634,27 +634,42 @@ m <- leaflet() %>% addTiles()
 ```
 
 And just print it:
-```{r, cache=FALSE, fig.cap='A first interactive map'}
+```{r, eval=FALSE}
 m  
 ```
+
+```{r leaflet1, echo = FALSE, fig.cap='A first interactive map'}
+knitr::include_graphics(path = "img/leaflet_worldmap.png")
+```
+
+
 
 Not a super useful map, but it was really easy to make! You might of course want to add some content to your map. 
 
 You can add a point manually:
 
-```{r, cache=FALSE, fig.cap='Mapping the Univeristy of Manchester'}
+```{r, cache=FALSE}
 m <- leaflet() %>% addTiles()  %>% 
   addMarkers(lng=-2.230899,  # longitude
              lat=53.464987,  # latitude
              popup="University of Manchester") # text for popup
+
+
+```
+
+```{r, eval = FALSE}
 m  
+```
+
+```{r leaflet2, echo = FALSE, fig.cap='Mapping the Univeristy of Manchester'}
+knitr::include_graphics("img/leaflet_uom.png")
 ```
 
 If you click over the highlighted point you will read our input text "University of Manchester".
 
 You can add many points manually, with some popup text as well:
 
-```{r, cache=FALSE, fig.cap='Adding some more points to a map'}
+```{r, cache=FALSE}
 # create dataframe of latitude, longitude, and popups
 latitudes <- c(53.464987, 53.472726, 53.466649) 
 longitudes <- c(-2.230899, -2.245481, -2.243421) 
@@ -664,10 +679,15 @@ df <- data.frame(latitudes, longitudes, popups)
 # create leaflet map
 m <- leaflet(data = df) %>% addTiles()  %>%  
   addMarkers(lng=~longitudes, lat=~latitudes, popup=~popups)
+```
 
+```{r, cache=FALSE}
 #print leaflet map
 m  
 ```
+
+
+
 
 We can also map polygons, not just points. Let's plot our crimes on/near bars to illustrate. To do this, we can return to our buffers where we counted the number of crimes within 100m of each bar/ licensed premise (the "crimes_per_prem" object). 
 

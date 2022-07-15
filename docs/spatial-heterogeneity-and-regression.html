@@ -23,7 +23,7 @@
 <meta name="author" content="Juanjo Medina and Reka Solymosi" />
 
 
-<meta name="date" content="2022-07-07" />
+<meta name="date" content="2022-07-14" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -536,42 +536,42 @@ div.csl-indent {
 <p>One way of dealing with this is by imposing some form of structure, for example partitioning data for the United States to fit a separate model for Southern and Northern counties. Unlike data partition, <strong>full spatial regimes</strong> also imply using different coefficients for each subset of the data but you fit everything in one go. This is essentially the same as running as many models as subsets you have. As <span class="citation">Anselin (<a href="#ref-Anselin_2007" role="doc-biblioref">2007</a>)</span> highlights, this corrects for heterogeneity but does not explain it. We can then test whether this was necessary, using a <em>Chow test</em> comparing the simpler model with the one where we allow variability. Of course, we can also include spatial dependence in these models.</p>
 <p>Another way of dealing with heterogeneity is by allowing continuous variation, rather than discrete (as when we subset the data), of the parameters. A popular method for doing this is <strong>geographically weighted regression (GWR)</strong>. This is a case of a local regression where you try to estimate a different set of parameters for each location and these parameters are obtained from a subset of observation using kernel regression. In traditional local regression we select the subset in the attribute space (observations with similar attributes), in GWR the local subset is defined in a geographical sense using a kernel (remember how we used kernels for density estimation to define a set of “neighbours”). We are estimating regression equations based on nearby locations as specified by our kernel and this produces a different coefficient for each location. As with kernel density estimation you can distinguish between fixed bandwidth and adaptive bandwidth.</p>
 <p>For this chapter we will need to load the following packages:</p>
-<div class="sourceCode" id="cb601"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb601-1"><a href="spatial-heterogeneity-and-regression.html#cb601-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
-<span id="cb601-2"><a href="spatial-heterogeneity-and-regression.html#cb601-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb601-3"><a href="spatial-heterogeneity-and-regression.html#cb601-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Packages for handling spatial data and for geospatial carpentry</span></span>
-<span id="cb601-4"><a href="spatial-heterogeneity-and-regression.html#cb601-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
-<span id="cb601-5"><a href="spatial-heterogeneity-and-regression.html#cb601-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sp)</span>
-<span id="cb601-6"><a href="spatial-heterogeneity-and-regression.html#cb601-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(spdep)</span>
-<span id="cb601-7"><a href="spatial-heterogeneity-and-regression.html#cb601-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Packages for regression and spatial regression</span></span>
-<span id="cb601-8"><a href="spatial-heterogeneity-and-regression.html#cb601-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(spatialreg)</span>
-<span id="cb601-9"><a href="spatial-heterogeneity-and-regression.html#cb601-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Packages for mapping and visualisation</span></span>
-<span id="cb601-10"><a href="spatial-heterogeneity-and-regression.html#cb601-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tmap)</span>
-<span id="cb601-11"><a href="spatial-heterogeneity-and-regression.html#cb601-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb601-12"><a href="spatial-heterogeneity-and-regression.html#cb601-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Packages with spatial datasets</span></span>
-<span id="cb601-13"><a href="spatial-heterogeneity-and-regression.html#cb601-13" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(geodaData)</span>
-<span id="cb601-14"><a href="spatial-heterogeneity-and-regression.html#cb601-14" aria-hidden="true" tabindex="-1"></a><span class="co"># For geographicaly weighted regression</span></span>
-<span id="cb601-15"><a href="spatial-heterogeneity-and-regression.html#cb601-15" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(spgwr)</span></code></pre></div>
+<div class="sourceCode" id="cb603"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb603-1"><a href="spatial-heterogeneity-and-regression.html#cb603-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb603-2"><a href="spatial-heterogeneity-and-regression.html#cb603-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb603-3"><a href="spatial-heterogeneity-and-regression.html#cb603-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Packages for handling spatial data and for geospatial carpentry</span></span>
+<span id="cb603-4"><a href="spatial-heterogeneity-and-regression.html#cb603-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
+<span id="cb603-5"><a href="spatial-heterogeneity-and-regression.html#cb603-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sp)</span>
+<span id="cb603-6"><a href="spatial-heterogeneity-and-regression.html#cb603-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(spdep)</span>
+<span id="cb603-7"><a href="spatial-heterogeneity-and-regression.html#cb603-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Packages for regression and spatial regression</span></span>
+<span id="cb603-8"><a href="spatial-heterogeneity-and-regression.html#cb603-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(spatialreg)</span>
+<span id="cb603-9"><a href="spatial-heterogeneity-and-regression.html#cb603-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Packages for mapping and visualisation</span></span>
+<span id="cb603-10"><a href="spatial-heterogeneity-and-regression.html#cb603-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tmap)</span>
+<span id="cb603-11"><a href="spatial-heterogeneity-and-regression.html#cb603-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb603-12"><a href="spatial-heterogeneity-and-regression.html#cb603-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Packages with spatial datasets</span></span>
+<span id="cb603-13"><a href="spatial-heterogeneity-and-regression.html#cb603-13" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(geodaData)</span>
+<span id="cb603-14"><a href="spatial-heterogeneity-and-regression.html#cb603-14" aria-hidden="true" tabindex="-1"></a><span class="co"># For geographicaly weighted regression</span></span>
+<span id="cb603-15"><a href="spatial-heterogeneity-and-regression.html#cb603-15" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(spgwr)</span></code></pre></div>
 </div>
 <div id="spatial-regimes" class="section level2 hasAnchor" number="13.2">
 <h2><span class="header-section-number">13.2</span> Spatial regimes<a href="spatial-heterogeneity-and-regression.html#spatial-regimes" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <div id="fitting-the-constrained-and-the-unconstrained-models" class="section level3 hasAnchor" number="13.2.1">
 <h3><span class="header-section-number">13.2.1</span> Fitting the constrained and the unconstrained models<a href="spatial-heterogeneity-and-regression.html#fitting-the-constrained-and-the-unconstrained-models" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>To illustrate this solution we will go back to the “ncovr” data we explored last week and use the same spatial weight matrix as in the previous chapter. If you have read the <span class="citation">Baller et al. (<a href="#ref-Baller_2001" role="doc-biblioref">2001</a>)</span> paper that we are in a way replicating here, you could see they decided that they needed to run separate models for the South and the North. Let´s explore this here.</p>
-<div class="sourceCode" id="cb602"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb602-1"><a href="spatial-heterogeneity-and-regression.html#cb602-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;ncovr&quot;</span>)</span>
-<span id="cb602-2"><a href="spatial-heterogeneity-and-regression.html#cb602-2" aria-hidden="true" tabindex="-1"></a><span class="co"># We coerce the sf object into a new sp object</span></span>
-<span id="cb602-3"><a href="spatial-heterogeneity-and-regression.html#cb602-3" aria-hidden="true" tabindex="-1"></a>ncovr_sp <span class="ot">&lt;-</span> <span class="fu">as</span>(ncovr, <span class="st">&quot;Spatial&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb604"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb604-1"><a href="spatial-heterogeneity-and-regression.html#cb604-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;ncovr&quot;</span>)</span>
+<span id="cb604-2"><a href="spatial-heterogeneity-and-regression.html#cb604-2" aria-hidden="true" tabindex="-1"></a><span class="co"># We coerce the sf object into a new sp object</span></span>
+<span id="cb604-3"><a href="spatial-heterogeneity-and-regression.html#cb604-3" aria-hidden="true" tabindex="-1"></a>ncovr_sp <span class="ot">&lt;-</span> <span class="fu">as</span>(ncovr, <span class="st">&quot;Spatial&quot;</span>)</span></code></pre></div>
 <pre><code>## old-style crs object detected; please recreate object with a recent sf::st_crs()
 ## old-style crs object detected; please recreate object with a recent sf::st_crs()</code></pre>
-<div class="sourceCode" id="cb604"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb604-1"><a href="spatial-heterogeneity-and-regression.html#cb604-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Then we create a list of neighbours using 10 nearest neighbours criteria</span></span>
-<span id="cb604-2"><a href="spatial-heterogeneity-and-regression.html#cb604-2" aria-hidden="true" tabindex="-1"></a>xy <span class="ot">&lt;-</span> <span class="fu">coordinates</span>(ncovr_sp)</span>
-<span id="cb604-3"><a href="spatial-heterogeneity-and-regression.html#cb604-3" aria-hidden="true" tabindex="-1"></a>nb_k10 <span class="ot">&lt;-</span> <span class="fu">knn2nb</span>(<span class="fu">knearneigh</span>(xy, <span class="at">k =</span> <span class="dv">10</span>))</span>
-<span id="cb604-4"><a href="spatial-heterogeneity-and-regression.html#cb604-4" aria-hidden="true" tabindex="-1"></a>rwm <span class="ot">&lt;-</span> <span class="fu">nb2mat</span>(nb_k10, <span class="at">style=</span><span class="st">&#39;W&#39;</span>)</span>
-<span id="cb604-5"><a href="spatial-heterogeneity-and-regression.html#cb604-5" aria-hidden="true" tabindex="-1"></a>rwm <span class="ot">&lt;-</span> <span class="fu">mat2listw</span>(rwm, <span class="at">style=</span><span class="st">&#39;W&#39;</span>)</span>
-<span id="cb604-6"><a href="spatial-heterogeneity-and-regression.html#cb604-6" aria-hidden="true" tabindex="-1"></a><span class="co"># remove redundant objects</span></span>
-<span id="cb604-7"><a href="spatial-heterogeneity-and-regression.html#cb604-7" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">c</span>(<span class="st">&quot;ncovr_sp&quot;</span>, <span class="st">&quot;xy&quot;</span>, <span class="st">&quot;nb_k10&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb606"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb606-1"><a href="spatial-heterogeneity-and-regression.html#cb606-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Then we create a list of neighbours using 10 nearest neighbours criteria</span></span>
+<span id="cb606-2"><a href="spatial-heterogeneity-and-regression.html#cb606-2" aria-hidden="true" tabindex="-1"></a>xy <span class="ot">&lt;-</span> <span class="fu">coordinates</span>(ncovr_sp)</span>
+<span id="cb606-3"><a href="spatial-heterogeneity-and-regression.html#cb606-3" aria-hidden="true" tabindex="-1"></a>nb_k10 <span class="ot">&lt;-</span> <span class="fu">knn2nb</span>(<span class="fu">knearneigh</span>(xy, <span class="at">k =</span> <span class="dv">10</span>))</span>
+<span id="cb606-4"><a href="spatial-heterogeneity-and-regression.html#cb606-4" aria-hidden="true" tabindex="-1"></a>rwm <span class="ot">&lt;-</span> <span class="fu">nb2mat</span>(nb_k10, <span class="at">style=</span><span class="st">&#39;W&#39;</span>)</span>
+<span id="cb606-5"><a href="spatial-heterogeneity-and-regression.html#cb606-5" aria-hidden="true" tabindex="-1"></a>rwm <span class="ot">&lt;-</span> <span class="fu">mat2listw</span>(rwm, <span class="at">style=</span><span class="st">&#39;W&#39;</span>)</span>
+<span id="cb606-6"><a href="spatial-heterogeneity-and-regression.html#cb606-6" aria-hidden="true" tabindex="-1"></a><span class="co"># remove redundant objects</span></span>
+<span id="cb606-7"><a href="spatial-heterogeneity-and-regression.html#cb606-7" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">c</span>(<span class="st">&quot;ncovr_sp&quot;</span>, <span class="st">&quot;xy&quot;</span>, <span class="st">&quot;nb_k10&quot;</span>))</span></code></pre></div>
 <p>We can start by running a model for the whole country to use as a baseline model:</p>
-<div class="sourceCode" id="cb605"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb605-1"><a href="spatial-heterogeneity-and-regression.html#cb605-1" aria-hidden="true" tabindex="-1"></a>fit1_70 <span class="ot">&lt;-</span> <span class="fu">lm</span>(HR70 <span class="sc">~</span> RD70 <span class="sc">+</span> PS70 <span class="sc">+</span> MA70 <span class="sc">+</span> DV70 <span class="sc">+</span> UE70, <span class="at">data =</span> ncovr)</span>
-<span id="cb605-2"><a href="spatial-heterogeneity-and-regression.html#cb605-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit1_70)</span></code></pre></div>
+<div class="sourceCode" id="cb607"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb607-1"><a href="spatial-heterogeneity-and-regression.html#cb607-1" aria-hidden="true" tabindex="-1"></a>fit1_70 <span class="ot">&lt;-</span> <span class="fu">lm</span>(HR70 <span class="sc">~</span> RD70 <span class="sc">+</span> PS70 <span class="sc">+</span> MA70 <span class="sc">+</span> DV70 <span class="sc">+</span> UE70, <span class="at">data =</span> ncovr)</span>
+<span id="cb607-2"><a href="spatial-heterogeneity-and-regression.html#cb607-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit1_70)</span></code></pre></div>
 <pre><code>## 
 ## Call:
 ## lm(formula = HR70 ~ RD70 + PS70 + MA70 + DV70 + UE70, data = ncovr)
@@ -596,25 +596,25 @@ div.csl-indent {
 ## Multiple R-squared:  0.328,  Adjusted R-squared:  0.327 
 ## F-statistic:  301 on 5 and 3079 DF,  p-value: &lt;2e-16</code></pre>
 <p>A simple visualisation of the residuals suggest the model may not be optimal for the entire study region:</p>
-<div class="sourceCode" id="cb607"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb607-1"><a href="spatial-heterogeneity-and-regression.html#cb607-1" aria-hidden="true" tabindex="-1"></a>ncovr<span class="sc">$</span>res_fit1 <span class="ot">&lt;-</span> fit1_70<span class="sc">$</span>residuals</span>
-<span id="cb607-2"><a href="spatial-heterogeneity-and-regression.html#cb607-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(ncovr, <span class="fu">aes</span>(<span class="at">x =</span> res_fit1, <span class="at">colour =</span> <span class="fu">as.factor</span>(SOUTH))) <span class="sc">+</span> </span>
-<span id="cb607-3"><a href="spatial-heterogeneity-and-regression.html#cb607-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>() <span class="sc">+</span> </span>
-<span id="cb607-4"><a href="spatial-heterogeneity-and-regression.html#cb607-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">&quot;Residuals&quot;</span>) <span class="sc">+</span> </span>
-<span id="cb607-5"><a href="spatial-heterogeneity-and-regression.html#cb607-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_brewer</span>(<span class="at">palette =</span> <span class="st">&quot;Set1&quot;</span>, <span class="at">name =</span> <span class="st">&quot;Region (1 = South)&quot;</span>) <span class="sc">+</span> </span>
-<span id="cb607-6"><a href="spatial-heterogeneity-and-regression.html#cb607-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code></pre></div>
-<div class="figure"><span style="display:block;" id="fig:unnamed-chunk-371"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-371-1.png" alt="Distribution of residuals by study region (South v North)" width="672" />
+<div class="sourceCode" id="cb609"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb609-1"><a href="spatial-heterogeneity-and-regression.html#cb609-1" aria-hidden="true" tabindex="-1"></a>ncovr<span class="sc">$</span>res_fit1 <span class="ot">&lt;-</span> fit1_70<span class="sc">$</span>residuals</span>
+<span id="cb609-2"><a href="spatial-heterogeneity-and-regression.html#cb609-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(ncovr, <span class="fu">aes</span>(<span class="at">x =</span> res_fit1, <span class="at">colour =</span> <span class="fu">as.factor</span>(SOUTH))) <span class="sc">+</span> </span>
+<span id="cb609-3"><a href="spatial-heterogeneity-and-regression.html#cb609-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>() <span class="sc">+</span> </span>
+<span id="cb609-4"><a href="spatial-heterogeneity-and-regression.html#cb609-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">&quot;Residuals&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb609-5"><a href="spatial-heterogeneity-and-regression.html#cb609-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_brewer</span>(<span class="at">palette =</span> <span class="st">&quot;Set1&quot;</span>, <span class="at">name =</span> <span class="st">&quot;Region (1 = South)&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb609-6"><a href="spatial-heterogeneity-and-regression.html#cb609-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code></pre></div>
+<div class="figure"><span style="display:block;" id="fig:unnamed-chunk-373"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-373-1.png" alt="Distribution of residuals by study region (South v North)" width="672" />
 <p class="caption">
 FIGURE 13.1: Distribution of residuals by study region (South v North)
 </p>
 </div>
 <p>To be able to fit these spatial regimes, that will allow for separate coefficients for counties in the North and those in the South, first we need to define a dummy for the Northern counties, and we create a vector of 1.</p>
-<div class="sourceCode" id="cb608"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb608-1"><a href="spatial-heterogeneity-and-regression.html#cb608-1" aria-hidden="true" tabindex="-1"></a>ncovr<span class="sc">$</span>NORTH <span class="ot">&lt;-</span> <span class="fu">recode</span>(ncovr<span class="sc">$</span>SOUTH, <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">`</span><span class="at">0</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>)</span>
-<span id="cb608-2"><a href="spatial-heterogeneity-and-regression.html#cb608-2" aria-hidden="true" tabindex="-1"></a>ncovr<span class="sc">$</span>ONE <span class="ot">&lt;-</span> <span class="dv">1</span></span></code></pre></div>
+<div class="sourceCode" id="cb610"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb610-1"><a href="spatial-heterogeneity-and-regression.html#cb610-1" aria-hidden="true" tabindex="-1"></a>ncovr<span class="sc">$</span>NORTH <span class="ot">&lt;-</span> <span class="fu">recode</span>(ncovr<span class="sc">$</span>SOUTH, <span class="st">`</span><span class="at">1</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">`</span><span class="at">0</span><span class="st">`</span> <span class="ot">=</span> <span class="dv">1</span>)</span>
+<span id="cb610-2"><a href="spatial-heterogeneity-and-regression.html#cb610-2" aria-hidden="true" tabindex="-1"></a>ncovr<span class="sc">$</span>ONE <span class="ot">&lt;-</span> <span class="dv">1</span></span></code></pre></div>
 <p>Having created these new columns we can fit a standard OLS model interacting the inputs with our dummies and setting the intercept to 0, so that each regime is allowed its own intercept:</p>
-<div class="sourceCode" id="cb609"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb609-1"><a href="spatial-heterogeneity-and-regression.html#cb609-1" aria-hidden="true" tabindex="-1"></a>fit2_70_sr <span class="ot">&lt;-</span> <span class="fu">lm</span>(HR70 <span class="sc">~</span> <span class="dv">0</span> <span class="sc">+</span> (ONE <span class="sc">+</span> RD70 <span class="sc">+</span> PS70 <span class="sc">+</span> MA70 <span class="sc">+</span> DV70 <span class="sc">+</span> UE70)<span class="sc">:</span>(SOUTH <span class="sc">+</span> NORTH), </span>
-<span id="cb609-2"><a href="spatial-heterogeneity-and-regression.html#cb609-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">data =</span> ncovr)</span>
-<span id="cb609-3"><a href="spatial-heterogeneity-and-regression.html#cb609-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit2_70_sr)</span></code></pre></div>
+<div class="sourceCode" id="cb611"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb611-1"><a href="spatial-heterogeneity-and-regression.html#cb611-1" aria-hidden="true" tabindex="-1"></a>fit2_70_sr <span class="ot">&lt;-</span> <span class="fu">lm</span>(HR70 <span class="sc">~</span> <span class="dv">0</span> <span class="sc">+</span> (ONE <span class="sc">+</span> RD70 <span class="sc">+</span> PS70 <span class="sc">+</span> MA70 <span class="sc">+</span> DV70 <span class="sc">+</span> UE70)<span class="sc">:</span>(SOUTH <span class="sc">+</span> NORTH), </span>
+<span id="cb611-2"><a href="spatial-heterogeneity-and-regression.html#cb611-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">data =</span> ncovr)</span>
+<span id="cb611-3"><a href="spatial-heterogeneity-and-regression.html#cb611-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit2_70_sr)</span></code></pre></div>
 <pre><code>## 
 ## Call:
 ## lm(formula = HR70 ~ 0 + (ONE + RD70 + PS70 + MA70 + DV70 + UE70):(SOUTH + 
@@ -650,20 +650,20 @@ FIGURE 13.1: Distribution of residuals by study region (South v North)
 <div id="running-the-chow-test" class="section level3 hasAnchor" number="13.2.2">
 <h3><span class="header-section-number">13.2.2</span> Running the Chow test<a href="spatial-heterogeneity-and-regression.html#running-the-chow-test" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>The Chow Test is often used in econometrics to determine whether the independent variables have different impacts on different subgroups of the population. <span class="citation">Anselin (<a href="#ref-Anselin_2007" role="doc-biblioref">2007</a>)</span> provides an implementation for this test, that extracts the residuals and the degrees of freedom from the constrained (the simpler oLS model) and the unconstrained models (the less parsimonious spatial regime), and then computes the test based on the F distribution.</p>
-<div class="sourceCode" id="cb611"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb611-1"><a href="spatial-heterogeneity-and-regression.html#cb611-1" aria-hidden="true" tabindex="-1"></a>chow.test <span class="ot">&lt;-</span> <span class="cf">function</span>(rest,unrest)</span>
-<span id="cb611-2"><a href="spatial-heterogeneity-and-regression.html#cb611-2" aria-hidden="true" tabindex="-1"></a>{</span>
-<span id="cb611-3"><a href="spatial-heterogeneity-and-regression.html#cb611-3" aria-hidden="true" tabindex="-1"></a>er <span class="ot">&lt;-</span> <span class="fu">residuals</span>(rest)</span>
-<span id="cb611-4"><a href="spatial-heterogeneity-and-regression.html#cb611-4" aria-hidden="true" tabindex="-1"></a>eu <span class="ot">&lt;-</span> <span class="fu">residuals</span>(unrest)</span>
-<span id="cb611-5"><a href="spatial-heterogeneity-and-regression.html#cb611-5" aria-hidden="true" tabindex="-1"></a>er2 <span class="ot">&lt;-</span> <span class="fu">sum</span>(er<span class="sc">^</span><span class="dv">2</span>)</span>
-<span id="cb611-6"><a href="spatial-heterogeneity-and-regression.html#cb611-6" aria-hidden="true" tabindex="-1"></a>eu2 <span class="ot">&lt;-</span> <span class="fu">sum</span>(eu<span class="sc">^</span><span class="dv">2</span>)</span>
-<span id="cb611-7"><a href="spatial-heterogeneity-and-regression.html#cb611-7" aria-hidden="true" tabindex="-1"></a>k <span class="ot">&lt;-</span> rest<span class="sc">$</span>rank</span>
-<span id="cb611-8"><a href="spatial-heterogeneity-and-regression.html#cb611-8" aria-hidden="true" tabindex="-1"></a>n2k <span class="ot">&lt;-</span> rest<span class="sc">$</span>df.residual <span class="sc">-</span> k</span>
-<span id="cb611-9"><a href="spatial-heterogeneity-and-regression.html#cb611-9" aria-hidden="true" tabindex="-1"></a>c <span class="ot">&lt;-</span> ((er2 <span class="sc">-</span> eu2)<span class="sc">/</span>k) <span class="sc">/</span> (eu2 <span class="sc">/</span> n2k)</span>
-<span id="cb611-10"><a href="spatial-heterogeneity-and-regression.html#cb611-10" aria-hidden="true" tabindex="-1"></a>pc <span class="ot">&lt;-</span> <span class="fu">pf</span>(c,k,n2k,<span class="at">lower.tail=</span><span class="cn">FALSE</span>)</span>
-<span id="cb611-11"><a href="spatial-heterogeneity-and-regression.html#cb611-11" aria-hidden="true" tabindex="-1"></a><span class="fu">list</span>(c,pc,k,n2k)</span>
-<span id="cb611-12"><a href="spatial-heterogeneity-and-regression.html#cb611-12" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb613"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb613-1"><a href="spatial-heterogeneity-and-regression.html#cb613-1" aria-hidden="true" tabindex="-1"></a>chow.test <span class="ot">&lt;-</span> <span class="cf">function</span>(rest,unrest)</span>
+<span id="cb613-2"><a href="spatial-heterogeneity-and-regression.html#cb613-2" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb613-3"><a href="spatial-heterogeneity-and-regression.html#cb613-3" aria-hidden="true" tabindex="-1"></a>er <span class="ot">&lt;-</span> <span class="fu">residuals</span>(rest)</span>
+<span id="cb613-4"><a href="spatial-heterogeneity-and-regression.html#cb613-4" aria-hidden="true" tabindex="-1"></a>eu <span class="ot">&lt;-</span> <span class="fu">residuals</span>(unrest)</span>
+<span id="cb613-5"><a href="spatial-heterogeneity-and-regression.html#cb613-5" aria-hidden="true" tabindex="-1"></a>er2 <span class="ot">&lt;-</span> <span class="fu">sum</span>(er<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb613-6"><a href="spatial-heterogeneity-and-regression.html#cb613-6" aria-hidden="true" tabindex="-1"></a>eu2 <span class="ot">&lt;-</span> <span class="fu">sum</span>(eu<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb613-7"><a href="spatial-heterogeneity-and-regression.html#cb613-7" aria-hidden="true" tabindex="-1"></a>k <span class="ot">&lt;-</span> rest<span class="sc">$</span>rank</span>
+<span id="cb613-8"><a href="spatial-heterogeneity-and-regression.html#cb613-8" aria-hidden="true" tabindex="-1"></a>n2k <span class="ot">&lt;-</span> rest<span class="sc">$</span>df.residual <span class="sc">-</span> k</span>
+<span id="cb613-9"><a href="spatial-heterogeneity-and-regression.html#cb613-9" aria-hidden="true" tabindex="-1"></a>c <span class="ot">&lt;-</span> ((er2 <span class="sc">-</span> eu2)<span class="sc">/</span>k) <span class="sc">/</span> (eu2 <span class="sc">/</span> n2k)</span>
+<span id="cb613-10"><a href="spatial-heterogeneity-and-regression.html#cb613-10" aria-hidden="true" tabindex="-1"></a>pc <span class="ot">&lt;-</span> <span class="fu">pf</span>(c,k,n2k,<span class="at">lower.tail=</span><span class="cn">FALSE</span>)</span>
+<span id="cb613-11"><a href="spatial-heterogeneity-and-regression.html#cb613-11" aria-hidden="true" tabindex="-1"></a><span class="fu">list</span>(c,pc,k,n2k)</span>
+<span id="cb613-12"><a href="spatial-heterogeneity-and-regression.html#cb613-12" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>With the function in our environment we can then run the test, which will yield the test statistic, the p value, and two degrees of freedom.</p>
-<div class="sourceCode" id="cb612"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb612-1"><a href="spatial-heterogeneity-and-regression.html#cb612-1" aria-hidden="true" tabindex="-1"></a> <span class="fu">chow.test</span>(fit1_70,fit2_70_sr)</span></code></pre></div>
+<div class="sourceCode" id="cb614"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb614-1"><a href="spatial-heterogeneity-and-regression.html#cb614-1" aria-hidden="true" tabindex="-1"></a> <span class="fu">chow.test</span>(fit1_70,fit2_70_sr)</span></code></pre></div>
 <pre><code>## [[1]]
 ## [1] 40.16
 ## 
@@ -680,7 +680,7 @@ FIGURE 13.1: Distribution of residuals by study region (South v North)
 <div id="spatial-dependence-with-spatial-heterogeneity" class="section level3 hasAnchor" number="13.2.3">
 <h3><span class="header-section-number">13.2.3</span> Spatial dependence with spatial heterogeneity<a href="spatial-heterogeneity-and-regression.html#spatial-dependence-with-spatial-heterogeneity" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>So far we have only adjusted for a form of spatial heterogeneity in our model, but we may still have to deal with spatial dependence. Here what we covered in the previous chapter, still applies. We can run the various specification tests and then select a model that adjust for spatial dependence.</p>
-<div class="sourceCode" id="cb614"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb614-1"><a href="spatial-heterogeneity-and-regression.html#cb614-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">lm.LMtests</span>(fit2_70_sr, rwm, <span class="at">test =</span> <span class="fu">c</span>(<span class="st">&quot;LMerr&quot;</span>,<span class="st">&quot;LMlag&quot;</span>,<span class="st">&quot;RLMerr&quot;</span>,<span class="st">&quot;RLMlag&quot;</span>)))</span></code></pre></div>
+<div class="sourceCode" id="cb616"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb616-1"><a href="spatial-heterogeneity-and-regression.html#cb616-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">lm.LMtests</span>(fit2_70_sr, rwm, <span class="at">test =</span> <span class="fu">c</span>(<span class="st">&quot;LMerr&quot;</span>,<span class="st">&quot;LMlag&quot;</span>,<span class="st">&quot;RLMerr&quot;</span>,<span class="st">&quot;RLMlag&quot;</span>)))</span></code></pre></div>
 <pre><code>##  Lagrange multiplier diagnostics for spatial
 ##  dependence
 ## data:  
@@ -699,10 +699,10 @@ FIGURE 13.1: Distribution of residuals by study region (South v North)
 ## 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 <p>The Lagrange multiplier tests, according to Anselin suggestions for how to interpret these, point to a spatial lag model (since RLMlag is several orders more significant than the error alternative).</p>
 <p>We could then fit this model using <code>sp</code></p>
-<div class="sourceCode" id="cb616"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb616-1"><a href="spatial-heterogeneity-and-regression.html#cb616-1" aria-hidden="true" tabindex="-1"></a>fit3_70_sr_sar <span class="ot">&lt;-</span> <span class="fu">lagsarlm</span>(HR70 <span class="sc">~</span> <span class="dv">0</span> <span class="sc">+</span> </span>
-<span id="cb616-2"><a href="spatial-heterogeneity-and-regression.html#cb616-2" aria-hidden="true" tabindex="-1"></a>                             (ONE <span class="sc">+</span> RD70 <span class="sc">+</span> PS70 <span class="sc">+</span> MA70 <span class="sc">+</span> DV70 <span class="sc">+</span> UE70)<span class="sc">:</span>(SOUTH <span class="sc">+</span> NORTH), </span>
-<span id="cb616-3"><a href="spatial-heterogeneity-and-regression.html#cb616-3" aria-hidden="true" tabindex="-1"></a>                           <span class="at">data =</span> ncovr, rwm)</span>
-<span id="cb616-4"><a href="spatial-heterogeneity-and-regression.html#cb616-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit3_70_sr_sar)</span></code></pre></div>
+<div class="sourceCode" id="cb618"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb618-1"><a href="spatial-heterogeneity-and-regression.html#cb618-1" aria-hidden="true" tabindex="-1"></a>fit3_70_sr_sar <span class="ot">&lt;-</span> <span class="fu">lagsarlm</span>(HR70 <span class="sc">~</span> <span class="dv">0</span> <span class="sc">+</span> </span>
+<span id="cb618-2"><a href="spatial-heterogeneity-and-regression.html#cb618-2" aria-hidden="true" tabindex="-1"></a>                             (ONE <span class="sc">+</span> RD70 <span class="sc">+</span> PS70 <span class="sc">+</span> MA70 <span class="sc">+</span> DV70 <span class="sc">+</span> UE70)<span class="sc">:</span>(SOUTH <span class="sc">+</span> NORTH), </span>
+<span id="cb618-3"><a href="spatial-heterogeneity-and-regression.html#cb618-3" aria-hidden="true" tabindex="-1"></a>                           <span class="at">data =</span> ncovr, rwm)</span>
+<span id="cb618-4"><a href="spatial-heterogeneity-and-regression.html#cb618-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit3_70_sr_sar)</span></code></pre></div>
 <pre><code>## 
 ## Call:
 ## lagsarlm(formula = HR70 ~ 0 + (ONE + RD70 + PS70 + MA70 + DV70 + 
@@ -742,20 +742,20 @@ FIGURE 13.1: Distribution of residuals by study region (South v North)
 ## test value: 0.7147, p-value: 0.39789</code></pre>
 <p>We see that the AIC is better than for the non-spatial model and that there is no more residual autocorrelation. We could explore other specifications (ie spatial Durbin model) and the same caveats about interpreting coefficients in a spatial lag model we raised in the previous chapter would apply here. If the Lagrange multiplier tests had suggested a spatial error model, we could also have fitted the model in the way we have also already covered simply adjusting the regression formula as in this section.</p>
 <p>We can now also run a Chow test, only in this case, we need to adjust the previous one to account for spatial dependence. <span class="citation">Anselin (<a href="#ref-Anselin_2007" role="doc-biblioref">2007</a>)</span> also provides for an implementation of this test in R with the following ad-hoc function:</p>
-<div class="sourceCode" id="cb618"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb618-1"><a href="spatial-heterogeneity-and-regression.html#cb618-1" aria-hidden="true" tabindex="-1"></a>spatialchow.test <span class="ot">&lt;-</span> <span class="cf">function</span>(rest,unrest)</span>
-<span id="cb618-2"><a href="spatial-heterogeneity-and-regression.html#cb618-2" aria-hidden="true" tabindex="-1"></a>{</span>
-<span id="cb618-3"><a href="spatial-heterogeneity-and-regression.html#cb618-3" aria-hidden="true" tabindex="-1"></a>lrest <span class="ot">&lt;-</span> rest<span class="sc">$</span>LL</span>
-<span id="cb618-4"><a href="spatial-heterogeneity-and-regression.html#cb618-4" aria-hidden="true" tabindex="-1"></a>lunrest <span class="ot">&lt;-</span> unrest<span class="sc">$</span>LL</span>
-<span id="cb618-5"><a href="spatial-heterogeneity-and-regression.html#cb618-5" aria-hidden="true" tabindex="-1"></a>k <span class="ot">&lt;-</span> rest<span class="sc">$</span>parameters <span class="sc">-</span> <span class="dv">2</span></span>
-<span id="cb618-6"><a href="spatial-heterogeneity-and-regression.html#cb618-6" aria-hidden="true" tabindex="-1"></a>spchow <span class="ot">&lt;-</span> <span class="sc">-</span> <span class="fl">2.0</span> <span class="sc">*</span> (lrest <span class="sc">-</span> lunrest)</span>
-<span id="cb618-7"><a href="spatial-heterogeneity-and-regression.html#cb618-7" aria-hidden="true" tabindex="-1"></a>pchow <span class="ot">&lt;-</span> <span class="fu">pchisq</span>(spchow,k,<span class="at">lower.tail=</span><span class="cn">FALSE</span>)</span>
-<span id="cb618-8"><a href="spatial-heterogeneity-and-regression.html#cb618-8" aria-hidden="true" tabindex="-1"></a><span class="fu">list</span>(spchow,pchow,k)</span>
-<span id="cb618-9"><a href="spatial-heterogeneity-and-regression.html#cb618-9" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb620"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb620-1"><a href="spatial-heterogeneity-and-regression.html#cb620-1" aria-hidden="true" tabindex="-1"></a>spatialchow.test <span class="ot">&lt;-</span> <span class="cf">function</span>(rest,unrest)</span>
+<span id="cb620-2"><a href="spatial-heterogeneity-and-regression.html#cb620-2" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb620-3"><a href="spatial-heterogeneity-and-regression.html#cb620-3" aria-hidden="true" tabindex="-1"></a>lrest <span class="ot">&lt;-</span> rest<span class="sc">$</span>LL</span>
+<span id="cb620-4"><a href="spatial-heterogeneity-and-regression.html#cb620-4" aria-hidden="true" tabindex="-1"></a>lunrest <span class="ot">&lt;-</span> unrest<span class="sc">$</span>LL</span>
+<span id="cb620-5"><a href="spatial-heterogeneity-and-regression.html#cb620-5" aria-hidden="true" tabindex="-1"></a>k <span class="ot">&lt;-</span> rest<span class="sc">$</span>parameters <span class="sc">-</span> <span class="dv">2</span></span>
+<span id="cb620-6"><a href="spatial-heterogeneity-and-regression.html#cb620-6" aria-hidden="true" tabindex="-1"></a>spchow <span class="ot">&lt;-</span> <span class="sc">-</span> <span class="fl">2.0</span> <span class="sc">*</span> (lrest <span class="sc">-</span> lunrest)</span>
+<span id="cb620-7"><a href="spatial-heterogeneity-and-regression.html#cb620-7" aria-hidden="true" tabindex="-1"></a>pchow <span class="ot">&lt;-</span> <span class="fu">pchisq</span>(spchow,k,<span class="at">lower.tail=</span><span class="cn">FALSE</span>)</span>
+<span id="cb620-8"><a href="spatial-heterogeneity-and-regression.html#cb620-8" aria-hidden="true" tabindex="-1"></a><span class="fu">list</span>(spchow,pchow,k)</span>
+<span id="cb620-9"><a href="spatial-heterogeneity-and-regression.html#cb620-9" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>This function will test a spatial lag model for the whole country as a whole with the spatial lag model with our data partitions. So first we need to estimate the appropriate lag model to be our constrained model:</p>
-<div class="sourceCode" id="cb619"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb619-1"><a href="spatial-heterogeneity-and-regression.html#cb619-1" aria-hidden="true" tabindex="-1"></a>fit4_70_sar <span class="ot">&lt;-</span> <span class="fu">lagsarlm</span>(HR70 <span class="sc">~</span> RD70 <span class="sc">+</span> PS70 <span class="sc">+</span> MA70 <span class="sc">+</span> DV70 <span class="sc">+</span> UE70, <span class="at">data =</span> ncovr,</span>
-<span id="cb619-2"><a href="spatial-heterogeneity-and-regression.html#cb619-2" aria-hidden="true" tabindex="-1"></a>                    rwm)</span></code></pre></div>
+<div class="sourceCode" id="cb621"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb621-1"><a href="spatial-heterogeneity-and-regression.html#cb621-1" aria-hidden="true" tabindex="-1"></a>fit4_70_sar <span class="ot">&lt;-</span> <span class="fu">lagsarlm</span>(HR70 <span class="sc">~</span> RD70 <span class="sc">+</span> PS70 <span class="sc">+</span> MA70 <span class="sc">+</span> DV70 <span class="sc">+</span> UE70, <span class="at">data =</span> ncovr,</span>
+<span id="cb621-2"><a href="spatial-heterogeneity-and-regression.html#cb621-2" aria-hidden="true" tabindex="-1"></a>                    rwm)</span></code></pre></div>
 <p>Which we can then use in the newly created function:</p>
-<div class="sourceCode" id="cb620"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb620-1"><a href="spatial-heterogeneity-and-regression.html#cb620-1" aria-hidden="true" tabindex="-1"></a><span class="fu">spatialchow.test</span>(fit4_70_sar, fit3_70_sr_sar)</span></code></pre></div>
+<div class="sourceCode" id="cb622"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb622-1"><a href="spatial-heterogeneity-and-regression.html#cb622-1" aria-hidden="true" tabindex="-1"></a><span class="fu">spatialchow.test</span>(fit4_70_sar, fit3_70_sr_sar)</span></code></pre></div>
 <pre><code>## [[1]]
 ##       [,1]
 ## [1,] 58.59
@@ -781,9 +781,9 @@ FIGURE 13.1: Distribution of residuals by study region (South v North)
 </ul>
 <p>GWR provides three types of regression models: Continuous, Binary, and Count. These types of regression are known in statistical literature as Gaussian, Logistic, and Poisson, respectively. The Model Type for your analysis should be chosen based on the level of measurement of the Dependent Variable <span class="math inline">\(Y\)</span>.</p>
 <p>So to illustrate, let us first build our linear model once again, regressing homicide rate in the 1970s for each county against resource deprivation (RD70), population structure (PS70), median age (MA70), divorce rate (DV70), and unemployment rate (UE70).</p>
-<div class="sourceCode" id="cb622"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb622-1"><a href="spatial-heterogeneity-and-regression.html#cb622-1" aria-hidden="true" tabindex="-1"></a><span class="co"># make linear model</span></span>
-<span id="cb622-2"><a href="spatial-heterogeneity-and-regression.html#cb622-2" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lm</span>(HR70 <span class="sc">~</span> RD70 <span class="sc">+</span> PS70 <span class="sc">+</span> MA70 <span class="sc">+</span> DV70 <span class="sc">+</span> UE70, <span class="at">data =</span> ncovr)</span>
-<span id="cb622-3"><a href="spatial-heterogeneity-and-regression.html#cb622-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model)</span></code></pre></div>
+<div class="sourceCode" id="cb624"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb624-1"><a href="spatial-heterogeneity-and-regression.html#cb624-1" aria-hidden="true" tabindex="-1"></a><span class="co"># make linear model</span></span>
+<span id="cb624-2"><a href="spatial-heterogeneity-and-regression.html#cb624-2" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lm</span>(HR70 <span class="sc">~</span> RD70 <span class="sc">+</span> PS70 <span class="sc">+</span> MA70 <span class="sc">+</span> DV70 <span class="sc">+</span> UE70, <span class="at">data =</span> ncovr)</span>
+<span id="cb624-3"><a href="spatial-heterogeneity-and-regression.html#cb624-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model)</span></code></pre></div>
 <pre><code>## 
 ## Call:
 ## lm(formula = HR70 ~ RD70 + PS70 + MA70 + DV70 + UE70, data = ncovr)
@@ -808,11 +808,11 @@ FIGURE 13.1: Distribution of residuals by study region (South v North)
 ## Multiple R-squared:  0.328,  Adjusted R-squared:  0.327 
 ## F-statistic:  301 on 5 and 3079 DF,  p-value: &lt;2e-16</code></pre>
 <p>And now, to get an idea of how our model might perform differently in different area, we can map the residuals across each county:</p>
-<div class="sourceCode" id="cb624"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb624-1"><a href="spatial-heterogeneity-and-regression.html#cb624-1" aria-hidden="true" tabindex="-1"></a><span class="co"># map residuals</span></span>
-<span id="cb624-2"><a href="spatial-heterogeneity-and-regression.html#cb624-2" aria-hidden="true" tabindex="-1"></a>ncovr<span class="sc">$</span>resids <span class="ot">&lt;-</span> <span class="fu">residuals</span>(model)</span>
-<span id="cb624-3"><a href="spatial-heterogeneity-and-regression.html#cb624-3" aria-hidden="true" tabindex="-1"></a><span class="fu">qtm</span>(ncovr, <span class="at">fill =</span> <span class="st">&quot;resids&quot;</span>)</span></code></pre></div>
-<div class="figure"><span style="display:block;" id="fig:unnamed-chunk-382"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-382-1.png" alt="Map of model residuals" width="672" />
+<div class="sourceCode" id="cb626"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb626-1"><a href="spatial-heterogeneity-and-regression.html#cb626-1" aria-hidden="true" tabindex="-1"></a><span class="co"># map residuals</span></span>
+<span id="cb626-2"><a href="spatial-heterogeneity-and-regression.html#cb626-2" aria-hidden="true" tabindex="-1"></a>ncovr<span class="sc">$</span>resids <span class="ot">&lt;-</span> <span class="fu">residuals</span>(model)</span>
+<span id="cb626-3"><a href="spatial-heterogeneity-and-regression.html#cb626-3" aria-hidden="true" tabindex="-1"></a><span class="fu">qtm</span>(ncovr, <span class="at">fill =</span> <span class="st">&quot;resids&quot;</span>)</span></code></pre></div>
+<div class="figure"><span style="display:block;" id="fig:unnamed-chunk-384"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-384-1.png" alt="Map of model residuals" width="672" />
 <p class="caption">
 FIGURE 13.2: Map of model residuals
 </p>
@@ -826,13 +826,13 @@ FIGURE 13.2: Map of model residuals
 <p>With adapt function you can choose whether you want the bandwidth to adapt (i.e. find the proportion between 0 and 1 of observations to include in weighting scheme (k-nearest neighbours)) or whether you want to find a global bandwidth. A global bandwidth might make sense where the areas of interest are of equal size, and equally spaced, however if we have variation, for example like in the case of the counties of the United States, it makes sense to adjust the bandwidth for each observation. Here we set to adapt.</p>
 <p>Another important consideration is the function for the geographical weighting. We mentioned this above. In the <code>gwr.sel()</code> function you can set this with the <code>gweight=</code> parameter. By default, this is set to a Gaussian function. We will keep it that way here.</p>
 <p>With an sf object (whcih our data are in), one of the parameters required is a coordinate point for each one of our observations. In this case, what we can do is grab the centroid of each one of our polygons. To do this, we can use the <code>st_coordinates()</code> function:</p>
-<div class="sourceCode" id="cb625"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb625-1"><a href="spatial-heterogeneity-and-regression.html#cb625-1" aria-hidden="true" tabindex="-1"></a>ncovr <span class="ot">&lt;-</span> ncovr <span class="sc">%&gt;%</span> </span>
-<span id="cb625-2"><a href="spatial-heterogeneity-and-regression.html#cb625-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">cent_coords =</span> <span class="fu">st_coordinates</span>(<span class="fu">st_centroid</span>(.)))</span></code></pre></div>
+<div class="sourceCode" id="cb627"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb627-1"><a href="spatial-heterogeneity-and-regression.html#cb627-1" aria-hidden="true" tabindex="-1"></a>ncovr <span class="ot">&lt;-</span> ncovr <span class="sc">%&gt;%</span> </span>
+<span id="cb627-2"><a href="spatial-heterogeneity-and-regression.html#cb627-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">cent_coords =</span> <span class="fu">st_coordinates</span>(<span class="fu">st_centroid</span>(.)))</span></code></pre></div>
 <p>Now that we have our centroids, we can calculate our optimal bandwith, and save this into an object called <code>gwr_bandwidth</code>.</p>
-<div class="sourceCode" id="cb626"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb626-1"><a href="spatial-heterogeneity-and-regression.html#cb626-1" aria-hidden="true" tabindex="-1"></a>gwr_bandwidth <span class="ot">&lt;-</span> <span class="fu">gwr.sel</span>(HR70 <span class="sc">~</span> RD70 <span class="sc">+</span> PS70 <span class="sc">+</span> MA70 <span class="sc">+</span> DV70 <span class="sc">+</span> UE70, </span>
-<span id="cb626-2"><a href="spatial-heterogeneity-and-regression.html#cb626-2" aria-hidden="true" tabindex="-1"></a>                         <span class="at">data =</span> ncovr, </span>
-<span id="cb626-3"><a href="spatial-heterogeneity-and-regression.html#cb626-3" aria-hidden="true" tabindex="-1"></a>                         <span class="at">coords =</span> ncovr<span class="sc">$</span>cent_coords, </span>
-<span id="cb626-4"><a href="spatial-heterogeneity-and-regression.html#cb626-4" aria-hidden="true" tabindex="-1"></a>                         <span class="at">adapt =</span> T)</span></code></pre></div>
+<div class="sourceCode" id="cb628"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb628-1"><a href="spatial-heterogeneity-and-regression.html#cb628-1" aria-hidden="true" tabindex="-1"></a>gwr_bandwidth <span class="ot">&lt;-</span> <span class="fu">gwr.sel</span>(HR70 <span class="sc">~</span> RD70 <span class="sc">+</span> PS70 <span class="sc">+</span> MA70 <span class="sc">+</span> DV70 <span class="sc">+</span> UE70, </span>
+<span id="cb628-2"><a href="spatial-heterogeneity-and-regression.html#cb628-2" aria-hidden="true" tabindex="-1"></a>                         <span class="at">data =</span> ncovr, </span>
+<span id="cb628-3"><a href="spatial-heterogeneity-and-regression.html#cb628-3" aria-hidden="true" tabindex="-1"></a>                         <span class="at">coords =</span> ncovr<span class="sc">$</span>cent_coords, </span>
+<span id="cb628-4"><a href="spatial-heterogeneity-and-regression.html#cb628-4" aria-hidden="true" tabindex="-1"></a>                         <span class="at">adapt =</span> T)</span></code></pre></div>
 <pre><code>## Adaptive q: 0.382 CV score: 109039 
 ## Adaptive q: 0.618 CV score: 110549 
 ## Adaptive q: 0.2361 CV score: 107560 
@@ -855,20 +855,20 @@ FIGURE 13.2: Map of model residuals
 ## Adaptive q: 0.01528 CV score: 98356 
 ## Adaptive q: 0.01524 CV score: 98351</code></pre>
 <p>So we now have our bandwidth. It is:</p>
-<div class="sourceCode" id="cb628"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb628-1"><a href="spatial-heterogeneity-and-regression.html#cb628-1" aria-hidden="true" tabindex="-1"></a>gwr_bandwidth</span></code></pre></div>
+<div class="sourceCode" id="cb630"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb630-1"><a href="spatial-heterogeneity-and-regression.html#cb630-1" aria-hidden="true" tabindex="-1"></a>gwr_bandwidth</span></code></pre></div>
 <pre><code>## [1] 0.01524</code></pre>
 <p>As our data are in WGS84 this value is in degrees.</p>
 </div>
 <div id="building-the-geographically-weighted-model" class="section level3 hasAnchor" number="13.3.2">
 <h3><span class="header-section-number">13.3.2</span> Building the geographically weighted model<a href="spatial-heterogeneity-and-regression.html#building-the-geographically-weighted-model" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>Now we can build our model. The <code>gwr()</code> function implements the basic geographically weighted regression approach to exploring spatial non-stationarity for given bandwidth and chosen weighting scheme. We specify the formula and our data soucre, as with the linear and spatial regressions, and the coords of the centroids, as we did in the bandwidth calculation above, but now we also specify our bandwith, which we created earlier, but we do this with the <code>adapt=</code> parameter. This is because, by default, the function takes a global bandwidth with the <code>bandwidth=</code> parameter, and we have created an adaptive bandwidth, so we shall use this <code>adapt=</code> parameter to include our <code>GWRbandwidth</code> object. We also set the <code>hatmatrix =</code> parameter to <code>TRUE</code>, to return the hatmatrix as a component of the result, and the <code>se.fit=</code> parameter to <code>TRUE</code> to return local coefficient standard errors - as we set hatmatrix to <code>TRUE</code>, two effective degrees of freedom sigmas will be used to generate alternative coefficient standard errors.</p>
-<div class="sourceCode" id="cb630"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb630-1"><a href="spatial-heterogeneity-and-regression.html#cb630-1" aria-hidden="true" tabindex="-1"></a>gwr_model <span class="ot">=</span> <span class="fu">gwr</span>(HR70 <span class="sc">~</span> RD70 <span class="sc">+</span> PS70 <span class="sc">+</span> MA70 <span class="sc">+</span> DV70 <span class="sc">+</span> UE70, <span class="at">data =</span> ncovr,</span>
-<span id="cb630-2"><a href="spatial-heterogeneity-and-regression.html#cb630-2" aria-hidden="true" tabindex="-1"></a>                <span class="at">coords =</span> ncovr<span class="sc">$</span>cent_coords,</span>
-<span id="cb630-3"><a href="spatial-heterogeneity-and-regression.html#cb630-3" aria-hidden="true" tabindex="-1"></a>                <span class="at">adapt=</span>gwr_bandwidth,</span>
-<span id="cb630-4"><a href="spatial-heterogeneity-and-regression.html#cb630-4" aria-hidden="true" tabindex="-1"></a>                <span class="at">hatmatrix=</span><span class="cn">TRUE</span>,</span>
-<span id="cb630-5"><a href="spatial-heterogeneity-and-regression.html#cb630-5" aria-hidden="true" tabindex="-1"></a>                <span class="at">se.fit=</span><span class="cn">TRUE</span>) </span>
-<span id="cb630-6"><a href="spatial-heterogeneity-and-regression.html#cb630-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb630-7"><a href="spatial-heterogeneity-and-regression.html#cb630-7" aria-hidden="true" tabindex="-1"></a>gwr_model</span></code></pre></div>
+<div class="sourceCode" id="cb632"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb632-1"><a href="spatial-heterogeneity-and-regression.html#cb632-1" aria-hidden="true" tabindex="-1"></a>gwr_model <span class="ot">=</span> <span class="fu">gwr</span>(HR70 <span class="sc">~</span> RD70 <span class="sc">+</span> PS70 <span class="sc">+</span> MA70 <span class="sc">+</span> DV70 <span class="sc">+</span> UE70, <span class="at">data =</span> ncovr,</span>
+<span id="cb632-2"><a href="spatial-heterogeneity-and-regression.html#cb632-2" aria-hidden="true" tabindex="-1"></a>                <span class="at">coords =</span> ncovr<span class="sc">$</span>cent_coords,</span>
+<span id="cb632-3"><a href="spatial-heterogeneity-and-regression.html#cb632-3" aria-hidden="true" tabindex="-1"></a>                <span class="at">adapt=</span>gwr_bandwidth,</span>
+<span id="cb632-4"><a href="spatial-heterogeneity-and-regression.html#cb632-4" aria-hidden="true" tabindex="-1"></a>                <span class="at">hatmatrix=</span><span class="cn">TRUE</span>,</span>
+<span id="cb632-5"><a href="spatial-heterogeneity-and-regression.html#cb632-5" aria-hidden="true" tabindex="-1"></a>                <span class="at">se.fit=</span><span class="cn">TRUE</span>) </span>
+<span id="cb632-6"><a href="spatial-heterogeneity-and-regression.html#cb632-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb632-7"><a href="spatial-heterogeneity-and-regression.html#cb632-7" aria-hidden="true" tabindex="-1"></a>gwr_model</span></code></pre></div>
 <pre><code>## Call:
 ## gwr(formula = HR70 ~ RD70 + PS70 + MA70 + DV70 + UE70, data = ncovr, 
 ##     coords = ncovr$cent_coords, adapt = gwr_bandwidth, hatmatrix = TRUE, 
@@ -904,18 +904,18 @@ FIGURE 13.2: Map of model residuals
 ## Quasi-global R2: 0.5022</code></pre>
 <p>This output tells us the 5-number summary for the coefficients (<span class="math inline">\(Y\)</span>) for each predictor variable <span class="math inline">\(X\)</span>. We can see for all predictor variables, some counties have negative values, while other counties have positive values. Evidently there is some variation locally in the relationships between these independent variables and our dependent variable.</p>
 <p>For this to be informative however, we should map this variation - this is where we can gain insight into how the relationships may change over our study area. In our <code>gwr_model</code> object we have a <em>S</em>patial <em>D</em>ata <em>F</em>rame. This is a <em>SpatialPointsDataFrame</em> or <em>SpatialPolygonsDataFrame</em> object which contains fit.points, weights, GWR coefficient estimates, R-squared, and coefficient standard errors in its “data” slot. Let’s extract this into another object called <code>gwr_results</code>:</p>
-<div class="sourceCode" id="cb632"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb632-1"><a href="spatial-heterogeneity-and-regression.html#cb632-1" aria-hidden="true" tabindex="-1"></a>gwr_results <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(gwr_model<span class="sc">$</span>SDF)</span></code></pre></div>
+<div class="sourceCode" id="cb634"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb634-1"><a href="spatial-heterogeneity-and-regression.html#cb634-1" aria-hidden="true" tabindex="-1"></a>gwr_results <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(gwr_model<span class="sc">$</span>SDF)</span></code></pre></div>
 <p>To map this, we can join these results back to our original data frame.</p>
-<div class="sourceCode" id="cb633"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb633-1"><a href="spatial-heterogeneity-and-regression.html#cb633-1" aria-hidden="true" tabindex="-1"></a>gwr_results <span class="ot">&lt;-</span> <span class="fu">cbind</span>(ncovr, gwr_results)</span></code></pre></div>
+<div class="sourceCode" id="cb635"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb635-1"><a href="spatial-heterogeneity-and-regression.html#cb635-1" aria-hidden="true" tabindex="-1"></a>gwr_results <span class="ot">&lt;-</span> <span class="fu">cbind</span>(ncovr, gwr_results)</span></code></pre></div>
 <p>Now we can begin to map our results. First, let’s see how well the model performs across the different counties of the United States. To do this, we can map the <code>localR2</code> value which contains the local <span class="math inline">\(R^2\)</span> value for each observation.</p>
-<div class="sourceCode" id="cb634"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb634-1"><a href="spatial-heterogeneity-and-regression.html#cb634-1" aria-hidden="true" tabindex="-1"></a><span class="fu">qtm</span>(gwr_results, <span class="at">fill =</span>  <span class="st">&quot;localR2&quot;</span> )</span></code></pre></div>
+<div class="sourceCode" id="cb636"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb636-1"><a href="spatial-heterogeneity-and-regression.html#cb636-1" aria-hidden="true" tabindex="-1"></a><span class="fu">qtm</span>(gwr_results, <span class="at">fill =</span>  <span class="st">&quot;localR2&quot;</span> )</span></code></pre></div>
 <pre><code>## old-style crs object detected; please recreate object with a recent sf::st_crs()
 ## old-style crs object detected; please recreate object with a recent sf::st_crs()
 ## old-style crs object detected; please recreate object with a recent sf::st_crs()
 ## old-style crs object detected; please recreate object with a recent sf::st_crs()
 ## old-style crs object detected; please recreate object with a recent sf::st_crs()</code></pre>
-<div class="figure"><span style="display:block;" id="fig:unnamed-chunk-384"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-384-1.png" alt="Map of local R-square value for each county" width="672" />
+<div class="figure"><span style="display:block;" id="fig:unnamed-chunk-386"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-386-1.png" alt="Map of local R-square value for each county" width="672" />
 <p class="caption">
 FIGURE 13.3: Map of local R-square value for each county
 </p>
@@ -925,18 +925,18 @@ FIGURE 13.3: Map of local R-square value for each county
 <blockquote>
 <p><strong>NOTE:</strong> In our <code>gwr_results</code> data frame we have a varaible called <code>RD70</code>, this contains the observed resource deprivation value for the county. We then have <code>RD70.1</code> this is the coefficient value for each county. In the results contained in the SDF element of our model (<code>gwr_model$SDF</code>) it was named <code>RD70</code> but when we joined the two object, the <code>.1</code> was appended to allow us to differentiate between the two.</p>
 </blockquote>
-<div class="sourceCode" id="cb636"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb636-1"><a href="spatial-heterogeneity-and-regression.html#cb636-1" aria-hidden="true" tabindex="-1"></a><span class="fu">qtm</span>(gwr_results, <span class="at">fill =</span>  <span class="st">&quot;RD70.1&quot;</span> )</span></code></pre></div>
-<div class="figure"><span style="display:block;" id="fig:unnamed-chunk-385"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-385-1.png" alt="Map of coefficient for resource deprivation value for each county" width="672" />
+<div class="sourceCode" id="cb638"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb638-1"><a href="spatial-heterogeneity-and-regression.html#cb638-1" aria-hidden="true" tabindex="-1"></a><span class="fu">qtm</span>(gwr_results, <span class="at">fill =</span>  <span class="st">&quot;RD70.1&quot;</span> )</span></code></pre></div>
+<div class="figure"><span style="display:block;" id="fig:unnamed-chunk-387"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-387-1.png" alt="Map of coefficient for resource deprivation value for each county" width="672" />
 <p class="caption">
 FIGURE 13.4: Map of coefficient for resource deprivation value for each county
 </p>
 </div>
 <p>We can see in this map again some regional patterns in the coefficient of Resource deprivation. There are even counties, in Texas, and in Florida, where the direction of this relationship flips, that is we have negative coefficients - so resource deprivation is associated with <em>lower</em> homicide rates in these counties.</p>
 <p>This may be interesting and raise questions, however, it is important to consider not only the coefficients, but also the <em>standard errors</em> associated with them, so we can get some ideas behind the reliability of these estimates. So let us have a look by mapping the standard errors for these coefficients, which are contained in the <code>RD70_se</code> variable.</p>
-<div class="sourceCode" id="cb637"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb637-1"><a href="spatial-heterogeneity-and-regression.html#cb637-1" aria-hidden="true" tabindex="-1"></a><span class="fu">qtm</span>(gwr_results, <span class="at">fill =</span>  <span class="st">&quot;RD70_se&quot;</span> )</span></code></pre></div>
-<div class="figure"><span style="display:block;" id="fig:unnamed-chunk-386"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-386-1.png" alt="Map of standard error for resource deprivation value for each county" width="672" />
+<div class="sourceCode" id="cb639"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb639-1"><a href="spatial-heterogeneity-and-regression.html#cb639-1" aria-hidden="true" tabindex="-1"></a><span class="fu">qtm</span>(gwr_results, <span class="at">fill =</span>  <span class="st">&quot;RD70_se&quot;</span> )</span></code></pre></div>
+<div class="figure"><span style="display:block;" id="fig:unnamed-chunk-388"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-388-1.png" alt="Map of standard error for resource deprivation value for each county" width="672" />
 <p class="caption">
 FIGURE 13.5: Map of standard error for resource deprivation value for each county
 </p>

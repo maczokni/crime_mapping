@@ -199,7 +199,7 @@
 
 \title{Crime Mapping and Spatial Data Analysis using R}
 \author{Juanjo Medina and Reka Solymosi}
-\date{2022-07-07}
+\date{2022-07-14}
 
 \begin{document}
 \maketitle
@@ -1322,7 +1322,7 @@ The resulting object \texttt{osm\_bar\_sf} contains lots of information. We can 
 \end{Highlighting}
 \end{Shaded}
 
-This confirms details like the bounding box coordinates, but also provides information on the features collected from the query. As one might expect, most information relating to bar locations has been recorded using points (i.e.~two-dimensional vertices, coordinates) of which we have 750 at the time of writing. We also have around fifty polygons. For now, let's extract the point information.
+This confirms details like the bounding box coordinates, but also provides information on the features collected from the query. As one might expect, most information relating to bar locations has been recorded using points (i.e.~two-dimensional vertices, coordinates) of which we have 752 at the time of writing. We also have around fifty polygons. For now, let's extract the point information.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1340,7 +1340,7 @@ One column we should consider is the \texttt{name} which tells us the name of th
 \end{Highlighting}
 \end{Shaded}
 
-We are still left with 285 bars in our data set.
+We are still left with 283 bars in our data set.
 
 \hypertarget{attribute-operations}{%
 \section{Attribute operations}\label{attribute-operations}}
@@ -1552,7 +1552,7 @@ We can do the same for the bars:
 \end{Highlighting}
 \end{Shaded}
 
-We can see that of the previous 285 bars, 115 are within the City Centre ward. We can plot our data now:
+We can see that of the previous 283 bars, 115 are within the City Centre ward. We can plot our data now:
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1872,11 +1872,9 @@ And just print it:
 \end{Highlighting}
 \end{Shaded}
 
-\begin{verbatim}
-## PhantomJS not found. You can install it with webshot::install_phantomjs(). If it is installed, please make sure the phantomjs executable can be found via the PATH variable.
-\end{verbatim}
-
-\label{fig:unnamed-chunk-56}A first interactive map
+\begin{figure}
+\includegraphics[width=18.86in]{img/leaflet_worldmap} \caption{A first interactive map}\label{fig:leaflet1}
+\end{figure}
 
 Not a super useful map, but it was really easy to make! You might of course want to add some content to your map.
 
@@ -1888,11 +1886,18 @@ You can add a point manually:
   \FunctionTok{addMarkers}\NormalTok{(}\AttributeTok{lng=}\SpecialCharTok{{-}}\FloatTok{2.230899}\NormalTok{,  }\CommentTok{\# longitude}
              \AttributeTok{lat=}\FloatTok{53.464987}\NormalTok{,  }\CommentTok{\# latitude}
              \AttributeTok{popup=}\StringTok{"University of Manchester"}\NormalTok{) }\CommentTok{\# text for popup}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
 \NormalTok{m  }
 \end{Highlighting}
 \end{Shaded}
 
-\label{fig:unnamed-chunk-57}Mapping the Univeristy of Manchester
+\begin{figure}
+\includegraphics[width=18.94in]{img/leaflet_uom} \caption{Mapping the Univeristy of Manchester}\label{fig:leaflet2}
+\end{figure}
 
 If you click over the highlighted point you will read our input text ``University of Manchester''.
 
@@ -1909,13 +1914,17 @@ You can add many points manually, with some popup text as well:
 \CommentTok{\# create leaflet map}
 \NormalTok{m }\OtherTok{\textless{}{-}} \FunctionTok{leaflet}\NormalTok{(}\AttributeTok{data =}\NormalTok{ df) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{addTiles}\NormalTok{()  }\SpecialCharTok{\%\textgreater{}\%}  
   \FunctionTok{addMarkers}\NormalTok{(}\AttributeTok{lng=}\SpecialCharTok{\textasciitilde{}}\NormalTok{longitudes, }\AttributeTok{lat=}\SpecialCharTok{\textasciitilde{}}\NormalTok{latitudes, }\AttributeTok{popup=}\SpecialCharTok{\textasciitilde{}}\NormalTok{popups)}
+\end{Highlighting}
+\end{Shaded}
 
+\begin{Shaded}
+\begin{Highlighting}[]
 \CommentTok{\#print leaflet map}
 \NormalTok{m  }
 \end{Highlighting}
 \end{Shaded}
 
-\label{fig:unnamed-chunk-58}Adding some more points to a map
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-60-1.png}
 
 We can also map polygons, not just points. Let's plot our crimes on/near bars to illustrate. To do this, we can return to our buffers where we counted the number of crimes within 100m of each bar/ licensed premise (the ``crimes\_per\_prem'' object).
 
@@ -1943,14 +1952,18 @@ Now we can make a leaflet map, where we add these polygons (the buffers) with th
 \end{Highlighting}
 \end{Shaded}
 
-\label{fig:unnamed-chunk-60}Mapping crimes around bars in Manchester with leaflet
+\begin{figure}
+\centering
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-62-1.png}
+\caption{\label{fig:unnamed-chunk-62}Mapping crimes around bars in Manchester with leaflet}
+\end{figure}
 
 It's not the neatest of maps, with all these overlaps, but we will talk about prettifying maps further down the line. You can however, pan and zoom, and investigate to find our most high-crime venue, the Crafty Pig. And here, with this background information, we can solve the puzzle. You see, the Crafty Pig appears to be the nearest venue to an area in Manchester City Centre called \href{https://en.wikipedia.org/wiki/Piccadilly_Gardens}{\emph{Piccadilly Gardens}} which is an area known for high levels of crime and anti social behaviour. Therefore it is likely that we are erroneously attributing many of these crimes to the Crafty Pig venue, as they may be taking place in Piccadilly Gardens instead. It is important, therefore, to think about any unintended consequences of the spatial operations we carry out, and how these might affect the conclusions which we draw from our crime mapping exercises.
 
 Finally, let's say we want to save our interactive map, while keeping it interactive. You can do this by clicking on the export button at the top of the plot viewer, and choose the \emph{Save as Webpage} option saving this as a \texttt{.html} file:
 
 \begin{figure}
-\includegraphics[width=0.75\linewidth]{img/save_as_wp} \caption{Save leaflet map as interactive html document}\label{fig:unnamed-chunk-61}
+\includegraphics[width=0.75\linewidth]{img/save_as_wp} \caption{Save leaflet map as interactive html document}\label{fig:unnamed-chunk-63}
 \end{figure}
 
 Then you can open this file with any type of web browser (safari, firefox, chrome) and share your map that way. You can send this to your friends, and make them jealous of your fancy map making skills.
@@ -2054,7 +2067,11 @@ Now we have these licenced premises geocoded, with brand new latitude and longit
 \end{Highlighting}
 \end{Shaded}
 
-\label{fig:unnamed-chunk-67}Map of (some) geocoded licenced premises in Manchester
+\begin{figure}
+\centering
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-69-1.png}
+\caption{\label{fig:unnamed-chunk-69}Map of (some) geocoded licenced premises in Manchester}
+\end{figure}
 
 Geocoding may come in handy when we have address data, or something similar but no geometry to use to map it.
 
@@ -2094,7 +2111,11 @@ We went through a lot of steps there, so it's worth to check in and plot our dat
 \end{Highlighting}
 \end{Shaded}
 
-\label{fig:unnamed-chunk-69}Leaflet map of our Madrid data
+\begin{figure}
+\centering
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-71-1.png}
+\caption{\label{fig:unnamed-chunk-71}Leaflet map of our Madrid data}
+\end{figure}
 
 We can clearly see here that there are areas of the municipality that are far away from any national police station, the North West part of the city which you can see is a green area but noticeably also the South East, which is mostly urban and in fact is the location of a known shanty town and open drug market (``Cañada Real'', you can read about it in the award-winning book by Briggs and Monge-Gamero (\protect\hyperlink{ref-Briggs_2017}{2017})).
 
@@ -2218,8 +2239,8 @@ We can plot the results, to see that everything has gone according to plan:
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-78-1.pdf}
-\caption{\label{fig:unnamed-chunk-78}Madrid digivded into 250m grid cells}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-80-1.pdf}
+\caption{\label{fig:unnamed-chunk-80}Madrid digivded into 250m grid cells}
 \end{figure}
 
 With so many ``small'' cells the paper printed version of this map may just look completely black. But it is simply composed of many small cells. So how do we look at distance from police stations here? We can measure the distance between each grid cell to all 39 police stations. To estimate the distance to the nearest police station we will find the minimum distance value for each grid, i.e.~the distance to the nearest station.
@@ -2263,8 +2284,8 @@ We now have a dataframe of distances, for each grid, to the nearest police stati
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-81-1.pdf}
-\caption{\label{fig:unnamed-chunk-81}Histogram of distance to nearest police station}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-83-1.pdf}
+\caption{\label{fig:unnamed-chunk-83}Histogram of distance to nearest police station}
 \end{figure}
 
 Now we are ready to use this data to plot a map. We can get creative, and use the \texttt{makeIcon()} function from leaflet to assign an image as our icon, rather than these regular pointer icons we've been seeing. To do this, first we will adjust some aesthetics.
@@ -2318,7 +2339,11 @@ Now let's create the map.
 \end{Highlighting}
 \end{Shaded}
 
-\label{fig:unnamed-chunk-84}Map of distance to nearest police station across Madrid
+\begin{figure}
+\centering
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-86-1.png}
+\caption{\label{fig:unnamed-chunk-86}Map of distance to nearest police station across Madrid}
+\end{figure}
 
 And there you go. Just remember something. It is easy to misinterpret data and maps. You always need to care a great deal about measurement, quality of your data, and other potential issues affecting interpretation. When it comes to distance, and the movements of people and law enforcement personnel, for example, physical distance is not trivial, but time to arrival is also important and this is determined by factors other than Euclidean distance (e.g., availability and speed of transport, physical barriers, etc.). Our representation is always as good as the data we have. In Spain there are two other police forces (Guardia Civil, that patrols rural areas, and municipal civil, with jurisdiction for local administrative enforcement) that we are not representing here (that is, our data is incomplete). And we are not plotting the police stations in the nearby municipalities that are part of Madrid metropolitan area, around the edges.
 
@@ -2474,8 +2499,8 @@ Let's create a static map first:
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-88-1.pdf}
-\caption{\label{fig:unnamed-chunk-88}Bubble map of crime in each LSOA in Manchester}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-90-1.pdf}
+\caption{\label{fig:unnamed-chunk-90}Bubble map of crime in each LSOA in Manchester}
 \end{figure}
 
 In the map prodiced, each bubble represents the number of crimes in each LSOA within the city of Manchester. We can add the borders of the census areas for better representation. The \texttt{border.lwd} argument set to NA in the \texttt{tm\_bubbles()} is asking R not to draw a border to the circles. Whereas \texttt{tm\_borders()} brings back a layer with the borders of the polygons representing the different LSOAs in Manchester city. Notice how we are modifying the transparency of the borders with the alpha parameter. In addition, we are adding a \texttt{tm\_layout()} function that makes explicit where and how we want the legend.
@@ -2504,8 +2529,8 @@ In the map prodiced, each bubble represents the number of crimes in each LSOA wi
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-89-1.pdf}
-\caption{\label{fig:unnamed-chunk-89}Bubble map with aesthetic settings}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-91-1.pdf}
+\caption{\label{fig:unnamed-chunk-91}Bubble map with aesthetic settings}
 \end{figure}
 
 There are several arguments that you can pass within the \texttt{tm\_bubble()} function that control the appearance of the symbols. The \texttt{scale} argument controls the symbol size multiplier number. Larger values will represent the largest bubble as larger. You can experiment with the value you find more appropriate. Another helpful parameter in \texttt{tm\_bubble()} is \texttt{alpha}, which you can use to make the symbols more or less transparent as a possible way to deal with situations where you may have a significant degree of overlapping between the symbols. You can play around with this and modify the code we provide above with different values for these two arguments.
@@ -2524,8 +2549,8 @@ By default, the symbol area sizes are scaled proportionally to the data variable
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-90-1.pdf}
-\caption{\label{fig:unnamed-chunk-90}Bubble map with perceptual parameter set to TRUE}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-92-1.pdf}
+\caption{\label{fig:unnamed-chunk-92}Bubble map with perceptual parameter set to TRUE}
 \end{figure}
 
 We can see that we get much larger bubbles in the City Centre region of Manchester local authority. There is a chance that this is due to greater number of people present in this area. Unless we control for this, by mapping rates, we may not be able to meaningfully tell the difference\ldots!
@@ -2548,8 +2573,8 @@ The \texttt{manchester} object we are working with has a column named \texttt{re
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-91-1.pdf}
-\caption{\label{fig:unnamed-chunk-91}Histogram of respop variable}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-93-1.pdf}
+\caption{\label{fig:unnamed-chunk-93}Histogram of respop variable}
 \end{figure}
 
 We also have a variable \texttt{wkdpop} that represents the workday population. This variable re-distributes the usually resident population to their places of work, while those not in work are recorded at their usual residence. The picture it offers is much more diverse than the previous variable and in some ways is closer to the notion of an ``ambient population'' (with some caveats: for example it does not capture tourists, people visiting a place to shop or to entertain themselves in the night time economy, etc.).
@@ -2562,8 +2587,8 @@ We also have a variable \texttt{wkdpop} that represents the workday population. 
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-92-1.pdf}
-\caption{\label{fig:unnamed-chunk-92}Histogram of wkdpop variable}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-94-1.pdf}
+\caption{\label{fig:unnamed-chunk-94}Histogram of wkdpop variable}
 \end{figure}
 
 The distribution of the workday population is much more skewed than the residential population, with most LSOAs having only 5,000 or fewer workday population, but the busiest LSOAs attracting over 40,000 people during the working day. This gives an idea of the relevance of the ``denominator dilemma'' we mentioned earlier. In this section we will create rates of crime using both variables in the denominator to observe how the emerging picture varies.
@@ -2596,8 +2621,8 @@ The structure of the grammar for producing a choropleth map is similar to what w
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-94-1.pdf}
-\caption{\label{fig:unnamed-chunk-94}Crime rate per residential population}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-96-1.pdf}
+\caption{\label{fig:unnamed-chunk-96}Crime rate per residential population}
 \end{figure}
 
 We have used \texttt{tm\_polygons()} but we can also add the elements of a polygon map using different functions that break down what we represent here. In the map above you see the polygons have a dual representation, the borders are represented by lines and the colour is mapped to the intensity of the quantitative variable we are displaying. With darker colours representing more of the variable, the areas with more crimes.
@@ -2613,8 +2638,8 @@ Instead of using \texttt{tm\_polygon()} we can use the related functions \texttt
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-95-1.pdf}
-\caption{\label{fig:unnamed-chunk-95}Crime rate per residential population mapped with tm\_fill()}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-97-1.pdf}
+\caption{\label{fig:unnamed-chunk-97}Crime rate per residential population mapped with tm\_fill()}
 \end{figure}
 
 As you can see here, the look is a bit cleaner. However, we don't need to get rid of the borders completely. Perhaps we want to make them a bit more translucent. We could do that by adding the border element but making the drawing of the borders less pronounced.
@@ -2629,8 +2654,8 @@ As you can see here, the look is a bit cleaner. However, we don't need to get ri
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-96-1.pdf}
-\caption{\label{fig:unnamed-chunk-96}Crime rate per residential population mapped with tm\_fill() and borders}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-98-1.pdf}
+\caption{\label{fig:unnamed-chunk-98}Crime rate per residential population mapped with tm\_fill() and borders}
 \end{figure}
 
 The alpha parameter that we are inserting within \texttt{tm\_borders()} controls the transparency of the borders, we can go from 0 (totally transparent) to 1 (not transparent). You can play around with this value and see the results.
@@ -2651,8 +2676,8 @@ Notice as well that the legend in this map is not very informative and could be 
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-97-1.pdf}
-\caption{\label{fig:unnamed-chunk-97}Crime rate per residential population mapped with aesthetics considered}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-99-1.pdf}
+\caption{\label{fig:unnamed-chunk-99}Crime rate per residential population mapped with aesthetics considered}
 \end{figure}
 
 We can also change the style of the maps we produce, for example by making them more friendly to colour blind people. We can use the \texttt{tmap\_style()} function to do so. Once you set the style of the subsequent maps in your session will stick to this stil. If you want to reverse to a different style when using \texttt{tmap} you need to do so explicitly.
@@ -2680,8 +2705,8 @@ See how the map changes.
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-99-1.pdf}
-\caption{\label{fig:unnamed-chunk-99}Crime rate per residential population with col\_blind style}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-101-1.pdf}
+\caption{\label{fig:unnamed-chunk-101}Crime rate per residential population with col\_blind style}
 \end{figure}
 
 We will discuss more about map aesthetics in Chapter 5. For now, let's talk about another important decision when it comes to thematic maps, the choice of classification system.
@@ -2697,40 +2722,40 @@ The quantitative information is usually classified before its symbolization in a
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-100-1.pdf}
-\caption{\label{fig:unnamed-chunk-100}Results for equal intervals classification}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-102-1.pdf}
+\caption{\label{fig:unnamed-chunk-102}Results for equal intervals classification}
 \end{figure}
 
 \textbf{The quantile map} bin the same count of features (areas) into each of its classes. This classification method places equal numbers of observations into each class. So, if you have five classes you will have 20 percent of the areas within each class. This method is best for data that is evenly distributed across its range. Here, given that our variable is highly skewed, notice how the top class includes areas with fairly different levels of crime, even if it does a better job at separating areas at the lower end of the crime rate continuum. Several authors consider that quantile maps are inappropriate to represent the skewed distributions of crime (\protect\hyperlink{ref-Harries_1999}{Harries 1999}).
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-101-1.pdf}
-\caption{\label{fig:unnamed-chunk-101}Results for quantiles classification}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-103-1.pdf}
+\caption{\label{fig:unnamed-chunk-103}Results for quantiles classification}
 \end{figure}
 
 \textbf{The natural breaks (or Jenks)} classification method utilizes an algorithm to group values in classes that are separated by distinct break points. It is an optimisation method which takes an iterative approach to its groupings to achieve least variation within each class. Cartographers recommend to use this method with data that is unevenly distributed but not skewed toward either end of the distribution.
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-102-1.pdf}
-\caption{\label{fig:unnamed-chunk-102}Results for Jenks classification}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-104-1.pdf}
+\caption{\label{fig:unnamed-chunk-104}Results for Jenks classification}
 \end{figure}
 
 \textbf{The standard deviation} map uses the standard deviation (standardised measure of observations' deviation from the mean) to bin the observations into classes. This classification method forms each class by adding and subtracting the standard deviation from the mean of the dataset. It is best suited to be used with data that conforms to a normal distribution.
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-103-1.pdf}
-\caption{\label{fig:unnamed-chunk-103}Results for standard deviation classification}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-105-1.pdf}
+\caption{\label{fig:unnamed-chunk-105}Results for standard deviation classification}
 \end{figure}
 
 \textbf{The headtails method} This uses a method proposed by Jiang (\protect\hyperlink{ref-Jiang_2013}{2013}) as a solution for variables with a heavy tail distribution, like we often have with crime. ``This new classification scheme partitions all of the data values around the mean into two parts and continues the process iteratively for the values (above the mean) in the head until the head part values are no longer heavy-tailed distributed. Thus, the number of classes and the class intervals are both naturally determined.'' (\protect\hyperlink{ref-Jiang_2013}{Jiang 2013, 482})
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-104-1.pdf}
-\caption{\label{fig:unnamed-chunk-104}Results for headtails classification}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-106-1.pdf}
+\caption{\label{fig:unnamed-chunk-106}Results for headtails classification}
 \end{figure}
 
 Not only do you need to choose the classification method, you also need to decide on the number of classes. This is critical. The convention in cartography is to choose between 5 to 7 classes, although some authors would say 5 to 6 (\protect\hyperlink{ref-Field_2018}{Field 2018}). Less than five and you loose detail, more than 6 or 7 and the audience looking at your map starts to have problems to perceive the differences in the symbology and to understand the spatial pattern displayed.
@@ -2808,8 +2833,8 @@ Notice that we are not plotting the maps, we are storing them into R objects (ma
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-110-1.pdf}
-\caption{\label{fig:unnamed-chunk-110}Quantile classification of crime in Manchester}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-112-1.pdf}
+\caption{\label{fig:unnamed-chunk-112}Quantile classification of crime in Manchester}
 \end{figure}
 
 But now we will plot all 5 maps together, arranged using the \texttt{tmap\_arrange()} function. Like so:
@@ -2823,8 +2848,8 @@ But now we will plot all 5 maps together, arranged using the \texttt{tmap\_arran
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-111-1.pdf}
-\caption{\label{fig:unnamed-chunk-111}Compare maps using the different classifications of crime in Manchester}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-113-1.pdf}
+\caption{\label{fig:unnamed-chunk-113}Compare maps using the different classifications of crime in Manchester}
 \end{figure}
 
 As we can see using data-driven, natural breaks (as the Jenks or Headtails method do, in different ways) to classify data is useful when mapping data values that are not evenly distributed, since it places value clusters in the same class. The disadvantage of using this approach is that it is often difficult to make comparisons between maps (for example of different crimes or for different time periods) since the classification scheme used is unique to each data set.
@@ -2872,6 +2897,12 @@ Let's explore the distribution of the two alternative definitions of crime rates
 \end{Highlighting}
 \end{Shaded}
 
+\begin{figure}
+\centering
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-115-1.png}
+\caption{\label{fig:unnamed-chunk-115}Interactive Jenks map of crime by residential population in Manchester}
+\end{figure}
+
 If you are following along, you can now scroll down to see that the crime rate is highest in the city centre of Manchester, but there are also pockets of high level of the crime rate in the North East of the city, Harpurhey and Moston (areas of high levels of deprivation) and in the LSOA farthest to the South (where the international airport is located).
 
 How does this change if we use the crime rate that uses the workday population?
@@ -2884,6 +2915,12 @@ How does this change if we use the crime rate that uses the workday population?
   \FunctionTok{tm\_basemap}\NormalTok{(leaflet}\SpecialCharTok{::}\NormalTok{providers}\SpecialCharTok{$}\NormalTok{OpenStreetMap)}
 \end{Highlighting}
 \end{Shaded}
+
+\begin{figure}
+\centering
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-116-1.png}
+\caption{\label{fig:unnamed-chunk-116}Interactive Jenks map of crime rate by workday population in Manchester}
+\end{figure}
 
 Things look different, don't they? For starters look at the values in the labels for the various classes. They are much less extreme. One of the reasons why we see such extreme rates in the first map is linked to the very large discrepancy between the residential population and the workday population in some parts of Manchester, like the international airport and the city centre (that attract very large volume of visitors, but have few residents). The LSOA with the highest crime rate (when using the residential population as the denominator) is E01033658. We can filter to find the number of crimes (in the \texttt{count} variable) that took place here.
 
@@ -3146,8 +3183,8 @@ We can now plot the maps and compare them:
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-129-1.pdf}
-\caption{\label{fig:unnamed-chunk-129}Compare raw and smoothed rates across counties in the USA}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-131-1.pdf}
+\caption{\label{fig:unnamed-chunk-131}Compare raw and smoothed rates across counties in the USA}
 \end{figure}
 
 Notice that the quantiles are not the same, so that will make your comparison difficult. Let´s look at a boxplot of these variables. In the map of raw rates we have the most variation.
@@ -3165,8 +3202,8 @@ Notice that the quantiles are not the same, so that will make your comparison di
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-130-1.pdf}
-\caption{\label{fig:unnamed-chunk-130}Boxplots to compare variation in rates}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-132-1.pdf}
+\caption{\label{fig:unnamed-chunk-132}Boxplots to compare variation in rates}
 \end{figure}
 
 The range for the raw rates is nearly 93. Much of the variation in observed homicide rates by county is attributable to statistical noise due to the small number of (observed and expected) homicides in low-population counties. Because of this noise, a disproportionate fraction of low-population counties are observed to have extremely high (or low) homicide rates when compared to typical counties in the United States. With smoothing we reduce this problem and if you contrast the maps you will see how this results in a clearer and smoother spatial pattern for the rate that is estimated borrowing information from their neighbours.
@@ -3335,8 +3372,8 @@ As a first step, we can plot antisocial behaviour in the borough of Manchester u
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-137-1.pdf}
-\caption{\label{fig:unnamed-chunk-137}Point map of ASB in Manchester}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-139-1.pdf}
+\caption{\label{fig:unnamed-chunk-139}Point map of ASB in Manchester}
 \end{figure}
 
 We see our nice map of Manchester, as outlined by ASB incidents across the Local Authority. However, it is hard to tell from this map where these incidents might occur more frequently and where they are just a few one-off incidents. A binned map may help us better understand. To create such a map, we must first create the grid (or fishnet) of tessellating shapes. Once we have this grid, we can overlay it on top of our map, and count the number of ASB incidents (points) which fall into each grid shape (polygon). We can use the \texttt{ggplot} library to achieve this. It is such a great tool for building visualisations, because you can apply whatever geometry best suits your data. To map a hexbinned version of our point data of antisocial behaviour, we can use the \texttt{stat\_binhex()} function as a layer added on to our ggplot object. We can also recreate the thematic map element, as we can use the frequency of points in each hex to shade each hexbin from white (least number of incidents) to red (most number of incidents). So let's have a go:
@@ -3357,8 +3394,8 @@ We see our nice map of Manchester, as outlined by ASB incidents across the Local
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-138-1.pdf}
-\caption{\label{fig:unnamed-chunk-138}Hexbin map of ASB in Manchester}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-140-1.pdf}
+\caption{\label{fig:unnamed-chunk-140}Hexbin map of ASB in Manchester}
 \end{figure}
 
 \emph{Note: you might get the following prompt when you run this code: ``The \texttt{hexbin} package is required for \texttt{stat\_binhex()} Would you like to install it?'' - if you do, just choose ``Yes'' or quit the action and install the \texttt{hexbin} package separately, and then try running the code again. Similarly if you get ``Warning: Computation failed in \texttt{stat\_binhex()}'' the solution might be to install this \texttt{hexbin} package.}
@@ -3377,8 +3414,8 @@ Neat, but doesn't quite tell us \emph{where} that really dark hexbin actually is
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-139-1.pdf}
-\caption{\label{fig:unnamed-chunk-139}Hexbin map of ASB in Manchester with basemap}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-141-1.pdf}
+\caption{\label{fig:unnamed-chunk-141}Hexbin map of ASB in Manchester with basemap}
 \end{figure}
 
 Adding this basemap provides us with a bit more context. And combined with the hexbin map, it is much easier to see where in Manchester borough Antisocial Behaviour concentrates (as opposed to with the point map!). Above we used a hexagon shape for our binning, however you might choose other shapes as well. We will illustrate in a moment the approach to use rectangular binning, but first, we want to highlight why hexagon might still be your ideal choice. Here are some thoughts, summarised from (\protect\hyperlink{ref-ArcGIS_2021}{ArcGIS Pro 2021}):
@@ -3401,8 +3438,8 @@ Adding this basemap provides us with a bit more context. And combined with the h
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-140-1.pdf}
-\caption{\label{fig:unnamed-chunk-140}Hexagonal bins will have more neighbors included in the calculations for each feature as opposed to a fishnet grid}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-142-1.pdf}
+\caption{\label{fig:unnamed-chunk-142}Hexagonal bins will have more neighbors included in the calculations for each feature as opposed to a fishnet grid}
 \end{figure}
 
 To illustrate the differences of different approaches. Like we did in earlier chapters, we can assign each map to an object, and then print them all side-by-side. Let's start with rectangular binning:
@@ -3526,8 +3563,8 @@ Now we can have a look at these data:
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-147-1.pdf}
-\caption{\label{fig:unnamed-chunk-147}EU referendum results across Local Authorit (no transformation)}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-149-1.pdf}
+\caption{\label{fig:unnamed-chunk-149}EU referendum results across Local Authorit (no transformation)}
 \end{figure}
 
 The Local Authorities (LAs) vary greatly in their shape and size, and in the case of smaller LAs the result is barely visible. In this case, we cannot really see what was happening with the EU referendum in London, for example. This is the sort of situation where augmenting our polygons may be handy. Cartograms offer one way to achieve this.
@@ -3567,8 +3604,8 @@ This will be faster (but may not result in the best possible cartogram output). 
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-150-1.pdf}
-\caption{\label{fig:unnamed-chunk-150}Cartogram weightin each polygon (Local Authority) by the size of its electorate}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-152-1.pdf}
+\caption{\label{fig:unnamed-chunk-152}Cartogram weightin each polygon (Local Authority) by the size of its electorate}
 \end{figure}
 
 We can now see London much better, and see that darker coloured cluster where a much smaller percentage of people voted leave. We can eye-ball where London may be, as this continuous area cartogram tries to maintain some fidelity to our original shapes, while weighting them by some variable of interest, in our case the electorate in each Local Authority.
@@ -3597,8 +3634,8 @@ Let's plot the output:
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-152-1.pdf}
-\caption{\label{fig:unnamed-chunk-152}Dorling cartogram of LAs by electorate size}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-154-1.pdf}
+\caption{\label{fig:unnamed-chunk-154}Dorling cartogram of LAs by electorate size}
 \end{figure}
 
 This map has transformed each Local Authority's shape into a circle, where the radius is determined as a function of the variable we supplied, which is our Electorate in each LA. The shading here is again provided by the percentage of people who voted to leave in each area, with lighter values indicating more people voting to leave, and darker values indicating fewer people voting to leave the EU. However, the relations of these Local Authorities is tough to maintain here, and we may be hard-pressed to identify London's boroughs out of this collection. However, Dorling cartograms may have their use and place. You may read up more about them in Dorling (\protect\hyperlink{ref-Dorling_1996}{1996}).
@@ -3785,8 +3822,8 @@ This code returns the legend as a chart itself. Have a look what it looks like:
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-162-1.pdf}
-\caption{\label{fig:unnamed-chunk-162}Legend for bivariate map}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-164-1.pdf}
+\caption{\label{fig:unnamed-chunk-164}Legend for bivariate map}
 \end{figure}
 
 \hypertarget{step-6-map}{%
@@ -3816,8 +3853,8 @@ Finally, to display the legend and the map together, we can use the \texttt{ggdr
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-164-1.pdf}
-\caption{\label{fig:unnamed-chunk-164}Bivariate choropleth map of voter turnout and \% who voted to leave the EU}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-166-1.pdf}
+\caption{\label{fig:unnamed-chunk-166}Bivariate choropleth map of voter turnout and \% who voted to leave the EU}
 \end{figure}
 
 This map may now be able to provide insight into spatial patterns in turnout and voting to leave. For example, in the South you can see lots of pink, representing areas of high turnout and low \% voting to leave the EU. You can also spot the dark blue areas, these are Local Authorities which saw high voter turnout and a high proportion voting to leave.
@@ -4063,8 +4100,8 @@ Here we have a continuous fill for our values, however we can employ our learnin
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-167-1.pdf}
-\caption{\label{fig:unnamed-chunk-167}Map of quantiles eith default colour scheme}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-169-1.pdf}
+\caption{\label{fig:unnamed-chunk-169}Map of quantiles eith default colour scheme}
 \end{figure}
 
 The colour scheme is terrible, but we will talk about colour in the next section, so we can forgive that for now\ldots{}
@@ -4210,8 +4247,8 @@ The above gives a wide choice of pallettes, and while they are applicable to all
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-169-1.pdf}
-\caption{\label{fig:unnamed-chunk-169}The ``spectral'' palette in RColorBrewer package}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-171-1.pdf}
+\caption{\label{fig:unnamed-chunk-171}The ``spectral'' palette in RColorBrewer package}
 \end{figure}
 
 Let's go back to our choropleth map of the quantiles of total breath tests per county. We might be interested in this map to show distribution of policing activity for example. We made this map earlier with the default colour scheme, which didn't really communicate to us the graduated nature of our data we were visualising. To properly do this, we may imagine using a \emph{sequential} scale. We can use one of the sequential scales available within \texttt{RColorBrewer} with adding the \texttt{scale\_fill\_brewer()} function to our ggplot. In this function we can specify the \texttt{type=} parameter, i.e.~if we want to use sequential, divergining, or qualitative colour schemes (specified as either ``seq'' (sequential), ``div'' (diverging) or ``qual'' (qualitative)). We can then specify our preferred palette with the \texttt{palette\ =} argument. Let's demonstrate here with the ``YlOrRd'' sequential palette:
@@ -4244,8 +4281,8 @@ This looks much better, and communicates our message much more clearly. Is this 
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-170-1.pdf}
-\caption{\label{fig:unnamed-chunk-170}Colourblind friendly palettes in RColorBrewer package}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-172-1.pdf}
+\caption{\label{fig:unnamed-chunk-172}Colourblind friendly palettes in RColorBrewer package}
 \end{figure}
 
 You can see there are a few palettes missing from our earlier results, when we did not specify this requirement. Our recommendation is to always use one of these palettes.
@@ -4280,8 +4317,8 @@ Sometimes you might prefer such a map. However, do keep in mind, a number of stu
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-171-1.pdf}
-\caption{\label{fig:unnamed-chunk-171}Map with monochrome palette}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-173-1.pdf}
+\caption{\label{fig:unnamed-chunk-173}Map with monochrome palette}
 \end{figure}
 
 Overall, the key thing is to be conscious with the colours you choose to represent your data. Make sure that they are accessible for all audiences, and best represent the patterns in your data which you want to communicate.
@@ -4323,8 +4360,8 @@ Now we can add a title, with the \texttt{ggtitle()} function.
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-172-1.pdf}
-\caption{\label{fig:unnamed-chunk-172}Add title(s) to map}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-174-1.pdf}
+\caption{\label{fig:unnamed-chunk-174}Add title(s) to map}
 \end{figure}
 
 \hypertarget{legend}{%
@@ -4440,8 +4477,8 @@ You may notice there is some overlapping here which renders some names unreadabl
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-173-1.pdf}
-\caption{\label{fig:unnamed-chunk-173}Repel labels for legibility}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-175-1.pdf}
+\caption{\label{fig:unnamed-chunk-175}Repel labels for legibility}
 \end{figure}
 
 This way we can display the names of all the counties without overlap, so they all become legible. While this is achievable, think back to the principles of good design. This seems busy, and like it may overwhelm the reader. Not to mention - is it important that all polygons are labelled here? It might be - remember this depends on the message the map is intended to communicate! But here let's consider a different scenario, where we want to use annotation to label only those counties which meet some specific criteria. For example, you might want to label only those which are in the top quartile. One way to achieve this is to create a separate dataframe, which only includes the desired polygons, and pass this into the \texttt{geom\_sf\_label()} function.
@@ -4519,8 +4556,8 @@ Great, so we have the end point for our segment! But where should it start? Well
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-175-1.pdf}
-\caption{\label{fig:unnamed-chunk-175}Add arrow to clarify label off map}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-177-1.pdf}
+\caption{\label{fig:unnamed-chunk-177}Add arrow to clarify label off map}
 \end{figure}
 
 This is one way to include annotation while keeping the map clear, but still using the geographic information to reference. Annotations can be useful, but think carefully about whether you need them for your map, as they can also be distracting if not used appropriately.
@@ -4554,8 +4591,8 @@ Then we can include this \texttt{caption\_text} object as a caption in the funct
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-177-1.pdf}
-\caption{\label{fig:unnamed-chunk-177}Include production notes in map}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-179-1.pdf}
+\caption{\label{fig:unnamed-chunk-179}Include production notes in map}
 \end{figure}
 
 In this way we give credibility to our map, and we also make the proper attributions to where our data come from.
@@ -4994,8 +5031,8 @@ Now we have this new dataframe, the number of aggravated assaults per day. To ma
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-185-1.pdf}
-\caption{\label{fig:unnamed-chunk-185}Calendar heat map of aggravated assaults}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-187-1.pdf}
+\caption{\label{fig:unnamed-chunk-187}Calendar heat map of aggravated assaults}
 \end{figure}
 
 This sort of visualisation might be useful for example to see if certain days of the week see more incidents than others, possibly due to differences in the underlying routine activities that predominate for example weekends versus weekdays. For a bit of fun, you can read Moss (\protect\hyperlink{ref-Moss_2013}{2013}) for a safety rating on each day of the week.
@@ -5128,8 +5165,8 @@ The estimated seasonal factors are given for the months January-December, and ar
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-187-1.pdf}
-\caption{\label{fig:unnamed-chunk-187}Decomposed time series of femicides in Spain}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-189-1.pdf}
+\caption{\label{fig:unnamed-chunk-189}Decomposed time series of femicides in Spain}
 \end{figure}
 
 Once we remove the noise and the seasonal components, it becomes easier to see the estimated trend. Notice that while random and seasonal components still look messy, their scales are different and centred around zero.
@@ -5179,8 +5216,8 @@ Then we can use the \texttt{ggsdc()} function in order to create a four-facet pl
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-188-1.pdf}
-\caption{\label{fig:unnamed-chunk-188}Decomposed time series of aggravated assaults in NYC using ggseas}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-190-1.pdf}
+\caption{\label{fig:unnamed-chunk-190}Decomposed time series of aggravated assaults in NYC using ggseas}
 \end{figure}
 
 The resulting graph similarly presents the 4 components, the observe data, the trend, the seasonal component and the random fluctuation.
@@ -5212,8 +5249,8 @@ With this data in our environment we can plot a map using \texttt{tmap}.
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-190-1.pdf}
-\caption{\label{fig:unnamed-chunk-190}Burglaries in Manchester}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-192-1.pdf}
+\caption{\label{fig:unnamed-chunk-192}Burglaries in Manchester}
 \end{figure}
 
 So this is something we're already familiar with. But how can we map the temporal information? We will now cover some approaches.
@@ -5246,8 +5283,8 @@ What we have in the \texttt{mcr\_burglary} object if we view the data frame is a
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-191-1.pdf}
-\caption{\label{fig:unnamed-chunk-191}Small multiples of burglary across Manchester by month}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-193-1.pdf}
+\caption{\label{fig:unnamed-chunk-193}Small multiples of burglary across Manchester by month}
 \end{figure}
 
 So this is one way to visualise temporal variation. What are some more?
@@ -5268,8 +5305,8 @@ While we will include the ward name as a spatial component in a way, this isn't 
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-192-1.pdf}
-\caption{\label{fig:unnamed-chunk-192}Spaghetti plot of burgaries by ward}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-194-1.pdf}
+\caption{\label{fig:unnamed-chunk-194}Spaghetti plot of burgaries by ward}
 \end{figure}
 
 This is quite the mess. So in what situation may this be useful? Well maybe you want to compare the variation here with some central tendency. For this we can ``grey out'' the lines (by changing the colour) and add some summary such as the median let's say, by using the \texttt{stat\_summary()} function.
@@ -5288,8 +5325,8 @@ This is quite the mess. So in what situation may this be useful? Well maybe you 
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-193-1.pdf}
-\caption{\label{fig:unnamed-chunk-193}Spaghetti plot of burgaries by ward showing variation around central tendency measure}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-195-1.pdf}
+\caption{\label{fig:unnamed-chunk-195}Spaghetti plot of burgaries by ward showing variation around central tendency measure}
 \end{figure}
 
 This way we can show something like the median trajectory compared with the individual observations' trajectories. We could also use colour to highlight a specific area compared to the rest of the wards. For example, if we are interested in Fallowfield ward, we might highlight that as an additional layer in our spaghetti pile:
@@ -5310,8 +5347,8 @@ This way we can show something like the median trajectory compared with the indi
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-194-1.pdf}
-\caption{\label{fig:unnamed-chunk-194}Spaghetti plot to highlight burglaries in Fallowfield ward}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-196-1.pdf}
+\caption{\label{fig:unnamed-chunk-196}Spaghetti plot to highlight burglaries in Fallowfield ward}
 \end{figure}
 
 We can now maybe draw some conclusions about Fallowfield's burglary trajectory compared with the other wards in our data set. But let's move on now to the final approach, where we again make use of our spatial component.
@@ -5450,8 +5487,8 @@ Now we have all our data, let's plot to see how they look.
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-200-1.pdf}
-\caption{\label{fig:unnamed-chunk-200}Plot Manhattan borough and crime locations as points}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-202-1.pdf}
+\caption{\label{fig:unnamed-chunk-202}Plot Manhattan borough and crime locations as points}
 \end{figure}
 
 In the point pattern analysis literature each point is often referred to as an \textbf{event} and these events can have \textbf{marks}, attributes or characteristics that are also encoded in the data. In our spatial object one of these \emph{marks} is the type of crime (although in this case it is of little interest since we have filtered on it). Others in this object include the date and time, the location category, victim sex and race, etc.
@@ -5491,8 +5528,8 @@ We can plot this window to see if it looks similar in shape to our polygon of Ma
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-201-1.pdf}
-\caption{\label{fig:unnamed-chunk-201}Plot window based on Manhattan polygon}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-203-1.pdf}
+\caption{\label{fig:unnamed-chunk-203}Plot window based on Manhattan polygon}
 \end{figure}
 
 We can see this worked and created an \texttt{owin} object.
@@ -5608,8 +5645,8 @@ That's quite something! 915 points out of 1727 burglaries share the same coordin
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-202-1.pdf}
-\caption{\label{fig:unnamed-chunk-202}Histogram of incidents in overlapping coordinates (multiplicity)}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-204-1.pdf}
+\caption{\label{fig:unnamed-chunk-204}Histogram of incidents in overlapping coordinates (multiplicity)}
 \end{figure}
 
 In the case of crime, as we have hinted some of this may be linked to the nature of crime itself. Hint: repeat victimisation. It is estimated that between 7 and 33 \% of all burglaries in several western and developed countries are repeat offenses (\protect\hyperlink{ref-Chainey_2016}{Chainey and Alves-da-Silva 2016}). Our 52\% is quite high by those standards. In this particular situation, it likely is the result of geomasking (the introduction of small inaccuracies into their geocoded location) due to privacy reasons. Most police data stored in open data portals do not include the exact address of crime events. In the case of US police data, as noted by the documentation of CODE, relies on addresses geocoded to the nearest hundred block. So say ``370 Gorse Avenue'' could be rounded down and geooded to ``300 Gorse Avenue''. The same would happen to ``307 Gorse Avenue'', in the public release version of the data it would feature as ``300 Gorse Avenue''. In the UK there exist a pre-determined list of points so that each crime event gets ``snapped'' to its nearest one. So, the coordinates provided in the open data are not the exact locations of crimes. This process is likely inflating the amount of duplication we may observe, because each snap point or hundred block address might have many crimes near it, resulting in those crimes being geo-coded to the same exact location. So keep it in mind when analysing and working with this kind of data set that it may not be the same as working with the real locations. (If you are interested in the effects of this read the paper Tompson et al. (\protect\hyperlink{ref-Tompson_2015}{2015})).
@@ -5699,8 +5736,8 @@ For producing this counting we use the \texttt{quadratcount()} function (in \tex
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-203-1.pdf}
-\caption{\label{fig:unnamed-chunk-203}Count of burglaries in quadrats}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-205-1.pdf}
+\caption{\label{fig:unnamed-chunk-205}Count of burglaries in quadrats}
 \end{figure}
 
 As you can see with its irregular shape it is difficult to divide Manhattan in equally shaped and sized quadrats and thus it is hard to assess if regions of equal area contain a similar number of points. Notice, however,how the third quadrat from the bottom seems to have less incidents than the ones that surround it. A good portion of this quadrat is taken by Central Park, where you would not expect a burglary.
@@ -5717,8 +5754,8 @@ Instead, we can use other forms of tessellation, like hexagons by using the \tex
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-204-1.pdf}
-\caption{\label{fig:unnamed-chunk-204}Intensity map of burglaries per hexagon}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-206-1.pdf}
+\caption{\label{fig:unnamed-chunk-206}Intensity map of burglaries per hexagon}
 \end{figure}
 
 We can see more clearly now that areas of Manhattan, like Central Park, have understandably a very low intensity of burglaries, whereas others, like the Lower East Side and north of Washington Heights, have a higher intensity. So this map suggest to us that the process may not be homogeneous - hardly surprising when it comes to crime.
@@ -5744,8 +5781,8 @@ We can plot this, to see how it looks
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-205-1.pdf}
-\caption{\label{fig:unnamed-chunk-205}Simulated complete spatial randomness}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-207-1.pdf}
+\caption{\label{fig:unnamed-chunk-207}Simulated complete spatial randomness}
 \end{figure}
 
 You will notice that the points in a homogeneous Poisson process are not `uniformly spread': there are empty gaps and clusters of points. This is very important. Random may look like what you may think non random should look. There seems to be places with apparent ``clustering'' of points. Keep this in mind when observing maps of crime distributions. Run the previous command a few times. You will see the map generated is different each time.
@@ -5761,8 +5798,8 @@ In classical literature, the \emph{homogeneous Poisson process} (CSR) is usually
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-206-1.pdf}
-\caption{\label{fig:unnamed-chunk-206}Count of our random points in quadrats}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-208-1.pdf}
+\caption{\label{fig:unnamed-chunk-208}Count of our random points in quadrats}
 \end{figure}
 
 These numbers are looking more even than they did with our burglaries, but to really put this to the test, we run the Chi Square test using the \texttt{quadrat.test()} function.
@@ -5857,8 +5894,8 @@ The resulting object is of class \texttt{im}, a pixel image, a grid of spatial l
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-207-1.pdf}
-\caption{\label{fig:unnamed-chunk-207}Visualisations of intensity of burglary in Manhattan}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-209-1.pdf}
+\caption{\label{fig:unnamed-chunk-209}Visualisations of intensity of burglary in Manhattan}
 \end{figure}
 
 The density function is estimating a kernel density estimate. The result of \texttt{density.ppp()} \emph{is not a probability density}. It is an estimate of the intensity function of the point process that generated the point pattern. The units of intensity are ``points per unit area''. Density, in this context, is nothing but the number of points per unit area. This method computes the intensity continuously across the study area and the object returns a raster image. Depending what package you use to generate the estimation (e.g., \texttt{spatstat}, \texttt{SpatialKDE}, etc) you can set a different metric.
@@ -5926,8 +5963,8 @@ Scott's rule generally provides larger bandwidth than the other methods. Don't b
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-208-1.pdf}
-\caption{\label{fig:unnamed-chunk-208}Kernel density maps with different bandwidth estimation algorightms}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-210-1.pdf}
+\caption{\label{fig:unnamed-chunk-210}Kernel density maps with different bandwidth estimation algorightms}
 \end{figure}
 
 When looking for clusters, Baddeley, Rubak, and Turner (\protect\hyperlink{ref-Baddeley_2016}{2015}) suggest the use of the \texttt{bw.ppl()} algorithm because in their experience it tends to produce the more appropriate values when the pattern consists predominantly of tight clusters. But they also insist that if your purpose it to detect a single tight cluster in the midst of random noise then the \texttt{bw.diggle()} method seems to work best.
@@ -5945,8 +5982,8 @@ With \texttt{spatstat} we can use an adaptive bandwidth method, were (1) a fract
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-209-1.pdf}
-\caption{\label{fig:unnamed-chunk-209}Adaptive bandwidth method for estimating bandwidth for KDE map}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-211-1.pdf}
+\caption{\label{fig:unnamed-chunk-211}Adaptive bandwidth method for estimating bandwidth for KDE map}
 \end{figure}
 
 Which bandwidth to use? Chainey (\protect\hyperlink{ref-Chainey_2021}{2021}) is critical of the various algorithms we have introduced. He suggests that ``they tend to produce large bandwidths, and are considered unsuitable for exploring local spatial patterns of the density distribution of crime.'' As we have seen with our example this is not necessarily the case, if anything both mean square error cross validation and likelihood cross validation produce small bandwidths in this example. When it comes to crime, Neville (\protect\hyperlink{ref-Neville_2013}{2013}) suggests that the ``best choice would be to produce an interpolation that fits the experience of the department and officers who travel an area. Again, experimentation and discussions with beat officers will be necessary to establish which bandwidth choice should be used in future interpolations'' (p.~10.22). This is generally accepted by other authors in the field. We see no damage in using these algorithms as a starting point and then, as suggested by most authors (see as well Chainey (\protect\hyperlink{ref-Chainey_2021}{2021})), to engage in a discussion with the direct users (considering what the map will be used for) to set in a particular bandwidth that is not too spiky, nor oversmoothed.
@@ -5985,8 +6022,8 @@ The default kernel in \texttt{density.ppp()} is \texttt{gaussian}. But there are
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-210-1.pdf}
-\caption{\label{fig:unnamed-chunk-210}KDE maps created with different kernel shapes}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-212-1.pdf}
+\caption{\label{fig:unnamed-chunk-212}KDE maps created with different kernel shapes}
 \end{figure}
 
 You can see how the choice of the kernel has less of an impact than the choice of the bandwidth. In practical terms choice of the specific kernel is of secondary importance to the bandwidth.
@@ -6009,8 +6046,8 @@ In the past examples we used the un-weighted version of the estimation methods, 
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-211-1.pdf}
-\caption{\label{fig:unnamed-chunk-211}Weighting KDE estimates}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-213-1.pdf}
+\caption{\label{fig:unnamed-chunk-213}Weighting KDE estimates}
 \end{figure}
 
 \hypertarget{better-kde-maps-using-leaflet}{%
@@ -6033,8 +6070,8 @@ Often it is convenient to use a basemap to provide context. In order to do that 
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-212-1.pdf}
-\caption{\label{fig:unnamed-chunk-212}Raster image of KDE output}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-214-1.pdf}
+\caption{\label{fig:unnamed-chunk-214}Raster image of KDE output}
 \end{figure}
 
 We can remove the areas with very low density of burglaries for better reading of the map:
@@ -6080,7 +6117,11 @@ Now we are ready to plot, although first we will create a more suitable colour p
 \end{Highlighting}
 \end{Shaded}
 
-\label{fig:unnamed-chunk-213}Leaflet map for exploring KDE layer of burglaries in Manhattan
+\begin{figure}
+\centering
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-215-1.png}
+\caption{\label{fig:unnamed-chunk-215}Leaflet map for exploring KDE layer of burglaries in Manhattan}
+\end{figure}
 
 And there you have it. Perhaps those familiar with Manhattan have some guesses as to what may be going on there?
 
@@ -6102,7 +6143,7 @@ The other problem we had is that a Poisson process under CSR can still result in
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-214-1.pdf}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-216-1.pdf}
 
 And there you go, you could come to the view looking at this density map that the intensity is driven by some underlying external risk factor when in fact the process is purely random. In subsequent chapters we will learn about methods that can be used to ensure we don't map out hot spots that may be the product of random noise.
 
@@ -6130,8 +6171,8 @@ In the previous chapter we explored how the techniques for spatial pattern analy
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-215-1.pdf}
-\caption{\label{fig:unnamed-chunk-215}Crime along street networkin Chicago}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-217-1.pdf}
+\caption{\label{fig:unnamed-chunk-217}Crime along street networkin Chicago}
 \end{figure}
 
 Clearly the offenses are constrained to only occur along the street network. This is not a homogeneous Poisson process along the whole study surface, because there is an underlying structure. If we want to investigate heterogeneity on intensity, for example, we would need to account for that underlying structure, the fact that the points can only be located along the network and not in other parts of the study region. Several authors have argued that crime is best represented and predicted if we focus in the street network rather than other kind of level of aggregation and that this has clear implications for operational policing (\protect\hyperlink{ref-Singleton_2014}{Singleton and Brunsdon 2014}; \protect\hyperlink{ref-Rosser_2017}{Roser et al. 2017}). It is clear that if our crime occurrences are collected and represented along a spatial network we need to ensure we use techniques of analysis and visualisation that respect this existing underlying structure in our data.
@@ -6237,8 +6278,8 @@ We can now plot these two side by side
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-217-1.pdf}
-\caption{\label{fig:unnamed-chunk-217}Street network geometries for Salford in Toronto, CA and Manhattan, in New York, USA}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-219-1.pdf}
+\caption{\label{fig:unnamed-chunk-219}Street network geometries for Salford in Toronto, CA and Manhattan, in New York, USA}
 \end{figure}
 
 What we have is two \texttt{sf} object containing linestrings. Linear networks indeed can be represented in R by simple features wit \texttt{sf} as here, or with the class \texttt{SpatialLines} of package \texttt{sp}. However, for us to be able to do particular kind analysis and some geospatial operations on this network we often will need a clear topology, we will need the data to be stored as a network graph. In other words, We need to move from linestrings to a linear graphical network representation, with edges (for example, representing street segments) and nodes (vertices indicating where they start and end).
@@ -6266,8 +6307,8 @@ We quickly below show the \texttt{as\_sfnetwork()} function with the road networ
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-218-1.pdf}
-\caption{\label{fig:unnamed-chunk-218}Heswall as a spatial network}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-220-1.pdf}
+\caption{\label{fig:unnamed-chunk-220}Heswall as a spatial network}
 \end{figure}
 
 Once you have a spatial network that has been properly cleaned and prepared as discussed in the references above, there are a number of things you can do with it. You can apply geospatial operations, such as blending points into the edges, segmenting the edges, running spatial filters, etc. You can also apply standard social network analysis techniques and measures (such as centrality, measuring shortest path). Illustration of these applications are available in the vignettes for \texttt{sfnetworks} (\protect\hyperlink{ref-Vandemeer_2021}{van der Meer et al. 2021}) and in Abad, Lovelace, and Meer (\protect\hyperlink{ref-Abad_2019}{2019}).
@@ -6423,7 +6464,7 @@ Now we can calculate the density and visualise. Like we did before, we can estim
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-219-1.pdf}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-221-1.pdf}
 
 A \texttt{lpp} object contains the linear network information, the spatial coordinates of the data points, and any number of columns of \emph{marks} (in this case the mark is telling us the type of crime we are dealing with). It also contains the local coordinates \texttt{seg} and \texttt{tp} for the data points. The local coordinate \texttt{seg} is an integer identifying the particular street segment the data point is located in. A segment is each of the sections of a street between two vertices (marking the intersection with another segment). The local coordinate \texttt{tp} is a real number between 0 and 1 indicating the position of the point within the segment: \texttt{tp=0} corresponds to the first endpoint and \texttt{tp=1} correspond to the second endpoint.
 
@@ -6443,7 +6484,7 @@ The Okabe-Suhigara method was the first to be developed for this kind of applica
 
 \begin{verbatim}
 ##    user  system elapsed 
-##   9.088   0.113   9.202
+##   9.234   0.281   9.516
 \end{verbatim}
 
 And to visualise:
@@ -6456,8 +6497,8 @@ And to visualise:
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-220-1.pdf}
-\caption{\label{fig:unnamed-chunk-220}Network density map (Okabe-Suhigara (disc.) method)}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-222-1.pdf}
+\caption{\label{fig:unnamed-chunk-222}Network density map (Okabe-Suhigara (disc.) method)}
 \end{figure}
 
 McSwiggan, Baddeley, and Nair (\protect\hyperlink{ref-McSwiggan_2016}{2016}) subsequently developed an algorithm that is equivalent to the Okabe-Suhigara method using the continuous rule applied to the Gaussian kernel, and therefore has more desirable properties than the equal split discontinuous, but that runs faster (than the Okabe-Suhigara equal split continuous version).
@@ -6479,7 +6520,7 @@ McSwiggan, Baddeley, and Nair (\protect\hyperlink{ref-McSwiggan_2016}{2016}) sub
 
 \begin{verbatim}
 ##    user  system elapsed 
-##   1.064   0.002   1.066
+##   1.054   0.023   1.078
 \end{verbatim}
 
 \begin{Shaded}
@@ -6490,8 +6531,8 @@ McSwiggan, Baddeley, and Nair (\protect\hyperlink{ref-McSwiggan_2016}{2016}) sub
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-221-1.pdf}
-\caption{\label{fig:unnamed-chunk-221}Network density map (McSwiggan Gaussian method)}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-223-1.pdf}
+\caption{\label{fig:unnamed-chunk-223}Network density map (McSwiggan Gaussian method)}
 \end{figure}
 
 Finally, as noted above, Rakshit et al. (\protect\hyperlink{ref-Rakshit_2019}{2019}) developed a fast algorithm, using a convolution method, that is particularly helpful with large datasets. The analysis of the authors suggest this estimator ``is consistent, and its statistical efficiency is only slightly suboptimal'' (\protect\hyperlink{ref-Rakshit_2019}{Rakshit et al. 2019}).
@@ -6507,7 +6548,7 @@ Finally, as noted above, Rakshit et al. (\protect\hyperlink{ref-Rakshit_2019}{20
 
 \begin{verbatim}
 ##    user  system elapsed 
-##   0.264   0.001   0.265
+##   0.248   0.002   0.250
 \end{verbatim}
 
 We can now plot the data and compare the results:
@@ -6520,8 +6561,8 @@ We can now plot the data and compare the results:
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-222-1.pdf}
-\caption{\label{fig:unnamed-chunk-222}Network density map (Rakshit method)}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-224-1.pdf}
+\caption{\label{fig:unnamed-chunk-224}Network density map (Rakshit method)}
 \end{figure}
 
 So these are some ways in which we can create a density map of crime along networks. You can compare the three maps to see how choice of method affects conclusions. This is something we must always reflect on, when applying these techniques.
@@ -6554,7 +6595,11 @@ Another thing you might like to do is add some context to explore where these ho
 \end{Highlighting}
 \end{Shaded}
 
-(\#fig:add\_leaflet\_base\_heswall)Add interactive basemap to explore hotspots
+\begin{figure}
+\centering
+\includegraphics{crime_mapping_files/figure-latex/add_leaflet_base_heswall-1.png}
+\caption{(\#fig:add\_leaflet\_base\_heswall)Add interactive basemap to explore hotspots}
+\end{figure}
 
 \hypertarget{visualising-crime-distribution-along-networks}{%
 \section{Visualising crime distribution along networks}\label{visualising-crime-distribution-along-networks}}
@@ -6593,7 +6638,7 @@ To demonstrate some simpler approaches to visualising crime distribution along n
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-223-1.pdf}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-225-1.pdf}
 \#\#\# Hot Routes
 
 In order to map hot spots along a network, we can use a technique called \emph{hot routes}. Hot Routes were devised to be a straightforward spatial technique that analyses crime patterns that are associated with a linear network (e.g.~streets and other transportation networks). It allows an analyst to map crime concentrations along different segments of the network and visualise this through colour. We can create a Hot Routes visualisation by thematically shading each street segment with a colour (and line thickness if desired) that corresponds to the range of the rate of crime per metre. It was used by Newton (\protect\hyperlink{ref-Newton_2008}{2008}) to map crime and disorder on the bus network in Merseyside. A useful how-to guide on using hot routes was later produced by Tompson, Partridge, and Shepherd (\protect\hyperlink{ref-Tompson_2009}{2009}). In it they break down the process into four stages:
@@ -6693,8 +6738,8 @@ We can produce a quick visialisation to check that everything linked OK before m
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-229-1.pdf}
-\caption{\label{fig:unnamed-chunk-229}Check that crimes are linked to street segments}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-231-1.pdf}
+\caption{\label{fig:unnamed-chunk-231}Check that crimes are linked to street segments}
 \end{figure}
 
 Looks like we joined the shoplifting incidents to our network layer successfully. Now to normalise for the varying lenght of the street segments.
@@ -6753,8 +6798,8 @@ Very similar to how we carried out a visual check earlier, but this time using o
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-233-1.pdf}
-\caption{\label{fig:unnamed-chunk-233}Hot routes map displaying rate of crimes per meter for each segment}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-235-1.pdf}
+\caption{\label{fig:unnamed-chunk-235}Hot routes map displaying rate of crimes per meter for each segment}
 \end{figure}
 
 We can now see that that longer road there (Telegraph Road) is no longer so dominant once we've controlled for length.
@@ -6778,8 +6823,8 @@ In any case, we have now created a hot routes visualisation, that helps us map w
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-234-1.pdf}
-\caption{\label{fig:unnamed-chunk-234}Hot routes map displaying rate of crimes per meter for each segment with line width as well as colour}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-236-1.pdf}
+\caption{\label{fig:unnamed-chunk-236}Hot routes map displaying rate of crimes per meter for each segment with line width as well as colour}
 \end{figure}
 
 \hypertarget{street-profile-analysis}{%
@@ -6833,8 +6878,8 @@ We can plot our segments to see whether they correspond to these intersections:
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-237-1.pdf}
-\caption{\label{fig:unnamed-chunk-237}Default OSM segments of Telegraph Road vs intersections}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-239-1.pdf}
+\caption{\label{fig:unnamed-chunk-239}Default OSM segments of Telegraph Road vs intersections}
 \end{figure}
 
 We can see that they do not correspond to all the intersections. Unfortunately, we will have to carry out some data cleaning. To do this, first we unite the entire street into one, and then use the intersections to divide into the appropriate segments.
@@ -6877,8 +6922,8 @@ Let's plot the new segments to see if they correspond to intersections.
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-239-1.pdf}
-\caption{\label{fig:unnamed-chunk-239}Telegraph Road segmented at each intersection}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-241-1.pdf}
+\caption{\label{fig:unnamed-chunk-241}Telegraph Road segmented at each intersection}
 \end{figure}
 
 Looks good. Now we can move to the next step and link our shoplifting incidents to these segments.
@@ -6961,8 +7006,8 @@ Similarly to how we did with hot routes, we can carry out a visual check to make
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-243-1.pdf}
-\caption{\label{fig:unnamed-chunk-243}Shoplifting in summer and winter months}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-245-1.pdf}
+\caption{\label{fig:unnamed-chunk-245}Shoplifting in summer and winter months}
 \end{figure}
 
 We can see there may be some differences between winter and summer, but it is unclear how much.
@@ -6988,8 +7033,8 @@ Finally, we reach the visualisation stage. To do this, we need to find the ``Poi
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-245-1.pdf}
-\caption{\label{fig:unnamed-chunk-245}Find starting point ``point a'' on the street}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-247-1.pdf}
+\caption{\label{fig:unnamed-chunk-247}Find starting point ``point a'' on the street}
 \end{figure}
 
 To assign this order, we can take our starting point (labelled ``Start here'') and for each line segment we can calculate the distance to this. The idea is that we can then use this distance to order them from nearest to furthest.
@@ -7042,8 +7087,8 @@ Let's plot the summer shoplifting incidents using the street profile approach. T
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-247-1.pdf}
-\caption{\label{fig:unnamed-chunk-247}Street profile with unlabelled segments}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-249-1.pdf}
+\caption{\label{fig:unnamed-chunk-249}Street profile with unlabelled segments}
 \end{figure}
 
 You might notice here that the labels are not very meaningful. We could manually recode each one to something better, or another approach is to try to get the name of the intersecting road in order to give some meaning. To do this, we can use a little loop below which will cycle through each segment, and find the nearest intersecting road from the \texttt{tr\_intersects} object.
@@ -7098,8 +7143,8 @@ Once this is done, we can use this label on the x axis instead of the segment id
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-249-1.pdf}
-\caption{\label{fig:unnamed-chunk-249}Street profile using intersecting roads on x axis}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-251-1.pdf}
+\caption{\label{fig:unnamed-chunk-251}Street profile using intersecting roads on x axis}
 \end{figure}
 
 Now you may notice that there are some repeated names (e.g.~``Thurstaston Road'' and ``Thurstaston Road.1'') where the same intersection was snapped as ``nearest'' to two segments. In these cases the only solution is to go back to manual data cleaning unfortunately. However already, this is a nice point from which to start.
@@ -7131,8 +7176,8 @@ Finally, the power of the street profile analysis comes from the ease of compari
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-250-1.pdf}
-\caption{\label{fig:unnamed-chunk-250}Street profile comparing summer and winter months}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-252-1.pdf}
+\caption{\label{fig:unnamed-chunk-252}Street profile comparing summer and winter months}
 \end{figure}
 
 The analyst could also add the other two seasons of Spring and Autumn, or compare multiple sources of data about the same thing to identify where there might be areas of underreporting in certain sources. For example I used this to map fare evasion along London bus routes from 3 different data sources. Similarly, we could compare different crime types along the road, to see if robbery also peaks in these areas, or maybe elsewhere. The possibilities are many, and this is where the strength of this method is evident, over a map, where only one variable at one time can be displayed.
@@ -7162,7 +7207,7 @@ Our resulting \texttt{tr\_lorenz} object has 3 elements. First, the \texttt{p} r
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-252-1.pdf}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-254-1.pdf}
 
 Upon seeing this, we can consider that many of the segments of the Telegraph Road contribute very little to overall crimes, and it is instead the top few (less than the top 20\%) which contribute all the shoplifting incidents. From a visual inspection, it appears that the Telegraph Road very precisely fits (and exceeds) the Pareto Principle, whereby 20\% of the segments seem to account for 80\% of the crimes (per meter length of the segment). We can quantify this further using the Gini coefficient.
 
@@ -7300,8 +7345,8 @@ After reading the files and turn them on \texttt{sf} objects, we can plot them. 
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-256-1.pdf}
-\caption{\label{fig:unnamed-chunk-256}Map of homicides in Buenos Aires}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-258-1.pdf}
+\caption{\label{fig:unnamed-chunk-258}Map of homicides in Buenos Aires}
 \end{figure}
 
 We will be using the \texttt{spatstat} functionality, thus, need to turn this spatial point pattern data into a \texttt{ppp} object, using the boundaries of Buenos Aires as an \texttt{owin} object. We are using code already explained in Chapter 7. As we will see there are duplicate points. Since the available documentation does not mention any masking of the locations for privacy purposes, we cant assume that's the reason for it. For simplicity purpose we will do as in Chapter 7 and introduce a small degree of jittering with a rather narrow radius.
@@ -7344,8 +7389,8 @@ As noted by Baddeley, Rubak, and Turner (\protect\hyperlink{ref-Baddeley_2016}{2
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-258-1.pdf}
-\caption{\label{fig:unnamed-chunk-258}Isotropic and translation correction techniques for edge effects}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-260-1.pdf}
+\caption{\label{fig:unnamed-chunk-260}Isotropic and translation correction techniques for edge effects}
 \end{figure}
 
 The graphic shows the K function using each of the corrections and the theoretical expected curve under a Poisson process of independence. When there is clustering we expect the empirical K-function estimated from the observed data to lie above the empirical K-function for a completely random pattern. This indicates that a point has more ``neighboring'' points than it would be expected under a random process.
@@ -7363,8 +7408,8 @@ It is possible to use Monte Carlo simulations to draw the confidence interval ar
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-259-1.pdf}
-\caption{\label{fig:unnamed-chunk-259}Global envelope plot for clustering in Buenos Aires homicide data}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-261-1.pdf}
+\caption{\label{fig:unnamed-chunk-261}Global envelope plot for clustering in Buenos Aires homicide data}
 \end{figure}
 
 This envelope suggest significant clustering above the 200 meter mark. The problem, though, is that (as noted above) this test only works if we have a homogeneous process. The envelope will also fail to overlap with the observed K function if there are variations in intensity. We also saw previously the reverse, that it is hard to assess homogeneity without assuming independence. In Chapter 7 we saw how if we suspect the process is not homogeneous, we can estimate it with nonparametric techniques such as kernel density estimation. We can apply this here (see also \emph{Chapter 7: Spatial point patterns of crime events} in this book).
@@ -7379,8 +7424,8 @@ This envelope suggest significant clustering above the 200 meter mark. The probl
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-260-1.pdf}
-\caption{\label{fig:unnamed-chunk-260}KDE map of homicides in Buenos Aires}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-262-1.pdf}
+\caption{\label{fig:unnamed-chunk-262}KDE map of homicides in Buenos Aires}
 \end{figure}
 
 Baddeley, Rubak, and Turner (\protect\hyperlink{ref-Baddeley_2016}{2015}) discuss how we can adjust our test for independence when we suspect inhomogeneity, as long as we are willing to make other assumptions (e.g., the correlation between any two given points only depend on their relative location). This adjusted K-function is implemented in the \texttt{Kinhom()} function in \texttt{spatstat}. This function estimates the inhomogeneous K function of a non-stationary point pattern. It requires as necessary inputs the \texttt{ppp} object with the point pattern we are analysing and a second argument \texttt{lambda} which should provide the values of the estimated intensity function. The function provides flexibility in how lambda can be entered. It could be a vector with the values, an object of class \texttt{im} like the ones we generate with \texttt{density.ppp()}, or it could be omitted. If lambda is not provided, we can provide the parameters as we did in the \texttt{density.ppp()} function, and the relevant values will be generated for us that way. We could, for example, input this parameter as below:
@@ -7397,8 +7442,8 @@ Baddeley, Rubak, and Turner (\protect\hyperlink{ref-Baddeley_2016}{2015}) discus
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-261-1.pdf}
-\caption{\label{fig:unnamed-chunk-261}Inhomogeneous (adjusted) K function for non-stationary point pattern}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-263-1.pdf}
+\caption{\label{fig:unnamed-chunk-263}Inhomogeneous (adjusted) K function for non-stationary point pattern}
 \end{figure}
 
 Once again we can build an envelope to use in the manner of confidence intervals to interpret whether there is any significant clustering.
@@ -7414,8 +7459,8 @@ Once again we can build an envelope to use in the manner of confidence intervals
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-262-1.pdf}
-\caption{\label{fig:unnamed-chunk-262}Global envelope plot for clustering in case of inhomogeneity}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-264-1.pdf}
+\caption{\label{fig:unnamed-chunk-264}Global envelope plot for clustering in case of inhomogeneity}
 \end{figure}
 
 In this example once we allow for varying intensity, the spatial dependence no longer holds for a range of distances.
@@ -7442,8 +7487,8 @@ The network K function was developed by Okabe and Yamada (\protect\hyperlink{ref
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-263-1.pdf}
-\caption{\label{fig:unnamed-chunk-263}Ripley's K for crime around University of Chicago with envelope}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-265-1.pdf}
+\caption{\label{fig:unnamed-chunk-265}Ripley's K for crime around University of Chicago with envelope}
 \end{figure}
 
 How would we do this now taking the network into consideration? We can use the methods introduced by Okabe and Yamada (\protect\hyperlink{ref-Okabe_2001}{2001}) with the function \texttt{linearK()}. The function \texttt{linearK()} computes an estimate of the linear K function for a point pattern on a linear network. For this we need to specify the parameter for \texttt{correction=} to be \texttt{"none"}. If correction=``none'', the calculations do not include any correction for the geometry of the linear network. The result is the network K function as defined by Okabe and Yamada (\protect\hyperlink{ref-Okabe_2001}{2001}).
@@ -7462,8 +7507,8 @@ We can wrap this within the \texttt{envelope()} function for inference purposes.
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-264-1.pdf}
-\caption{\label{fig:unnamed-chunk-264}Estimate linear K for a point pattern (crimes) on a linear network (University of Chicago network)}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-266-1.pdf}
+\caption{\label{fig:unnamed-chunk-266}Estimate linear K for a point pattern (crimes) on a linear network (University of Chicago network)}
 \end{figure}
 
 As noted by Baddeley, Rubak, and Turner (\protect\hyperlink{ref-Baddeley_2016}{2015}) in there is a difference between what we get with \texttt{Kest} and with \texttt{linearK}. Whereas the two planar ``K function is a \emph{theoretical expectation} for the point process that is assumed to have generated our data\ldots{} the empirical K-function of point pattern data'' (that we get with \texttt{linearK}) ``is an \emph{empirical estimator} of the K-function of the point process'' (p.~739, the emphasis is ours).
@@ -7480,8 +7525,8 @@ A limitation of the Okabe-Yamada network-K function is that, unlike the general 
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-265-1.pdf}
-\caption{\label{fig:unnamed-chunk-265}Geometrically corrected linear K function for a point pattern (crimes) on a linear network (University of Chicago network)}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-267-1.pdf}
+\caption{\label{fig:unnamed-chunk-267}Geometrically corrected linear K function for a point pattern (crimes) on a linear network (University of Chicago network)}
 \end{figure}
 
 Finally, there is also an equivalent to the geometrically corrected K function that allows for an inhomogeneous point process that can be obtained using \texttt{linearKinhom()} (see Baddeley and Turner (\protect\hyperlink{ref-Baddeley_2005}{2005}) for details).
@@ -7518,8 +7563,8 @@ To have a look at the data, we can plot it quickly with \texttt{tmap}:
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-267-1.pdf}
-\caption{\label{fig:unnamed-chunk-267}A quick look at burglary in Manchester}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-269-1.pdf}
+\caption{\label{fig:unnamed-chunk-269}A quick look at burglary in Manchester}
 \end{figure}
 
 Do you see any patterns? Are burglaries randomly spread around the map? Or would you say that areas that are closer to each other tend to be more alike? Is there evidence of clustering? Do burglaries seem to appear in certain pockets of the map? To answer these questions, we will need to consider whether we see similar values in \emph{neighbouring} areas.
@@ -7587,6 +7632,12 @@ We can now have a look at our data. Let's use the \texttt{view} mode of \texttt{
             \AttributeTok{legend.position =} \FunctionTok{c}\NormalTok{(}\StringTok{"right"}\NormalTok{, }\StringTok{"top"}\NormalTok{), }\AttributeTok{legend.title.size =} \FloatTok{0.8}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
+
+\begin{figure}
+\centering
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-271-1.png}
+\caption{\label{fig:unnamed-chunk-271}Interactive tmap plot of data for lattice spatial dependence}
+\end{figure}
 
 So now we have a new spatial object ``cc\_burglary'' with the 23 LSOA units that compose the City Centre of Manchester. By focusing in a smaller subset of areas we can visualise perhaps a bit better what comes next.
 
@@ -7660,8 +7711,8 @@ This is basically telling us that using this criteria each LSOA polygon has an a
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-273-1.pdf}
-\caption{\label{fig:unnamed-chunk-273}Neighbouring relationships between LSOAs with Queen contiguity criteria}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-275-1.pdf}
+\caption{\label{fig:unnamed-chunk-275}Neighbouring relationships between LSOAs with Queen contiguity criteria}
 \end{figure}
 
 \hypertarget{generating-the-weight-matrix}{%
@@ -7775,8 +7826,8 @@ And as earlier we can also plot the results:
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-281-1.pdf}
-\caption{\label{fig:unnamed-chunk-281}Neighbouring relationships between LSOAs with distance based criteria}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-283-1.pdf}
+\caption{\label{fig:unnamed-chunk-283}Neighbouring relationships between LSOAs with distance based criteria}
 \end{figure}
 
 We could now use this \texttt{nb} object to generate a spatial weight matrix in the same way as earlier:
@@ -7872,8 +7923,8 @@ As before we can use this list of neighbours to create a matrix and we can visua
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-289-1.pdf}
-\caption{\label{fig:unnamed-chunk-289}Neighbouring relationships between LSOAs with distance based criteria using k (k=3) nearest neighbours approach}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-291-1.pdf}
+\caption{\label{fig:unnamed-chunk-291}Neighbouring relationships between LSOAs with distance based criteria using k (k=3) nearest neighbours approach}
 \end{figure}
 
 \hypertarget{choosing-the-correct-matrix}{%
@@ -8089,8 +8140,8 @@ Now we can plot. Anselin (\protect\hyperlink{ref-Anselin_1996}{1996}) propose to
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-296-1.pdf}
-\caption{\label{fig:unnamed-chunk-296}Moran scatterplot of burglary}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-298-1.pdf}
+\caption{\label{fig:unnamed-chunk-298}Moran scatterplot of burglary}
 \end{figure}
 
 The X axis represents the values of our burglary variable in each unit (each LSOA) and the Y axis represents a spatial lag of this variable. A spatial lag in this context is simply the average value of the burglary count in the areas that are considered neighbours of each LSOA. So we are plotting the value of burglary against the average value of burglary in the neighbours. The slope of the fitted line represents the Moran's I. And you can see the correlation is almost flat here. We will further explain this scatterplot in next chapter. Anselin (\protect\hyperlink{ref-Anselin_1996}{1996}) suggests that the effective interpretation of this scatterplot should focus on the extent to which the fitted regression line that we see plotted reflects well the overall pattern of association between the variable of interest and its spatial lag: ``the indication of observations that do not follow the overall trend represents useful information on local instability or non-stationarity'' (p.~116-117).
@@ -8327,8 +8378,8 @@ We can now plot our results:
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-305-1.pdf}
-\caption{\label{fig:unnamed-chunk-305}Raster map of burglary across Manchester}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-307-1.pdf}
+\caption{\label{fig:unnamed-chunk-307}Raster map of burglary across Manchester}
 \end{figure}
 
 This kind of map is helpful if you want to get a sense of the distribution of crime over the whole city. However, from a crime analyst's operational point of view the interest may be at a more granular scale. We want to dive in and observe the micro-places that may be areas of high crime within certain parts of the city. We can do this by focusing on particular neighbourhoods. In Manchester, City Centre ward has one of the highest counts of burglaries - so let's zoom in on here.
@@ -8355,8 +8406,8 @@ Let's repeat the steps of creating a raster, and then the grid which we demonstr
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-306-1.pdf}
-\caption{\label{fig:unnamed-chunk-306}Raster map of burglary in City Centre only}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-308-1.pdf}
+\caption{\label{fig:unnamed-chunk-308}Raster map of burglary in City Centre only}
 \end{figure}
 
 You can see in the above map where hotspots might occur. However you also see that we have created cells of 0 burglaries outside of the boundary of our City Centre ward. This is not quite true, as we didn't include burglaries which occurred outside of here. Therefore, we should not have in this raster object incidents outside the boundaries of the neighborhoud. Instead, we want to declare those cells as \texttt{NA}s. We can do that with the \texttt{mask()} function in the \texttt{raster} package.
@@ -8368,7 +8419,7 @@ You can see in the above map where hotspots might occur. However you also see th
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-307-1.pdf}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-309-1.pdf}
 
 Now you can see we indicate more clearly where we have cells which contain no burglaries at all in our data, versus where we do not have data to be able to talk about burglaries.
 
@@ -8388,6 +8439,8 @@ With very few lines of code you can get an interactive plot. Here we first will 
         \AttributeTok{col.regions =}\NormalTok{ my.palette)}
 \end{Highlighting}
 \end{Shaded}
+
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-310-1.png}
 
 We can now explore the underlying environmental backcloth behind the areas with high burglary count, and build hypotheses and research questions about what might be going on there, for example whether these are crime attractors, crime generators, or other types of crime places. However keep in mind that these are illustrations of the counts of observed burglaries, and there is nothing here which declares something a ``hot spot''. For that, keep reading!
 
@@ -8547,8 +8600,8 @@ Let's first look at the Moran's scatterplot for our data. Remember from last cha
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-316-1.pdf}
-\caption{\label{fig:unnamed-chunk-316}Moran's scatterplot for burglary in Manchester}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-318-1.pdf}
+\caption{\label{fig:unnamed-chunk-318}Moran's scatterplot for burglary in Manchester}
 \end{figure}
 
 Notice how the plot is split into 4 quadrants structured around the centered mean for the value of burglary and its spatial lag. The top right corner belongs to areas that have high level of burglary and are surrounded by other areas that have above the average level of burglary. These are \textbf{high-high} locations. The bottom left corner belongs to the \textbf{low-low areas}. These are areas with low level of burglary and surrounded by areas with below average levels of burglary. Both the high-high and low-low represent clusters. A high-high cluster is what you may refer to as a \emph{hot spot}. And the low-low clusters represent \emph{cold spots}.
@@ -8565,6 +8618,12 @@ The slope of the line in the scatterplot gives you a measure of the global spati
 \FunctionTok{tm\_shape}\NormalTok{(grid\_cc\_sf) }\SpecialCharTok{+} \FunctionTok{tm\_fill}\NormalTok{(}\StringTok{"lm\_hat"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
+
+\begin{figure}
+\centering
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-319-1.png}
+\caption{\label{fig:unnamed-chunk-319}Map to visualise high leverage (hat value) areas}
+\end{figure}
 
 To compute the local Moran's I we can use the \texttt{localmoran()} function from the \texttt{spdep} package.
 
@@ -8673,8 +8732,8 @@ Essentially all we'll be doing, is assigning a variable values based on where in
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-325-1.pdf}
-\caption{\label{fig:unnamed-chunk-325}Quadrants of a Moran scatterplot}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-327-1.pdf}
+\caption{\label{fig:unnamed-chunk-327}Quadrants of a Moran scatterplot}
 \end{figure}
 
 So let's first initialise this variable. In this instance we are creating a new column in the \texttt{sp} object and calling it ``quad\_sig''.
@@ -8733,6 +8792,12 @@ Let's put them on a map, using the standard colours used in this kind of maps:
             \AttributeTok{main.title.size =} \FloatTok{1.2}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
+
+\begin{figure}
+\centering
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-330-1.png}
+\caption{\label{fig:unnamed-chunk-330}Significant clusters from local Moran's I}
+\end{figure}
 
 There we have it, our LISA map of a grid overlay over Manchester's City Centre ward, identifying local spatial autocorrelation in burglaries.
 
@@ -8916,8 +8981,8 @@ Once the computation is complete we are ready to plot the data and to compare th
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-337-1.pdf}
-\caption{\label{fig:unnamed-chunk-337}Difference in results between Openshaw's GAM and Kulldorf scan statistics}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-339-1.pdf}
+\caption{\label{fig:unnamed-chunk-339}Difference in results between Openshaw's GAM and Kulldorf scan statistics}
 \end{figure}
 
 Whereas the GAM picks up a series of location in East and North Manchester known by their high level of concentrated disadvantage, the Kulldorff scan only identifies the clusters around the city centred an areas of student accommodation south of the University of Manchester.
@@ -8986,8 +9051,8 @@ We can then try the test. We look at three temporal intervals of seven days each
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-340-1.pdf}
-\caption{\label{fig:unnamed-chunk-340}Results of the Knox test}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-342-1.pdf}
+\caption{\label{fig:unnamed-chunk-342}Results of the Knox test}
 \end{figure}
 
 By default this will plot the cells with significant p values and the knox ratios based on the mean across simulations that are higher than 1.2 (that is, the observed number of pairs is 20\% greater than expected). This default can be changed to various options (as discussed in the vignette for the package).
@@ -9017,16 +9082,16 @@ In science one of our main concerns is to develop models of the world, models th
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-341-1.pdf}
-\caption{\label{fig:unnamed-chunk-341}A simple model}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-343-1.pdf}
+\caption{\label{fig:unnamed-chunk-343}A simple model}
 \end{figure}
 
 Surely we know the world is complex and likely there are other things that may help us to understand why some cities have more crime than others. So, we may want to have tools that allow us to examine such models. Like, for example, the one below:
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-342-1.pdf}
-\caption{\label{fig:unnamed-chunk-342}A slightly less simple model}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-344-1.pdf}
+\caption{\label{fig:unnamed-chunk-344}A slightly less simple model}
 \end{figure}
 
 In this chapter we cover regression analysis for spatial data, a key tool for testing models. Regression is a flexible technique that allows you to ``explain'' or ``predict'' a given outcome, variously called your outcome, response or dependent variable, as a function of a number of what is variously called inputs, features or independent, explanatory, or predictive variables. We assume that you have covered regression analysis in previous training. If that is not the case or you want a quick refresher, we suggest you consult \emph{Appendix B: Regression analysis (a refresher)} in the website for this book. Our focus in this chapter will be in a series of regression models that are appropriate when your data has a spatial structure.
@@ -9215,8 +9280,8 @@ You see here that essentially you have only two inputs (resource deprivation and
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-350-1.pdf}
-\caption{\label{fig:unnamed-chunk-350}Effect plots for effect if South varaible on relationship between homicide rate and resource deprivation}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-352-1.pdf}
+\caption{\label{fig:unnamed-chunk-352}Effect plots for effect if South varaible on relationship between homicide rate and resource deprivation}
 \end{figure}
 
 Notice that essentially what we are doing is running two regression lines and testing whether the slope is different for the two groups. The intercept is different, we know that Southern counties are more violent, but what we are testing here is whether the level of homicide goes up in a steeper fashion (and in the same direction) for one or the other group as the level of resource deprivation goes up. We see that's the case here. The estimated lines are almost parallel, but the slope is a bit steeper in the Southern counties. In Southern counties resource deprivation seems to have more of an impact on homicide than in Northern counties. This is related to one of the issues we raised earlier regarding spatial regression, that of hetereogeneity. Here what we see is that there some evidence of non-stationarity in the relationship between our predictors and our outcome.
@@ -9333,8 +9398,8 @@ Next we use a new style, \texttt{fixed}, within the \texttt{tm\_fill} function. 
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-354-1.pdf}
-\caption{\label{fig:unnamed-chunk-354}Map of regression model residuals}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-356-1.pdf}
+\caption{\label{fig:unnamed-chunk-356}Map of regression model residuals}
 \end{figure}
 
 Notice the spatial patterning of areas of over-prediction (negative residuals, or blue tones) and under-prediction (positive residuals, or reddish tones). This visual inspection of the residuals is suggesting you that spatial autocorrelation in the residuals may be present here. This, however, would require a more formal test.
@@ -9439,7 +9504,7 @@ These three models only have one spatial component, but this could be combined. 
 
 \begin{table}
 
-\caption{\label{tab:unnamed-chunk-357}Models classified according to the spatial interactions included}
+\caption{\label{tab:unnamed-chunk-359}Models classified according to the spatial interactions included}
 \centering
 \begin{tabular}[t]{l|l}
 \hline
@@ -10028,8 +10093,8 @@ A simple visualisation of the residuals suggest the model may not be optimal for
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-371-1.pdf}
-\caption{\label{fig:unnamed-chunk-371}Distribution of residuals by study region (South v North)}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-373-1.pdf}
+\caption{\label{fig:unnamed-chunk-373}Distribution of residuals by study region (South v North)}
 \end{figure}
 
 To be able to fit these spatial regimes, that will allow for separate coefficients for counties in the North and those in the South, first we need to define a dummy for the Northern counties, and we create a vector of 1.
@@ -10334,8 +10399,8 @@ And now, to get an idea of how our model might perform differently in different 
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-382-1.pdf}
-\caption{\label{fig:unnamed-chunk-382}Map of model residuals}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-384-1.pdf}
+\caption{\label{fig:unnamed-chunk-384}Map of model residuals}
 \end{figure}
 
 If we see that there is a geographic pattern in the residuals, it is possible that an unobserved variable may be influencing the dependent variable, and there might be some sort of spatial variation in our model's performance. This is what GWR allows us to explore, whether the relationship between our variables is stable over space.
@@ -10500,8 +10565,8 @@ Now we can begin to map our results. First, let's see how well the model perform
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-384-1.pdf}
-\caption{\label{fig:unnamed-chunk-384}Map of local R-square value for each county}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-386-1.pdf}
+\caption{\label{fig:unnamed-chunk-386}Map of local R-square value for each county}
 \end{figure}
 
 We can see some really neat spatial patterns in how well our model performs in various regions of the United States. Our model performs really well in the North East for example, but not so well in the South.
@@ -10520,8 +10585,8 @@ We can also map the coefficients for specific variables. Let's say we're interes
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-385-1.pdf}
-\caption{\label{fig:unnamed-chunk-385}Map of coefficient for resource deprivation value for each county}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-387-1.pdf}
+\caption{\label{fig:unnamed-chunk-387}Map of coefficient for resource deprivation value for each county}
 \end{figure}
 
 We can see in this map again some regional patterns in the coefficient of Resource deprivation. There are even counties, in Texas, and in Florida, where the direction of this relationship flips, that is we have negative coefficients - so resource deprivation is associated with \emph{lower} homicide rates in these counties.
@@ -10536,8 +10601,8 @@ This may be interesting and raise questions, however, it is important to conside
 
 \begin{figure}
 \centering
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-386-1.pdf}
-\caption{\label{fig:unnamed-chunk-386}Map of standard error for resource deprivation value for each county}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-388-1.pdf}
+\caption{\label{fig:unnamed-chunk-388}Map of standard error for resource deprivation value for each county}
 \end{figure}
 
 Higher standard errors mean that our estimates may be less reliable. So it is important to keep in mind both maps, the one with the coefficients, and the one showing the standard errors, when drawing conclusions from our GWR results.
@@ -11181,7 +11246,7 @@ Then we will use one of its functions to create a scatterplot.
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-405-1.pdf}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-407-1.pdf}
 
 Graphing is very powerful in R, and much of the spatial visualisation we will produce throughout the book will build on this. If you are not already familiar with this, we recommend a read of the data visualisation chapter of Wickham and Grolemund (\protect\hyperlink{ref-Wickham_2017}{2017})
 
@@ -11273,7 +11338,7 @@ The first step in any analysis is to develop some familiarity with the data you 
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-407-1.pdf}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-409-1.pdf}
 
 Once one has gone through the process of exploring the data in this way (or maybe using the \texttt{skimr} package - see \emph{Appendix: A quick intro to R and RStudio}) for all the variables you want to work with, you can start exploring bivariate associations with your dependent, response or outcome variable. So, as an illustration, you could explore the association with resource deprivation (\emph{RD90}), a measure of the level of concentrated disadvantage or social exclusion in an area, via a scatterplot:
 
@@ -11284,7 +11349,7 @@ Once one has gone through the process of exploring the data in this way (or mayb
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-408-1.pdf}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-410-1.pdf}
 
 What do you think when looking at this scatterplot? Is there a relationship between the variables? Does it look as if individuals that have a high score on the X axis also have a high score on the Y axis? Or viceversa?
 
@@ -11305,7 +11370,7 @@ Now, imagine that we play a game. Imagine I have all the respondents waiting in 
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-409-1.pdf}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-411-1.pdf}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -11340,7 +11405,7 @@ If we plot the conditional means we can see that the mean of homicide rate for c
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-411-1.pdf}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-413-1.pdf}
 
 Linear regression tackles this problem using a slightly different approach. Rather than focusing on the conditional mean (smoothed or not), it draws a straight line that tries to capture the trend in the data. If we focus in the region of the scatterplot that are less sparse we see that this is an upward trend, suggesting that as resource deprivation increases so does the homicide rate.
 
@@ -11354,13 +11419,13 @@ Simple linear regression draws a single straight line of predicted values as the
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-412-1.pdf}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-414-1.pdf}
 
 What that line is doing is giving you guesses (predictions) for the values of homicide based in the information that we have about the level of resource deprivation. It gives you one possible guess for the value of homicide for every possible value of resource deprivation and links them all together in a straight line.
 
 The linear model then is a model that takes the form of the equation of a straight line through the data. The line does not go through all the points. In fact, you can see is a slightly less accurate representation than the (smoothed) conditional means:
 
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-413-1.pdf}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-415-1.pdf}
 
 Our regression line underpredicts at low levels of resource deprivation and does not seem to capture well the variability at higher levels of resource deprivation. But imperfect as a model as it might be it simplifies well the overall growing trend for homicide as resource deprivation increases.
 
@@ -11523,7 +11588,7 @@ This is the expected value of Y, homicide rate, when X, resource deprivation is 
 
 In the output above we saw there was something called the residuals. The residuals are the differences between the observed values of Y for each case minus the predicted or expected value of Y, in other words the distances between each point in the dataset and the regression line (see the visual example below).
 
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-420-1.pdf}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-422-1.pdf}
 
 You see that we have our line, which is our predicted values, and then we have the black dots which are our actually observed values. The distance between them is essentially the amount by which we were wrong, and all these distances between observed and predicted values are our residuals. Least square estimation essentially aims to reduce the average of the squares of all these distances: that's how it draws the line.
 
@@ -11536,7 +11601,7 @@ The residuals capture how much variation is unexplained, how much we still have 
 
 We can use information from the residuals to produce a measure of effect size, of how good our model is in predicting variation in our dependent variables. Remember our game where we try to guess homicide (Y)? If we did not have any information about X our best bet for Y would be the mean of Y. The regression line aims to improve that prediction. By knowing the values of X we can build a regression line that aims to get us closer to the actual values of Y (look at the Figure below).
 
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-421-1.pdf}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-423-1.pdf}
 
 The distance between the mean (our best guess without any other piece of information) and the observed value of Y is what we call the \textbf{total variation}. The residual is the difference between our predicted value of Y and the observed value of Y. This is what we cannot explain (i.e, variation in Y that is \emph{unexplained}). The difference between the mean value of Y and the expected value of Y (the value given by our regression line) is how much better we are doing with our prediction by using information about X (i.e., in our previous example it would be variation in Y that can be \emph{explained} by knowing about resource deprivation). How much closer the regression line gets us to the observed values. We can then contrast these two different sources of variation (explained and unexplained) to produce a single measure of how good our model is. The formula is as follows:
 
@@ -11644,7 +11709,7 @@ Notice that there is nothing different in how we ask for the model. And see belo
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-427-1.pdf}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-429-1.pdf}
 
 Let's have a look at the results:
 
@@ -11806,7 +11871,7 @@ Let's try with a more complex example:
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-432-1.pdf}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-434-1.pdf}
 
 What you see plotted here is the point estimates (the circles), the confidence intervals around those estimates (the longer the line the less precise the estimate), and the colours represent whether the effect is negative (red) or positive (blue). There are other packages that also provide similar functionality, like the \texttt{dotwhisker} package that you may want to explore.
 
@@ -11844,7 +11909,7 @@ The \texttt{tab\_model()} function is great if you have a html output. In case y
 \end{Shaded}
 
 \% Table created by stargazer v.5.2.3 by Marek Hlavac, Social Policy Institute. E-mail: marek.hlavac at gmail.com
-\% Date and time: Thu, Jul 07, 2022 - 10:44:36
+\% Date and time: Thu, Jul 14, 2022 - 03:54:03
 
 \begin{table}[!htbp] \centering 
   \caption{} 
@@ -11895,7 +11960,7 @@ You could also use this to show the results of several models side by side.
 \end{Shaded}
 
 \% Table created by stargazer v.5.2.3 by Marek Hlavac, Social Policy Institute. E-mail: marek.hlavac at gmail.com
-\% Date and time: Thu, Jul 07, 2022 - 10:44:36
+\% Date and time: Thu, Jul 14, 2022 - 03:54:03
 
 \begin{table}[!htbp] \centering 
   \caption{} 
@@ -11947,7 +12012,7 @@ Besides tables, visual display of the effects of the variables in the model are 
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-436-1.pdf}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-438-1.pdf}
 
 Notice that the line has a confidence interval drawn around it and that the predicted means for southern and northern counties (when controlling for \emph{RD90}) also have a confidence interval.
 
@@ -12071,7 +12136,7 @@ In this case the test for the interaction effect is significant, which suggests 
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-440-1.pdf}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-442-1.pdf}
 
 Notice that essentially what we are doing is running two regression lines and testing whether the slope is different for the two groups. The intercept is different, we know that Southern counties are more violent, but what we are testing here is whether the level of homicide goes up in a steeper fashion (and in the same direction) for one or the other group as the level of resource deprivation goes up. We see that's the case here. The estimated lines are almost parallel, but the slope is a bit more steep in the Southern counties. In southern counties resource deprivation seems to have more of an impact on homicide than in northern counties.
 
@@ -12194,7 +12259,7 @@ If we wanted now to plot this, we can use any of the many methods covered in thi
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-442-1.pdf}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-444-1.pdf}
 
 And here we see the boundaries for all the countries in the data set. How exciting! We can also have a look at the attribute data included by viewing the \texttt{sf} object with the \texttt{View()} function.
 
@@ -12236,7 +12301,7 @@ You should be able to see the two results are the same.
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-446-1.pdf}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-448-1.pdf}
 
 If we are focusing on one country, we might want to see some boundaries \emph{within} said country. For this, we can use the function \texttt{ne\_states()} when we request the file, and this will include boundaries.
 
@@ -12254,7 +12319,7 @@ Now if we have a look we can see the different districts within Uganda have been
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-448-1.pdf}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-450-1.pdf}
 
 It is possible that sometimes this is not the ideal sub-geometry for you analysis, in which case you'll have to go to other resources, but in some cases it might match up with your needs, in which case this will have been a very convenient way to be sourcing some geography data!
 
@@ -12282,7 +12347,7 @@ You can also change the scale of resolution at which you want to download your b
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-449-1.pdf}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-451-1.pdf}
 
 You can see as we move to lower numbers we get better resolution, which results in more detail around the border of the country (but also in larger file sizes!). It will be a decision for you to make what is relevant and appropriate for the specific map you are making.
 
@@ -12296,7 +12361,7 @@ A final note on \texttt{rnaturalearth} before we move on. With the \texttt{ne\_s
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-450-1.pdf}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-452-1.pdf}
 
 You see France appears, but so do the overseas territories of France, such as French Guiana, Guadeloupe, French Polynesia, and so on. It is possible you want to focus only on France. In this case, you can specfy, instead of \texttt{country}, the parameter \texttt{geounit}. Like so:
 
@@ -12308,7 +12373,7 @@ You see France appears, but so do the overseas territories of France, such as Fr
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-451-1.pdf}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-453-1.pdf}
 
 Now we see only France. But what if you do want to include it all? Well in that case, one approach you might try is to add these territories in a way they appear closer to France, by inserting them by way of the \emph{inset map}. We demonstrate how to add an inset map in Chapter 5.
 
@@ -12388,7 +12453,7 @@ And plot it to see:
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-454-1.pdf}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-456-1.pdf}
 
 \hypertarget{international-resources}{%
 \subsection{International resources}\label{international-resources}}
@@ -12432,7 +12497,7 @@ We should check on this object to make sure it looks the way we would expect:
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-457-1.pdf}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-459-1.pdf}
 
 That's looking Kampala-shaped to us, so we can continue. To query Open Street Map we have to build an Overpass Query, Overpass being the Open Street Map API. We can create this with the \texttt{opq()} function (which stands for \textbf{O}ver\textbf{p}ass \textbf{Q}uery - we assume\ldots!) where we specify our bounding box object we created above. We can then pipe (\texttt{\%\textgreater{}\%}) our query elements to this. In the next step, we specify what features we want with the \texttt{add\_osm\_feature()} function. The parameters should define what we want, following the Overpass query language. We can look for things (nodes, ways, or relations if we're being specific) using key value pairs. For example, to return all post boxes within an area, we need to use the \emph{amenity} key and the \emph{post box} value, or to find museum you would use the \emph{tourism} key and the \emph{museum} value. To learn more about this visit the OSM wiki Open Street Map (\protect\hyperlink{ref-OSM_2021}{2021a}).
 
@@ -12469,7 +12534,7 @@ And now we can plot our results, labelling each region for clarity:
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-460-1.pdf}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-462-1.pdf}
 
 \hypertarget{summary-and-further-reading-12}{%
 \section{Summary and further reading}\label{summary-and-further-reading-12}}
