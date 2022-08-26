@@ -61,7 +61,7 @@ In spatial analysis it is customary to refer to places as objects. These objects
 - *Lines*: Lines are ordered sequences of points connected by straight lines. An example might be a road, or street segment. 
 - *Areas* (polygons): Areas are ordered rings of points, also connected by straight lines to form polygons. It can contain holes, or be linked with separate islands. Areas can represent neighbourhoods, police districts, municipal terms, etc. You may come across the term **lattice data** to denote the type of data we work with when we observed attributes of areas and want to explore and analyse this data.
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height=3, fig.width=6, fig.cap = 'Point, Line, and Polygon'}
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height=3, fig.width=6, fig.cap = 'Point, Line, and Polygon', fig.alt="Three panes, the first showing four dots, the second showing three lines connecting the four dots in a path, the third showing the same path now closed by an additional line."}
 df <- data.frame(x = c(1, 4, 3, 2, 1), 
                  y = c(2, 0, 2, 4, 2))
 
@@ -322,7 +322,7 @@ knitr::kable(df, caption = 'Example data table')
 
 You then want to plot this. To do so, you want to create a plot that combines the following layers: 
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height=3, fig.width=6, fig.cap = 'Layers of ggplot'}
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height=3, fig.width=6, fig.cap = 'Layers of ggplot', fig.alt='Three panes showing different components of a plot. The first pane shows the column geometry, the second pane shows the axes, values along them, and their labels "Crime type" versus "Number of Crimes", and the third pane shows the title "Frequency of crime types", and a border.'}
 
 p1 <- ggplot(df, aes(x = crime_type, y = n)) + 
   geom_bar(stat = "identity") + 
@@ -346,7 +346,7 @@ gridExtra::grid.arrange(p1, p2, p3, nrow = 1)
 
 This will result in a final plot: 
 
-```{r, echo = FALSE, message=FALSE, warning=FALSE, fig.cap='Final plot', fig.height=3}
+```{r, echo = FALSE, message=FALSE, warning=FALSE, fig.cap='Final plot', fig.height=3, fig.alt='The completed bar plot "Frequency of crime types", combining the previous three layers into a single image.'}
 
 ggplot(df, aes(x = gsub(" from the person", "",crime_type), y = n)) + 
   geom_bar(stat = "identity") + 
@@ -375,7 +375,7 @@ df
 
 Now let us add the layers to our ggplot object. First, the data layer: 
 
-```{r, fig.cap='Data layer', fig.height=3}
+```{r, fig.cap='Data layer', fig.height=3, fig.alt='A grid background, with horizontal axis "crime_type" with notches denoted "Robbery, "Shoplifting", and "Theft from the person", and vertical axis "n", ranging from five hundred to fifteen hundred, with numbers denoted at intervals of two hundred and fifty.'}
 library(ggplot2)
 
 ggplot(df, aes(x = crime_type, y = n))
@@ -386,7 +386,7 @@ ggplot(df, aes(x = crime_type, y = n))
 Then add the geometry (in this case, `geom_col()`): 
 
 
-```{r, fig.cap='Geometry layer', fig.height=3}
+```{r, fig.cap='Geometry layer', fig.height=3, fig.alt='The previous grid, now containing rectangular bars denoting the values corresponding to the crime types. The "n" axis now starts at zero, and the height of the bars is just under five hundred for "Robbery", fifteen hundred for "Shoplifting", and seven hundred and fifty for "Theft from the person".'}
 
 ggplot(df, aes(x = crime_type, y = n)) + 
   geom_col()
@@ -394,7 +394,7 @@ ggplot(df, aes(x = crime_type, y = n)) +
 
 Then our annotations: 
 
-```{r, fig.cap='Annotations layer', fig.height=3}
+```{r, fig.cap='Annotations layer', fig.height=3, fig.alt='The previous plot, now with the title "Frequency of crime types", and the axes labeled as "Crime type" and "Number of crimes".'}
 
 ggplot(df, aes(x = crime_type, y = n)) + 
   geom_col() + 
@@ -406,7 +406,7 @@ ggplot(df, aes(x = crime_type, y = n)) +
 
 We can also specify our themes, by using a custom theme such as `theme_minimal()`, and by adding our own specifications within an additional `theme()` function: 
 
-```{r, fig.cap='Customise themes', fig.height=3}
+```{r, fig.cap='Customise themes', fig.height=3, fig.alt='The previous plot, with the background shading altered, and a black border.'}
 
 ggplot(df, aes(x = crime_type, y = n)) + 
   geom_col() + 
@@ -421,7 +421,7 @@ ggplot(df, aes(x = crime_type, y = n)) +
 
 We can add further specifications within the `aes()` (aesthetics) function, where we add additional layers from our data, to represent even more information in our charts, for example the outcomes for each crime. 
 
-```{r, fig.cap='Additional layers', fig.height=3}
+```{r, fig.cap='Additional layers', fig.height=3, fig.alt='The previous graph has been squished horizontally and moved left, and the bars are now divided into colours vertically. The right side contains the title "last_outcome_category", as well as a legend for the colours, the most prominent of which are "Investigation complete; no suspect identified", "Status update unavailable", and "Unable to prosecute suspect".'}
 
 # create new dataframe (df) including last_outcome_category variable
 
@@ -446,7 +446,7 @@ ggplot(df, aes(x = crime_type, y = n, fill = last_outcome_category)) +
 
 We can be explicit about the colours we want to use with the function `scale_fill_brewer()`, which we can also use to rename our legend. Don't worry too much at this point about where the palette comes from, in the chapter on cargography we will discuss colour in more detail. 
 
-```{r, fig.cap='Customise colour', fig.height=3}
+```{r, fig.cap='Customise colour', fig.height=3, fig.alt='The previous graph with colours now has more easily distinguishable colours, and the legend has the title "Outcome".'}
 
 ggplot(df, aes(x = crime_type,  y = n, fill = last_outcome_category)) + 
   geom_col() + 
@@ -466,7 +466,7 @@ There are many many more options. While this here is not the greatest graph you'
 
 So how can we use this for spatial data? We can use the `geom_sf()` function to do so. Using `geom_sf` is slightly different to other geometries, for example how we used `geom_col()` above. First we initiate the plot with the `ggplot()` function but don't include the data in there. Instead, it is in the geometry where we add the data. And second we don't need to specify the mapping of x and y. Since this is in the geometry column of our spatial object. Like so:
 
-```{r, fig.cap='geom_sf for plotting', fig.height=3}
+```{r, fig.cap='geom_sf for plotting', fig.height=3, fig.alt='A plot of black points on a grey grid, the horizontal axis being longitude ranging from two point seven degrees west to two degrees west, and the vertical axis latitudes ranging from fifty three point three five degrees north to fifty three point six five degrees north. The points bleed together and form a blob in the general shape of Greater Manchester.'}
 
 ggplot() + 
   geom_sf(data = crimes_sf)
@@ -477,7 +477,7 @@ And here we have a map of each point in our data set, each recorded crime in Jun
 
 We can do this by adding a layer to our graph object. Specifically we will use the `annotation_map_tile()` from the `ggspatial` package. This provides us with a static Open Street Map layer behind our data, giving it (some) more context. Remember to load the package (and install if you haven't already). And then use the `annotation_map_tile()` function, making sure to place it before the `geom_sf` points layer, so the background map is placed first, and the points on top of that:  
 
-```{r, message=FALSE, fig.cap='Adding a basemap', fig.height=3}
+```{r, message=FALSE, fig.cap='Adding a basemap', fig.height=3, fig.alt="The previous plot, with the grey grid background being replaced by an aligned map of Manchester and surroundings."}
 
 library(ggspatial)
 
@@ -506,7 +506,7 @@ Census boundary data are a digitised representation of the underlying geography 
 
 The hierarchy of the census geographies in the UK goes from Country to Local Authority to Middle Layer Super Output Area (MSOA) to Lower Layer Super Output Area (LSOA) to Output Area (in other countries you have similar levels in the census hierarchies):
 
-```{r, echo = FALSE, message=FALSE, warning=FALSE, results='hide', fig.cap='Hierarchy of Census Geographies in the UK', fig.height=3}
+```{r, echo = FALSE, message=FALSE, warning=FALSE, results='hide', fig.cap='Hierarchy of Census Geographies in the UK', fig.height=3, fig.alt="Three panes showing more and more zoomed in maps of the UK, down to Manchester's Lower Layer Super Output Areas. The maps are featureless, except for borders of the different levels of areas, outlined in three different colours."}
 
 country <- rnaturalearth::ne_countries(scale = 110, geounit = "united kingdom", returnclass = "sf")
 la <- rnaturalearth::ne_states(geounit = "england", returnclass = "sf") %>% filter(region == "North West")
@@ -591,7 +591,7 @@ View(manchester_lsoa)
 
 And of course, since it's spatial data, you can map it using the `geom_sf()` function, as we did with our points:  
 
-```{r, fig.cap="Plot of Manchester's LSOAs", fig.height=3}
+```{r, fig.cap="Plot of Manchester's LSOAs", fig.height=3, fig.alt="A plot of all the boundaries of Manchester's Lower Layer Super Output Areas, placed on a grey grid. The horizontal axis, being longitude, ranges from two point three degrees west to two point one five degrees west, and the vertical axis, latitude, ranges from fifty three point three five degrees north to fifty three point five five degrees north." }
 
 ggplot() + 
   geom_sf(data = manchester_lsoa)
@@ -676,7 +676,7 @@ Merging rows is pretty straightforward, but merging columns can be tricky if the
 
 So we've already identified that both our crimes data, and the spatial data contain a column with matching values, the codes for the LSOA that each row represents. **You need a unique identifier to be present** for each row in all the data sets that you wish to join. This is how R knows what values belong to what row. What you are doing is matching each value from one table to the next, using this unique identified column, that exists in both tables. For example, let's say we have two data sets from some people in Hawkins, Indiana. In one data set we collected information about their age. In another one, we collected information about their hair colour. If we collected some information that is unique to each observation, and this is the *same* in both sets of data, for example their names, then we can link them up, based on this information.  Something like this: 
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.cap='Two dataframes with common unique identifier'}
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.cap='Two dataframes with common unique identifier', fig.alt='Two tables side by side. The first has columns for name and age, and lists "Barb" as sixteen, "Steve" as sixteen, and "Mike" as thirteen. The second has columns for name and hair colour, and lists "Barb" as "Red", "Steve" as "Brown", and "Mike" as "Black".'}
 library(grid)
 library(gridExtra)
 
@@ -693,7 +693,7 @@ grid.arrange(tableGrob(t1), tableGrob(t2), nrow = 1)
 
 And by doing so, we produce a final table that contains all values, lined up *correctly* for each individual observation, like this: 
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.cap='Joined dataframe'}
+```{r, echo=FALSE, warning=FALSE, message=FALSE, fig.cap='Joined dataframe', fig.alt='One table with three columns: name, age, and hair colour. The first row contains "Barb", with age sixteen, and a hair colour of red. The second, "Steve", sixteen, and brown, while the third "Mike", thirteen, and black.' }
 
 t3 <- left_join(t1, t2)
 
@@ -724,7 +724,7 @@ st_write(manchester_lsoa, "data/BoundaryData/manchester_crime_lsoa.shp")
 
 Now that we have joined the crimes data to the geometry, you can use this to make our map. Remember our original empty map? Well now, since we have the column (variable) for number of crimes here, we can use that to shade the polygons based on how many crimes there are in each LSOA. We can do this by specifying the `fill=` parameter of the `geom_sf` function. 
 
-```{r, fig.cap='Number of crimes in Manchester by LSOA'}
+```{r, fig.cap='Number of crimes in Manchester by LSOA', fig.alt="A plot of all the boundaries of Manchester's Lower Layer Super Output Areas, placed on a grey grid. To the right, labeled 'count', is a gradient from dark blue to light blue accompanies numbers from zero to over six hundred. Each LSOA in the plot is shaded by a colour on this gradient. Most of the plot is darker shades of blue, corresponding to lower numbers, but there are lighter areas near the centre of Manchester. The axes denote latitudes and longitudes as before."}
 
 ggplot() + 
 geom_sf(data = manchester_lsoa, aes(fill = count))
@@ -733,7 +733,7 @@ geom_sf(data = manchester_lsoa, aes(fill = count))
 
 Just like we did with the ggplot bar charts we created earlier, we can adjust the opacity of our thematic map, with the `alpha =` parameter, add a basemap, with the function `annotation_map_tile()` and adjust the colour scheme, with the `scale_fill_gradient2()` function.  
 
-```{r, message=FALSE, fig.cap='Number of crimes by LSOA with adjusted parameters'}
+```{r, message=FALSE, fig.cap='Number of crimes by LSOA with adjusted parameters', fig.alt="The previous plot overlaid on a map of Manchester. The gradient has been inverted, with lighter colours denoting lower number of crimes, and darker blue more. The label of the gradient is now 'Number of crimes'."}
 
 ggplot() + 
   annotation_map_tile() +  # add basemap
