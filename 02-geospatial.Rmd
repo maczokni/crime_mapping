@@ -123,7 +123,7 @@ Let's see how this looks. In Chapter 1 we learned about plotting maps using the 
 
 With the `st_geometry()` function in the `sf` package, we can extract only the geometry of our object, stripping away the attributes. If we include this inside the `plot()` function, we get a quick, minimalist plot of the geometry of our object.
 
-```{r, fig.cap='Plot City Centre ward geometry'}
+```{r, fig.cap='Plot City Centre ward geometry', fig.alt="A thin black line tracing the outline of the Manchester City Centre ward."}
 
 #extract geometry only
 city_centre_geometry <- st_geometry(city_centre)
@@ -304,7 +304,7 @@ But before doing so, we need to raise an important point. R is still undergoing 
 
 Recall above that we wanted to focus our efforts on the City Centre ward of Manchester, however for our bounding box to download OSM data we used Greater Manchester. If we were to plot our bars, we would see that we have many which fall outside of the City Centre ward: 
 
-```{r, fig.cap='Many bars (in red) fall outside City Centre ward'}
+```{r, fig.cap='Many bars (in red) fall outside City Centre ward', fig.alt="Many red circles are spread out over an area, with concentrations here and there. The largest concentration lies within a black outline of the City Centre ward."}
 
 plot(st_geometry(osm_bar_sf), col = 'red')
 plot(st_geometry(city_centre),  add = TRUE)
@@ -313,7 +313,7 @@ plot(st_geometry(city_centre),  add = TRUE)
 
 This is also the case for our crimes data: 
 
-```{r, fig.cap='Most crimes (in blue) fall outside City Centre ward'}
+```{r, fig.cap='Most crimes (in blue) fall outside City Centre ward', fig.alt="In addition to the red circles from the previous figure, now way too many overlapping blue circles have shaded large parts of the figure blue, including the inside of the City Centre ward outline."}
 
 plot(st_geometry(osm_bar_sf), col = 'red')
 plot(st_geometry(crimes), col = 'blue', add = TRUE)
@@ -347,7 +347,7 @@ Have a look at this new "cc_crimes" object in your environment. How many observa
 
 We can plot this again to have a look: 
 
-```{r, fig.cap='Crimes inside the City Centre ward'}
+```{r, fig.cap='Crimes inside the City Centre ward', fig.alt="An outline of the City Centre ward, with numerous blue circles spread across its interior. The far east and west areas are more sparse with circles than the rest."}
 
 plot(st_geometry(city_centre))
 plot(st_geometry(cc_crimes), col = 'blue',  add = TRUE)
@@ -369,7 +369,7 @@ cc_bars <- osm_bar_sf[unlist(cc_bars),]
 
 We can see that of the previous `r nrow(osm_bar_sf)` bars, `r nrow(cc_bars)` are within the City Centre ward. We can plot our data now:
 
-```{r, fig.cap='Bars and crimes within City Centre'}
+```{r, fig.cap='Bars and crimes within City Centre', fig.alt="An outline of the City Centre ward, with numerous red and blue circles spread across its interior. The far east and west are more sparse with both types of circles compared to the centre and northeast."}
 
 plot(st_geometry(city_centre))
 plot(st_geometry(cc_bars), col = 'red', add = TRUE)
@@ -417,7 +417,7 @@ bars_buffer <- st_buffer(bars_bng, 400)
 
 Let's see how that looks: 
 
-```{r, fig.cap='Bars with 400m buffers'}
+```{r, fig.cap='Bars with 400m buffers', fig.alt="Small black circles are the centrepoints for large black circles, leading to a tangled mess of circles that seems to have a concetration near the midlle."}
 
 plot(st_geometry(bars_buffer))
 plot(st_geometry(bars_bng), add = T)
@@ -425,7 +425,7 @@ plot(st_geometry(bars_bng), add = T)
 
 That should look nice and squiggly. We can see it looks like there is *quite* a lot of overlap here. Should we maybe consider smaller buffers? Let's look at 100 meter buffers: 
 
-```{r, fig.cap='Bars with 100m buffers'}
+```{r, fig.cap='Bars with 100m buffers', fig.alt="Small black circles are now the centrepoints for medium black circles. Compared to the previous figure, they are easier to discern, and concentrations are easier to place."}
 
 bar_buffer_100 <- st_buffer(bars_bng, 100) # create 100m buffer
 
@@ -449,7 +449,7 @@ buffer_WGS84 <- st_transform(bar_buffer_100, 4326)
 
 Now let's just have a look:
 
-```{r, fig.cap='Crimes around the 100m buffer polygons'}
+```{r, fig.cap='Crimes around the 100m buffer polygons', fig.alt="Medium sized black circles, from the previous figure, are now joined by small blue circles. Some concentrations of the two types of circles align."}
 plot(st_geometry(buffer_WGS84))
 plot(st_geometry(cc_crimes), col = 'blue', add = T)
 ```
@@ -589,7 +589,7 @@ dist_lines <- st_sfc( # Create simple feature geometry list column
 
 We can then plot these to get an idea of what we're looking at: 
 
-```{r, fig.cap='Crimes near the Noho bar in Manchester'}
+```{r, fig.cap='Crimes near the Noho bar in Manchester', fig.alt="A small black circle is the centrepoint for a very large black circle. A small blue circle is within this larger circle, and a line connects it to the small black circle."}
 
 plot(st_geometry(cp_buffer))
 plot(st_geometry(cp), col = "black", add = TRUE)
@@ -638,7 +638,7 @@ And just print it:
 m  
 ```
 
-```{r leaflet1, echo = FALSE, fig.cap='A first interactive map'}
+```{r leaflet1, echo = FALSE, fig.cap='A first interactive map', fig.alt="A featureless world map in the Mercator projection is zoomed out to an extent where continents repeat. The top left has plus and minus buttons meant for zooming. The bottom right contains the text 'Leaflet', in addition to a copyright notice."}
 knitr::include_graphics(path = "img/leaflet_worldmap.png")
 ```
 
@@ -661,7 +661,7 @@ m <- leaflet() %>% addTiles()  %>%
 m  
 ```
 
-```{r leaflet2, echo = FALSE, fig.cap='Mapping the Univeristy of Manchester'}
+```{r leaflet2, echo = FALSE, fig.cap='Mapping the Univeristy of Manchester', fig.alt="A leaflet street map is centred around the University of Manchester, which is indicated by a blue pin marker. The usual leaflet decorators including zoom buttons and copyright notice are present."}
 knitr::include_graphics("img/leaflet_uom.png")
 ```
 
@@ -701,7 +701,7 @@ pal <- colorBin("RdPu", domain = crimes_per_prem$n, bins = 5, pretty = TRUE)
 
 Now we can make a leaflet map, where we add these polygons (the buffers) with the `addPolygons()` function, and call our palette, specifying again the variable to use for shading, as well as some other parameters. One to highlight specifically is the `label` parameter. This allows us to use a variable as a label for when a user clicks on our polygon (buffer). Here we specify the name of the bar with `label = ~as.character(name)`.This way we not only shade each buffer with the number of crimes which fall inside it, but also include a little popup label with the name of the establishment: 
 
-```{r, cache=FALSE, fig.cap='Mapping crimes around bars in Manchester with leaflet'}
+```{r, cache=FALSE, fig.cap='Mapping crimes around bars in Manchester with leaflet', fig.alt="A leaflet street map shows Manchester City Centre. The bottom left contains a legend titled 'Violent crimes', with colours corresponding to number ranges, starting at 'zero to ten', up to 'fifty to sixty'. The map is overlaid with medium sized circles, each shaded by one of the colours in the legend. There is a concentration of darker circles towards the northeast, with most other circles being lighter."}
 
 leaflet(crimes_per_prem) %>% 
   addTiles() %>% 
@@ -717,7 +717,7 @@ It's not the neatest of maps, with all these overlaps, but we will talk about pr
 Finally, let's say we want to save our interactive map, while keeping it interactive. You can do this by clicking on the export button at the top of the plot viewer, and choose the *Save as Webpage* option saving this as a `.html` file: 
 
 
-```{r, fig.cap='Save leaflet map as interactive html document', echo=FALSE, out.width="75%"}
+```{r, fig.cap='Save leaflet map as interactive html document', echo=FALSE, out.width="75%", fig.alt="A screenshot from the plot viewer has been cropped, showing the tabs and buttons near the top menu. The export menu is active, with the current selection being 'Save as Web Page'."}
 
 knitr::include_graphics('img/save_as_wp.png')
 
@@ -784,7 +784,7 @@ lic_prem <- lic_prem %>%
 
 Now we have these licenced premises geocoded, with brand new latitude and longitude information! We can use this to make a leaflet map of our venues!
 
-```{r, cache=FALSE, message=FALSE, warning=FALSE, fig.cap='Map of (some) geocoded licenced premises in Manchester'}
+```{r, cache=FALSE, message=FALSE, warning=FALSE, fig.cap='Map of (some) geocoded licenced premises in Manchester', fig.alt="A leaflet street map of Manchester and surrounding area, with several blue pins marking locations. There is a concentration of marks in Manchester, and a number of pins out south, as well as some east and north."}
 # make sure coordinates are numeric values
 lic_prem$latitude <- as.numeric(lic_prem$lat)
 lic_prem$longitude <- as.numeric(lic_prem$long)
@@ -823,7 +823,7 @@ madrid <- st_read("data/madrid.geojson")
 
 We went through a lot of steps there, so it's worth to check in and plot our data, make sure that everything looks the way we expect. To practice with leaflet map some more, let's plot using `leaflet()` function: 
 
-```{r, cache=FALSE, fig.cap='Leaflet map of our Madrid data'}
+```{r, cache=FALSE, fig.cap='Leaflet map of our Madrid data', fig.alt="A leaflet street map of Madrid, with a blue shaded and highlighted area depicting the area of Madrid itself, the northwest of which is a large green area labeled 'Monte de El Pardo'. Several blue pins mark locations within the blue highlighted area, concentrated near the centre. Pins are noticeably absent from the northwest and southeast."}
 
 leaflet(comisarias_sf) %>% addTiles() %>%
   addMarkers(data = comisarias_sf) %>%
@@ -911,7 +911,7 @@ madrid_grid <- st_intersection(madrid_grid, madrid_meters)
 
 We can plot the results, to see that everything has gone according to plan: 
 
-```{r, fig.cap='Madrid digivded into 250m grid cells'}
+```{r, fig.cap='Madrid digivded into 250m grid cells', fig.alt="A black, filled shape of Madrid."}
 plot(madrid_grid)
 ```
 
@@ -944,7 +944,7 @@ police_distances <- data.frame(
 
 We now have a dataframe of distances, for each grid, to the nearest police station. We can have a look at the distribution of these distances through plotting them on a histogram
 
-```{r, fig.cap='Histogram of distance to nearest police station'}
+```{r, fig.cap='Histogram of distance to nearest police station', fig.alt="A bar chart, titled 'Distance to nearest ploce station'. The vertical axis is labeled Frequency, and ranges from zero to fifteen hundred, with notches at steps of five hundred. The horizontal axis does not have a nice label, but clearly represents distance in kilometres, with one bar for each kilometre range, and labels every five steps from zero to fifteen. The plot peaks at the second bar, one to two kilometres, at around seventeen hundred. The first and third bars are next, at around thirteen hundred. From there, the bars taper down as distance increases, with possible plateaus from five to nine kilometres, and again at nine to fourteen. The last bar, corresponding to eighteen to nineteen kilometres is very short."}
 # Plot and examine distances
 
 hist(police_distances$distance_km, main = 'Distance to nearest police station')
@@ -978,7 +978,7 @@ pal <- colorBin(c("#0868AC", "#43A2CA", "#7BCCC4", "#BAE4BC", "#F0F9E8"),
 
 Now let's create the map. 
 
-```{r, cache=FALSE, fig.cap='Map of distance to nearest police station across Madrid'}
+```{r, cache=FALSE, fig.cap='Map of distance to nearest police station across Madrid', fig.alt="A leaflet map of Madrid and surroundings, with Madrid being shaded in four shades of blue. A legend at the bottom right, labeled 'Distance in kilometres', shows four distinct colours corresponding to four distance ranges. The first up to one point seven four kilometres, followed by three point eight one six, then seven point nine five three, and finally eighteen point one seven nine. Small police icons are spread across the map, and the shading on the maps gets darker as distance increases from them. Central Madrid is mostly the lightest colour, and darker shades appear further out. The darkest shade only appears in the northwest and southeast, which only have the two darkest shades."}
 
 full_map <- leaflet() %>% 
   addTiles() %>% 
