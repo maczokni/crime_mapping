@@ -120,7 +120,7 @@ In `tmap` you can use `tm_symbols` for this. As noted, with `tmap` you can produ
 
 Let's create a static map first:
 
-```{r, message=FALSE, fig.cap='Bubble map of crime in each LSOA in Manchester', fig.height=4}
+```{r, message=FALSE, fig.cap='Bubble map of crime in each LSOA in Manchester', fig.height=4, fig.alt="Many grey circles of various sizes are spread out in a shape that corresponds to Manchester. The legend in the bottom right is labeled count, and shows three example circles with the corresponding numbers two hundred, four hundred, and six hundred. Most circles are smaller than the two hundred circle, except for central Manchester where they overlap slightly, and a few of the circles are noticeably larger."}
 tmap_mode("plot") # specify we want static map
 
 tm_shape(manchester) + 
@@ -130,7 +130,7 @@ tm_shape(manchester) +
 
 In the map prodiced, each bubble represents the number of crimes in each LSOA within the city of Manchester. We can add the borders of the census areas for better representation. The `border.lwd` argument set to NA in the `tm_bubbles()` is asking R not to draw a border to the circles. Whereas `tm_borders()` brings back a layer with the borders of the polygons representing the different LSOAs in Manchester city. Notice how we are modifying the transparency of the borders with the alpha parameter. In addition, we are adding a `tm_layout()` function that makes explicit where and how we want the legend.
 
-```{r, fig.cap='Bubble map with aesthetic settings', fig.height=4}
+```{r, fig.cap='Bubble map with aesthetic settings', fig.height=4, fig.alt="The plot contains the same information as the previous one, with LSOA borders included. Each circle is in the centre of each LSOA."}
  #use tm_shape function to specify spatial object
 tm_shape(manchester) +   
   #use tm_bubbles to add the bubble visualisation, 
@@ -151,7 +151,7 @@ There are several arguments that you can pass within the `tm_bubble()` function 
 
 By default, the symbol area sizes are scaled proportionally to the data variable you are using. As noted above this is done by taking the square root of the normalized data variable. This is called mathematical scaling. However, "it is well known that the perceived area of proportional symbols does not match their mathematical area; rather, we are inclined to underestimate the area of larger symbols. As a solution to this problem, it is reasonable to modify the area of larger circles in order to match it with the perceived area." [@Tanimura_2006] The `perceptual = TRUE` option allows you to use a method that aims to compensate for how the default approach may underestimate the area of the larger symbols. Notice the difference between the map we produced and this new one.
 
-```{r, fig.cap='Bubble map with perceptual parameter set to TRUE', fig.height=4, warning=FALSE, message=FALSE}
+```{r, fig.cap='Bubble map with perceptual parameter set to TRUE', fig.height=4, warning=FALSE, message=FALSE, fig.alt="This plot is nearly identical to the previous one, with the sizes of the grey circles very slightly adjusted."}
 tm_shape(manchester) +  
   tm_bubbles("count", border.lwd=NA, perceptual = TRUE) + # add perceptual = TRUE
   tm_borders(alpha=0.1) +                           
@@ -169,14 +169,14 @@ We have now seen the importance of mapping rates rather than counts of things, a
 
 The `manchester` object we are working with has a column named `respop` that includes the residential population in each of the LSOA areas. These areas for the whole of the UK have an average population of around 1500 people. We can see a similar picture for Manchester city, with an average closer to 1700 here.
 
-```{r, fig.cap='Histogram of respop variable', fig.height=3}
+```{r, fig.cap='Histogram of respop variable', fig.height=3, fig.alt="A bar chart, titled 'Distribution of residential population across LSOAs'. The vertical axis is labeled 'Frequency', and ranges from zero to one hundred and fifty. The horizontal axis does not have a nice label, but clearly represents residential population, starting at one thousand, and ending at four thousand and five hundred, with each bar including a range of five hundred. The second bar at fifteen hundred to two thousand dominates, with a frequency over one hundred and fifty. The first and third bars follow, sitting around fifty. The last few bars are very short." }
 hist(manchester$respop, main = "Distribution of residential population across LSOAs")
 
 ```
 
 We also have a variable `wkdpop` that represents the workday population. This variable re-distributes the usually resident population to their places of work, while those not in work are recorded at their usual residence. The picture it offers is much more diverse than the previous variable and in some ways is closer to the notion of an "ambient population" (with some caveats: for example it does not capture tourists, people visiting a place to shop or to entertain themselves in the night time economy, etc.).
 
-```{r, fig.cap='Histogram of wkdpop variable', fig.height=3}
+```{r, fig.cap='Histogram of wkdpop variable', fig.height=3, fig.alt="A bar chart, titled 'Distribution of workday population across LSOAs'. The vertical axis is labeled 'Frequency', and ranges from zero to two hundred and fifty. The horizontal axis does not have a nice label, but clearly represents workday population, starting at zero, and ending at fourty thousand, with each bar including a range of five thousand. The first bar at zero to five thousand dominates, with a frequency over two hundred and fifty. The rest of the bars are very short, and are hard to see."}
 
 hist(manchester$wkdpop, main = "Distribution of workday population across LSOAs")
 
@@ -200,7 +200,7 @@ And now we have two new variables, one for crime rate with residential populatio
 
 The structure of the grammar for producing a choropleth map is similar to what we use for proportional symbols. First we identify the object with `tm_shape()` and then we use a geometry to be represented. We will be using the `tm_polygons()` passing as an argument the name of the variable with our crime rate.
 
-```{r, message=FALSE, fig.cap='Crime rate per residential population', fig.height=4}
+```{r, message=FALSE, fig.cap='Crime rate per residential population', fig.height=4, fig.alt="An outline of the borders of the LSOAs in Manchester, each of which is shaded according to a gradient from yellow to red. A legend in the bottom right labeled 'crimr1' explains the six possible colours, each of which covers a range of ten thousand. Only the lightest colour is used, except for a few LSOAs near the centre of the city."}
 tm_shape(manchester) + 
   tm_polygons("crimr1")
 ```
@@ -210,14 +210,14 @@ We have used `tm_polygons()` but we can also add the elements of a polygon map u
 Instead of using `tm_polygon()` we can use the related functions `tm_fill()`, for the colour inside the polygons, and `tm_borders()`, for the aesthetics representing the border of the polygons. Say we find the borders distracting and we want to set them to be transparent. In that case we could just use `tm_fill()`.
 
 
-```{r, message=FALSE, fig.cap='Crime rate per residential population mapped with tm_fill()', fig.height=4}
+```{r, message=FALSE, fig.cap='Crime rate per residential population mapped with tm_fill()', fig.height=4, fig.alt="The previous shaded map now appears without the borders."}
 tm_shape(manchester) + 
   tm_fill("crimr1")
 ```
 
 As you can see here, the look is a bit cleaner. However, we don't need to get rid of the borders completely. Perhaps we want to make them a bit more translucent. We could do that by adding the border element but making the drawing of the borders less pronounced. 
 
-```{r, message=FALSE, fig.cap='Crime rate per residential population mapped with tm_fill() and borders', fig.height=4}
+```{r, message=FALSE, fig.cap='Crime rate per residential population mapped with tm_fill() and borders', fig.height=4, fig.alt="A visual compromise between the previous two figures, the borders have returned, but are much thinner and attract less attention."}
 tm_shape(manchester) + 
   tm_fill("crimr1") +
   tm_borders(alpha = 0.1)
@@ -227,7 +227,7 @@ The alpha parameter that we are inserting within `tm_borders()` controls the tra
 
 Notice as well that the legend in this map is not very informative and could be improved in terms of aesthetics. We can add a title within the `tm_fill` to clarify what "crimr1" means, and we can use the `tm_layout()` function to control the appearance of the legend. This later function, `tm_layout()`, allows you to think about many of the more general cosmetics of the map.
 
-```{r, message=FALSE, fig.cap='Crime rate per residential population mapped with aesthetics considered', fig.height=4}
+```{r, message=FALSE, fig.cap='Crime rate per residential population mapped with aesthetics considered', fig.height=4, fig.alt="The previous figure, now with a title 'Crime in Manchester City, Nov 2017'. The legend has moved further to the right of the shaded map, enlargened, and its label has been updated to 'Crime per hundred thousand residents'."}
 
 tm_shape(manchester) + 
   tm_fill("crimr1", title = "Crime per 100,000 residents") +
@@ -248,7 +248,7 @@ current_style <- tmap_style("col_blind")
 
 See how the map changes.
 
-```{r, fig.cap='Crime rate per residential population with col_blind style', fig.height=4}
+```{r, fig.cap='Crime rate per residential population with col_blind style', fig.height=4, fig.alt="The previous figure, with the colour gradient now being a cool blue, in both the shading and the legend."}
 
 tm_shape(manchester) + 
   tm_fill("crimr1", title = "Crime per 100,000 residents") +
@@ -274,7 +274,7 @@ The quantitative information is usually classified before its symbolization in a
 
 **The equal interval** (or equal step) classification method divides the range of attribute values into equally sized classes. What this means is that the values are divided into equal groups. Equal interval data classification subtracts the maximum value from minimum value in your plotted variable and then divides this by the number of classes to get the size of the intervals. This approach is best for continuous data. The range of the classes is structured so that it covers the same number of values in the plotted variable. With highly skewed variables this plotting method will focus our attention in areas with extreme values. When mapping crime it will create the impression that everywhere is safe, save a few locations. The graphic below shows five classes and the function shows the locations (represented by points) that fall within each class.
 
-```{r, echo=FALSE, fig.cap='Results for equal intervals classification', fig.height=4}
+```{r, echo=FALSE, fig.cap='Results for equal intervals classification', fig.height=4, fig.alt="A line graph titled 'Equal Intervals'. The vertical axis is labeled 'fn of x', and ranges from zero point zero to one point zero. The hoirzontal axis is labeled 'x', and ranges from zero to sixty thousand. The five colours from our previous figures shade parts of the axis they correspond to, from yellow to red. The points of the line graph start at the zeros, and steeply climb to around zero point nine in the first few thousand values of x, then slightly slow their climb and reach almost one point zero before x is ten thousand. All of this is contained within the first colour class shading the horizontal axis. Only a few further points lie outside this colour."}
 library(classInt) # Package that introduces the classification methods, placed
                   # here since we do not introduce it to the readers
 pal1 <- c("wheat1", "red3")
@@ -287,7 +287,7 @@ plot(classIntervals(manchester$crimr1,
 
 **The quantile map** bin the same count of features (areas) into each of its classes. This classification method places equal numbers of observations into each class. So, if you have five classes you will have 20 percent of the areas within each class. This method is best for data that is evenly distributed across its range. Here, given that our variable is highly skewed, notice how the top class includes areas with fairly different levels of crime, even if it does a better job at separating areas at the lower end of the crime rate continuum. Several authors consider that quantile maps are inappropriate to represent the skewed distributions of crime [@Harries_1999]. 
 
-```{r, echo=FALSE, fig.cap='Results for quantiles classification', fig.height=4}
+```{r, echo=FALSE, fig.cap='Results for quantiles classification', fig.height=4, fig.alt="The previous line graph is now titled 'Quantiles', and has had the colours along the horizontal axis squished, except for the last deep red. The colour changes all happen in the steep climb of the graph, within the first few thousand values of x."}
 pal1 <- c("wheat1", "red3")
 plot(classIntervals(manchester$crimr1, n=5, style="quantile"), pal = pal1,
      main="Quantiles")
@@ -295,7 +295,7 @@ plot(classIntervals(manchester$crimr1, n=5, style="quantile"), pal = pal1,
 
 **The natural breaks (or Jenks)** classification method utilizes an algorithm to group values in classes that are separated by distinct break points. It is an optimisation method which takes an iterative approach to its groupings to achieve least variation within each class. Cartographers recommend to use this method with data that is unevenly distributed but not skewed toward either end of the distribution. 
 
-```{r, echo=FALSE, fig.cap='Results for Jenks classification', fig.height=4}
+```{r, echo=FALSE, fig.cap='Results for Jenks classification', fig.height=4, fig.alt="This time the previous line graph is titled 'Jenks', and seems to be a compromise between the previous two figures. The steep climb is divided into two colours, and the following gradual climb gets one colour as well. The plateau with just a few points gets two colours."}
 pal1 <- c("wheat1", "red3")
 plot(classIntervals(manchester$crimr1, n=5, style="jenks"), pal = pal1,
      main="Jenks")
@@ -303,7 +303,7 @@ plot(classIntervals(manchester$crimr1, n=5, style="jenks"), pal = pal1,
 
 **The standard deviation** map uses the standard deviation (standardised measure of observations' deviation from the mean) to bin the observations into classes. This classification method forms each class by adding and subtracting the standard deviation from the mean of the dataset. It is best suited to be used with data that conforms to a normal distribution. 
 
-```{r, echo=FALSE, fig.cap='Results for standard deviation classification', fig.height=4}
+```{r, echo=FALSE, fig.cap='Results for standard deviation classification', fig.height=4, fig.alt="The same line graph is now titled 'Standard Deviation', and has gained more colours, fourteen total, for its gradient. Each one is the same size, and includes about four thousand values of x."}
 pal1 <- c("wheat1", "red3")
 plot(classIntervals(manchester$crimr1, style="sd"), pal = pal1,
      main="Standard Deviation")
@@ -311,7 +311,7 @@ plot(classIntervals(manchester$crimr1, style="sd"), pal = pal1,
 
 **The headtails method** This uses a method proposed by @Jiang_2013 as a solution for variables with a heavy tail distribution, like we often have with crime. "This new classification scheme partitions all of the data values around the mean into two parts and continues the process iteratively for the values (above the mean) in the head until the head part values are no longer heavy-tailed distributed. Thus, the number of classes and the class intervals are both naturally determined." [@Jiang_2013, p. 482]
 
-```{r, echo = FALSE, fig.cap='Results for headtails classification', fig.height=4}
+```{r, echo = FALSE, fig.cap='Results for headtails classification', fig.height=4, fig.alt="The same line graph yet again, with the title 'Headtails'. The five colours are distributed in a similar way to the Jenks classification, with the colour changes all slightly shifted by various amounts to the right."}
 pal1 <- c("wheat1", "red3")
 plot(classIntervals(manchester$crimr1, style="headtails"), pal = pal1,
      main="Headtails")
@@ -381,7 +381,7 @@ map5 <- tm_shape(manchester) +
 
 Notice that we are not plotting the maps, we are storing them into R objects (map1 to map5). This way they are saved, and you can call them later, which is what we need in order to plot them together using the `tmap_arrange()` function. So if you wanted to map just `map3` for example, all you need to do, is call the `map3` object. Like so: 
 
-```{r, fig.cap='Quantile classification of crime in Manchester', fig.height=4}
+```{r, fig.cap='Quantile classification of crime in Manchester', fig.height=4, fig.alt="A shaded map of the LSOAs in Manchester, similar to the ones before, using the colourblind friendly blue gradient. The legend in the top left, titled 'Quantile', lists which values correspond to the five colours, according to the Quantile classification; the first four colours correspond to a few values, and the last one to most. Much of the north half of Manchester is shaded in the darker colours. The south half has some dark LSOAs as well, but is generally lighter."}
 
 map3
 
@@ -389,7 +389,7 @@ map3
 
 But now we will plot all 5 maps together, arranged using the `tmap_arrange()` function. Like so: 
 
-```{r, message=FALSE, fig.cap='Compare maps using the different classifications of crime in Manchester'}
+```{r, message=FALSE, fig.cap='Compare maps using the different classifications of crime in Manchester', fig.alt="Five different shaded maps of the LSOAs in Manchester are aligned in a grid. The first one, labeled 'Equal', was the first map we constructed, and the third one, 'Quantile', is the previous figure. The one labeled 'Standard Deviation' looks very similar to the initial 'Equal' map, with a hotspot in the centre, but now with two colours in the rest of Manchester. 'Jenks' and 'Headtails' are very similar, and both convey the same general concentrations of darker colours. In particular, colours lighten gradually moving away from the centre, with darker hotspots in the northeast and far south."}
 # deploy tmap_arrange to plot these maps together
 tmap_arrange(map1, map2, map3, map4, map5) 
 
@@ -424,7 +424,7 @@ When you use `tmap`, R will remember the mode you want to use. So once you speci
 
 Let's explore the distribution of the two alternative definitions of crime rates in an interactive way. 
 
-```{r, cache=FALSE, fig.cap='Interactive Jenks map of crime by residential population in Manchester', fig.height=3}
+```{r, cache=FALSE, fig.cap='Interactive Jenks map of crime by residential population in Manchester', fig.height=3, fig.alt="A leaflet street map of Manchester and area, with overlaid semi-transparent shading. The top right contains a legend labeled 'Crime per residential pop', and separates five colours according to the Jenks classification seen before. The same darker shaded areas can be seen as before, now on the map."}
 
 tm_shape(manchester) + 
   tm_fill("crimr1", style="jenks", palette= "Reds", 
@@ -437,7 +437,7 @@ If you are following along, you can now scroll down to see that the crime rate i
 
 How does this change if we use the crime rate that uses the workday population?
 
-```{r, cache=FALSE, fig.cap='Interactive Jenks map of crime rate by workday population in Manchester', fig.height=3}
+```{r, cache=FALSE, fig.cap='Interactive Jenks map of crime rate by workday population in Manchester', fig.height=3, fig.alt="A leaflet street map of Manchester and area, with a different overlaid semi-transparent shading. The top right contains a legend labeled 'Crime per workday pop', and separates numbers up to nine thousand four hundred into five colours. The three lightest colours correspond to a range of about one thousand each, the next one to two thousand, and the darkest to four thousand. The distribution of darker colours is much different, with some dark areas in the northeast, southwest, and less of a cluster in central Manchester."}
 tm_shape(manchester) + 
   tm_fill("crimr2", style="jenks", palette= "Oranges", 
           title = "Crime per workday pop", alpha = 0.8,) +
@@ -579,7 +579,7 @@ ncovr$HR60EBSL <- eb2$est * 100000
 
 We can now plot the maps and compare them:
 
-```{r, message=FALSE, warning=FALSE, fig.cap='Compare raw and smoothed rates across counties in the USA'}
+```{r, message=FALSE, warning=FALSE, fig.cap='Compare raw and smoothed rates across counties in the USA', fig.alt="Two shaded maps of counties in the United States. Both maps use five shades of red, getting darker to represent higher values, the first one corresponding to 'Raw rate', the second to 'Local Smooth', according to their legends. The first map is more blotchy than the second, with some lighter counties amidst darker red ones, and vice versa. The second map has much clearer contiguous blocks sharing the same colour. In both maps, the southeast has the most concentration of dark red, with some patches in the south and southwest."}
 tmap_mode("plot")
 current_style <- tmap_style("col_blind")
 
@@ -602,7 +602,7 @@ tmap_arrange(map1, map2)
 
 Notice that the quantiles are not the same, so that will make your comparison difficult. Let´s look at a boxplot of these variables. In the map of raw rates we have the most variation. 
 
-```{r, fig.cap='Boxplots to compare variation in rates', fig.width=4}
+```{r, fig.cap='Boxplots to compare variation in rates', fig.width=4, fig.alt="A box plot titled 'Different rates of homicide per hundred thousand people'. The vertical axis is labeled 'Rates', ranging from zero to nearly one hundred. Two datasets are depicted, 'Raw rate', and 'Local base smoother'. The first, 'Raw rate', has many more outliers above the maximum, which is marked around nineteen. The outliers are numerous until fourty, sparse until sixty, and one reaches nearly one hundred. On the other hand, 'Local base smoother' has much fewer outliers, and they are all close to the maximum, perhaps five units above at most."}
 #Boxplots with base R graphics
 boxplot(ncovr$HR60, ncovr$HR60EBSL,
         main = "Different rates of homicide per 100,000 people",
