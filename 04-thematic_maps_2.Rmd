@@ -117,7 +117,7 @@ ma_spatial <- ma_spatial %>%
 
 As a first step, we can plot antisocial behaviour in the borough of Manchester using simple `ggplot`, as demonstrated in Chapter 1. We can plot our points first:
 
-```{r, fig.height= 3, fig.cap= 'Point map of ASB in Manchester'}
+```{r, fig.height= 3, fig.cap= 'Point map of ASB in Manchester', fig.alt="A plot of points with the vertical axis being latitude, and the horizontal axis longitude. Black points cover most of an area shaped like Manchester. Only a small amount of the white background is not covered, in patches to the northeast and east, and towards the south."}
 
 ggplot(ma_spatial, aes(x = longitude, y = latitude)) +
   geom_sf(size=0.001) + 
@@ -127,7 +127,7 @@ ggplot(ma_spatial, aes(x = longitude, y = latitude)) +
 
 We see our nice map of Manchester, as outlined by ASB incidents across the Local Authority. However, it is hard to tell from this map where these incidents might occur more frequently and where they are just a few one-off incidents. A binned map may help us better understand. To create such a map, we must first create the grid (or fishnet) of tessellating shapes. Once we have this grid, we can overlay it on top of our map, and count the number of ASB incidents (points) which fall into each grid shape (polygon).  We can use the `ggplot` library to achieve this. It is such a great tool for building visualisations, because you can apply whatever geometry best suits your data. To map a hexbinned version of our point data of antisocial behaviour, we can use the `stat_binhex()` function as a layer added on to our ggplot object. We can also recreate the thematic map element, as we can use the frequency of points in each hex to shade each hexbin from white (least number of incidents) to red (most number of incidents). So let's have a go: 
 
-```{r, fig.height= 3, fig.cap='Hexbin map of ASB in Manchester'}
+```{r, fig.height= 3, fig.cap='Hexbin map of ASB in Manchester', fig.alt="The shape of Manchester is tiled into hexagonal cells. To the right, a legend is labeled 'Frequency', and shows a gradient of red to white with numbered notches. The deepest red is above the notch numbered four thousand, with a notch at every thousand, ending at one thousand, a very light red. Most of the hexagonal cells are nearly white, with one darker red towards the middle left. A few of the nearby cells are a light red as well."}
 
 #define data and variables for x and y axes
 ggplot(ma_spatial, aes(longitude, latitude)) + 
@@ -147,7 +147,7 @@ ggplot(ma_spatial, aes(longitude, latitude)) +
 
 Neat, but doesn't quite tell us *where* that really dark hexbin actually is. So it would be much better if we could do this with a basemap as the background. For this we use the function `annotation_map_tile()` from the `ggspatial` package. We can also set the opacity of the binhex layer, so we can see our basemap, with the `alpha` parameter. 
 
-```{r, fig.height= 3, message=FALSE, fig.cap='Hexbin map of ASB in Manchester with basemap'}
+```{r, fig.height= 3, message=FALSE, fig.cap='Hexbin map of ASB in Manchester with basemap', fig.alt="The shading of hexagonal cells from the previous figure is now partially transparent, and overlaid onto a street map of Manchester. The darker hex can be identified as central Manchester."}
 
 ggplot(ma_spatial, aes(x = longitude, y = latitude)) +
   annotation_map_tile() + 
@@ -167,7 +167,7 @@ Adding this basemap provides us with a bit more context. And combined with the h
 - If you are working over a large area, a hexagon grid will suffer less distortion due to the curvature of the earth than the shape of a fishnet grid.
 - You will find more neighbours with hexagons than square grids, if you're using a distance band, since the distance between centroids is the same in all six directions with hexagons (see image below). 
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height= 1, fig.cap='Hexagonal bins will have more neighbors included in the calculations for each feature as opposed to a fishnet grid'}
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height= 1, fig.cap='Hexagonal bins will have more neighbors included in the calculations for each feature as opposed to a fishnet grid', fig.alt="A comparison of a circle over a square grid, with a circle over a hexagonal grid. The circle has the same size in both, a radius of the width of one grid or cell. In the first image, the circle is centred in the centre of a square cell, completely engulfing that cell which is shaded dark red, and partially the four adjacent cells, which are light red. The circle barely touches the four cells at corners to the middle cell. In the second image, the circle is centred in the centre of a hexagonal cell, completly engulfing that cell which is shaded dark red, and partially the six adjacent cells."}
 
 
 df <- data.frame(x_coords = c(rep(0.5:4.5, 5), rep(2.5,10), rep(1.5,4), rep(3.5,4), rep(2.5,8)), 
@@ -247,7 +247,7 @@ heatmap <- ggplot(ma_spatial, aes(x = longitude, y = latitude)) +
 
 Now we can print them all side-by-side using `plot_grid()` function from the `cowplot` package to compare. 
 
-```{r comparehexrectheat, message=FALSE,fig.cap='Comparing rectangular (A), hexagonal (B), and heat maps (C)'}
+```{r comparehexrectheat, message=FALSE,fig.cap='Comparing rectangular (A), hexagonal (B), and heat maps (C)', fig.alt="Three different semi-transparent shadings are ovelaid onto three street maps of Manchester, with labels A, B, and C. Their legends all have the same label 'Frequency', and gradient from red to white, but the maximum values differ; over three thousand in A, over four thousand in B, and a little over one thousand in C. In the first one, the shading is broken into single-coloured squares. One square is dark red, with its bottom and right neighbours also noticeably darker than the rest. In the second one, single-coloured hexagons tile the map, with just one being a much darker red than the rest. In the third one, no shape constrains the colours, and there is just a small blotch of red fading to white near the city centre."}
 
 library(cowplot)
 
@@ -303,7 +303,7 @@ eu_sf <- st_transform(eu_sf, 27700)
 
 Now we can have a look at these data: 
 
-```{r, fig.cap='EU referendum results across Local Authorit (no transformation)', fig.height=4}
+```{r, fig.cap='EU referendum results across Local Authorit (no transformation)', fig.height=4, fig.alt="A map of England broken into Local Authorities, each shaded a shade of blue. To the right of the map, a legend labeled 'pct leave' shows a gradient ranging from dark blue under thirty, to a light blue over seventy. The grey borders between the Local Authorities visually overwhelm the colours in some of the more urban areas. Lighter colours appear more in the centre and east."}
 ggplot() +
   geom_sf(data = eu_sf, aes(fill = Pct_Leave)) + 
   theme_void()
@@ -339,7 +339,7 @@ eu_cartogram <- cartogram_cont(eu_sf, "Electorate", itermax = 5)
 
 This will be faster (but may not result in the best possible cartogram output). Once your cartogram has been created, you can now plot again the referendum results, but using the electorate to change the size of the Local Authority: 
 
-```{r, fig.cap='Cartogram weightin each polygon (Local Authority) by the size of its electorate'}
+```{r, fig.cap='Cartogram weightin each polygon (Local Authority) by the size of its electorate', fig.alt="A slightly distortred map of England is shaded blue in the same way as the previous figure. Each Local Authority can be made out with more ease now. A darker blue now can be seen in many LAs that were visually overwhelmed by the borders previously."}
 ggplot() +
   geom_sf(data = eu_cartogram, aes(fill = Pct_Leave)) + 
   theme_void()
@@ -361,7 +361,7 @@ eu_dorling_cartogram <- cartogram_dorling(eu_sf, "Electorate")
 
 Let's plot the output:
 
-```{r, fig.cap='Dorling cartogram of LAs by electorate size'}
+```{r, fig.cap='Dorling cartogram of LAs by electorate size', fig.alt="A bundle of shaded circles, with some small variation in size are packed together. They are shaded in the same fashion as the maps in the previous two figures. The same legend appears. There are more darker circles in the bottom right quadrant of the plot."}
 ggplot() +
   geom_sf(data = eu_dorling_cartogram, aes(fill = Pct_Leave)) + 
   theme_void()
@@ -532,7 +532,7 @@ legend <- ggplot() +
 
 This code returns the legend as a chart itself. Have a look what it looks like: 
 
-```{r, fig.height=1, fig.cap='Legend for bivariate map'}
+```{r, fig.height=1, fig.cap='Legend for bivariate map', fig.alt="A three by three grid of colours, with a vertical and horizontal axis each notched at numbers one, two, and three. The vertical axis is labeled 'Higher percent voted leave', with an arrow upwards, while the horizontal axis is labeled 'Higher percent turnout', with an arrow towards the right. The bottom left colour is light grey, the top left cyan, the bottom right purple, and the top right dark blue. The rest of the colours in the grid are a blend of these."}
 
 legend
 
@@ -553,7 +553,7 @@ map <- ggplot(eu_sf) +
 
 Finally, to display the legend and the map together, we can use the `ggdraw()` and `draw_plot()` functions from the  `cowplot` package. 
 
-```{r, fig.cap='Bivariate choropleth map of voter turnout and % who voted to leave the EU'}
+```{r, fig.cap='Bivariate choropleth map of voter turnout and % who voted to leave the EU', fig.alt="A map of England broken into shaded Local Authorities. The previous figure is present as a legend to the left. Much of the south and southwest is shaded in pink and purple. Blue and cyan appears more in the northeast."}
 library(cowplot)
 ggdraw() +
   draw_plot(map, 0, 0, 1, 1) +
