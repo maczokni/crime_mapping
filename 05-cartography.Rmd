@@ -65,7 +65,7 @@ We've been working with thematic maps thus far in this book. There are many deci
 
 We've covered a few approaches to mapping (using `ggplot2`, `tmap`, and `leaflet`) but here we will continue with `ggplot2` package to plot our thematic maps, specifically a choropleth map. We will map our `sf` objects using the `geom_sf()` function. To shade each polygon with the values of a specific variable, we use the `fill = ` argument within the `aes()` (aesthetics) function. Most simply: 
 
-```{r themmap, fig.cap='Quick thematic map with ggplot2'}
+```{r themmap, fig.cap='Quick thematic map with ggplot2', fig.alt="A map of Hungary broken into its counties, shaded in various shades of blue, with grey borders between them. The background is a grey grid, with the axes labeled with longitudes and latitudes. A legend to the right is labeled 'total breath tests', with a gradient of light blue to dark blue, with notches every ten thousand values. The lightest blue is just over thirty thousand. Lighter colours appear in counties to the east and some parts of the west."}
 
 library(ggplot2)
 
@@ -77,7 +77,7 @@ map
 
 Maps made with `ggplot` are automatically placed upon a grid reference to our data (see our brief overview of building plots with `ggplot` in Chapter 1). To remove this, we can use the `theme_void()` theme, which will strip this away. 
 
-```{r themmapthemevoid, fig.cap='Add theme_void() to ggplot map'}
+```{r themmapthemevoid, fig.cap='Add theme_void() to ggplot map', fig.alt="The previous map no longer has axes, their labels, or the grey grid in the background."}
 
 map <- map + 
   theme_void()  # remove grid 
@@ -88,7 +88,7 @@ map
 
 We can change the colour and size of the borders of our polygons with arguments inside the `geom_sf()` function, but outside the `aes()` function, as long as we're not using our data to define these. For example we can change the line width (`lwd =`) to 0, eliminating bordering lines between our polygons: 
 
-```{r themmapwithoubord, fig.cap='Thematic map with border lines removed'}
+```{r themmapwithoubord, fig.cap='Thematic map with border lines removed', fig.alt="The previous map, now with the borders between the counties being much thinner."}
 
 ggplot(data = hu_dd) + 
   geom_sf(aes(fill = total_breath_tests), lwd = 0) +  # specify line width
@@ -98,7 +98,7 @@ ggplot(data = hu_dd) +
 
 Or we can change the colour of the borders with the `col =` argument: 
 
-```{r themmapwhitebord, fig.cap='Thematic map with white borders'}
+```{r themmapwhitebord, fig.cap='Thematic map with white borders', fig.alt="The map has now regained its thick borders, but they are coloured white."}
 
 ggplot(data = hu_dd) + 
   geom_sf(aes(fill = total_breath_tests), lwd = 0.5, 
@@ -109,7 +109,7 @@ ggplot(data = hu_dd) +
 
 Here we have a continuous fill for our values, however we can employ our learning from Chapter 3 and apply a classification system, such as quantiles. To do this we might create a new variable which contains the quantiles of our numeric variable, and then use that as our `fill = `. 
 
-```{r, fig.cap='Map of quantiles eith default colour scheme'}
+```{r, fig.cap='Map of quantiles with default colour scheme', fig.alt="The map still has the white borders between counties, but now those counties have been coloured in four bright colours, red, green, blue, and purple. The legend has changed from a gradient to four colour boxes with labels for their ranges in the form x comma y, and is now labeled 'total quantiles'."}
 
 # create new variable for quantiles
 hu_dd <- hu_dd %>% 
@@ -130,7 +130,7 @@ The colour scheme is terrible, but we will talk about colour in the next section
 
 You might not want to display your map as a choropleth map, you may want to use symbols. Again we explored this in Chapter 3 where you used the `tmap` package for this. Here is another way you can use graduated symbol map with `ggplot()`. You can take the centroid of each county polygon using the `st_centroid()` function from the `sf` package, and then when mapping with `geom_sf()`, within the `aes()` function specify the `size = ` argument to the variable you wish to visualise: 
 
-```{r gradsymbmap, message=FALSE, warning=FALSE, fig.cap='Graduated symbol map'}
+```{r gradsymbmap, message=FALSE, warning=FALSE, fig.cap='Graduated symbol map', fig.alt="The map of Hungary has lost its bright colours, and now has a black border between counties. The counties are all shaded the same shade of grey, and each one has a solid black circle in its centre. The circles vary in sizes, from a small point to much larger. A legend on the right, labeled 'total breath tests', shows three example circles and corresponding numbers, ten thousand, twenty thousand, and thirty thousand. The largest circles in counties on the map seem to be a similar size to the thirty thousand example circle."}
 
 ggplot(data = hu_dd) + 
   geom_sf() + 
@@ -141,7 +141,7 @@ ggplot(data = hu_dd) +
 
 Like with the thematic map you can play around with colour and shape: 
 
-```{r gradsymbmapcol, message=FALSE, warning=FALSE, fig.cap='Graduated symbol map with adjusted colours'}
+```{r gradsymbmapcol, message=FALSE, warning=FALSE, fig.cap='Graduated symbol map with adjusted colours', fig.alt="The previous map now has white borders between counties again, and the counties are shaded a light yellow. The circles on the map and in the legend are orange."}
 
 ggplot(data = hu_dd) + 
   geom_sf(fill = "light yellow",   # specify polygon fill colour
@@ -155,7 +155,7 @@ ggplot(data = hu_dd) +
 
 You can also change the symbol itself with the `shape = ` parameter. For example you could use a triangle: 
 
-```{r gradsymbmapcoltriangle, message=FALSE, warning=FALSE, fig.cap='Graduated symbol map with triangle shape.'}
+```{r gradsymbmapcoltriangle, message=FALSE, warning=FALSE, fig.cap='Graduated symbol map with triangle shape.', fig.alt="The previous map of Hungary, in the same colour scheme, has had its circles replaced with triangles of corresponding sizes."}
 
 ggplot(data = hu_dd) + 
   geom_sf(fill = "light yellow", 
@@ -216,7 +216,7 @@ library(RColorBrewer)
 
 Once you have the package loaded, we can look at all the associated palettes with the function `display.brewer.all()`.
 
-```{r, dsplayallcolourbrewerpallettes, fig.height=7, fig.cap='Palettes in RColorBrewer package'}
+```{r, dsplayallcolourbrewerpallettes, fig.height=7, fig.cap='Palettes in RColorBrewer package', fig.alt="A list of names of colour palettes, which are often concatenated abbreviations of shortened colour names or a small descriptor. The names are accompanied by a series of wide rectangles coloured in according to the palette."}
 
 display.brewer.all()
 
@@ -224,7 +224,7 @@ display.brewer.all()
 
 The above gives a wide choice of pallettes, and while they are applicable to all sorts of data visualisations, they were created especially for the case of thematic maps. We might use the above code to pick a palette we like. We might then want to examine the colours more closely. To do this we can use the `display.brewer.pal()` function, and specify `n=` - the number of colours we need, as well as the palette name with `name = `: 
 
-```{r, fig.height=2, fig.cap='The "spectral" palette in RColorBrewer package'}
+```{r, fig.height=2, fig.cap='The "spectral" palette in RColorBrewer package', fig.alt="Five wide rectangles side by side, coloured red, orange, light yellow, green, and blue."}
 
 display.brewer.pal(n = 5, "Spectral")
 
@@ -232,7 +232,7 @@ display.brewer.pal(n = 5, "Spectral")
 
 Let's go back to our choropleth map of the quantiles of total breath tests per county. We might be interested in this map to show distribution of policing activity for example. We made this map earlier with the default colour scheme, which didn't really communicate to us the graduated nature of our data we were visualising. To properly do this, we may imagine using a *sequential* scale. We can use one of the sequential scales available within `RColorBrewer` with adding the `scale_fill_brewer()` function to our ggplot. In this function we can specify the `type=` parameter, i.e. if we want to use sequential, divergining, or qualitative colour schemes (specified as either "seq" (sequential), "div" (diverging) or "qual" (qualitative)). We can then specify our preferred palette with the `palette = ` argument. Let's demonstrate here with the "YlOrRd" sequential palette: 
 
-```{r, colourbbrewerratefill, fig.cap='Thematic map with "YlOrRd" sequential palette'}
+```{r, colourbbrewerratefill, fig.cap='Thematic map with "YlOrRd" sequential palette', fig.alt="A previously shown map of counties of Hungary, previously with four bright colours, with shaded counties and a white border between them. Now, the map has a more visually pleasing colour scheme, with colours ranging from yellow to orange to red. The legend to the right, labeled total quantiles, also reflects the new colours."}
 
 ggplot(data = hu_dd) + 
   geom_sf(aes(fill = total_quantiles), 
@@ -246,7 +246,7 @@ ggplot(data = hu_dd) +
 
 This looks much better, and communicates our message much more clearly. Is this accessible to our colourblind colleagues? Earlier, when we asked to view all the palettes with the `display.brewer.all()` function, we did not specify any arguments. However, we can do so in order to filter only those palettes which are accessible for all audiences. We can include the parameter `colorblindFriendly = ` to do so: 
 
-```{r, fig.height=6, fig.cap='Colourblind friendly palettes in RColorBrewer package' }
+```{r, fig.height=6, fig.cap='Colourblind friendly palettes in RColorBrewer package', fig.alt="Much like before, this is another list of names of colour palettes, which are still concatenated abbreviations of shortened colour names or a small descriptor. The names are yet again accompanied by a series of wide rectangles coloured in according to the palette."}
 
 display.brewer.all(colorblindFriendly = TRUE)
 
@@ -256,7 +256,7 @@ You can see there are a few palettes missing from our earlier results, when we d
 
 Another way to ensure that we are making accessible maps is to use greyscale (if your map is being printed, this may also save some money). To introduce a greyscale palette, you can use the function `scale_fill_grey() ` from the `ggplot2` package: 
 
-```{r greyscaletestsmap, fig.cap="Map with greyscale palette"}
+```{r greyscaletestsmap, fig.cap="Map with greyscale palette", fig.alt="The previous map of Hungary and its counties, is now shaded in four shades of grey. The legend shows that the darkest grey corresponds to the smallest 'total quantiles'."}
 
 ggplot(data = hu_dd) + 
   geom_sf(aes(fill = total_quantiles), lwd = 0.5, col = "white") + 
@@ -267,7 +267,7 @@ ggplot(data = hu_dd) +
 
 Sometimes you might prefer such a map. However, do keep in mind, a number of studies have shown the desirability of monochrome colour (over greyscale) thematic maps, as they are linked to less observer variability in interpretation [@Lawson_2006]. So you might want to use something like this instead: 
 
-```{r, fig.cap="Map with monochrome palette"}
+```{r, fig.cap="Map with monochrome palette", fig.alt="The same map, now in shades of light green to dark green. The lighter greens corresponds to the smaller 'total quantiles' here."}
 
 ggplot(data = hu_dd) + 
   geom_sf(aes(fill = total_quantiles), lwd = 0.5, col = "white") + 
@@ -301,7 +301,7 @@ map <- ggplot(data = hu_dd) +
 
 Now we can add a title, with the `ggtitle()` function. 
 
-```{r, fig.cap='Add title(s) to map'}
+```{r, fig.cap='Add title(s) to map', fig.alt="The previous green map now has a title, 'Number of breathalyser tests per county in Hungary', and a subtitle 'January 2020'."}
 map <- map + 
   # specify both title and subtitle: 
   ggtitle(label = "Number of breathalyser tests per county in Hungary", 
@@ -315,7 +315,7 @@ map
 
 Besides an informative title/subtitle you need your legend to be clear to your readers as well. To modify the title to your legend, you can use the `name =` parameter in your `scale_fill_brewer()` function, where we specified the colour palette. 
 
-```{r legend, warning=FALSE, message=FALSE, fig.cap='Add title to map legend'}
+```{r legend, warning=FALSE, message=FALSE, fig.cap='Add title to map legend', fig.alt="The same titled map again, with the legend updated. It now features a better label, 'Total tests (quantiles)'."}
 
 
 map <- map + 
@@ -340,7 +340,7 @@ new_levels <- gsub(","," - ",levels(hu_dd$total_quantiles))
 We can then assign this new levels object in the `labels = ` parameter of the `scale_fill_brewer()` function: 
 
 
-```{r legendlabelsplot, warning=FALSE, message=FALSE, fig.cap='Edit labels on map legend'}
+```{r legendlabelsplot, warning=FALSE, message=FALSE, fig.cap='Edit labels on map legend', fig.alt="The legend continues to improve, with the ranges next to the colours changing from the form 'x comma y' to 'x dash y'."}
 
 map <- map + 
   scale_fill_brewer(type = "seq", palette = "Greens", 
@@ -363,7 +363,7 @@ new_levels <- c("< 4796", "4796 to < 10785", "10785  to < 15070", "> 15070")
 And once again, we specify to use these labels in the `labels = ` parameter of the `scale_fill_brewer()` function: 
 
 
-```{r newnewlabelsplot, warning=FALSE, message=FALSE, fig.cap='Rewrite values on map legend'}
+```{r newnewlabelsplot, warning=FALSE, message=FALSE, fig.cap='Rewrite values on map legend', fig.alt="Further changes to the same map of Hungary, the ranges next to the colours now use the connecting word 'to', and 'less than' and 'greater than' signs where needed."}
 
 map + 
   scale_fill_brewer(type = "seq", palette = "Greens", 
@@ -382,7 +382,7 @@ In certain cases, it might be that we want to point out something specific on ou
 
 In the below example, let's say we want to label each polygon with the name of the county which it represents. In this case, we use the `geom_sf_label()` geometry, and inside it we use `aes()` to point to which column in our dataframe we want to use (in this case the column is called *name*). 
 
-```{r addcountynames, warning=FALSE, message=FALSE, fig.cap='Add labels to map'}
+```{r addcountynames, warning=FALSE, message=FALSE, fig.cap='Add labels to map', fig.alt="Once more the same map has been altered, gaining rounded white boxes with a thin black outline overlaid on each county. These boxes include the names of the counties in black text. Many boxes cover one another. The legend has also reverted to one with a dash between values."}
 
 map  + 
   geom_sf_label(aes(label = name))  # add layer of labels from the name column
@@ -391,7 +391,7 @@ map  +
 
 You may notice there is some overlapping here which renders some names unreadable. Well while [there is work in this space to develop the function geom_sf_label_repel()](https://github.com/slowkow/ggrepel/issues/111) at the time of writing this is not yet available. However this application of the `geom_label_repel()` function from the `ggrepel` package advised by @Yutani_2018 achieves the same outcome: 
 
-```{r, warning=FALSE, message=FALSE, fig.cap='Repel labels for legibility'}
+```{r, warning=FALSE, message=FALSE, fig.cap='Repel labels for legibility', fig.alt="The boxes have shifted around to mostly prevent overlapping. A thin black line connects each box to the centre of the county it corresponds to. Most of these lines are very short, though a few labels are some distance from their county."}
 
 library(ggrepel)
 
@@ -406,7 +406,7 @@ map +
 
 This way we can display the names of all the counties without overlap, so they all become legible. While this is achievable, think back to the principles of good design. This seems busy, and like it may overwhelm the reader. Not to mention - is it important that all polygons are labelled here? It might be - remember this depends on the message the map is intended to communicate! But here let's consider a different scenario, where we want to use annotation to label only those counties which meet some specific criteria.  For example, you might want to label only those which are in the top quartile. One way to achieve this is to create a separate dataframe, which only includes the desired polygons, and pass this into the `geom_sf_label()` function.  
 
-```{r addcountynamestoponly, warning=FALSE, message=FALSE, fig.cap='Label only polygons in top quartile of value on variable of interest'}
+```{r addcountynamestoponly, warning=FALSE, message=FALSE, fig.cap='Label only polygons in top quartile of value on variable of interest', fig.alt="We are back to the map with the labels centred on the counties, but only five labels appear, with no overlap. They are in the northwest, southwest, and east of the country."}
 
 #create new dataframe with only top counties
 labs_df <- hu_dd %>% filter(total_breath_tests >= 15070)
@@ -420,7 +420,7 @@ map +
 
 In another scenario, you might want to label only one region of interest. In this case, we might actually want to keep our annotation off the map, and draw an arrow onto the map pointing to where this annotation refers to. We can do this by using the `nudge_x` and `nudge_y` parameters of the `geom_sf_label()` function, to *nudge* the label position along the x and y axis respectively. In this case, let's label only Budapest. 
 
-```{r addcountynamesBPonly, warning=FALSE, message=FALSE, fig.cap='Label only one area of interest'}
+```{r addcountynamesBPonly, warning=FALSE, message=FALSE, fig.cap='Label only one area of interest', fig.alt="Still the same green shaded map of the counties of Hungary, now a label for 'Budapest' floats north of the country, not covering any of it."}
 
 #create new labels dataframe
 labs_df <- hu_dd %>% filter(name == "Budapest")
@@ -449,7 +449,7 @@ bp_y <- labs_df %>%
 Great, so we have the end point for our segment! But where should it start? Well we want it pointing from our label, so we can think back to how we adjusted this label with the `nudge_x` and `nudge_y` parameters inside the `geom_sf_label()` function earlier. We can add (or subtract) these values to our bp_x and bp_y objects to determine the start points for our curve. Finally, we can also specify some characteristics of the arrow head on our curve with the `arrow = ` parameter. Here we specify we want 2 millimeter size. 
 
 
-```{r, warning=FALSE, fig.cap='Add arrow to clarify label off map'}
+```{r, warning=FALSE, fig.cap='Add arrow to clarify label off map', fig.alt="The previous image, with a curved arrow from the label to the centre of Budapest itself."}
   
 map <- map + 
   geom_curve(x = bp_x - 0.1,  # starting x coordinate (the label)
@@ -487,7 +487,7 @@ caption_text <- paste("Map created by Réka Solymosi (@r_solymosi)",
 
 Then we can include this `caption_text` object as a caption in the function `labs()`, which stands for labels. 
 
-```{r, warning=FALSE, message=FALSE, fig.cap='Include production notes in map'}
+```{r, warning=FALSE, message=FALSE, fig.cap='Include production notes in map', fig.alt="The exact same map with the arrow, with attributions placed beneath the country in a right-aligned text block. This includes the creator on one line, and sources for data on the rest."}
 
 map <- map + labs(caption = caption_text) # include production notes here
 
@@ -507,7 +507,7 @@ It used to be that no map was complete without the inclusion of an orientation i
 
 So how to include this in our mapping in R? Well we can turn to the `ggspatial` library, and employ the function `annotation_north_arrow()`. In this function we can specify some aesthetic properties of our arrow, such as the height and width. Here we do so using millimeters as units. 
 
-```{r orientation, warning=FALSE, fig.cap='Add north arrow'}
+```{r orientation, warning=FALSE, fig.cap='Add north arrow', fig.alt="Once more the same green map of Hungary's counties has had an addition, a small half white half black arrow pointing upwards in the bottom left corner, with the letter 'N' for north underneath."}
 
 library(ggspatial)
 
@@ -519,7 +519,7 @@ map + annotation_north_arrow(height = unit(7, "mm"), # specify arrow height
 
 You can also change the style with the `style = ` parameter, and choose from styles such as `north_arrow_fancy_orienteering()` or `north_arrow_minimal()`:
 
-```{r orientationarrowstyle, warning=FALSE, fig.cap='Change stype of north arrow'}
+```{r orientationarrowstyle, warning=FALSE, fig.cap='Change stype of north arrow', fig.alt="The arrow above the letter 'N' is now longer, and bisects the letter."}
 
 map <- map + annotation_north_arrow(height = unit(7, "mm"), # specify arrow height
                          width = unit(5, "mm"), 
@@ -533,7 +533,7 @@ map
 
 Besides the North Arrow another key feature of maps is the scale indicator, which helps to understand distances we are presenting in our maps. Generally, scale should always be indicated or implied, unless the audience is so familiar with the map area or distance of such little relative importance that it can be assumed by the audience. You could use text to indicate scale. For example you could write "One centimeter is equal to one kilometer, or you could write 1:10000. But a common, graphical representation is to use a scale bar. Also in the `ggspatial` library, there is the function `annotation_scale()`, which helps us achieve this. To plot both the north arrow, and the scale indicator, you want to think about where you place these. You can move them along the x-axis using the `pad_x` parameter, and along the y-axis with the `pad_y` parameter. 
 
-```{r scale, warning=FALSE, fig.cap='Include scale indicator on map'}
+```{r scale, warning=FALSE, fig.cap='Include scale indicator on map', fig.alt="The addition this time is a longer horizontal bar, segmented into five sections alternating black and white. The text 'one hundred kilometers' appears next to it. It appears beneath the map of Hungary but above the attributions."}
 
 
 map <- map +  annotation_scale(line_width = 0.5,      # add scale and specify width
@@ -555,7 +555,7 @@ Besides the orientation and scale indicators, there are other ways to give conte
 
 As mentioned above, we have encountered and included basemaps in previous exercises in previous chapters. For the sake of illustration, we can add a basemap now using the the `annotation_map_tile()` function also from the `ggspatial` package (like the orientation and scale indicators). Make sure that the basemap is the first layer added to the map, so that all subsequent layers are drawn on top of it. If we were to add `annotation_map_tile()` last, it would cover all the other layers. 
 
-```{r basemap, warning=FALSE, message=FALSE, fig.cap='Add a basemap to our map'}
+```{r basemap, warning=FALSE, message=FALSE, fig.cap='Add a basemap to our map', fig.alt="The title, subtitle, 'Budapest' label and its arrow, attributions, north indicator, and scale indicator have fled the map, however the axes with latitudes and longitudes have returned. In addition, a street map appears behind the green shaded white bordered map of the counties of Hungary. A little of the neighbouring countries can be seen, along with larger cities and major roads."}
 
 
 ggplot(data = hu_dd) + 
@@ -635,7 +635,7 @@ hu_dd_with_inset <- ggdraw() +  # set layer
 
 We now have our final map, which we can check out now: 
 
-```{r insetmapfinal, fig.cap='Adding an inset map to our map'}
+```{r insetmapfinal, fig.cap='Adding an inset map to our map', fig.alt="We return to the map from two figures ago, with all of its features present including the title, subtitle, 'Budapest' label and its arrow, attributions, north indicator, and scale indicator. The counties are still shaded green, and the legend still appears to the right. The addition this time is a box beneath the legend and to the right of the scale indicator and attributions. This box contains a small featureless map of Europe, with black borders, where Hungary has been outlined with a thicker red border."}
 
 hu_dd_with_inset
 
