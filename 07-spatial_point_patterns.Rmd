@@ -59,7 +59,7 @@ manhattan <- st_read("data/manhattan.geojson") %>%
 
 Now we have all our data, let's plot to see how they look. 
 
-```{r, fig.cap='Plot Manhattan borough and crime locations as points'}
+```{r, fig.cap='Plot Manhattan borough and crime locations as points', fig.alt="The landmasses of Manhattan, outlined in black and shaded grey. Black points are scattered throughout the island, with a gap in the centre of the island where Central Park would be."}
 
 ggplot() + 
   geom_sf(data = manhattan) + # boundary data
@@ -96,7 +96,7 @@ window <- as.owin(st_geometry(manhattan))
 
 We can plot this window to see if it looks similar in shape to our polygon of Manhattan. 
 
-```{r, fig.cap='Plot window based on Manhattan polygon'}
+```{r, fig.cap='Plot window based on Manhattan polygon', fig.alt="A black outline of the landmasses of Manhattan, with the title 'window' above."}
 plot(window) # owin similar to polygon
 
 
@@ -174,7 +174,7 @@ sum(multiplicity(bur_ppp) > 1)
 
 That's quite something! 915 points out of 1727 burglaries share the same coordinates. And we can plot this vector if we want to see the distribution of duplicates:
 
-```{r, fig.cap = 'Histogram of incidents in overlapping coordinates (multiplicity)'}
+```{r, fig.cap = 'Histogram of incidents in overlapping coordinates (multiplicity)', fig.alt="A bar chart titled 'Histogram of multiplicity, bur_ppp', with bars shaded grey. The vertical axis is labeled 'Frequency', and ranges from zero to eight hundred, with notches every two hundred values. The horizontal axis is labeled 'multiplicity, bur_ppp', ranging from zero to ten, with markings at two, four, six, and eight. The first bar is a little over eight hundred tall, with each subsequent bar being close to half of the previous one."}
 
 hist(multiplicity(bur_ppp))
 
@@ -243,7 +243,7 @@ If we suspect the point pattern is spatially varying, we can start exploring thi
 
 For producing this counting we use the `quadratcount()` function  (in `spatstat`). The `nx` and `ny` argument in this function control how many breaks you want alongside the X and Y coordinates to create the quadrats. So to create 6 quadrats from top to bottom of Manhattan we will set them to 1 and 6 respectively. The configuration along the X and Y and the number of quadrats is something you will have to choose according to what is convenient to you. Then we just use standard plotting functions from R base.
 
-```{r, fig.cap='Count of burglaries in quadrats'}
+```{r, fig.cap='Count of burglaries in quadrats', fig.alt="The outline of Manhattan is divided, using five horizontal lines, into sections. Starting from the tip, the spacing of the lines is even. Numbers appear in each section, roughly corresponding to their area, except for the fourth from the top being smaller. The title 'Quadrat Count' appears above."}
 
 q <- quadratcount(jitter_bur, nx = 1, ny = 6)
 plot(q, main = "Quadrat Count")
@@ -254,7 +254,7 @@ As you can see with its irregular shape it is difficult to divide Manhattan in e
 
 Instead, we can use other forms of tessellation, like hexagons by using the `hextess()` function  (in `spatstat`). This is similar to the binning we introduced in Chapter 4, only using different functions. The numeric argument sets the size of the hexagons, you will need to play along to find an adequate value for your own applications. Rather than printing the numbers inside these hexagons (if you have many this will make it difficult to read in a plot) we can map a color to the intensity (the number of points per hexagon):
 
-```{r, fig.cap='Intensity map of burglaries per hexagon'}
+```{r, fig.cap='Intensity map of burglaries per hexagon', fig.alt="A shaded map of Manhattan, labeled 'Intensity map'. A legend to the right matches a gradient from dark blue to yellow with numbers, from zero to small fractions represented in scientific notation. Most of Manhattan is blue, with red patches present all over, excluding Central Park. A few spots in the south and north reach orange and yellow intensities."}
 
 hex <- hextess(jitter_bur, 200)
 q_hex <- quadratcount(jitter_bur, tess = hex)
@@ -276,7 +276,7 @@ poisson_ppp <- rpoispp(300)
 
 We can plot this, to see how it looks
 
-```{r, fig.cap='Simulated complete spatial randomness'}
+```{r, fig.cap='Simulated complete spatial randomness', fig.alt="A black square, with many small black circles spread out inside of it, titled 'Complete Spatial Randomness'. The circles form clusters and line-like shapes here and there, with many open spaces present."}
 plot(poisson_ppp, main = "Complete Spatial Randomness")
 
 ```
@@ -286,7 +286,7 @@ You will notice that the points in a homogeneous Poisson process are not ‘unif
 In classical literature, the *homogeneous Poisson process* (CSR) is usually taken as the appropriate ‘null’ model for a point pattern. Our basic task in analysing a point pattern is to find evidence against CSR. We can run a Chi Square test to check this in our data. So, for example, like we did above with Manhattan, we can split our area into quadrats. 
 
 
-```{r, fig.cap='Count of our random points in quadrats'}
+```{r, fig.cap='Count of our random points in quadrats', fig.alt="A six by six grid with numbers in each cell, titled 'Quadrat Count'. The numbers range from two to fifteen, with no particular pattern."}
 
 q2 <- quadratcount(poisson_ppp, nx = 6, ny = 6)
 plot(q2, main = "Quadrat Count")
@@ -343,7 +343,7 @@ class(ds)
 The resulting object is of class `im`, a pixel image, a grid of spatial locations with values attached to them. You can visualise this image as a map (using `plot()`), contour plots (using `contour()`), or as a perspective plot (using `persp()`).
 
 
-```{r, fig.cap='Visualisations of intensity of burglary in Manhattan'}
+```{r, fig.cap='Visualisations of intensity of burglary in Manhattan', fig.alt="Three plots with shapes of Manhattan, titled 'Pixel image', 'Contour plot', and 'Perspective plot'. The 'Pixel image' plot uses the gradient from blue to yellow that we have seen before, legend included. However the colours change smoothly from two concentrations of yellow near the north and south, and darken to a purple around Central Park. The second plot, titled 'Contour plot', does not include the outline of Manhattan, but instead has smooth curved lines where the colours transitioned in the first image. The third plot is a representation of a three dimensional plot, with two axes being the latitudes and longitudes, and the third one, height, being the intensity. The wavy Manhattan in this plot is harder to make out."}
 par(mfrow=c(1,3))
 plot(ds, main='Pixel image')
 contour(ds, main = 'Contour plot')
@@ -371,7 +371,7 @@ bw.scott(jitter_bur)
 
 Scott's rule generally provides larger bandwidth than the other methods. Don't be surprised if your results do not match exactly the ones we provide if you do not use the same seed, the computation means that they will vary every time we run these functions. Keep in mind these values will be expressed in the unit of the projected coordinate system you use (in this case meters). We can visualise how they influence the appearance of 'hot spots': 
 
-```{r, fig.cap="Kernel density maps with different bandwidth estimation algorightms"}
+```{r, fig.cap="Kernel density maps with different bandwidth estimation algorightms", fig.alt="Three different shaded maps of Manhattan, titled 'Diggle', 'PPL', and 'Scott'. Each has a legend with a gradient from blue to yellow, though slightly different values. The first, 'Diggle', shows a mostly blue Manhattan, with speckles of red mostly in the south and north. Very few points stand out as yellow. The second, 'PPL', has less speckling, and instead more patches of red, some of which contain a little yellow. The third, 'Scott', is once again a smoothly varying shading, with concentrations of yellow in the north and south transitioning into a purple near Central Park."}
 
 set.seed(200)
 par(mfrow=c(1,3))
@@ -393,7 +393,7 @@ All these methods use a fixed bandwidth: they use the same bandwidth for all loc
 
 With `spatstat` we can use an adaptive bandwidth method, were (1) a fraction of the points are selected at random and used to construct a tessellation; (2) a quadrat counting estimate of the intensity is produced; and (3) the process is repeated a set number of times and an average is computed. The `adaptive.density()` function  (in `spatstat`) takes as arguments the fraction of points to be sampled (`f`) and the number of samples to be taken (`nrep`). The logical argument `verbose` when set to `FALSE` (not the default) means we won't see a message in the console informing of the steps in the simulation.
 
-```{r, fig.cap="Adaptive bandwidth method for estimating bandwidth for KDE map"}
+```{r, fig.cap="Adaptive bandwidth method for estimating bandwidth for KDE map", fig.alt="Another shading of Manhattan with a legend containing a gradient from blue to yellow, titled 'adaptive bandwitdth method'. The island is mostly blue, with smooth patches of purple and red in the south and north. Yellow appears in two of the patches."}
 
 plot(adaptive.density(jitter_bur, f=0.1, nrep=30, verbose=FALSE), 
      main = "adaptive bandwidth method")
@@ -413,7 +413,7 @@ Which one to use? @Levine_2013 produces the following guidance: *“The use of a
 
 The default kernel in `density.ppp()` is `gaussian`. But there are other options. We can use the `epanechnikov`, `quartic` or `disc`. There are also further options for customisation. We can compare these kernels, whilst using the `ppl` algorithm for sigma (remember we set seed at 200 for this particular value):
 
-```{r, fig.cap="KDE maps created with different kernel shapes"}
+```{r, fig.cap="KDE maps created with different kernel shapes", fig.alt="Four tiny shaded maps of Manhattan, with barely any discernable difference. They are titled 'Gaussian', 'epanechnikov', 'Quartic', and 'Disc'."}
 par(mfrow=c(2,2))
 # Gaussian kernel function (the default)
 plot(density.ppp(jitter_bur, sigma = bw.ppl(jitter_bur), edge=TRUE), main="Gaussian")
@@ -439,7 +439,7 @@ Equally, you may have noticed an argument in `density.ppp()` we have not discuss
 
 In the past examples we used the un-weighted version of the estimation methods, but if the points are weighted (like for example by multiplicity) we can use weighted versions of these methods. We simply need to pass an argument that specifies the weights.
 
-```{r, fig.cap='Weighting KDE estimates'}
+```{r, fig.cap='Weighting KDE estimates', fig.alt="This shaded map of Manhattan is titled 'Weighted Points'. Rather than blotches or speckles, the blue is broken up by thicker points of red, which sometimes turn into yellow at their centre in the north."}
 set.seed(200)
 plot(density.ppp(bur_ppp_m, sigma = bw.ppl(bur_ppp_m), edge = T, 
                  kernel = "quartic", weights = marks(bur_ppp_m)), 
@@ -453,7 +453,7 @@ The plots produced by `spatstat` are good for initial exploration, but if you wa
 
 Often it is convenient to use a basemap to provide context. In order to do that we first need to turn the image object generated by the `spatstat` package into a raster object, a more generic format for raster image used in R. Remember rasters from the first chapter? Now we finally get to use them a bit! First we store the density estimates produced by `density.ppp()` into an object (which will be of class `im`, a two dimensional pixel image) and then using the `raster()` function from the `raster` package we generate a raster object. 
 
-```{r, message=FALSE, fig.cap='Raster image of KDE output'}
+```{r, message=FALSE, fig.cap='Raster image of KDE output', fig.alt="A different looking shaded map of Manchester, titled 'Raster'. The landmass is shaded light grey, and large numbers appear on notches on the vertical and horizontal axis. A legend to the right increases from zero as grey or transparent, then orange, then yellow, and finally green for the largest values. The blotchy shading on the map is familiar by now, with Central Park being avoided, and most of the island shaded orange, with some green appearing."}
 set.seed(200)
 dmap1 <- density.ppp(jitter_bur, kernel = "quartic", sigma = bw.ppl(jitter_bur), edge=T)
 # create raster object from im object
@@ -491,7 +491,7 @@ The way we assign the CRS above is using the now most accepted PROJ6 format. You
 
 Now we are ready to plot, although first we will create a more suitable colour palette and, since the values in the scale are quite close to 0 will multiple by a constant, to make the labels more readable. For this we use the `values()` function from the `raster` package that allows us to manipulate the values in a raster object:
 
-```{r, message=FALSE, warning=FALSE, fig.cap='Leaflet map for exploring KDE layer of burglaries in Manhattan'}
+```{r, message=FALSE, warning=FALSE, fig.cap='Leaflet map for exploring KDE layer of burglaries in Manhattan', fig.alt="A monochrome leaflet street map of Manhattan and surrounding area, with a red shading on some areas of Manhattan. The top right contains a legend labeled 'Burglary map', with a gradient from transparent white to red, with values from point one five to point three. The areas on the map which appear red are mostly in the south and north of Manhattan, as before."}
 
 pal <- colorNumeric("Reds", values(r1),
   na.color = "transparent") #Create color palette
