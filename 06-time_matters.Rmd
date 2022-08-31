@@ -80,7 +80,7 @@ class(agassault_ny$date_single)
 
 Our date and time variables are of class `POSIXct` and `POSIXt`. These are the two basic classes of date/times. Class "POSIXct" represents the (signed) [number of seconds since the beginning of 1970](https://en.wikipedia.org/wiki/Unix_time) as a numeric vector. Class "POSIXt" is a named list of vectors representing seconds (0–61), minutes (0–59), hours (0–23), day of the month (1–31), months after the first of the year (0–11), years since 1900, day of the week, starting on Sunday (0–6), and a flag for whether it is daylight savings time or not (positive if in force, zero if not, negative if unknown). Let's plot this data:
 
-```{r ggplot_8b, fig.cap='Number of assaults aggregated to 7-day chunks'}
+```{r ggplot_8b, fig.cap='Number of assaults aggregated to 7-day chunks', fig.alt="A black line plot over a grey grid background. The vertical axis is labeled 'count', and ranges from zero to over five hundred, with notches every fifty values and numbers every hundred values. The horizontal axis is labeled 'date single', from 2014 to 2019, with notches every year and numbers every second year. The plot looks somewhat periodic, noisily increasing from around three hundred at the beginning of each year, to around five hundred in the middle, and back down by the end of the year."}
 
 ggplot(agassault_ny, aes(date_single)) + 
   geom_freqpoly(binwidth = 7*24*60*60) # 7 days in seconds
@@ -91,7 +91,7 @@ Notice what `geom_freqpoly()` is doing. We have a dataframe with rows for each c
 
 An alternative approach to plotting individual components is to round the date to a nearby unit of time, with `floor_date()`, `round_date()`, and `ceiling_date()`. These functions live inside the lubridate package. Each function takes a vector of dates to adjust and then the name of the unit round down (floor), round up (ceiling), or round to. So to aggregate per month we will code as:
 
-```{r ggplot_rounding_8b, fig.cap='Number of assaults aggregated to Month'}
+```{r ggplot_rounding_8b, fig.cap='Number of assaults aggregated to Month', fig.alt="This plot, again a black line on a grey grid, has a vertical axis labeled 'n', ranging from twelve hundred to twenty two hundred. The horizontal axis has the same years as the previous figure, and is now labeled 'month'. Compared to the previous figure, there is much less noise, and a similar yearly periodic behaviour can still be seen. However, the peaks in the middle of the years have more variation, with 2015 and 2016 reaching over twenty two hundred, the rest just over nineteen hundred. The valleys are mostly at fourteen hundred, except for 2015, dipping down to nearly twelve hundred."}
 
 agassault_ny %>% 
   count(month = floor_date(date_single, "month")) %>% # use floor date function
@@ -180,7 +180,7 @@ agassault_ny_d <- agassault_ny %>%
 Now we have this new dataframe, the number of aggravated assaults per day. To make our temporal heatmap calendar, we will now use a `ggplot2` extension, `ggTimeSeries`, that allows us to produce calendar heat visualisations. In this package, we can use the `ggplot_calendar_heatmap()` function, which creates a calendar heatmap. This approach provides context for weeks, and day of week which makes it a better way to visualise daily data than line charts.
 
 
-```{r, message=FALSE, fig.height=6, fig.cap='Calendar heat map of aggravated assaults'}
+```{r, message=FALSE, fig.height=6, fig.cap='Calendar heat map of aggravated assaults', fig.alt="With one row per year, labeled with each year from 2014 to 2018, a grid of shaded squares appears. Each of the five grids is seven cells tall, with labels at the left clarifying them as days Monday, Tuesday, and so on to Sunday. Thick lines in the grid separate the months horizontally, and there are enough cells to cover each year. To the right of these grids, a legend labeled 'assaults' matches a gradient from purple to white with numbers from one hundred twenty five down to twenty five. In general, each year the summer months are shaded darker, and the weekends look darker than the weeks. Some notable days, such as new years' are also darker."}
 
 library(ggTimeSeries)
 
@@ -229,7 +229,7 @@ femicidios <- read_csv("data/femicidos.csv")
 
 This dataframe has only two columns, `femicidos`, which is a monthly observation of the number of intimate partner femicides per month, starting in January 2003, and `month`, which is the date for each observation. So, each row represents a monthly count of these crimes. We could do something like plot the number of crimes over each month using `ggplot2`. 
 
-```{r ggplottime, fig.cap='Plot the number of femicides per month'}
+```{r ggplottime, fig.cap='Plot the number of femicides per month', fig.alt="A line plot with the title 'Number of femicides per month', and subtitle 'In Spain', over a grey grid. The vertical axis, labeled 'femicidios', ranges from around one to eleven, and the horizontal axis, labeled 'month', ranges from around 2003 to 2017. The graph is very noisy, with points plotted in all ranges in most years, and no patterns being immediately noticeable."}
 
 library(ggplot2)
 
@@ -285,7 +285,7 @@ fem_timeseries <- ts(femicidios %>%
 
 Now that we have created this timeseries object, we can use the timeseries specific functions in order to extract meaning and insight. For example, going back to plotting our data so that we can see what sort of trends might be going on with crime, we can make use of the `plot.ts()` function, the basic plotting method for objects that are of class "ts".
 
-```{r plot.ts_8a, fig.cap='Basic plot of our ts object'}
+```{r plot.ts_8a, fig.cap='Basic plot of our ts object', fig.alt="The plot from the previous figure, now without titles and grid, is framed by a rectangle. The horizontal axis has gained the new label 'Time', and has more years marked than before, starting at a notch for 2004 and every two years after, until 2016."}
 
 plot.ts(fem_timeseries)
 
@@ -309,7 +309,7 @@ fem_timeseriescomponents$seasonal
 
 The estimated seasonal factors are given for the months January-December, and are the same for each year. The largest seasonal factor is for July (about 0.70), and the lowest is for February (about -0.76), indicating that there seems to be a peak in femicides in July and a trough in femicides in February each year. We can plot the estimated trend, seasonal, and irregular components of the time series by using the `plot()` function, for example:
 
-```{r, fig.cap='Decomposed time series of femicides in Spain'}
+```{r, fig.cap='Decomposed time series of femicides in Spain', fig.alt="A plot which is actually four plots tiled vertically, is labeled 'Decomposition of additive time series'. Each of the four plots has its own vertical axis, labeled 'observed', 'trend', 'seasonal', and 'random'. The horizontal axis is as in the previous figure, 'Time' ranging from 2004 to 2016. The 'observed' plot is a vertically squished copy of the previous plot. The 'trend' plot, ranging from three point five to six point five, is a relatively noise-free line. This plot stays above five and below six point five from 2004 to 2011, then gradually drops to three point five in 2015, before a small peak over five and dropping back down in 2016. The 'seasonal' plot is a yearly periodic plot, ranging from under negative point five to over point five, with each year having a peak in the middle. The 'random' plot ranges from negative four to positive four, and has high noise."}
 
 plot(fem_timeseriescomponents)
 
@@ -319,7 +319,7 @@ Once we remove the noise and the seasonal components, it becomes easier to see t
 
 We can adapt this code to decompose and estimate the trends for the aggravated assault data for NYC that we used earlier in the chapter too. 
 
-```{r decompose_8b, fig.cap='Decomposed time series of aggravated assaults in NYC'}
+```{r decompose_8b, fig.cap='Decomposed time series of aggravated assaults in NYC', fig.alt="Another four plots tiled vertically, with the title 'Decomposition of additive time series'. The four plots' vertical axes are once again labeled 'observed', 'trend', 'seasonal', and 'random'. Of note is the 'trend' plot, which seems to stay low until 2015, then climb throughout the year, and plateau at a higher value until 2017, when it drops again. The 'seasonal' yearly periodic plot peaks in the middle of each year once again."}
 # select relevant column (assaults)
 agassault_ny_d2 <- dplyr::select(agassault_ny_d, assaults)
 
@@ -345,7 +345,7 @@ ny_df <- tsdf(ny_timeseries)
 
 Then we can use the `ggsdc()` function in order to create a four-facet plot of seasonal decomposition showing observed, trend, seasonal and random components
 
-```{r, message=FALSE, warning=FALSE, fig.cap='Decomposed time series of aggravated assaults in NYC using ggseas'}
+```{r, message=FALSE, warning=FALSE, fig.cap='Decomposed time series of aggravated assaults in NYC using ggseas', fig.alt="The previous four vertically tiled plots, now spaced out more, each with a grey grid background, a title of its own which was previously the vertical axis legend, and easier to read vertical axis numbers."}
 ggsdc(ny_df, aes(x = x, y = y),  method = "decompose") +
    geom_line()
 
@@ -368,7 +368,7 @@ mcr_burglary <- st_read("data/mcr_burglary.geojson")
 
 With this data in our environment we can plot a map using `tmap`. 
 
-```{r, warning=FALSE, message=FALSE, fig.cap='Burglaries in Manchester'}
+```{r, warning=FALSE, message=FALSE, fig.cap='Burglaries in Manchester', fig.alt="The wards of Manchester separated by a thin black border, shaded in shades of blue. A legend to the bottom right, labeled 'burglaries' matches boxes of six shades of blue to ranges of values, twenty at a time. The map only uses the first three shades of blue, with only two areas near the middle using the third one."}
 
 library(tmap)
 
@@ -390,7 +390,7 @@ As noted by @Pebesma_2012, spatio-temporal data often come in the form of single
 
 What we have in the `mcr_burglary` object if we view the data frame is a table expressed in the long format, where each row represents a single month and ward combination. We can see as well this is not simply a data table but a `sf` object which embeds the geographical information that allow us to place it in a map. We can now try to produce the small multiples with the `tm_facets()` function. (Note: if you wanted to use `ggplot2` instead of `tmap` you can look up the function `facet_wrap()` to achieve the same result). 
 
-```{r, fig.cap='Small multiples of burglary across Manchester by month'}
+```{r, fig.cap='Small multiples of burglary across Manchester by month', fig.alt="Twelve copies of the previous map, each with the label 2018 dash one through twelve, are tiled in a six by two grid. The maps have different shadings. The same legend from the previous figure has moved to the right of these maps. Each map is shaded slightly differently, although central Manchester is consistently the darkest. It appears the darkest in the fifth map, corresponding to May."}
 
 tm_shape(mcr_burglary) + 
   tm_fill("burglaries") +
@@ -407,7 +407,7 @@ In longitudinal studies and in studies looking at areas over time, sometimes res
 
 While we will include the ward name as a spatial component in a way, this isn't technically spatio-temporal data visualisation, as we are stripping away any sort of spatial element, and keeping ward name only as a nominal variable. It is not great, but let's show you why you might use it. The basic concept is just the same line chart we saw earlier, but with the trajectories grouped within the wards. So instead of one line, we will get 32: one for each ward in our data. 
 
-```{r, fig.cap='Spaghetti plot of burgaries by ward'}
+```{r, fig.cap='Spaghetti plot of burglaries by ward', fig.alt="Many line charts in one plot, with vertical axis labeled 'burglaries' ranging from zero to one hundred, and horizontal axis labeled 'month', ranging through the months of 2018. Most of the lines form a mess between values of five and thirty, with a few lines rising above this, and one notable line staying above fifty nearly each month."}
 
 ggplot(mcr_burglary, aes(x = month, y = burglaries, group = ward_name)) + 
   geom_line() + theme_minimal()
@@ -416,7 +416,7 @@ ggplot(mcr_burglary, aes(x = month, y = burglaries, group = ward_name)) +
 
 This is quite the mess. So in what situation may this be useful? Well maybe you want to compare the variation here with some central tendency. For this we can "grey out" the lines (by changing the colour) and add some summary such as the median let's say, by using the `stat_summary()` function. 
 
-```{r, warning=FALSE, fig.cap='Spaghetti plot of burgaries by ward showing variation around central tendency measure'}
+```{r, warning=FALSE, fig.cap='Spaghetti plot of burglaries by ward showing variation around central tendency measure', fig.alt="The previous plot of line chars, with all but one of the lines turned light grey. The one line which has stayed black, is slightly thicker, and hovers around twenty the whole year."}
 
 ggplot(mcr_burglary, aes(x = month,  y = burglaries, group = ward_name)) + 
   geom_line(color="darkgrey") + 
@@ -429,7 +429,7 @@ ggplot(mcr_burglary, aes(x = month,  y = burglaries, group = ward_name)) +
 
 This way we can show something like the median trajectory compared with the individual observations' trajectories. We could also use colour to highlight a specific area compared to the rest of the wards. For example,  if we are interested in Fallowfield ward, we might highlight that as an additional layer in our spaghetti pile:
 
-```{r, warning=FALSE, fig.cap='Spaghetti plot to highlight burglaries in Fallowfield ward'}
+```{r, warning=FALSE, fig.cap='Spaghetti plot to highlight burglaries in Fallowfield ward', fig.alt="The same plot, but this time another line has been chosen. It is in a thicker blue colour, while all other lines are light grey. It fluctuates between around ten and thirty."}
 
 ggplot(mcr_burglary, aes(x = month, y = burglaries, group = ward_name)) + 
   geom_line(color="darkgrey") + 
