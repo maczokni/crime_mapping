@@ -5,7 +5,7 @@
 In science one of our main concerns is to develop models of the world, models that help us to understand the world a bit better or to predict how things will develop better. Crime analysis also is interested in understanding the processes that may drive crime. This is a key element in the SARA process (*analysis*) that form part of the problem oriented policing approach [@Eck_1997]. Statistics provides a set of tools that help researchers build and test scientific models, and to develop predictions. Our models can be simple. We can think that unemployment is a factor that may help us to understand why cities differ in their level of violent crime. We could express such a model like this:
 
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.cap='A simple model'}
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.cap='A simple model', fig.alt="A rounded box with label 'Unemployment', with an arrow pointing to the right to a second rounded box with label 'Violent Crime'."}
 
 library(ggplot2)
 ggplot() + 
@@ -24,7 +24,7 @@ ggplot() +
 Surely we know the world is complex and likely there are other things that may help us to understand why some cities have more crime than others. So, we may want to have tools that allow us to examine such models. Like, for example, the one below:
 
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.cap='A slightly less simple model'}
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.cap='A slightly less simple model', fig.alt="Three vertically tiled rounded boxes, with labels 'Education', 'Unemployment, and 'Police levels', each with an arrow pointing to a fourth box, labeled 'Violent Crime'."}
 
 
 ggplot() + 
@@ -146,7 +146,7 @@ summary(fit2_90)
 
 You see here that essentially you have only two inputs (resource deprivation and south) but several regression coefficients. @Gelman_2007 suggest reserving the term input for the variables encoding the information and to use the term predictor to refer to each of the terms in the model. So here we have two inputs and three predictors (one for SOUTH, another for resource deprivation, and a final one for the interaction effect). In this case the test for the interaction effect is significant, which suggests there may be such an interaction.  Let's visualise the results with the `effects` package:
 
-```{r, fig.cap='Effect plots for effect if South varaible on relationship between homicide rate and resource deprivation'}
+```{r, fig.cap='Effect plots for effect of South variable on relationship between homicide rate and resource deprivation', fig.alt="Two plots side by side, with the same axes, but one with the title 'South f equals zero', and one with 'South f equals one'. The vertical axis, labeled 'HR90', ranges from zero to thirty, while the horizontal axis, labeled 'RD90', ranges from negative two to six. A blue line appears in each of the two plots, with a light blue shaded area growing around them as you move away from the zero value on the horizontal axis. The second plot, with 'South f equals one', has a blue line with a steeper slope, and the light blue covers a smaller area."}
 plot(allEffects(fit2_90), ask=FALSE)
 ```
 
@@ -204,7 +204,7 @@ summary(ncovr$sd_breaks)
 
 Next we use a new style, `fixed`, within the `tm_fill` function. When we break the variable into classes using the `fixed` argument we need to specify the boundaries of the classes. We do this using the breaks argument. In this case we are going to ask R to create 7 classes based on standard deviations away from the mean. Remember that a value of 1 would be 1 standard deviation higher than the mean, and -1 respectively lower. If we assume normal distribution, then 68% of all counties should lie within the middle band from -1 to +1.
 
-```{r, message=FALSE, fig.cap='Map of regression model residuals'}
+```{r, message=FALSE, fig.cap='Map of regression model residuals', fig.alt="A map outlining the counties in the United States, titled 'Residuals'. A legend near the bottom right, also labeled 'residuals', matches negative values to shades of blue, zero to white, and positive values to reds, and ranges from negative to positive fourteen. Most of the counties are white, though reds and blues are spread all over. Blues seem to appear more in the central south, spreading eastwards. Reds are more prominent in the west half of the country, as well as along the east coast, but also frequently appear among the blues."}
 my_breaks <- c(-14,-3,-2,-1,1,2,3,14)
 tm_shape(ncovr) + 
   tm_fill("sd_breaks", title = "Residuals", style = "fixed", 
