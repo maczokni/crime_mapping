@@ -88,7 +88,7 @@ buenos_aires <- st_read("data/buenos_aires.geojson", quiet = TRUE)
 
 After reading the files and turn them on `sf` objects, we can plot them. Let's use the `tmap` package introduced in Chapter 3. 
 
-```{r, fig.cap='Map of homicides in Buenos Aires'}
+```{r, fig.cap='Map of homicides in Buenos Aires', fig.alt="An outline of the border of Buenos Aires, with the interior shaded grey, inside a black square border with the title 'Homicides in Buenos Aires, 2016'. Several red dots are spread out in the interior of the city, with the north half appearing more sparse."}
 tm_shape(buenos_aires) + 
   tm_polygons() +
   tm_shape(delitos_sf) +
@@ -128,7 +128,7 @@ For obtaining the observed K, we use the `Kest` function from the `spatstat` pac
 
 As noted by @Baddeley_2016, "most users... will not need to know the theory behind edge correction, the details of the technique, or their relative merits" and "so long as some kind of edge correction is performed (which happens automatically in `spatstat`), the particular choice of edge correction technique is usually not critical" (p. 212). As a rule of thumb they suggest using translation or isotropic in smaller datasets, the border method in medium size datasets (1000 to 10000 points), and that there is no need for correction with larger datasets. Since this is a smallish dataset, we show how we use two different corrections: *isotropic* and *translation* (for more details see @Baddeley_2016).
 
-```{r, fig.cap= 'Isotropic and translation correction techniques for edge effects'}
+```{r, fig.cap= 'Isotropic and translation correction techniques for edge effects', fig.alt="A plot of three curves, titled 'k1', with vertical axis 'K of r', from zero to large values, and horizontal axis 'r in Meters', from zero to five thousand. A legend near the top left identifies the three curves, all of which steadily increase from near the origin, with an increasing rate of growth. The top curve, namely 'K hat trans of r', rises the fastest, and is nearly matched by 'K hat iso of r', a tiny difference at two thousand meters growing to a small difference at five thousand. The third curve, 'K pois of r', is much smoother than, and is significantly beneath the other two curves."}
 k1 <- Kest(delitos_jit, correction = c("isotropic", "translate"))
 plot(k1)
 ```
@@ -137,7 +137,7 @@ The graphic shows the K function using each of the corrections and the theoretic
 
 It is possible to use Monte Carlo simulations to draw the confidence interval around the theoretical expectations. This allow us to draw *envelope* plots, that can be interpreted as a statistical significance test. If the homicide data were generated at random we would expect the observed K function to overlap with the envelope of the theoretical expectation. @Baddeley_2016, in particular, suggest the use of global envelopes as a way to avoid data snooping. For this we use the `envelop` function from `spatstat`. As arguments we use the data input, the function we are using for generating K (`Kest`), the number of simulations, and the parameters needed to obtain the global envelope.
 
-```{r, message=FALSE, fig.cap='Global envelope plot for clustering in Buenos Aires homicide data'}
+```{r, message=FALSE, fig.cap='Global envelope plot for clustering in Buenos Aires homicide data', fig.alt="A plot similar to the previous figure, titled 'E 1'. The curve previously labeled as 'K hat iso of r', now bears the label 'K hat obs of r', and is joined by one other curve 'K theo of r', which looks similar to the previous 'K pois of r'. This second curve is enveloped by a thick grey backdrop, covering values close to the line. The envelope overlaps with the first line until around two hundred."}
 set.seed(200)
 E_1 <- envelope(delitos_jit, Kest, nsim=39, rank = 1, global = TRUE,
               verbose = FALSE) # We set verbose to false for sparser reporting
@@ -146,7 +146,7 @@ plot(E_1)
 
 This envelope suggest significant clustering above the 200 meter mark. The problem, though, is that (as noted above) this test only works if we have a homogeneous process. The envelope will also fail to overlap with the observed K function if there are variations in intensity. We also saw previously the reverse, that it is hard to assess homogeneity without assuming independence. In Chapter 7 we saw how if we suspect the process is not homogeneous, we can estimate it with nonparametric techniques such as kernel density estimation. We can apply this here (see also *Chapter 7: Spatial point patterns of crime events* in this book). 
 
-```{r, fig.cap='KDE map of homicides in Buenos Aires'}
+```{r, fig.cap='KDE map of homicides in Buenos Aires', fig.alt = "A shaded map of Buenos Aires, with the title 'Density estimate of homicides in Buenos Aires'. To the right, a legend matches a gradient from dark blue to purple to yellow, to values from zero to slightly more. The region of Buenos Aires is mostly dark blue in the north. Two yellow areas appear, one in the south, and one in the east. The area between them and further southwest is purple."}
 set.seed(200)
 plot(density.ppp(delitos_jit, sigma = bw.scott(delitos_jit),edge=T),
      main=paste("Density estimate of homicides in Buenos Aires"))
@@ -155,7 +155,7 @@ plot(density.ppp(delitos_jit, sigma = bw.scott(delitos_jit),edge=T),
 
 @Baddeley_2016 discuss how we can adjust our test for independence when we suspect inhomogeneity, as long as we are willing to make other assumptions (e.g., the correlation between any two given points only depend on their relative location). This adjusted K-function is implemented in the `Kinhom()` function in `spatstat`. This function estimates the inhomogeneous K function of a non-stationary point pattern. It requires as necessary inputs the `ppp` object with the point pattern we are analysing and a second argument `lambda` which should provide the values of the estimated intensity function. The function provides flexibility in how lambda can be entered. It could be a vector with the values, an object of class `im` like the ones we generate with `density.ppp()`, or it could be omitted. If lambda is not provided, we can provide the parameters as we did in the `density.ppp()` function, and the relevant values will be generated for us that way. We could, for example, input this parameter as below:
 
-```{r, fig.cap='Inhomogeneous (adjusted) K function for non-stationary point pattern'}
+```{r, fig.cap='Inhomogeneous (adjusted) K function for non-stationary point pattern', fig.alt="A plot of 'K inhom of r' versus the previously seen 'r in meters', up to five thousand. Three curves appear, climbing similarly to before, each of which now has the subscript 'inhom' in the legend.  Two are nearly identical, labeled 'K hat iso of r', and 'K hat trans of r', and dip from above to below the third smoother curve, 'K pois of r', at around twelve hundred."}
 set.seed(200)
 inhk_hom <- Kinhom(delitos_jit,
                    correction = c("isotropic", "translate"),
@@ -168,7 +168,7 @@ Once again we can build an envelope to use in the manner of confidence intervals
 
 
 
-```{r, fig.cap='Global envelope plot for clustering in case of inhomogeneity'}
+```{r, fig.cap='Global envelope plot for clustering in case of inhomogeneity', fig.alt="We modify the previous figure as we did in the past, copying over 'K obs of r', and adding a grey envelope around a smooth 'K theo of r'. These lines cross at around twenty two hundred, and the first line exits the grey envelope at around twenty six hundred."}
 set.seed(200)
 E_2 <- envelope(delitos_jit, Kinhom, nsim=39, rank = 1, global = TRUE,
               verbose = FALSE) # We use this for sparser reporting
@@ -185,7 +185,7 @@ We already warned in Chapter 8 about the dangers of using planar point pattern a
 
 The network K function was developed by @Okabe_2001 and was first implemented in SANET. Chapter 7 of @Okabe_2012 also provides a thorough discussion of this adaptation and its computation. We can use functionality implemented in the `spatstat` package to use the network constrained K. For that we need a `lpp` object, that we discussed in Chapter 8. For convenience we will use a `lpp` data set about crime around University of Chicago that ships with the `spatstat` package. We could get the standard K as above.
 
-```{r, fig.cap="Ripley's K for crime around University of Chicago with envelope"}
+```{r, fig.cap="Ripley's K for crime around University of Chicago with envelope", fig.alt="Another plot similar to the two previous ones with envelopes, we have 'K of r' against 'r in feet' this time, up to three hundred. 'K hat obs of r' climbs much faster than 'K theo of r', and exist the envelope after about seventy feet."}
 
 set.seed(200)   # set seed for reproducibility
 data(chicago)   # load chicago data (in spatstat package)
@@ -200,7 +200,7 @@ How would we do this now taking the network into consideration? We can use the m
 We can wrap this within the `envelope()` function for inference purposes. This will generate an envelope assuming a homogeneous Poisson process. We also limit the number of simulations (`nsim = `) to 99, and suppress a verbose output. 
 
 
-```{r, fig.cap='Estimate linear K for a point pattern (crimes) on a linear network (University of Chicago network)'}
+```{r, fig.cap='Estimate linear K for a point pattern (crimes) on a linear network (University of Chicago network)', fig.alt="A slightly different plot from the previous ones, plotting 'K net of r' against 'r in feet', from zero to eleven hundred. Two curves appear, one of which is enveloped, however the envelope grows wider as r increases. Both curves are increasing, however their rate of increase slows near the middle of the plot. 'K hat obs of r' is slightly above 'K bar net of r', and manages to stay above its envelope as well."}
 set.seed(200)   # set seed for reproducibility
 
 E_4 <- envelope(chicago, linearK, correction = "none", nsim= 99, verbose = FALSE)
@@ -212,7 +212,7 @@ As noted by @Baddeley_2016 in there is a difference between what we get with `Ke
 
 A limitation of the Okabe-Yamada network-K function is that, unlike the general Ripley´s K which is normalised, you cannot use it for "comparison between different point processes, with different intensities, observed in different windows... because it depends on the network geometry" (p. 739). This is a problem that was approached by @Ang_2012 who proposed a "geometrically corrected" K function. You can see the mathematical details for this function in either @Baddeley_2016 or in greater depth in @Ang_2012. This geometrically corrected k function is implemented as well in the `linearK()` function. If we want to obtain this solution we need to specify as an argument `correction="Ang"` or simply not include this argument, for this is the default in `linearK()`:
 
-```{r, fig.cap = 'Geometrically corrected linear K function for a point pattern (crimes) on a linear network (University of Chicago network)'}
+```{r, fig.cap = 'Geometrically corrected linear K function for a point pattern (crimes) on a linear network (University of Chicago network)', fig.alt="This time we plot 'K L of r' against 'r in feet' up to eleven hundred. The curve labeled 'K theo of r' is a straight line from the origin, with an envelope that increases in width near zero. The curve 'K hat obs of r' escapes this envelope after just a few feet, and stays well above it further on."}
 
 set.seed(200)
 E_5 <- envelope(chicago, linearK, correction = "Ang", nsim= 99, verbose = FALSE)
@@ -239,7 +239,7 @@ burglary <- st_read("data/burglary_manchester_lsoa.geojson",
 
 To have a look at the data, we can plot it quickly with `tmap`: 
 
-```{r, message=FALSE, warning=FALSE, fig.cap='A quick look at burglary in Manchester'}
+```{r, message=FALSE, warning=FALSE, fig.cap='A quick look at burglary in Manchester', fig.alt="A map of the borders of the LSOAs in Manchester outlined in light grey. Solid orange circles are present in the centre of each LSOA, varying in size. A legend in the bottom right, labeled 'burglary' matches four example solid orange circles to numbers from fifty to two hundred. Central Manchester has some of the largest circles, including one that is similar in size to the largest example circle. Two concentrations of larger circles appear to the south southeast of the centre."}
 tm_shape(burglary) +
   tm_bubbles("burglary", border.lwd=NA, perceptual = TRUE) +            
   tm_borders(alpha=0.1) +
@@ -261,7 +261,7 @@ There are various ways of defining a neighbour. Most rely on topological or geom
 
 When defining neighbours by contiguity we may also specify the *order* of contiguity. **First order contiguity** means that we are focusing on areas immediately contiguous (those in dark blue in the figure below. **Second order** means that we consider neighbours only those areas that are immediately contiguous to our first order neighbours (the light blue areas in the figure below) and you could go on and on. Look at the graphic below for clarification:
 
-```{r adjacencyfigure, echo=FALSE, fig.height=2, fig.cap="Defining neighbours by contiguity"}
+```{r adjacencyfigure, echo=FALSE, fig.height=2, fig.cap="Defining neighbours by contiguity", fig.alt="Two seven by seven grids of rectangles, the first titled 'Queen criteria', the second 'Rook Criteria'. A legend at the bottom, labeled 'Contiguity', matches the colours green to 'Area itself', dark blue to 'First order', and light blue to 'Second order'. The centre of each grid is shaded green. In the first grid, 'Queen criteria', the eight neighbouring rectangles, including corners, are shaded dark blue. Radiating outwards, all sixteen rectangles neighbouring these dark blue ones are shaded light blue. In the second grid, 'Rook criteria', only the four direct neighbours of the central green rectangle are shaded in dark blue. Continuing, the eight direct neighbours of these dark blue cells are shaded light blue."}
 
 p1 <- ggplot() + 
   geom_rect(aes(xmin = 0, xmax = 1, ymin = 0, ymax = 1), fill = 'white', colour = 'black') + 
@@ -421,7 +421,7 @@ rm(cc_intersects)
 
 We can now have a look at our data. Let's use the `view` mode of `tmap` to enable us to interact with the map. 
 
-```{r, fig.cap='Interactive tmap plot of data for lattice spatial dependence', warning=FALSE, message=FALSE}
+```{r, fig.cap='Interactive tmap plot of data for lattice spatial dependence', warning=FALSE, message=FALSE, fig.alt="A simple grey and white leaflet steet map of central Manchester, with a legend labeled 'burglary' in the top right. The legend matches five shades of red with number ranges, the lightest four covering between ten and twenty values each, and the darkest nearly two hundred. A handful of the LSOAs have been outlined in black over the map, and have been shaded in these five shades of red. The southwest of the map contains lighter regions, while the centre and the north and some of the east is shaded in the darkest red."}
 # Plot with tmap
 tmap_mode("view")
 tm_shape(cc_burglary) + 
@@ -465,7 +465,7 @@ summary(nb_queen)
 
 This is basically telling us that using this criteria each LSOA polygon has an average of 4.3 neighbours (when we just focus on the city centre) and that all areas have some neighbours (there are no islands). The link number distribution gives you the number of links (neighbours) per area. So here we have 3 polygons with 2 neighbours, 3 with 3, 6 with 4, and so on. The summary function here also identifies the areas sitting at both extreme of the distribution. We can graphically represent the links using the following code:
 
-```{r, fig.cap='Neighbouring relationships between LSOAs with Queen contiguity criteria'}
+```{r, fig.cap='Neighbouring relationships between LSOAs with Queen contiguity criteria', fig.alt="A handful of the LSOAs from the centre of Manchester have been outlined in blue, with a small black circle in the centre of each one. Any two that share a border also have a red line connecting their central black circles, including ones that only share a corner."}
 # We first plot the boundaries
 plot(cc_burglary_sp, col='white', border='blue', lwd=2)
 # Then we use the coordinates function to obtain 
@@ -543,7 +543,7 @@ summary(nb_distance)
 
 And as earlier we can also plot the results:
 
-```{r, fig.cap='Neighbouring relationships between LSOAs with distance based criteria'}
+```{r, fig.cap='Neighbouring relationships between LSOAs with distance based criteria', fig.alt="Like in the previous figure, LSOAs from Manchester have been outlined in blue, with a small black circle in the centre of each one. Many of the longer red lines have been culled from before, and do not appear. The LSOA to the far north, and two to the east only have one neighbour now."}
 # We first plot the boundaries
 plot(cc_burglary_sp, col='white', border='blue', lwd=2)
 # Then we plot the distance-based neighbours
@@ -615,7 +615,7 @@ nb_k3 <- knn2nb(knearneigh(xy, k = 3))
 
 As before we can use this list of neighbours to create a matrix and we can visualise the relationships with a plot:
 
-```{r, fig.cap='Neighbouring relationships between LSOAs with distance based criteria using k (k=3) nearest neighbours approach'}
+```{r, fig.cap='Neighbouring relationships between LSOAs with distance based criteria using k (k=3) nearest neighbours approach', fig.alt="Once again we have LSOAs from Manchester outlined in blue, with a small black circle in the centre of each one. Some more connections are present compared to the previous figure, and in particular the far north and east LSOAs all have three red lines originating from them. Some of these connect LSOAs which are not bordering."}
 # Get the matrix
 wm_k3 <- nb2mat(nb_k3, style='B')
 # We first plot the boundaries
@@ -722,7 +722,7 @@ apply(mat, 1, sum)[1:15]
 
 Now we can plot. @Anselin_1996 propose to center the variables around their mean, which is not the default taken by `moran.plot()`, so we need to specify this ourselves when plotting by virtue of using `scale()`. This simply substract the mean from each value, so that the mean of the resulting variable will be 0.
 
-```{r, fig.cap='Moran scatterplot of burglary'}
+```{r, fig.cap='Moran scatterplot of burglary', fig.alt="A scatterplot with a fitted straight line. The label of the horizontal axis is an R command on our burglary data, while the horizontal axis is labeled as the same command, but 'spatially lagged'. The vertical axis ranges from negative point six to one point five, and the horizontal axis from negative one to over three. Many small circles are plotted, mostly to the left of zero, with a handful between zero and one. A dashed vertical line appears at zero, and a dashed horizontal line around point three. The fitted line intersects these two dashed lines at their intersection, and has a small positive slope. Two crossed diamonds appear on the far right, near the horizontal dotted line and fitted line, labeled with 'E' followed by many numbers."}
 moran.plot(as.vector(scale(cc_burglary_sp$burglary)), wm_queen_rs)
 ```
 
