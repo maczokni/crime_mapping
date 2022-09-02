@@ -80,7 +80,7 @@ class(agassault_ny$date_single)
 
 Our date and time variables are of class `POSIXct` and `POSIXt`. These are the two basic classes of date/times. Class "POSIXct" represents the (signed) [number of seconds since the beginning of 1970](https://en.wikipedia.org/wiki/Unix_time) as a numeric vector. Class "POSIXt" is a named list of vectors representing seconds (0–61), minutes (0–59), hours (0–23), day of the month (1–31), months after the first of the year (0–11), years since 1900, day of the week, starting on Sunday (0–6), and a flag for whether it is daylight savings time or not (positive if in force, zero if not, negative if unknown). Let's plot this data:
 
-```{r ggplot_8b, fig.cap='Number of assaults aggregated to 7-day chunks', fig.alt="A black line plot over a grey grid background. The vertical axis is labeled 'count', and ranges from zero to over five hundred, with notches every fifty values and numbers every hundred values. The horizontal axis is labeled 'date single', from 2014 to 2019, with notches every year and numbers every second year. The plot looks somewhat periodic, noisily increasing from around three hundred at the beginning of each year, to around five hundred in the middle, and back down by the end of the year."}
+```{r ggplot8b, fig.cap='Number of assaults aggregated to 7 day chunks', fig.alt="A black line plot over a grey grid background. The vertical axis is labeled 'count', and ranges from zero to over five hundred, with notches every fifty values and numbers every hundred values. The horizontal axis is labeled 'date single', from 2014 to 2019, with notches every year and numbers every second year. The plot looks somewhat periodic, noisily increasing from around three hundred at the beginning of each year, to around five hundred in the middle, and back down by the end of the year."}
 
 ggplot(agassault_ny, aes(date_single)) + 
   geom_freqpoly(binwidth = 7*24*60*60) # 7 days in seconds
@@ -91,7 +91,7 @@ Notice what `geom_freqpoly()` is doing. We have a dataframe with rows for each c
 
 An alternative approach to plotting individual components is to round the date to a nearby unit of time, with `floor_date()`, `round_date()`, and `ceiling_date()`. These functions live inside the lubridate package. Each function takes a vector of dates to adjust and then the name of the unit round down (floor), round up (ceiling), or round to. So to aggregate per month we will code as:
 
-```{r ggplot_rounding_8b, fig.cap='Number of assaults aggregated to Month', fig.alt="This plot, again a black line on a grey grid, has a vertical axis labeled 'n', ranging from twelve hundred to twenty two hundred. The horizontal axis has the same years as the previous figure, and is now labeled 'month'. Compared to the previous figure, there is much less noise, and a similar yearly periodic behaviour can still be seen. However, the peaks in the middle of the years have more variation, with 2015 and 2016 reaching over twenty two hundred, the rest just over nineteen hundred. The valleys are mostly at fourteen hundred, except for 2015, dipping down to nearly twelve hundred."}
+```{r ggplotrounding8b, fig.cap='Number of assaults aggregated to Month', fig.alt="This plot, again a black line on a grey grid, has a vertical axis labeled 'n', ranging from twelve hundred to twenty two hundred. The horizontal axis has the same years as the previous figure, and is now labeled 'month'. Compared to the previous figure, there is much less noise, and a similar yearly periodic behaviour can still be seen. However, the peaks in the middle of the years have more variation, with 2015 and 2016 reaching over twenty two hundred, the rest just over nineteen hundred. The valleys are mostly at fourteen hundred, except for 2015, dipping down to nearly twelve hundred."}
 
 agassault_ny %>% 
   count(month = floor_date(date_single, "month")) %>% # use floor date function
@@ -285,7 +285,7 @@ fem_timeseries <- ts(femicidios %>%
 
 Now that we have created this timeseries object, we can use the timeseries specific functions in order to extract meaning and insight. For example, going back to plotting our data so that we can see what sort of trends might be going on with crime, we can make use of the `plot.ts()` function, the basic plotting method for objects that are of class "ts".
 
-```{r plot.ts_8a, fig.cap='Basic plot of our ts object', fig.alt="The plot from the previous figure, now without titles and grid, is framed by a rectangle. The horizontal axis has gained the new label 'Time', and has more years marked than before, starting at a notch for 2004 and every two years after, until 2016."}
+```{r plotts8a, fig.cap='Basic plot of our ts object', fig.alt="The plot from the previous figure, now without titles and grid, is framed by a rectangle. The horizontal axis has gained the new label 'Time', and has more years marked than before, starting at a notch for 2004 and every two years after, until 2016."}
 
 plot.ts(fem_timeseries)
 
@@ -319,7 +319,7 @@ Once we remove the noise and the seasonal components, it becomes easier to see t
 
 We can adapt this code to decompose and estimate the trends for the aggravated assault data for NYC that we used earlier in the chapter too. 
 
-```{r decompose_8b, fig.cap='Decomposed time series of aggravated assaults in NYC', fig.alt="Another four plots tiled vertically, with the title 'Decomposition of additive time series'. The four plots' vertical axes are once again labeled 'observed', 'trend', 'seasonal', and 'random'. Of note is the 'trend' plot, which seems to stay low until 2015, then climb throughout the year, and plateau at a higher value until 2017, when it drops again. The 'seasonal' yearly periodic plot peaks in the middle of each year once again."}
+```{r decompose8b, fig.cap='Decomposed time series of aggravated assaults in NYC', fig.alt="Another four plots tiled vertically, with the title 'Decomposition of additive time series'. The four plots' vertical axes are once again labeled 'observed', 'trend', 'seasonal', and 'random'. Of note is the 'trend' plot, which seems to stay low until 2015, then climb throughout the year, and plateau at a higher value until 2017, when it drops again. The 'seasonal' yearly periodic plot peaks in the middle of each year once again."}
 # select relevant column (assaults)
 agassault_ny_d2 <- dplyr::select(agassault_ny_d, assaults)
 

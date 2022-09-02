@@ -23,7 +23,7 @@
 <meta name="author" content="Juanjo Medina and Reka Solymosi" />
 
 
-<meta name="date" content="2022-08-26" />
+<meta name="date" content="2022-09-02" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -587,10 +587,10 @@ div.csl-indent {
 <p>Our date and time variables are of class <code>POSIXct</code> and <code>POSIXt</code>. These are the two basic classes of date/times. Class “POSIXct” represents the (signed) <a href="https://en.wikipedia.org/wiki/Unix_time">number of seconds since the beginning of 1970</a> as a numeric vector. Class “POSIXt” is a named list of vectors representing seconds (0–61), minutes (0–59), hours (0–23), day of the month (1–31), months after the first of the year (0–11), years since 1900, day of the week, starting on Sunday (0–6), and a flag for whether it is daylight savings time or not (positive if in force, zero if not, negative if unknown). Let’s plot this data:</p>
 <div class="sourceCode" id="cb278"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb278-1"><a href="time-matters.html#cb278-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(agassault_ny, <span class="fu">aes</span>(date_single)) <span class="sc">+</span> </span>
 <span id="cb278-2"><a href="time-matters.html#cb278-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_freqpoly</span>(<span class="at">binwidth =</span> <span class="dv">7</span><span class="sc">*</span><span class="dv">24</span><span class="sc">*</span><span class="dv">60</span><span class="sc">*</span><span class="dv">60</span>) <span class="co"># 7 days in seconds</span></span></code></pre></div>
-<div class="figure">
-<img src="crime_mapping_files/figure-html/ggplot_8b-1.png" alt="Number of assaults aggregated to 7-day chunks" width="672" />
+<div class="figure"><span style="display:block;" id="fig:ggplot8b"></span>
+<img src="crime_mapping_files/figure-html/ggplot8b-1.png" alt="A black line plot over a grey grid background. The vertical axis is labeled 'count', and ranges from zero to over five hundred, with notches every fifty values and numbers every hundred values. The horizontal axis is labeled 'date single', from 2014 to 2019, with notches every year and numbers every second year. The plot looks somewhat periodic, noisily increasing from around three hundred at the beginning of each year, to around five hundred in the middle, and back down by the end of the year." width="672" />
 <p class="caption">
-(#fig:ggplot_8b)Number of assaults aggregated to 7-day chunks
+FIGURE 7.1: Number of assaults aggregated to 7 day chunks
 </p>
 </div>
 <p>Notice what <code>geom_freqpoly()</code> is doing. We have a dataframe with rows for each case. The data is not aggregated in any form. But this function counts on the fly the number of cases (of rows) for each of the bins as we define them. It is, thus, a convenient function that saves us from having to first do that aggregation ourselves when we want to plot it.</p>
@@ -599,10 +599,10 @@ div.csl-indent {
 <span id="cb279-2"><a href="time-matters.html#cb279-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(<span class="at">month =</span> <span class="fu">floor_date</span>(date_single, <span class="st">&quot;month&quot;</span>)) <span class="sc">%&gt;%</span> <span class="co"># use floor date function</span></span>
 <span id="cb279-3"><a href="time-matters.html#cb279-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(month, n)) <span class="sc">+</span></span>
 <span id="cb279-4"><a href="time-matters.html#cb279-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>()</span></code></pre></div>
-<div class="figure">
-<img src="crime_mapping_files/figure-html/ggplot_rounding_8b-1.png" alt="Number of assaults aggregated to Month" width="672" />
+<div class="figure"><span style="display:block;" id="fig:ggplotrounding8b"></span>
+<img src="crime_mapping_files/figure-html/ggplotrounding8b-1.png" alt="This plot, again a black line on a grey grid, has a vertical axis labeled 'n', ranging from twelve hundred to twenty two hundred. The horizontal axis has the same years as the previous figure, and is now labeled 'month'. Compared to the previous figure, there is much less noise, and a similar yearly periodic behaviour can still be seen. However, the peaks in the middle of the years have more variation, with 2015 and 2016 reaching over twenty two hundred, the rest just over nineteen hundred. The valleys are mostly at fourteen hundred, except for 2015, dipping down to nearly twelve hundred." width="672" />
 <p class="caption">
-(#fig:ggplot_rounding_8b)Number of assaults aggregated to Month
+FIGURE 7.2: Number of assaults aggregated to Month
 </p>
 </div>
 <p>What if we ask the question: which year had the most aggravated assaults? Or what if we want to know if aggravated assaults happen more in the weekday, when people are at work, or in the weekends, maybe when people are away for a holiday? You have the date, so you should be able to answer these questions, right?</p>
@@ -650,9 +650,9 @@ div.csl-indent {
 <span id="cb292-11"><a href="time-matters.html#cb292-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>Year, <span class="at">ncol =</span> <span class="dv">1</span>) <span class="sc">+</span>  <span class="co"># separate out by each year</span></span>
 <span id="cb292-12"><a href="time-matters.html#cb292-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div>
 <div class="figure"><span style="display:block;" id="fig:unnamed-chunk-187"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-187-1.png" alt="Calendar heat map of aggravated assaults" width="672" />
+<img src="crime_mapping_files/figure-html/unnamed-chunk-187-1.png" alt="With one row per year, labeled with each year from 2014 to 2018, a grid of shaded squares appears. Each of the five grids is seven cells tall, with labels at the left clarifying them as days Monday, Tuesday, and so on to Sunday. Thick lines in the grid separate the months horizontally, and there are enough cells to cover each year. To the right of these grids, a legend labeled 'assaults' matches a gradient from purple to white with numbers from one hundred twenty five down to twenty five. In general, each year the summer months are shaded darker, and the weekends look darker than the weeks. Some notable days, such as new years' are also darker." width="672" />
 <p class="caption">
-FIGURE 7.1: Calendar heat map of aggravated assaults
+FIGURE 7.3: Calendar heat map of aggravated assaults
 </p>
 </div>
 <p>This sort of visualisation might be useful for example to see if certain days of the week see more incidents than others, possibly due to differences in the underlying routine activities that predominate for example weekends versus weekdays. For a bit of fun, you can read <span class="citation">Moss (<a href="#ref-Moss_2013" role="doc-biblioref">2013</a>)</span> for a safety rating on each day of the week.</p>
@@ -685,9 +685,9 @@ FIGURE 7.1: Calendar heat map of aggravated assaults
 <span id="cb294-7"><a href="time-matters.html#cb294-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="at">label =</span> <span class="st">&quot;Number of femicides per month&quot;</span>, <span class="at">subtitle =</span> <span class="st">&quot;In Spain&quot;</span>) <span class="sc">+</span> </span>
 <span id="cb294-8"><a href="time-matters.html#cb294-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">angle =</span> <span class="dv">45</span>))</span></code></pre></div>
 <div class="figure"><span style="display:block;" id="fig:ggplottime"></span>
-<img src="crime_mapping_files/figure-html/ggplottime-1.png" alt="Plot the number of femicides per month" width="672" />
+<img src="crime_mapping_files/figure-html/ggplottime-1.png" alt="A line plot with the title 'Number of femicides per month', and subtitle 'In Spain', over a grey grid. The vertical axis, labeled 'femicidios', ranges from around one to eleven, and the horizontal axis, labeled 'month', ranges from around 2003 to 2017. The graph is very noisy, with points plotted in all ranges in most years, and no patterns being immediately noticeable." width="672" />
 <p class="caption">
-FIGURE 7.2: Plot the number of femicides per month
+FIGURE 7.4: Plot the number of femicides per month
 </p>
 </div>
 <p>This visualisation gives us an insight into how the count of crimes varies between observations, but it subsumes in itself the three elements mentioned above (the overall trend, seasonal fluctuation, and random noise). This makes it difficult to isolate and discuss any one of these, making it difficult to answer the question about whether crime is going up or down, or whether there are any seasonal fluctuations present. In order to achieve this, we want to <strong>decompose</strong> the data into these components.</p>
@@ -703,10 +703,10 @@ FIGURE 7.2: Plot the number of femicides per month
 <span id="cb297-5"><a href="time-matters.html#cb297-5" aria-hidden="true" tabindex="-1"></a>                     <span class="at">start=</span><span class="fu">c</span>(<span class="dv">2003</span>,<span class="dv">1</span>)) <span class="co"># specify start time (January 2003)</span></span></code></pre></div>
 <p>Now that we have created this timeseries object, we can use the timeseries specific functions in order to extract meaning and insight. For example, going back to plotting our data so that we can see what sort of trends might be going on with crime, we can make use of the <code>plot.ts()</code> function, the basic plotting method for objects that are of class “ts”.</p>
 <div class="sourceCode" id="cb298"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb298-1"><a href="time-matters.html#cb298-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot.ts</span>(fem_timeseries)</span></code></pre></div>
-<div class="figure">
-<img src="crime_mapping_files/figure-html/plot.ts_8a-1.png" alt="Basic plot of our ts object" width="672" />
+<div class="figure"><span style="display:block;" id="fig:plotts8a"></span>
+<img src="crime_mapping_files/figure-html/plotts8a-1.png" alt="The plot from the previous figure, now without titles and grid, is framed by a rectangle. The horizontal axis has gained the new label 'Time', and has more years marked than before, starting at a notch for 2004 and every two years after, until 2016." width="672" />
 <p class="caption">
-(#fig:plot.ts_8a)Basic plot of our ts object
+FIGURE 7.5: Basic plot of our ts object
 </p>
 </div>
 <p>This plot should look similar to the one we created using ggplot2 above, however our observations are now treated as a continuous variable, labeled “Time”. We can of course also use <code>ggplot2</code>to plot a time series like the one we just did but here we would need a variable encoding the date (and preferably a full date, not just month and year as here). As you can see it is very noisy. Fortunately, the annual count for intimate partner femicides is low in Spain. There seems to be some seasonality too. But what more can we do with plotting time series objects?</p>
@@ -717,9 +717,9 @@ FIGURE 7.2: Plot the number of femicides per month
 <p>The estimated seasonal factors are given for the months January-December, and are the same for each year. The largest seasonal factor is for July (about 0.70), and the lowest is for February (about -0.76), indicating that there seems to be a peak in femicides in July and a trough in femicides in February each year. We can plot the estimated trend, seasonal, and irregular components of the time series by using the <code>plot()</code> function, for example:</p>
 <div class="sourceCode" id="cb301"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb301-1"><a href="time-matters.html#cb301-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fem_timeseriescomponents)</span></code></pre></div>
 <div class="figure"><span style="display:block;" id="fig:unnamed-chunk-189"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-189-1.png" alt="Decomposed time series of femicides in Spain" width="672" />
+<img src="crime_mapping_files/figure-html/unnamed-chunk-189-1.png" alt="A plot which is actually four plots tiled vertically, is labeled 'Decomposition of additive time series'. Each of the four plots has its own vertical axis, labeled 'observed', 'trend', 'seasonal', and 'random'. The horizontal axis is as in the previous figure, 'Time' ranging from 2004 to 2016. The 'observed' plot is a vertically squished copy of the previous plot. The 'trend' plot, ranging from three point five to six point five, is a relatively noise-free line. This plot stays above five and below six point five from 2004 to 2011, then gradually drops to three point five in 2015, before a small peak over five and dropping back down in 2016. The 'seasonal' plot is a yearly periodic plot, ranging from under negative point five to over point five, with each year having a peak in the middle. The 'random' plot ranges from negative four to positive four, and has high noise." width="672" />
 <p class="caption">
-FIGURE 7.3: Decomposed time series of femicides in Spain
+FIGURE 7.6: Decomposed time series of femicides in Spain
 </p>
 </div>
 <p>Once we remove the noise and the seasonal components, it becomes easier to see the estimated trend. Notice that while random and seasonal components still look messy, their scales are different and centred around zero.</p>
@@ -735,10 +735,10 @@ FIGURE 7.3: Decomposed time series of femicides in Spain
 <span id="cb302-9"><a href="time-matters.html#cb302-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb302-10"><a href="time-matters.html#cb302-10" aria-hidden="true" tabindex="-1"></a><span class="co">#plot results</span></span>
 <span id="cb302-11"><a href="time-matters.html#cb302-11" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(ny_timeseriescomponents)</span></code></pre></div>
-<div class="figure">
-<img src="crime_mapping_files/figure-html/decompose_8b-1.png" alt="Decomposed time series of aggravated assaults in NYC" width="672" />
+<div class="figure"><span style="display:block;" id="fig:decompose8b"></span>
+<img src="crime_mapping_files/figure-html/decompose8b-1.png" alt="Another four plots tiled vertically, with the title 'Decomposition of additive time series'. The four plots' vertical axes are once again labeled 'observed', 'trend', 'seasonal', and 'random'. Of note is the 'trend' plot, which seems to stay low until 2015, then climb throughout the year, and plateau at a higher value until 2017, when it drops again. The 'seasonal' yearly periodic plot peaks in the middle of each year once again." width="672" />
 <p class="caption">
-(#fig:decompose_8b)Decomposed time series of aggravated assaults in NYC
+FIGURE 7.7: Decomposed time series of aggravated assaults in NYC
 </p>
 </div>
 <p>We can also use <code>ggplot2</code> for these purposes. In particular we can use the <code>ggseas</code> extension which allows for seasonal decomposition within <code>ggplot</code> (see <span class="citation">Ellis (<a href="#ref-Ellis_2018" role="doc-biblioref">2018</a>)</span> for details). First we can use the <code>tsdf()</code> function from the <code>ggseas</code> package. This turns the <code>ts</code> object we just created into a dataframe and then plot the series.</p>
@@ -749,9 +749,9 @@ FIGURE 7.3: Decomposed time series of femicides in Spain
 <div class="sourceCode" id="cb304"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb304-1"><a href="time-matters.html#cb304-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsdc</span>(ny_df, <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> y),  <span class="at">method =</span> <span class="st">&quot;decompose&quot;</span>) <span class="sc">+</span></span>
 <span id="cb304-2"><a href="time-matters.html#cb304-2" aria-hidden="true" tabindex="-1"></a>   <span class="fu">geom_line</span>()</span></code></pre></div>
 <div class="figure"><span style="display:block;" id="fig:unnamed-chunk-190"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-190-1.png" alt="Decomposed time series of aggravated assaults in NYC using ggseas" width="672" />
+<img src="crime_mapping_files/figure-html/unnamed-chunk-190-1.png" alt="The previous four vertically tiled plots, now spaced out more, each with a grey grid background, a title of its own which was previously the vertical axis legend, and easier to read vertical axis numbers." width="672" />
 <p class="caption">
-FIGURE 7.4: Decomposed time series of aggravated assaults in NYC using ggseas
+FIGURE 7.8: Decomposed time series of aggravated assaults in NYC using ggseas
 </p>
 </div>
 <p>The resulting graph similarly presents the 4 components, the observe data, the trend, the seasonal component and the random fluctuation.</p>
@@ -769,9 +769,9 @@ FIGURE 7.4: Decomposed time series of aggravated assaults in NYC using ggseas
 <span id="cb306-4"><a href="time-matters.html#cb306-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_fill</span>(<span class="st">&quot;burglaries&quot;</span>) <span class="sc">+</span></span>
 <span id="cb306-5"><a href="time-matters.html#cb306-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>() </span></code></pre></div>
 <div class="figure"><span style="display:block;" id="fig:unnamed-chunk-192"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-192-1.png" alt="Burglaries in Manchester" width="672" />
+<img src="crime_mapping_files/figure-html/unnamed-chunk-192-1.png" alt="The wards of Manchester separated by a thin black border, shaded in shades of blue. A legend to the bottom right, labeled 'burglaries' matches boxes of six shades of blue to ranges of values, twenty at a time. The map only uses the first three shades of blue, with only two areas near the middle using the third one." width="672" />
 <p class="caption">
-FIGURE 7.5: Burglaries in Manchester
+FIGURE 7.9: Burglaries in Manchester
 </p>
 </div>
 <p>So this is something we’re already familiar with. But how can we map the temporal information? We will now cover some approaches.</p>
@@ -789,9 +789,9 @@ FIGURE 7.5: Burglaries in Manchester
 <span id="cb307-3"><a href="time-matters.html#cb307-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>() <span class="sc">+</span></span>
 <span id="cb307-4"><a href="time-matters.html#cb307-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_facets</span>(<span class="st">&quot;month&quot;</span>, <span class="at">free.coords=</span><span class="cn">FALSE</span>)</span></code></pre></div>
 <div class="figure"><span style="display:block;" id="fig:unnamed-chunk-193"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-193-1.png" alt="Small multiples of burglary across Manchester by month" width="672" />
+<img src="crime_mapping_files/figure-html/unnamed-chunk-193-1.png" alt="Twelve copies of the previous map, each with the label 2018 dash one through twelve, are tiled in a six by two grid. The maps have different shadings. The same legend from the previous figure has moved to the right of these maps. Each map is shaded slightly differently, although central Manchester is consistently the darkest. It appears the darkest in the fifth map, corresponding to May." width="672" />
 <p class="caption">
-FIGURE 7.6: Small multiples of burglary across Manchester by month
+FIGURE 7.10: Small multiples of burglary across Manchester by month
 </p>
 </div>
 <p>So this is one way to visualise temporal variation. What are some more?</p>
@@ -803,9 +803,9 @@ FIGURE 7.6: Small multiples of burglary across Manchester by month
 <div class="sourceCode" id="cb308"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb308-1"><a href="time-matters.html#cb308-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(mcr_burglary, <span class="fu">aes</span>(<span class="at">x =</span> month, <span class="at">y =</span> burglaries, <span class="at">group =</span> ward_name)) <span class="sc">+</span> </span>
 <span id="cb308-2"><a href="time-matters.html#cb308-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span> <span class="fu">theme_minimal</span>()</span></code></pre></div>
 <div class="figure"><span style="display:block;" id="fig:unnamed-chunk-194"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-194-1.png" alt="Spaghetti plot of burgaries by ward" width="672" />
+<img src="crime_mapping_files/figure-html/unnamed-chunk-194-1.png" alt="Many line charts in one plot, with vertical axis labeled 'burglaries' ranging from zero to one hundred, and horizontal axis labeled 'month', ranging through the months of 2018. Most of the lines form a mess between values of five and thirty, with a few lines rising above this, and one notable line staying above fifty nearly each month." width="672" />
 <p class="caption">
-FIGURE 7.7: Spaghetti plot of burgaries by ward
+FIGURE 7.11: Spaghetti plot of burglaries by ward
 </p>
 </div>
 <p>This is quite the mess. So in what situation may this be useful? Well maybe you want to compare the variation here with some central tendency. For this we can “grey out” the lines (by changing the colour) and add some summary such as the median let’s say, by using the <code>stat_summary()</code> function.</p>
@@ -817,9 +817,9 @@ FIGURE 7.7: Spaghetti plot of burgaries by ward
 <span id="cb309-6"><a href="time-matters.html#cb309-6" aria-hidden="true" tabindex="-1"></a>              <span class="at">lwd =</span> <span class="fl">1.5</span>) <span class="sc">+</span>   <span class="co"># specifying thick line for attention</span></span>
 <span id="cb309-7"><a href="time-matters.html#cb309-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div>
 <div class="figure"><span style="display:block;" id="fig:unnamed-chunk-195"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-195-1.png" alt="Spaghetti plot of burgaries by ward showing variation around central tendency measure" width="672" />
+<img src="crime_mapping_files/figure-html/unnamed-chunk-195-1.png" alt="The previous plot of line chars, with all but one of the lines turned light grey. The one line which has stayed black, is slightly thicker, and hovers around twenty the whole year." width="672" />
 <p class="caption">
-FIGURE 7.8: Spaghetti plot of burgaries by ward showing variation around central tendency measure
+FIGURE 7.12: Spaghetti plot of burglaries by ward showing variation around central tendency measure
 </p>
 </div>
 <p>This way we can show something like the median trajectory compared with the individual observations’ trajectories. We could also use colour to highlight a specific area compared to the rest of the wards. For example, if we are interested in Fallowfield ward, we might highlight that as an additional layer in our spaghetti pile:</p>
@@ -833,9 +833,9 @@ FIGURE 7.8: Spaghetti plot of burgaries by ward showing variation around central
 <span id="cb310-8"><a href="time-matters.html#cb310-8" aria-hidden="true" tabindex="-1"></a>           <span class="at">lwd =</span> <span class="fl">1.5</span>) <span class="sc">+</span> <span class="co"># change line width for emphasis</span></span>
 <span id="cb310-9"><a href="time-matters.html#cb310-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div>
 <div class="figure"><span style="display:block;" id="fig:unnamed-chunk-196"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-196-1.png" alt="Spaghetti plot to highlight burglaries in Fallowfield ward" width="672" />
+<img src="crime_mapping_files/figure-html/unnamed-chunk-196-1.png" alt="The same plot, but this time another line has been chosen. It is in a thicker blue colour, while all other lines are light grey. It fluctuates between around ten and thirty." width="672" />
 <p class="caption">
-FIGURE 7.9: Spaghetti plot to highlight burglaries in Fallowfield ward
+FIGURE 7.13: Spaghetti plot to highlight burglaries in Fallowfield ward
 </p>
 </div>
 <p>We can now maybe draw some conclusions about Fallowfield’s burglary trajectory compared with the other wards in our data set. But let’s move on now to the final approach, where we again make use of our spatial component.</p>
