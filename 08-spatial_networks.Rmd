@@ -4,7 +4,7 @@
 
 In the previous chapter we explored how the techniques for spatial pattern analysis can be used to study the varying intensity of crime across space. We introduce the key idea of spatial randomness. These methods were developed to study locations in a continuous plane and are also referred to as **planar spatial analysis**.  Point crime data, however, has an inherent structure to it. There are parts of our study region where it cannot appear. Since typically the data will be geocoded at the street level address, crime data almost always will appear alongside the spatial network of roads and streets. Crimes won't appear randomly anywhere in our 2 dimensional representation of the city, they will only appear along the street network covering this city. We can see this in the following example from Chicago using data from `spatstat`:
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.cap='Crime along street networkin Chicago'}
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.cap='Crime along street network in Chicago', fig.alt="A simplified street map titled 'chicago', thin black lines trace the road network in a small section of a city. To the left, a legend matches various shapes, such as circles and diamonds to types of crime, 'assault', 'burglary', 'cartheft', 'damage', 'robbery', 'theft', and 'trespass'. The symbols appear on the street map, entirely on the road network, often in clusters."}
 library(spatstat, quietly=TRUE)
 data("chicago")
 plot(chicago)
@@ -91,7 +91,7 @@ manhattan_roads <- roads("NY", "New York")
 
 We can now plot these two side by side
 
-```{r, fig.cap='Street network geometries for Salford in Toronto, CA and Manhattan, in New York, USA'}
+```{r, fig.cap='Street network geometries for Salford in Toronto, CA and Manhattan, in New York, USA', fig.alt="Two simple street maps side by side, the first titled 'Heswall', and the second 'Manhattan'. Black lines trace out the road network in both maps. Details of the roads are relatively clear in Heswall, but bleed together and cannot be made out in Manhattan."}
 # plot results 
 plot_1 <- ggplot(heswall_lines) + geom_sf() + theme_void()
 plot_2 <- ggplot(manhattan_roads) + geom_sf() + theme_void()
@@ -111,7 +111,7 @@ This can be done by virtue of manual editing, which in large networks may be pro
 We quickly below show the `as_sfnetwork()` function with the road network in Kensington (which will generate an object of class `sfnetwork`) so that you get a sense for the look of a spatial network, but for further details on network construction and pre-processing it is important you see the documentation, as well as the other materials cited above.
 
 
-```{r, fig.cap='Heswall as a spatial network'}
+```{r, fig.cap='Heswall as a spatial network', fig.alt="Numerous black dots outline a shape resembling Heswall's road network seen in the previous figure. Examining more closely, the road network is still present beneath the dots, though mostly covered."}
 heswall_ntwk <- as_sfnetwork(heswall_lines)
 plot(heswall_ntwk)
 ```
@@ -151,7 +151,7 @@ heswall_roads_linnet <- as.linnet.SpatialLines(heswall_roads_sp)
 Now let's get some crime data to link to this line network. We can find this from the open data portal data.police.uk and choose to get data from Merseyside police, who cover this area. For the sake of practice here, one years' worth of data is included with the datasets available with this textbook (see preamble). The file is `merseyside_asb.csv`.
 
 
-```{r getheswallcrimedata, fig.cap='All shoplifting incidents in Merseyside May 2019 - April 2020'}
+```{r getheswallcrimedata, fig.cap='All shoplifting incidents in Merseyside May 2019 - April 2020', fig.alt="A simple line street map of Heswall is now accompanied by red dots spreading far above and to the right as well. A concentration of red dots with a vertical gap towards the middle of the figure probably corresponds to Liverpool."}
 
 # read in asb data
 shoplifting <- read_csv("data/merseyside_shoplifting.csv")
@@ -204,7 +204,7 @@ shoplifting_lpp <- lpp(shoplifting_ppp, heswall_roads_linnet, window = window)
 
 Now we can calculate the density and visualise. Like we did before, we can estimate the density of data points along the networks using Kernel estimation with `density.lpp()`. This is an area of `spatstat` that has seen significant development in the latest release. Depending on the arguments passed to the function a different algorithm will be employed to estimate the density.  
 
-```{r densitylpp, fig.cap='Network density map with defaults'}
+```{r densitylpp, fig.cap='Network density map with defaults', fig.alt="A pixelated street map of Heswall is titled 'd100'. A legend to the right matches a gradient from dark blue to red to yellow, with values from zero to nearly point zero eight. The lines corresponding to the streets on the map are themselves shaded, mostly dark blue. A few red areas can be see, along with one yellow pixel."}
 
 # calculate density
 d100 <- density.lpp(shoplifting_lpp, 100, finespacing=FALSE)
@@ -213,9 +213,9 @@ plot(d100)
 
 ```
 
-```{r}
+```{r, fig.cap='Network density map with defaults with line width', fig.alt="The line street map of Heswall, titled 'd100'. Some of the streets seem thicker or as if they had blotches on them. To the right, a legend matches four increasing examples of line widths to the numbers zero, point zero two, point zero four, and point zero six."}
 
-plot(d100, style="width", fig.cap='Network density map with defaults with line width')
+plot(d100, style="width")
 
 ```
 
@@ -236,7 +236,7 @@ system.time(d_okabe <- densityEqualSplit(shoplifting_lpp,
 
 And to visualise:
 
-```{r, fig.cap='Network density map (Okabe-Suhigara (disc.) method)'}
+```{r, fig.cap='Network density map (Okabe-Suhigara (disc.) method)', fig.alt="A pixelated street map of Heswall is titled 'Okabe-Suhigara (disc.)'. A legend to the right matches a gradient from dark blue to red to yellow, with values from zero to about point one. The lines corresponding to the streets on the map are themselves shaded, mostly dark blue. A few lighter blue areas are visible, reaching purple in a few spots. In addition, the ends of two streets to the top right brighten to yellow."}
 
 plot(d_okabe, main="Okabe-Suhigara (disc.)")
 
@@ -253,7 +253,7 @@ system.time(d_mcswiggan <- densityHeat.lpp(shoplifting_lpp,
 ```
 
 
-```{r, fig.cap='Network density map (McSwiggan Gaussian method)'}
+```{r, fig.cap='Network density map (McSwiggan Gaussian method)', fig.alt="Like the previous figure, we have a shaded street map of Heswall titled 'McSwiggan', with a similar legend. Amidst the dark blue, a few areas of lighter blue appear, as well as several red to purple spots. One area towards the top right reaches yellow."}
 
 plot(d_mcswiggan, main="McSwiggan")
 
@@ -273,7 +273,7 @@ system.time(d_rakshit <- densityQuick.lpp(shoplifting_lpp,
 
 We can now plot the data and compare the results:
 
-```{r, fig.cap='Network density map (Rakshit method)'}
+```{r, fig.cap='Network density map (Rakshit method)', fig.alt="Once again we have a shaded street map of Heswall titled 'Rakshit', with a similar legend, which ranges from zero to point two five this time. Most of Heswall is dark blue, with only the ends of two roads near the top right brightening to yellow."}
 
 plot(d_rakshit, main="Rakshit")
 
@@ -287,7 +287,7 @@ So these are some ways in which we can create a density map of crime along netwo
 
 Another thing you might like to do is add some context to explore where these hotspots are. Similar to how we did this with our KDE in continuous space in chapter 7, we can use the raster and leaflet packages here too. One difference, we must also use the `as.im()` function to make sure our heatmap is of class "im". 
 
-```{r addbaseheswall, fig.cap='Add interactive basemap to explore hotspots'}
+```{r addbaseheswall, fig.cap='Add interactive basemap to explore hotspots', fig.alt="A leaflet map of Heswall and area, with a legend in the top right labeled 'Shoplifting map' matching a gradient from dark blue at zero to lighter blue at point zero seven. Several blotches of darker blue are spread throughout the city, bleeding into lighter blue a few times."}
 
 # convert to raster wrapped inside as.im() function
 r1 <- raster(as.im(d_mcswiggan))
@@ -331,7 +331,7 @@ heswall_tc_buffer <- st_as_sf(heswall_tc,
 ```
 
 
-```{r, fig.cap='Narrow focus on Heswall town centre'}
+```{r, fig.cap='Narrow focus on Heswall town centre', fig.alt="A section of the street line map of Heswall, mostly contained within a large blue circle. A number of red dots appear inside this circle, near the centre and towards the right, with one outlier to the north and one to the south."}
 # select roads that go through town centre
 heswall_tc <- st_intersects(heswall_tc_buffer, heswall_lines)
 heswall_tc <- heswall_lines[unlist(heswall_tc),]
@@ -420,7 +420,7 @@ heswall_tc <- left_join(heswall_tc,
 
 We can produce a quick visialisation to check that everything linked OK before moving on to compute a rate normalising for length of street segment. 
 
-```{r, fig.cap='Check that crimes are linked to street segments'}
+```{r, fig.cap='Check that crimes are linked to street segments', fig.alt="A street line map of the centre of Heswall, like in the previous figure. A legend to the right is titled 'Number of shoplifting incidents', and matches a gradient from red to light blue with numbers from eight to zero. Most of the roads are shaded light blue, though one major road bisecting the centre, running from the top left to bottom right, turns more red at times. In addition, some roads branching off from that one, and some other ones two roads over also have red hues. One small road to the north is also red."}
 ggplot() + 
   geom_sf(data = heswall_tc, 
           aes(colour = Freq), lwd = 0.5) + 
@@ -472,7 +472,7 @@ Now we have a measure of incidents per meter. Finally we can move to visualise t
 
 Very similar to how we carried out a visual check earlier, but this time using our rate as the value to present.
 
-```{r, fig.cap='Hot routes map displaying rate of crimes per meter for each segment'}
+```{r, fig.cap='Hot routes map displaying rate of crimes per meter for each segment', fig.alt="A map that looks very similar to the previous figure, with the legend labeled 'Shoplifting incidents per meter', ranging from zero to point zero six. The longer roads, such as the one running from the top left to the bottom right, are less red than before, whereas some of the side roads branching off have become a darker red. The small road to the far north that was red previously has also become darker, and another short road in the south has also taken on a light red hue."}
 
 ggplot() + 
   geom_sf(data = heswall_tc, aes(colour = shoplifting_rate), 
@@ -492,7 +492,7 @@ Now this might also be as if it's a long road it will have a bigger denominator,
 
 In any case, we have now created a hot routes visualisation, that helps us map where crime rates are higher along a network. We can add some variations to this if we like, for example we could adjust the width of the segments as well as the colour, although this doesn't always look the best as it distorts the street network: 
 
-```{r, fig.cap= "Hot routes map displaying rate of crimes per meter for each segment with line width as well as colour"}
+```{r, fig.cap= "Hot routes map displaying rate of crimes per meter for each segment with line width as well as colour", fig.alt="The previous figure has been slightly altered, and has gained a second legend labeled 'Rate of crimes per meter (width)', matching four examples of line widths to numbers from zero to point zero six. The width of streets shaded darker has grown, with some of the more red streets being wider than their length."}
 
 ggplot() + 
   geom_sf(data = heswall_tc, aes(colour = shoplifting_rate, size = shoplifting_rate), alpha = 0.8) + 
@@ -547,7 +547,7 @@ tr_intersects <- tr_intersects %>% filter(name != "Telegraph Road")
 
 We can plot our segments to see whether they correspond to these intersections: 
 
-```{r, fig.cap='Default OSM segments of Telegraph Road vs intersections'}
+```{r, fig.cap='Default OSM segments of Telegraph Road vs intersections', fig.alt="A small part of a line map, in particular the road running from the top left to the bottom right in the previous figures, along with roads branching off of it. The main road is broken into seven colours, while there are about fifteen to twenty roads branching off from it in thinner black lines."}
 
 ggplot() + 
   geom_sf(data = tr_intersects, lwd = 0.5) + 
@@ -586,7 +586,7 @@ In the above code we do a lot but it means we end up with a geometry where the s
 
 Let's plot the new segments to see if they correspond to intersections.
 
-```{r, fig.cap = "Telegraph Road segmented at each intersection"}
+```{r, fig.cap = "Telegraph Road segmented at each intersection", fig.alt="The same road and branching roads from the previous figure, with the main road now changing colours at every intersection."}
 ggplot() + 
   geom_sf(data = tr_intersects, lwd = 0.5) + 
   geom_sf(data = tr_sections, aes(colour = as.character(section)), lwd = 1.5, alpha = 0.8) + 
@@ -655,7 +655,7 @@ tr_sections <- left_join(tr_sections,
 Similarly to how we did with hot routes, we can carry out a visual check to make sure they linked OK. We can also try to compare the two seasons on these side-by-side maps. 
 
 
-```{r, fig.cap='Shoplifting in summer and winter months'}
+```{r, fig.cap='Shoplifting in summer and winter months', fig.alt="Two plots both show one line corresponding to the main street seen in previous line maps, with its segments shaded in blue and red. A legend accompanies each one, the first labeled 'Shoplifting in summer', the second 'Shoplifting in winter'. The legends match a gradient of blue to red from the values zero to sixteen in the first plot, and zero to twelve in the second. Both roads are mostly light blue, with the same central segments being a darker red. One additional segment, different in each plot, further to the bottom right is also a shade of red."}
 p1 <- ggplot() + 
   geom_sf(data = tr_sections, aes(colour = summer_sl), lwd = 0.5) + 
   theme_void() +
@@ -694,7 +694,7 @@ tr_sections$winter_rate <- as.numeric(tr_sections$winter_sl / tr_sections$length
 
 Finally, we reach the visualisation stage. To do this, we need to find the "Point A" location, which will serve as our starting point to travel down Telegraph Road. Most likely you will have to do this manually. In the case of a bus or railway route, you know the terminus stations, so you can use these. In the case of street segments, it might be more arbitrary. Here I have identified "section 3" as our starting point. Note that it's not section 1 or 20, which means that the segments are not numbered sequentially. This means we will have to assign an order. 
 
-```{r, echo=FALSE, fig.cap='Find starting point "point a" on the street'}
+```{r, echo=FALSE, fig.cap='Find starting point "point a" on the street', fig.alt="The main road and the branching roads, all outlined in black. The top left of the main road, before the first intersection, is much thicker than the rest. A rounded box with the text 'Start here' is on top of the thicker segment of the road."}
 
 ggplot() + 
   geom_sf(data = tr_intersects, lwd = 0.1) + 
@@ -732,7 +732,7 @@ Now we can arrange the segments in order from point A to point B.
 Let's plot the summer shoplifting incidents using the street profile approach. This is a ggplot where the x-axis is the sequence of segments, and the y-axis is the crime rate we want to portray. 
 
 
-```{r, fig.cap='Street profile with unlabelled segments'}
+```{r, fig.cap='Street profile with unlabelled segments', fig.alt="A line chart over a grey grid, with vertical axis labeled 'Shoplifting incidents' randing from zero to point two five. The horizontal axis is labeled 'Telegraph Road', and contains numbers from one to twenty, but in a jumbled order. The plot stays at zero except for three points."}
 
 ggplot(tr_sections, aes(x = reorder(as.character(section), 
                                   dist_from_a), 
@@ -783,7 +783,7 @@ tr_sections <- left_join(tr_sections, nearest_matrix,
 
 Once this is done, we can use this label on the x axis instead of the segment id, to provide a little more context. 
 
-```{r, fig.cap = 'Street profile using intersecting roads on x axis'}
+```{r, fig.cap = 'Street profile using intersecting roads on x axis', fig.alt="The previous plot has had its horizontal axis updated, the jumbled numbers replaced with names of roads. Some of the labels are repeated with a fullstop and the number one appended to the end. The non-zero data points are 'The Mount dot one', 'Moor Lane', and 'Beacon Lane'."}
 ggplot(tr_sections, aes(x = reorder(name, 
                                   dist_from_a), 
                       y = summer_rate, 
@@ -803,7 +803,7 @@ Now you may notice that there are some repeated names (e.g. "Thurstaston Road" a
 
 Finally, the power of the street profile analysis comes from the ease of comparison of data across the route. For example, here we can compare shoplifting between winter and summer: 
 
-```{r, fig.cap = 'Street profile comparing summer and winter months'}
+```{r, fig.cap = 'Street profile comparing summer and winter months', fig.alt="The previous plot appears once again, with the previously plotted data now in blue. A new set of data is plotted in red, which is nonzero at 'The Mount dot one', 'The Mount', 'Moor Lane', and 'Rocky Lane South'. The maximum of the two data sets match at 'Moor Lane', while 'The Mounts' nearby also appeared in both sets."}
 
 ggplot() + 
   geom_point(data = tr_sections, aes(x = reorder(name, 
@@ -842,7 +842,7 @@ In R we can implement these tests using the functions in the `ineq` package. To 
 
 Let's illustrate this again with the segments of Telegraph Road again: 
 
-```{r, fig.cap= "Lorenz curve for crimes in Heswall"}
+```{r, fig.cap= "Lorenz curve for crimes in Heswall", fig.alt="A plot titled 'Lorenz curve', with vertical axis labeled 'L of p', ranging from zero to one, and horizontal axis labeled 'p' also ranging from zero to one. A straight line bisects the plot from the origin to the top right, where both values are one. Another line runs along the horizontal axis from zero to about point eight five, before climbing quickly to meet the line where both 'p' and 'L of p' are one."}
 tr_lorenz <- Lc(tr_sections$summer_rate)
 ```
 
