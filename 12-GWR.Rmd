@@ -60,7 +60,7 @@ summary(fit1_70)
 
 A simple visualisation of the residuals suggest the model may not be optimal for the entire study region:
 
-```{r, fig.cap='Distribution of residuals by study region (South v North)'}
+```{r, fig.cap='Distribution of residuals by study region (South v North)', fig.alt="A plot of two data sets, in red and blue. The vertical axis is labeled 'density' and ranges from zero to point one seven, while the horizontal axis is labeled 'Residuals', ranging from negative twenty five to seventy five. A legend to the right matches blue to South. Both plotted data sets peak slightly left of zero Residuals, but the peaks look very different. Red is a sharp and tall peak, reaching nearly point one seven, and dropping off quickly in both directions. Blue peaks at around point zero seven, and drops off to zero more gradually, especially in the positive residuals."}
 ncovr$res_fit1 <- fit1_70$residuals
 ggplot(ncovr, aes(x = res_fit1, colour = as.factor(SOUTH))) + 
   geom_density() + 
@@ -191,7 +191,7 @@ summary(model)
 
 And now, to get an idea of how our model might perform differently in different area, we can map the residuals across each county: 
 
-```{r, warning=FALSE, message=FALSE, fig.cap='Map of model residuals'}
+```{r, warning=FALSE, message=FALSE, fig.cap='Map of model residuals', fig.alt="A map of counties in the United States, shaded in reds and blues. A legend at the bottom left, labeled 'resids' matches reds with negative values, and blues with positive values. Most of the counties are coloured in light colours. The midwest appears more red than blue, while the east coast appears more blue than red."}
 
 # map residuals
 ncovr$resids <- residuals(model)
@@ -284,7 +284,7 @@ gwr_results <- cbind(ncovr, gwr_results)
 
 Now we can begin to map our results. First, let's see how well the model performs across the different counties of the United States. To do this, we can map the `localR2` value which contains the local $R^2$ value for each observation. 
 
-```{r, fig.cap='Map of local R-square value for each county'}
+```{r, fig.cap='Map of local R-square value for each county', fig.alt="Counties of the United States are now shaded in shades of blue. A legend in the bottom left, labeled 'local R 2', matches increasing values to darker blues. The colour transitions are smooth, with a dark blue emanating from New York, with counties from Delaware to Maine being darker blues. Areas in Illinois and South Dakota also appear in darker blue. The south and northwest are very light shades."}
 
 qtm(gwr_results, fill =  "localR2" )
 
@@ -297,7 +297,7 @@ We can also map the coefficients for specific variables. Let's say we're interes
 >**NOTE:** In our `gwr_results` data frame we have a varaible called `RD70`, this contains the observed resource deprivation value for the county. We then have `RD70.1` this is the coefficient value for each county. In the results contained in the SDF element of our model (`gwr_model$SDF`) it was named `RD70` but when we joined the two object, the `.1` was appended to allow us to differentiate between the two. 
 
 
-```{r, message=FALSE, warning=FALSE, fig.cap='Map of coefficient for resource deprivation value for each county'}
+```{r, message=FALSE, warning=FALSE, fig.cap='Map of coefficient for resource deprivation value for each county', fig.alt="The counties of the United States are shaded in shades of blue and orange. A legend in the bottom left, labeled 'RD70.1', matches negative two to zero to orange, and zero to eight in increasingly darker blues. The northwest, and south of lake Michigan appear dark blue, with a lighter blue covering most of the rest of the counties. The northwest, far southeast, and a strip down the centre of the country are very light blues. Orange is only apparent in a cluster of counties in the centre of Texas."}
 
 qtm(gwr_results, fill =  "RD70.1" )
 
@@ -307,7 +307,7 @@ We can see in this map again some regional patterns in the coefficient of Resour
 
 This may be interesting and raise questions, however, it is important to consider not only the coefficients, but also the *standard errors* associated with them, so we can get some ideas behind the reliability of these estimates. So let us have a look by mapping the standard errors for these coefficients, which are contained in the `RD70_se` variable. 
 
-```{r, message=FALSE, warning=FALSE, fig.cap='Map of standard error for resource deprivation value for each county'}
+```{r, message=FALSE, warning=FALSE, fig.cap='Map of standard error for resource deprivation value for each county', fig.alt="This shaded map of the counties of the United States has a legend titled 'RD70 se', matching values increasing from zero to darker shades of blue. Counties around the west coast, upper midwest, and New Hampshire are dark blues, while some of the south on both sides of Texas are very light blue."}
 
 qtm(gwr_results, fill =  "RD70_se" )
 
