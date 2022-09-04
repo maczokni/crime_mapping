@@ -149,7 +149,7 @@ plot(st_geometry(city_centre), border='#00000040', add=T)
 
 You can see in the above map where hotspots might occur. However you also see that we have created cells of 0 burglaries outside of the boundary of our City Centre ward. This is not quite true, as we didn't include burglaries which occurred outside of here. Therefore, we should not have in this raster object incidents outside the boundaries of the neighborhoud. Instead, we want to declare those cells as `NA`s. We can do that with the `mask()` function in the `raster` package.
 
-```{r}
+```{r, fig.cap="FIXME", fig.alt="The previous shaded map of the City Centre no longer has a grey outline, and instead only has rectangles shaded grey within the borders of the LSOA. The rest of the backdrop is white."}
 burglary_raster_cc <- mask(burglary_raster_cc, city_centre)
 plot(burglary_raster_cc)
 ```
@@ -163,7 +163,7 @@ To better understand what might be going on in out grids with higher burglary co
 
 With very few lines of code you can get an interactive plot. Here we first will use `brewer.pal()` from the `RColorBrewer` package to define a convenient palette (see CHapter 5 for details on this) and then use the `mapview()` function from the `mapview` package to plot our raster layes we created above. Below you see how we increase the transparency with the `alpha.region` argument and how we use `col.regions` to change from the default palette to the one we created.
 
-```{r, message=FALSE, warning=FALSE, cache=FALSE}
+```{r, message=FALSE, warning=FALSE, cache=FALSE, fig.cap="FIXME", fig.alt="The previous shaded map is now in a gradient from yellow to red, and is centred on a blank leaflet map."}
 
 my.palette <- brewer.pal(n = 9, name = "OrRd")
 mapview(burglary_raster_cc, 
