@@ -37,7 +37,7 @@ all_countries <- ne_countries(returnclass = "sf")
 If we wanted now to plot this, we can use any of the many methods covered in this book from `plot()` to `ggplot()` to `tmap` and so on. 
 
 
-```{r}
+```{r, fig.cap="Map of countries of the world"}
 library(ggplot2)
 
 ggplot() + 
@@ -81,7 +81,7 @@ uganda_2 <- ne_countries(country = 'Uganda', returnclass = "sf")
 You should be able to see the two results are the same.
 
 
-```{r}
+```{r, fig.cap="Two identical maps showing border of Uganda"}
 u1 <- ggplot() + geom_sf(data = uganda) + theme_void()
 
 u2 <- ggplot() + geom_sf(data = uganda_2) + theme_void()
@@ -103,7 +103,7 @@ uganda <- ne_states(country = "Uganda", returnclass = "sf")
 
 Now if we have a look we can see the different districts within Uganda have been also downloaded. 
 
-```{r}
+```{r, fig.cap="Map of districts of Uganda"}
 
 ggplot() + geom_sf(data = uganda) + theme_void()
 
@@ -114,7 +114,7 @@ It is possible that sometimes this is not the ideal sub-geometry for you analysi
 
 You can also change the scale of resolution at which you want to download your boundaries. 
 
-```{r}
+```{r, fig.cap="Three maps of uganda with difference scale of resolution for the boundary"}
 
 # small
 uganda_1 <- ne_countries(country = "Uganda", returnclass = "sf", scale = 110)
@@ -142,7 +142,7 @@ You can see as we move to lower numbers we get better resolution, which results 
 A final note on `rnaturalearth` before we move on. With the `ne_states()` function, we specified which country we wanted with the `country` argument. This was OK for Uganda, but what if we wanted to plot something in France instead? 
 
 
-```{r}
+```{r, fig.cap="Map of France which shows also overseas territories of France"}
 france <- ne_states(country = "France", returnclass = "sf")
 
 ggplot() + geom_sf(data = france) + theme_void()
@@ -150,9 +150,9 @@ ggplot() + geom_sf(data = france) + theme_void()
 ```
 
 
-You see France appears, but so do the overseas territories of France, such as French Guiana, Guadeloupe, French Polynesia, and so on. It is possible you want to focus only on France. In this case, you can specfy, instead of `country`, the parameter `geounit`. Like so: 
+You see France appears, but so do the overseas territories of France, such as French Guiana, Guadeloupe, French Polynesia, and so on. It is possible you want to focus only on France. In this case, you can specify, instead of `country`, the parameter `geounit`. Like so: 
 
-```{r}
+```{r, fig.cap="Map of France that shows only France without overseas territories"}
 
 france <- ne_states(geounit = "France", returnclass = "sf")
 
@@ -177,9 +177,7 @@ To access this resource, we visit [https://borders.ukdataservice.ac.uk/](https:/
 To acquire boundary data from here, we can select the **Boundary Data Selector** option. When you get to the link, you will see on the top there is some notification to help you with the boundary data selector. If in the future you are looking for UK boundary data and you are feeling unsure at any point, feel free to click on that note "**How to use Boundary Data Selector**" which will help to guide you. 
 
 
-For a quick example here, we can download some Local Authoriry boundaries for England. In this case that means, for *Country* select "England", for *Geography* select "Administrative", and for *Dates* let's go for "2011 and later". Then, hit the button which says "Find" and see some options appear in the *Boundaries* box below. From these, let's select "English Districts, UAs and London Boroughs, 2011": 
-
-![](img/la_shp_dl.png)
+For a quick example here, we can download some Local Authoriry boundaries for England. In this case that means, for *Country* select "England", for *Geography* select "Administrative", and for *Dates* let's go for "2011 and later". Then, hit the button which says "Find" and see some options appear in the *Boundaries* box below. From these, let's select "English Districts, UAs and London Boroughs, 2011".
 
 
 Once you have the file, you could select sub-areas. For this, hit the "List Areas" button, and select those relevant to you. Otherwise, you can move to *Extract Boundary Data*, where you will be taken to the next page. 
@@ -225,7 +223,7 @@ las <- st_read("data/England_lad_2011_gen_clipped/england_lad_2011_gen_clipped.k
 And plot it to see: 
 
 
-```{r}
+```{r, fig.cap="Map of English Local Authorities boundaries"}
 ggplot() + geom_sf(data = las) + theme_void()
 
 ```
@@ -274,7 +272,7 @@ kampala_bb <- getbb("kampala", format_out = "sf_polygon")
 We should check on this object to make sure it looks the way we would expect: 
 
 
-```{r}
+```{r, fig.cap="Boundary which follows the shape of Kampala"}
 
 ggplot() + geom_sf(data = kampala_bb) + theme_void()
 
@@ -309,7 +307,7 @@ kampala_boundaries <- kampala_boundaries$osm_multipolygons
 And now we can plot our results, labelling each region for clarity: 
 
 
-```{r, warning=FALSE, message=FALSE}
+```{r, warning=FALSE, message=FALSE, fig.cap="Kampala with regions labelled"}
 
 ggplot() + geom_sf(data = kampala_boundaries) + 
   geom_sf_label(data = kampala_boundaries, aes(label = name)) + theme_void()

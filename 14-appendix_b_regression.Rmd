@@ -5,8 +5,6 @@ output:
 ---
 # Appendix B: Regression analysis (a refresher)
 
-
-
 ## Introduction
 
 In this appendix we present a very brief and high-level overview of regression analysis, in order to give some reference to when we introduce spatial regression in Chapter 11. We will follow a practical approach, working through one data set to illustrate regression basics using R. For those who wish to have a more thorough grounding please refer to the further reading section at the end of this Appendix. 
@@ -29,14 +27,14 @@ Choosing a good model is like choosing a good way for displaying quantitative in
 
 The first step in any analysis is to develop some familiarity with the data you are going to be working with. We have been here before. Read the codebook. Run summary statistics for your quantitative variables, frequency distributions for your categorical variables, and visualise your variables. This will help you to detect any anomalies and give you a sense for what you have. If, for example, you run a histogram for the homicide rate for 1990 (HR90), you will get a sense of the distribution form –which of course is skewed.
 
-```{r, message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE, fig.cap="Histogram of the HR90 variable"}
 library(ggplot2)
 qplot(x = HR90, data = ncovr)
 ```
 
 Once one has gone through the process of exploring the data in this way (or maybe using the `skimr` package - see *Appendix: A quick intro to R and RStudio*) for all the variables you want to work with, you can start exploring bivariate associations with your dependent, response or outcome variable. So, as an illustration, you could explore the association with resource deprivation (*RD90*), a measure of the level of concentrated disadvantage or social exclusion in an area, via a scatterplot:
 
-```{r}
+```{r, fig.cap="Scatterplot showing relationship between resource deprivation (RD90) and homicide rate (HR90) in the 90s"}
 ggplot(ncovr, aes(x = RD90, y = HR90)) +
   geom_point(alpha=.2) 
 ```
@@ -47,7 +45,7 @@ What do you think when looking at this scatterplot? Is there a relationship betw
 
 Now, imagine that we play a game. Imagine I have all the respondents waiting in a room, and I randomly call one of them to the stage. You're sitting in the audience, and you have to guess the level of homicide (*HR90*) for that respondent. Imagine that I pay £150 to the student that gets the closest to the right value. What would you guess if you only have one guess and you knew (as we do) how homicide in the 90s is distributed? 
 
-```{r}
+```{r, fig.cap="Density estimate, mean, and median of homicide rate in 1990"}
 ggplot(ncovr, aes(x = HR90)) + 
   geom_density() +
   geom_vline(xintercept = median(ncovr$HR90), linetype = "dashed", size = 1, 
@@ -70,7 +68,7 @@ I certainly would not go with the overall mean or median as my prediction anymor
 
 If we plot the conditional means we can see that the mean of homicide rate for counties that report a value of 4 in *RD90* is around 22. So you may be better off guessing that.
 
-```{r, warning=FALSE, message=FALSE}
+```{r, warning=FALSE, message=FALSE, fig.cap="Our best guess for homicide rate when resource deprivation score in the county is 4"}
 library(grid)
 ggplot() +
   geom_point(data=ncovr, aes(x = RD90, y = HR90), alpha=.2) +
@@ -86,7 +84,7 @@ Linear regression tackles this problem using a slightly different approach. Rath
 
 Simple linear regression draws a single straight line of predicted values as the model for the data. This line would be a **model**, a *simplification* of the real world like any other model (e.g., a toy pistol, an architectural drawing, a subway map), that assumes that there is approximately a linear relationship between X and Y. Let's draw the regression line using the function `geom_smooth()`. This ask for a `method=` parameter where we specify `lm` for the linear regression line. We also set `se=` to `FALSE` so we ask for just the line to be printed but not the standard error around it. The other arguments specify the color and thickness of the line. 
 
-```{r, warning=FALSE, message=FALSE}
+```{r, warning=FALSE, message=FALSE, fig.cap="Linear regression line on relationship between homicide rate and resource deprivation"}
 ggplot(data = ncovr, aes(x = RD90, y = HR90)) +
   geom_point(alpha = .2) +
   geom_smooth(method = "lm", se = FALSE, color = "red", size = 1) 
@@ -94,21 +92,7 @@ ggplot(data = ncovr, aes(x = RD90, y = HR90)) +
 
 What that line is doing is giving you guesses (predictions) for the values of homicide based in the information that we have about the level of resource deprivation. It gives you one possible guess for the value of homicide for every possible value of resource deprivation and links them all together in a straight line. 
 
-The linear model then is a model that takes the form of the equation of a straight line through the data. The line does not go through all the points. In fact, you can see is a slightly less accurate representation than the (smoothed) conditional means:
-
-```{r, echo = FALSE, warning=FALSE, message=FALSE}
-ggplot() +
-  geom_point(data = ncovr, aes(x = RD90, y = HR90),
-             alpha = .2, color ="orange") +
-  geom_smooth(data = ncovr, aes(x = RD90, y = HR90),
-              method = "lm", se = FALSE, color = "red", size = 1) +
-  geom_line(data=ncovr, aes(x = round(RD90/0.1)*0.1, y = HR90), 
-          stat='summary',
-          fun.y=mean,
-          color="blue",
-          size=1) +
-  theme_bw()
-```
+The linear model then is a model that takes the form of the equation of a straight line through the data. The line does not go through all the points. 
 
 Our regression line underpredicts at low levels of resource deprivation and does not seem to capture well the variability at higher levels of resource deprivation. But imperfect as a model as it might be it simplifies well the overall growing trend for homicide as resource deprivation increases.
 
@@ -183,7 +167,7 @@ This is the expected value of Y, homicide rate, when X, resource deprivation is 
 In the output above we saw there was something called the residuals. The residuals are the differences between the observed values of Y for each case minus the predicted or expected value of Y, in other words the distances between each point in the dataset and the regression line (see the visual example below). 
 
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Predicted values, measured value, and residual"}
 
 ggplot(data = mtcars[1:5,], aes(x = mpg, y = wt)) + 
   geom_segment(aes(x = 21.4, xend = 21.4, y = 3.215, yend = 2.8), col = "red", lty = "dashed") + 
@@ -213,7 +197,7 @@ The residuals capture how much variation is unexplained, how much we still have 
 
 We can use information from the residuals to produce a measure of effect size, of how good our model is in predicting variation in our dependent variables. Remember our game where we try to guess homicide (Y)? If we did not have any information about X our best bet for Y would be the mean of Y. The regression line aims to improve that prediction. By knowing the values of X we can build a regression line that aims to get us closer to the actual values of Y (look at the Figure below). 
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Illustration of explained, unexplained, and total deviation"}
 
 ggplot(data = mtcars[1:5,], aes(x = mpg, y = wt)) + 
   geom_segment(aes(x = 21.4, xend = 21.4, y = 3.215, yend = 2.8), col = "red", lty = "dashed") + 
@@ -294,15 +278,7 @@ There is only one categorical explanatory variable in this dataset, a binary ind
 fit_2 <- lm(HR90 ~ as.factor(SOUTH), data=ncovr)
 ```
 
-Notice that there is nothing different in how we ask for the model. And see below the regression line:
-
-```{r}
-ggplot(data=ncovr, aes(x=as.factor(SOUTH), y=HR90)) +
-  geom_point(alpha=.2, position="jitter", color="orange") +
-  geom_abline(intercept = fit_2$coefficients[1],
-    slope = fit_2$coefficients[2], color="red", size=1) +
-  theme_bw()
-```
+Notice that there is nothing different in how we ask for the model.
 
 Let's have a look at the results:
 
@@ -390,7 +366,7 @@ library(sjPlot)
 
 Let's try with a more complex example:
 
-```{r}
+```{r, fig.cap="Regression forest plot for the results of a regression"}
 fit_4 <- lm(HR90 ~ RD90 + SOUTH_f + DV90 + MA90 + PS90, data=ncovr)
 plot_model(fit_4, breakLabelsAt = 30)
 ```
@@ -443,7 +419,7 @@ stargazer(fit_3, fit_4)
 
 Besides tables, visual display of the effects of the variables in the model are particularly helpful. The `effects` package allows us to produce plots to visualise these relationships (when adjusting for the other variables in the model). Here's an example going back to our model fit_3 which contained *SOUTH* and *RD90* predictor variables:
 
-```{r}
+```{r, fig.cap="Effect plots for a regression"}
 library(effects)
 plot(allEffects(fit_3), ask=FALSE)
 ```
@@ -493,7 +469,7 @@ You see here that essentially you have only two inputs (resource deprivation and
 
 In this case the test for the interaction effect is significant, which suggests there is such an interaction.  Let's visualise the results with the `effects` package:
 
-```{r}
+```{r, fig.cap="Effecet plots for regression testing conditional hypothesis"}
 plot(allEffects(fit_5), ask=FALSE)
 ```
 

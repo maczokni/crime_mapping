@@ -23,7 +23,7 @@
 <meta name="author" content="Juanjo Medina and Reka Solymosi" />
 
 
-<meta name="date" content="2022-09-02" />
+<meta name="date" content="2022-09-05" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -534,9 +534,9 @@ div.csl-indent {
 <h2><span class="header-section-number">9.1</span> Introduction<a href="crime-along-spatial-networks.html#introduction-6" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>In the previous chapter we explored how the techniques for spatial pattern analysis can be used to study the varying intensity of crime across space. We introduce the key idea of spatial randomness. These methods were developed to study locations in a continuous plane and are also referred to as <strong>planar spatial analysis</strong>. Point crime data, however, has an inherent structure to it. There are parts of our study region where it cannot appear. Since typically the data will be geocoded at the street level address, crime data almost always will appear alongside the spatial network of roads and streets. Crimes won’t appear randomly anywhere in our 2 dimensional representation of the city, they will only appear along the street network covering this city. We can see this in the following example from Chicago using data from <code>spatstat</code>:</p>
 <div class="figure"><span style="display:block;" id="fig:unnamed-chunk-217"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-217-1.png" alt="Crime along street networkin Chicago" width="672" />
+<img src="crime_mapping_files/figure-html/unnamed-chunk-217-1.png" alt="A simplified street map titled 'chicago', thin black lines trace the road network in a small section of a city. To the left, a legend matches various shapes, such as circles and diamonds to types of crime, 'assault', 'burglary', 'cartheft', 'damage', 'robbery', 'theft', and 'trespass'. The symbols appear on the street map, entirely on the road network, often in clusters." width="672" />
 <p class="caption">
-FIGURE 9.1: Crime along street networkin Chicago
+FIGURE 9.1: Crime along street network in Chicago
 </p>
 </div>
 <p>Clearly the offences are constrained to only occur along the street network. This is not a homogeneous Poisson process along the whole study surface, because there is an underlying structure. If we want to investigate heterogeneity on intensity, for example, we would need to account for that underlying structure, the fact that the points can only be located along the network and not in other parts of the study region. Several authors have argued that crime is best represented and predicted if we focus in the street network rather than other kind of level of aggregation and that this has clear implications for operational policing <span class="citation">(<a href="#ref-Singleton_2014" role="doc-biblioref">Singleton and Brunsdon 2014</a>; <a href="#ref-Rosser_2017" role="doc-biblioref">Roser et al. 2017</a>)</span>. It is clear that if our crime occurrences are collected and represented along a spatial network we need to ensure we use techniques of analysis and visualisation that respect this existing underlying structure in our data.</p>
@@ -605,7 +605,7 @@ FIGURE 9.1: Crime along street networkin Chicago
 <span id="cb377-5"><a href="crime-along-spatial-networks.html#cb377-5" aria-hidden="true" tabindex="-1"></a>                    <span class="at">ncol =</span> <span class="dv">2</span>, <span class="at">nrow =</span> <span class="dv">1</span>)</span>
 <span id="cb377-6"><a href="crime-along-spatial-networks.html#cb377-6" aria-hidden="true" tabindex="-1"></a>figure_1</span></code></pre></div>
 <div class="figure"><span style="display:block;" id="fig:unnamed-chunk-219"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-219-1.png" alt="Street network geometries for Salford in Toronto, CA and Manhattan, in New York, USA" width="672" />
+<img src="crime_mapping_files/figure-html/unnamed-chunk-219-1.png" alt="Two simple street maps side by side, the first titled 'Heswall', and the second 'Manhattan'. Black lines trace out the road network in both maps. Details of the roads are relatively clear in Heswall, but bleed together and cannot be made out in Manhattan." width="672" />
 <p class="caption">
 FIGURE 9.2: Street network geometries for Salford in Toronto, CA and Manhattan, in New York, USA
 </p>
@@ -621,7 +621,7 @@ FIGURE 9.2: Street network geometries for Salford in Toronto, CA and Manhattan, 
 <div class="sourceCode" id="cb378"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb378-1"><a href="crime-along-spatial-networks.html#cb378-1" aria-hidden="true" tabindex="-1"></a>heswall_ntwk <span class="ot">&lt;-</span> <span class="fu">as_sfnetwork</span>(heswall_lines)</span>
 <span id="cb378-2"><a href="crime-along-spatial-networks.html#cb378-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(heswall_ntwk)</span></code></pre></div>
 <div class="figure"><span style="display:block;" id="fig:unnamed-chunk-220"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-220-1.png" alt="Heswall as a spatial network" width="672" />
+<img src="crime_mapping_files/figure-html/unnamed-chunk-220-1.png" alt="Numerous black dots outline a shape resembling Heswall's road network seen in the previous figure. Examining more closely, the road network is still present beneath the dots, though mostly covered." width="672" />
 <p class="caption">
 FIGURE 9.3: Heswall as a spatial network
 </p>
@@ -670,7 +670,7 @@ FIGURE 9.3: Heswall as a spatial network
 <span id="cb382-8"><a href="crime-along-spatial-networks.html#cb382-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> shoplifting_sf, <span class="at">colour =</span> <span class="st">&quot;red&quot;</span>) <span class="sc">+</span> </span>
 <span id="cb382-9"><a href="crime-along-spatial-networks.html#cb382-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>()</span></code></pre></div>
 <div class="figure"><span style="display:block;" id="fig:getheswallcrimedata"></span>
-<img src="crime_mapping_files/figure-html/getheswallcrimedata-1.png" alt="All shoplifting incidents in Merseyside May 2019 - April 2020" width="672" />
+<img src="crime_mapping_files/figure-html/getheswallcrimedata-1.png" alt="A simple line street map of Heswall is now accompanied by red dots spreading far above and to the right as well. A concentration of red dots with a vertical gap towards the middle of the figure probably corresponds to Liverpool." width="672" />
 <p class="caption">
 FIGURE 9.4: All shoplifting incidents in Merseyside May 2019 - April 2020
 </p>
@@ -700,13 +700,18 @@ FIGURE 9.4: All shoplifting incidents in Merseyside May 2019 - April 2020
 <span id="cb388-3"><a href="crime-along-spatial-networks.html#cb388-3" aria-hidden="true" tabindex="-1"></a><span class="co"># plot</span></span>
 <span id="cb388-4"><a href="crime-along-spatial-networks.html#cb388-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(d100)</span></code></pre></div>
 <div class="figure"><span style="display:block;" id="fig:densitylpp"></span>
-<img src="crime_mapping_files/figure-html/densitylpp-1.png" alt="Network density map with defaults" width="672" />
+<img src="crime_mapping_files/figure-html/densitylpp-1.png" alt="A pixelated street map of Heswall is titled 'd100'. A legend to the right matches a gradient from dark blue to red to yellow, with values from zero to nearly point zero eight. The lines corresponding to the streets on the map are themselves shaded, mostly dark blue. A few red areas can be see, along with one yellow pixel." width="672" />
 <p class="caption">
 FIGURE 9.5: Network density map with defaults
 </p>
 </div>
-<div class="sourceCode" id="cb389"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb389-1"><a href="crime-along-spatial-networks.html#cb389-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(d100, <span class="at">style=</span><span class="st">&quot;width&quot;</span>, <span class="at">fig.cap=</span><span class="st">&#39;Network density map with defaults with line width&#39;</span>)</span></code></pre></div>
-<p><img src="crime_mapping_files/figure-html/unnamed-chunk-221-1.png" width="672" /></p>
+<div class="sourceCode" id="cb389"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb389-1"><a href="crime-along-spatial-networks.html#cb389-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(d100, <span class="at">style=</span><span class="st">&quot;width&quot;</span>)</span></code></pre></div>
+<div class="figure"><span style="display:block;" id="fig:unnamed-chunk-221"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-221-1.png" alt="The line street map of Heswall, titled 'd100'. Some of the streets seem thicker or as if they had blotches on them. To the right, a legend matches four increasing examples of line widths to the numbers zero, point zero two, point zero four, and point zero six." width="672" />
+<p class="caption">
+FIGURE 9.6: Network density map with defaults with line width
+</p>
+</div>
 <p>A <code>lpp</code> object contains the linear network information, the spatial coordinates of the data points, and any number of columns of <em>marks</em> (in this case the mark is telling us the type of crime we are dealing with). It also contains the local coordinates <code>seg</code> and <code>tp</code> for the data points. The local coordinate <code>seg</code> is an integer identifying the particular street segment the data point is located in. A segment is each of the sections of a street between two vertices (marking the intersection with another segment). The local coordinate <code>tp</code> is a real number between 0 and 1 indicating the position of the point within the segment: <code>tp=0</code> corresponds to the first endpoint and <code>tp=1</code> correspond to the second endpoint.</p>
 <p>The visual inspection of the map suggest that the intensity of crime along the network is not spatially uniform. Alternatively one could use the new specific functions for each of these different algorithms: <code>densityQuick()</code> (see <span class="citation">Rakshit et al. (<a href="#ref-Rakshit_2019" role="doc-biblioref">2019</a>)</span>), <code>densityEqualSplit()</code> (see <span class="citation">Okabe and Sugihara (<a href="#ref-Okabe_2012" role="doc-biblioref">2012</a>)</span>), or <code>densityHeat()</code> (see <span class="citation">McSwiggan, Baddeley, and Nair (<a href="#ref-McSwiggan_2016" role="doc-biblioref">2016</a>)</span>).</p>
 <p>The Okabe-Suhigara method was the first to be developed for this kind of applications and can be invoked with <code>densityEqualSplit()</code>. We can specify the kernel (the default is <code>epanechnikov</code>) and the smoothing bandwidth, sigma (the standard deviation of the kernel). Above, we used 100 meters for illustration, but see <em>Chapter 7: Spatial point patterns of crime events</em> in this book for details on these parameters). There are two versions of this algorithm, the continuous that is excruciatingly slow (particularly for larger datasets) and the discontinuous that is a bit quicker but has less desirable statistical properties. We are using the number of events per point as the weight for computation, and wrapping everything on <code>system.time()</code> to provide a notion of computation time. We will only show the discontinuous version.</p>
@@ -716,13 +721,13 @@ FIGURE 9.5: Network density map with defaults
 <span id="cb390-4"><a href="crime-along-spatial-networks.html#cb390-4" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">continuous =</span> <span class="cn">FALSE</span>,</span>
 <span id="cb390-5"><a href="crime-along-spatial-networks.html#cb390-5" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">verbose=</span> <span class="cn">FALSE</span>))</span></code></pre></div>
 <pre><code>##    user  system elapsed 
-##   9.134   0.137   9.274</code></pre>
+##   9.214   0.255   9.470</code></pre>
 <p>And to visualise:</p>
 <div class="sourceCode" id="cb392"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb392-1"><a href="crime-along-spatial-networks.html#cb392-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(d_okabe, <span class="at">main=</span><span class="st">&quot;Okabe-Suhigara (disc.)&quot;</span>)</span></code></pre></div>
 <div class="figure"><span style="display:block;" id="fig:unnamed-chunk-222"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-222-1.png" alt="Network density map (Okabe-Suhigara (disc.) method)" width="672" />
+<img src="crime_mapping_files/figure-html/unnamed-chunk-222-1.png" alt="A pixelated street map of Heswall is titled 'Okabe-Suhigara (disc.)'. A legend to the right matches a gradient from dark blue to red to yellow, with values from zero to about point one. The lines corresponding to the streets on the map are themselves shaded, mostly dark blue. A few lighter blue areas are visible, reaching purple in a few spots. In addition, the ends of two streets to the top right brighten to yellow." width="672" />
 <p class="caption">
-FIGURE 9.6: Network density map (Okabe-Suhigara (disc.) method)
+FIGURE 9.7: Network density map (Okabe-Suhigara (disc.) method)
 </p>
 </div>
 <p><span class="citation">McSwiggan, Baddeley, and Nair (<a href="#ref-McSwiggan_2016" role="doc-biblioref">2016</a>)</span> subsequently developed an algorithm that is equivalent to the Okabe-Suhigara method using the continuous rule applied to the Gaussian kernel, and therefore has more desirable properties than the equal split discontinuous, but that runs faster (than the Okabe-Suhigara equal split continuous version).</p>
@@ -731,12 +736,12 @@ FIGURE 9.6: Network density map (Okabe-Suhigara (disc.) method)
 <span id="cb393-3"><a href="crime-along-spatial-networks.html#cb393-3" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">sigma =</span> <span class="dv">100</span>, </span>
 <span id="cb393-4"><a href="crime-along-spatial-networks.html#cb393-4" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">finespacing=</span><span class="cn">FALSE</span>))</span></code></pre></div>
 <pre><code>##    user  system elapsed 
-##   1.048   0.003   1.051</code></pre>
+##   1.066   0.004   1.071</code></pre>
 <div class="sourceCode" id="cb395"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb395-1"><a href="crime-along-spatial-networks.html#cb395-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(d_mcswiggan, <span class="at">main=</span><span class="st">&quot;McSwiggan&quot;</span>)</span></code></pre></div>
 <div class="figure"><span style="display:block;" id="fig:unnamed-chunk-223"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-223-1.png" alt="Network density map (McSwiggan Gaussian method)" width="672" />
+<img src="crime_mapping_files/figure-html/unnamed-chunk-223-1.png" alt="Like the previous figure, we have a shaded street map of Heswall titled 'McSwiggan', with a similar legend. Amidst the dark blue, a few areas of lighter blue appear, as well as several red to purple spots. One area towards the top right reaches yellow." width="672" />
 <p class="caption">
-FIGURE 9.7: Network density map (McSwiggan Gaussian method)
+FIGURE 9.8: Network density map (McSwiggan Gaussian method)
 </p>
 </div>
 <p>Finally, as noted above, <span class="citation">Rakshit et al. (<a href="#ref-Rakshit_2019" role="doc-biblioref">2019</a>)</span> developed a fast algorithm, using a convolution method, that is particularly helpful with large datasets. The analysis of the authors suggest this estimator “is consistent, and its statistical efficiency is only slightly suboptimal” <span class="citation">(<a href="#ref-Rakshit_2019" role="doc-biblioref">Rakshit et al. 2019</a>)</span>.</p>
@@ -745,13 +750,13 @@ FIGURE 9.7: Network density map (McSwiggan Gaussian method)
 <span id="cb396-3"><a href="crime-along-spatial-networks.html#cb396-3" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">sigma =</span> <span class="dv">100</span>,</span>
 <span id="cb396-4"><a href="crime-along-spatial-networks.html#cb396-4" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">edge2D =</span> <span class="cn">TRUE</span>))</span></code></pre></div>
 <pre><code>##    user  system elapsed 
-##   0.265   0.001   0.266</code></pre>
+##   0.248   0.001   0.251</code></pre>
 <p>We can now plot the data and compare the results:</p>
 <div class="sourceCode" id="cb398"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb398-1"><a href="crime-along-spatial-networks.html#cb398-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(d_rakshit, <span class="at">main=</span><span class="st">&quot;Rakshit&quot;</span>)</span></code></pre></div>
 <div class="figure"><span style="display:block;" id="fig:unnamed-chunk-224"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-224-1.png" alt="Network density map (Rakshit method)" width="672" />
+<img src="crime_mapping_files/figure-html/unnamed-chunk-224-1.png" alt="Once again we have a shaded street map of Heswall titled 'Rakshit', with a similar legend, which ranges from zero to point two five this time. Most of Heswall is dark blue, with only the ends of two roads near the top right brightening to yellow." width="672" />
 <p class="caption">
-FIGURE 9.8: Network density map (Rakshit method)
+FIGURE 9.9: Network density map (Rakshit method)
 </p>
 </div>
 <p>So these are some ways in which we can create a density map of crime along networks. You can compare the three maps to see how choice of method affects conclusions. This is something we must always reflect on, when applying these techniques.</p>
@@ -777,10 +782,10 @@ FIGURE 9.8: Network density map (Rakshit method)
 <span id="cb399-17"><a href="crime-along-spatial-networks.html#cb399-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">addLegend</span>(<span class="at">pal =</span> pal, <span class="at">values =</span> <span class="fu">values</span>(r1),</span>
 <span id="cb399-18"><a href="crime-along-spatial-networks.html#cb399-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">&quot;Shoplifting map&quot;</span>)</span></code></pre></div>
 <div class="figure"><span style="display:block;" id="fig:addbaseheswall"></span>
-<div id="htmlwidget-0fd47f85959a47099263" style="width:672px;height:480px;" class="leaflet html-widget"></div>
-<script type="application/json" data-for="htmlwidget-0fd47f85959a47099263">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addTiles","args":["https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",null,null,{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false,"attribution":"&copy; <a href=\"https://openstreetmap.org\">OpenStreetMap<\/a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA<\/a>"}]},{"method":"addRasterImage","args":["data:image/png;base64,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",[[53.3785938316799,-3.15153170809042],[53.2823958235235,-3.04249562639619]],0.8,null,null,null]},{"method":"addLegend","args":[{"colors":["#0C2C84 , #254993 11.2032419636704%, #3368A1 22.5198128003155%, #3C87B0 33.8363836369605%, #40A8BE 45.1529544736055%, #65BFC5 56.4695253102506%, #94D0C7 67.7860961468956%, #BCE0C9 79.1026669835406%, #E1F1CB 90.4192378201857%, #FFFFCC "],"labels":["0.01","0.02","0.03","0.04","0.05","0.06","0.07","0.08"],"na_color":null,"na_label":"NA","opacity":0.5,"position":"topright","type":"numeric","title":"Shoplifting map","extra":{"p_1":0.112032419636704,"p_n":0.904192378201857},"layerId":null,"className":"info legend","group":null}]}],"limits":{"lat":[53.2823958235235,53.3785938316799],"lng":[-3.15153170809042,-3.04249562639619]}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-525c233d6985e19c9fc7" style="width:672px;height:480px;" class="leaflet html-widget"></div>
+<script type="application/json" data-for="htmlwidget-525c233d6985e19c9fc7">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addTiles","args":["https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",null,null,{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false,"attribution":"&copy; <a href=\"https://openstreetmap.org\">OpenStreetMap<\/a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA<\/a>"}]},{"method":"addRasterImage","args":["data:image/png;base64,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",[[53.3785938316799,-3.15153170809042],[53.2823958235235,-3.04249562639619]],0.8,null,null,null]},{"method":"addLegend","args":[{"colors":["#0C2C84 , #254993 11.2032419636704%, #3368A1 22.5198128003155%, #3C87B0 33.8363836369605%, #40A8BE 45.1529544736055%, #65BFC5 56.4695253102506%, #94D0C7 67.7860961468956%, #BCE0C9 79.1026669835406%, #E1F1CB 90.4192378201857%, #FFFFCC "],"labels":["0.01","0.02","0.03","0.04","0.05","0.06","0.07","0.08"],"na_color":null,"na_label":"NA","opacity":0.5,"position":"topright","type":"numeric","title":"Shoplifting map","extra":{"p_1":0.112032419636704,"p_n":0.904192378201857},"layerId":null,"className":"info legend","group":null}]}],"limits":{"lat":[53.2823958235235,53.3785938316799],"lng":[-3.15153170809042,-3.04249562639619]}},"evals":[],"jsHooks":[]}</script>
 <p class="caption">
-FIGURE 9.9: Add interactive basemap to explore hotspots
+FIGURE 9.10: Add interactive basemap to explore hotspots
 </p>
 </div>
 </div>
@@ -811,9 +816,9 @@ FIGURE 9.9: Add interactive basemap to explore hotspots
 <span id="cb401-11"><a href="crime-along-spatial-networks.html#cb401-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> heswall_tc_buffer, <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>, <span class="at">fill =</span> <span class="cn">NA</span>) <span class="sc">+</span> </span>
 <span id="cb401-12"><a href="crime-along-spatial-networks.html#cb401-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>()</span></code></pre></div>
 <div class="figure"><span style="display:block;" id="fig:unnamed-chunk-225"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-225-1.png" alt="Narrow focus on Heswall town centre" width="672" />
+<img src="crime_mapping_files/figure-html/unnamed-chunk-225-1.png" alt="A section of the street line map of Heswall, mostly contained within a large blue circle. A number of red dots appear inside this circle, near the centre and towards the right, with one outlier to the north and one to the south." width="672" />
 <p class="caption">
-FIGURE 9.10: Narrow focus on Heswall town centre
+FIGURE 9.11: Narrow focus on Heswall town centre
 </p>
 </div>
 <div id="hot-routes" class="section level3 hasAnchor" number="9.4.1">
@@ -865,9 +870,9 @@ FIGURE 9.10: Narrow focus on Heswall town centre
 <span id="cb410-8"><a href="crime-along-spatial-networks.html#cb410-8" aria-hidden="true" tabindex="-1"></a>                         <span class="at">mid =</span> <span class="st">&quot;#d1e5f0&quot;</span>, </span>
 <span id="cb410-9"><a href="crime-along-spatial-networks.html#cb410-9" aria-hidden="true" tabindex="-1"></a>                         <span class="at">high =</span> <span class="st">&quot;#b2182b&quot;</span>)</span></code></pre></div>
 <div class="figure"><span style="display:block;" id="fig:unnamed-chunk-231"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-231-1.png" alt="Check that crimes are linked to street segments" width="672" />
+<img src="crime_mapping_files/figure-html/unnamed-chunk-231-1.png" alt="A street line map of the centre of Heswall, like in the previous figure. A legend to the right is titled 'Number of shoplifting incidents', and matches a gradient from red to light blue with numbers from eight to zero. Most of the roads are shaded light blue, though one major road bisecting the centre, running from the top left to bottom right, turns more red at times. In addition, some roads branching off from that one, and some other ones two roads over also have red hues. One small road to the north is also red." width="672" />
 <p class="caption">
-FIGURE 9.11: Check that crimes are linked to street segments
+FIGURE 9.12: Check that crimes are linked to street segments
 </p>
 </div>
 <p>Looks like we joined the shoplifting incidents to our network layer successfully. Now to normalise for the varying lenght of the street segments.</p>
@@ -896,9 +901,9 @@ FIGURE 9.11: Check that crimes are linked to street segments
 <span id="cb415-7"><a href="crime-along-spatial-networks.html#cb415-7" aria-hidden="true" tabindex="-1"></a>                         <span class="at">low =</span> <span class="st">&quot;#2166ac&quot;</span>, <span class="at">mid =</span> <span class="st">&quot;#d1e5f0&quot;</span>, </span>
 <span id="cb415-8"><a href="crime-along-spatial-networks.html#cb415-8" aria-hidden="true" tabindex="-1"></a>                         <span class="at">high =</span> <span class="st">&quot;#b2182b&quot;</span>)</span></code></pre></div>
 <div class="figure"><span style="display:block;" id="fig:unnamed-chunk-235"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-235-1.png" alt="Hot routes map displaying rate of crimes per meter for each segment" width="672" />
+<img src="crime_mapping_files/figure-html/unnamed-chunk-235-1.png" alt="A map that looks very similar to the previous figure, with the legend labeled 'Shoplifting incidents per meter', ranging from zero to point zero six. The longer roads, such as the one running from the top left to the bottom right, are less red than before, whereas some of the side roads branching off have become a darker red. The small road to the far north that was red previously has also become darker, and another short road in the south has also taken on a light red hue." width="672" />
 <p class="caption">
-FIGURE 9.12: Hot routes map displaying rate of crimes per meter for each segment
+FIGURE 9.13: Hot routes map displaying rate of crimes per meter for each segment
 </p>
 </div>
 <p>We can now see that that longer road there (Telegraph Road) is no longer so dominant once we’ve controlled for length.</p>
@@ -913,9 +918,9 @@ FIGURE 9.12: Hot routes map displaying rate of crimes per meter for each segment
 <span id="cb416-7"><a href="crime-along-spatial-networks.html#cb416-7" aria-hidden="true" tabindex="-1"></a>                         <span class="at">high =</span> <span class="st">&quot;#b2182b&quot;</span>) <span class="sc">+</span></span>
 <span id="cb416-8"><a href="crime-along-spatial-networks.html#cb416-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_size_continuous</span>(<span class="at">name =</span> <span class="st">&quot;Rate of crimes per meter (width)&quot;</span>) </span></code></pre></div>
 <div class="figure"><span style="display:block;" id="fig:unnamed-chunk-236"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-236-1.png" alt="Hot routes map displaying rate of crimes per meter for each segment with line width as well as colour" width="672" />
+<img src="crime_mapping_files/figure-html/unnamed-chunk-236-1.png" alt="The previous figure has been slightly altered, and has gained a second legend labeled 'Rate of crimes per meter (width)', matching four examples of line widths to numbers from zero to point zero six. The width of streets shaded darker has grown, with some of the more red streets being wider than their length." width="672" />
 <p class="caption">
-FIGURE 9.13: Hot routes map displaying rate of crimes per meter for each segment with line width as well as colour
+FIGURE 9.14: Hot routes map displaying rate of crimes per meter for each segment with line width as well as colour
 </p>
 </div>
 </div>
@@ -945,9 +950,9 @@ FIGURE 9.13: Hot routes map displaying rate of crimes per meter for each segment
 <span id="cb420-3"><a href="crime-along-spatial-networks.html#cb420-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> telegraph_rd, <span class="fu">aes</span>(<span class="at">colour =</span> osm_id), <span class="at">lwd =</span> <span class="fl">1.5</span>, <span class="at">alpha =</span> <span class="fl">0.8</span>) <span class="sc">+</span> </span>
 <span id="cb420-4"><a href="crime-along-spatial-networks.html#cb420-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>() <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">&quot;none&quot;</span>)</span></code></pre></div>
 <div class="figure"><span style="display:block;" id="fig:unnamed-chunk-239"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-239-1.png" alt="Default OSM segments of Telegraph Road vs intersections" width="672" />
+<img src="crime_mapping_files/figure-html/unnamed-chunk-239-1.png" alt="A small part of a line map, in particular the road running from the top left to the bottom right in the previous figures, along with roads branching off of it. The main road is broken into seven colours, while there are about fifteen to twenty roads branching off from it in thinner black lines." width="672" />
 <p class="caption">
-FIGURE 9.14: Default OSM segments of Telegraph Road vs intersections
+FIGURE 9.15: Default OSM segments of Telegraph Road vs intersections
 </p>
 </div>
 <p>We can see that they do not correspond to all the intersections. Unfortunately, we will have to carry out some data cleaning. To do this, first we unite the entire street into one, and then use the intersections to divide into the appropriate segments.</p>
@@ -976,9 +981,9 @@ FIGURE 9.14: Default OSM segments of Telegraph Road vs intersections
 <span id="cb422-3"><a href="crime-along-spatial-networks.html#cb422-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> tr_sections, <span class="fu">aes</span>(<span class="at">colour =</span> <span class="fu">as.character</span>(section)), <span class="at">lwd =</span> <span class="fl">1.5</span>, <span class="at">alpha =</span> <span class="fl">0.8</span>) <span class="sc">+</span> </span>
 <span id="cb422-4"><a href="crime-along-spatial-networks.html#cb422-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>() <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">&quot;none&quot;</span>)</span></code></pre></div>
 <div class="figure"><span style="display:block;" id="fig:unnamed-chunk-241"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-241-1.png" alt="Telegraph Road segmented at each intersection" width="672" />
+<img src="crime_mapping_files/figure-html/unnamed-chunk-241-1.png" alt="The same road and branching roads from the previous figure, with the main road now changing colours at every intersection." width="672" />
 <p class="caption">
-FIGURE 9.15: Telegraph Road segmented at each intersection
+FIGURE 9.16: Telegraph Road segmented at each intersection
 </p>
 </div>
 <p>Looks good. Now we can move to the next step and link our shoplifting incidents to these segments.</p>
@@ -1035,9 +1040,9 @@ FIGURE 9.15: Telegraph Road segmented at each intersection
 <span id="cb426-13"><a href="crime-along-spatial-networks.html#cb426-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb426-14"><a href="crime-along-spatial-networks.html#cb426-14" aria-hidden="true" tabindex="-1"></a>gridExtra<span class="sc">::</span><span class="fu">grid.arrange</span>(p1,p2, <span class="at">nrow =</span> <span class="dv">1</span>)</span></code></pre></div>
 <div class="figure"><span style="display:block;" id="fig:unnamed-chunk-245"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-245-1.png" alt="Shoplifting in summer and winter months" width="672" />
+<img src="crime_mapping_files/figure-html/unnamed-chunk-245-1.png" alt="Two plots both show one line corresponding to the main street seen in previous line maps, with its segments shaded in blue and red. A legend accompanies each one, the first labeled 'Shoplifting in summer', the second 'Shoplifting in winter'. The legends match a gradient of blue to red from the values zero to sixteen in the first plot, and zero to twelve in the second. Both roads are mostly light blue, with the same central segments being a darker red. One additional segment, different in each plot, further to the bottom right is also a shade of red." width="672" />
 <p class="caption">
-FIGURE 9.16: Shoplifting in summer and winter months
+FIGURE 9.17: Shoplifting in summer and winter months
 </p>
 </div>
 <p>We can see there may be some differences between winter and summer, but it is unclear how much.</p>
@@ -1054,9 +1059,9 @@ FIGURE 9.16: Shoplifting in summer and winter months
 <h4><span class="header-section-number">9.4.2.4</span> Visualise<a href="crime-along-spatial-networks.html#visualise" class="anchor-section" aria-label="Anchor link to header"></a></h4>
 <p>Finally, we reach the visualisation stage. To do this, we need to find the “Point A” location, which will serve as our starting point to travel down Telegraph Road. Most likely you will have to do this manually. In the case of a bus or railway route, you know the terminus stations, so you can use these. In the case of street segments, it might be more arbitrary. Here I have identified “section 3” as our starting point. Note that it’s not section 1 or 20, which means that the segments are not numbered sequentially. This means we will have to assign an order.</p>
 <div class="figure"><span style="display:block;" id="fig:unnamed-chunk-247"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-247-1.png" alt="Find starting point &quot;point a&quot; on the street" width="672" />
+<img src="crime_mapping_files/figure-html/unnamed-chunk-247-1.png" alt="The main road and the branching roads, all outlined in black. The top left of the main road, before the first intersection, is much thicker than the rest. A rounded box with the text 'Start here' is on top of the thicker segment of the road." width="672" />
 <p class="caption">
-FIGURE 9.17: Find starting point “point a” on the street
+FIGURE 9.18: Find starting point “point a” on the street
 </p>
 </div>
 <p>To assign this order, we can take our starting point (labelled “Start here”) and for each line segment we can calculate the distance to this. The idea is that we can then use this distance to order them from nearest to furthest.</p>
@@ -1087,9 +1092,9 @@ FIGURE 9.17: Find starting point “point a” on the street
 <span id="cb431-9"><a href="crime-along-spatial-networks.html#cb431-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span> </span>
 <span id="cb431-10"><a href="crime-along-spatial-networks.html#cb431-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">60</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span></code></pre></div>
 <div class="figure"><span style="display:block;" id="fig:unnamed-chunk-249"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-249-1.png" alt="Street profile with unlabelled segments" width="672" />
+<img src="crime_mapping_files/figure-html/unnamed-chunk-249-1.png" alt="A line chart over a grey grid, with vertical axis labeled 'Shoplifting incidents' randing from zero to point two five. The horizontal axis is labeled 'Telegraph Road', and contains numbers from one to twenty, but in a jumbled order. The plot stays at zero except for three points." width="672" />
 <p class="caption">
-FIGURE 9.18: Street profile with unlabelled segments
+FIGURE 9.19: Street profile with unlabelled segments
 </p>
 </div>
 <p>You might notice here that the labels are not very meaningful. We could manually recode each one to something better, or another approach is to try to get the name of the intersecting road in order to give some meaning. To do this, we can use a little loop below which will cycle through each segment, and find the nearest intersecting road from the <code>tr_intersects</code> object.</p>
@@ -1131,9 +1136,9 @@ FIGURE 9.18: Street profile with unlabelled segments
 <span id="cb433-9"><a href="crime-along-spatial-networks.html#cb433-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span> </span>
 <span id="cb433-10"><a href="crime-along-spatial-networks.html#cb433-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">60</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span></code></pre></div>
 <div class="figure"><span style="display:block;" id="fig:unnamed-chunk-251"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-251-1.png" alt="Street profile using intersecting roads on x axis" width="672" />
+<img src="crime_mapping_files/figure-html/unnamed-chunk-251-1.png" alt="The previous plot has had its horizontal axis updated, the jumbled numbers replaced with names of roads. Some of the labels are repeated with a fullstop and the number one appended to the end. The non-zero data points are 'The Mount dot one', 'Moor Lane', and 'Beacon Lane'." width="672" />
 <p class="caption">
-FIGURE 9.19: Street profile using intersecting roads on x axis
+FIGURE 9.20: Street profile using intersecting roads on x axis
 </p>
 </div>
 <p>Now you may notice that there are some repeated names (e.g. “Thurstaston Road” and “Thurstaston Road.1”) where the same intersection was snapped as “nearest” to two segments. In these cases the only solution is to go back to manual data cleaning unfortunately. However already, this is a nice point from which to start.</p>
@@ -1157,9 +1162,9 @@ FIGURE 9.19: Street profile using intersecting roads on x axis
 <span id="cb434-17"><a href="crime-along-spatial-networks.html#cb434-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">60</span>, <span class="at">hjust =</span> <span class="dv">1</span>)) <span class="sc">+</span></span>
 <span id="cb434-18"><a href="crime-along-spatial-networks.html#cb434-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">colour =</span> <span class="fu">guide_legend</span>(<span class="at">title =</span> <span class="st">&quot;Season&quot;</span>))</span></code></pre></div>
 <div class="figure"><span style="display:block;" id="fig:unnamed-chunk-252"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-252-1.png" alt="Street profile comparing summer and winter months" width="672" />
+<img src="crime_mapping_files/figure-html/unnamed-chunk-252-1.png" alt="The previous plot appears once again, with the previously plotted data now in blue. A new set of data is plotted in red, which is nonzero at 'The Mount dot one', 'The Mount', 'Moor Lane', and 'Rocky Lane South'. The maximum of the two data sets match at 'Moor Lane', while 'The Mounts' nearby also appeared in both sets." width="672" />
 <p class="caption">
-FIGURE 9.20: Street profile comparing summer and winter months
+FIGURE 9.21: Street profile comparing summer and winter months
 </p>
 </div>
 <p>The analyst could also add the other two seasons of Spring and Autumn, or compare multiple sources of data about the same thing to identify where there might be areas of underreporting in certain sources. For example I used this to map fare evasion along London bus routes from 3 different data sources. Similarly, we could compare different crime types along the road, to see if robbery also peaks in these areas, or maybe elsewhere. The possibilities are many, and this is where the strength of this method is evident, over a map, where only one variable at one time can be displayed.</p>

@@ -23,7 +23,7 @@
 <meta name="author" content="Juanjo Medina and Reka Solymosi" />
 
 
-<meta name="date" content="2022-09-02" />
+<meta name="date" content="2022-09-05" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -542,11 +542,21 @@ div.csl-indent {
 <p>The first step in any analysis is to develop some familiarity with the data you are going to be working with. We have been here before. Read the codebook. Run summary statistics for your quantitative variables, frequency distributions for your categorical variables, and visualise your variables. This will help you to detect any anomalies and give you a sense for what you have. If, for example, you run a histogram for the homicide rate for 1990 (HR90), you will get a sense of the distribution form –which of course is skewed.</p>
 <div class="sourceCode" id="cb681"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb681-1"><a href="appendix-b-regression-analysis-a-refresher.html#cb681-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
 <span id="cb681-2"><a href="appendix-b-regression-analysis-a-refresher.html#cb681-2" aria-hidden="true" tabindex="-1"></a><span class="fu">qplot</span>(<span class="at">x =</span> HR90, <span class="at">data =</span> ncovr)</span></code></pre></div>
-<p><img src="crime_mapping_files/figure-html/unnamed-chunk-409-1.png" width="672" /></p>
+<div class="figure"><span style="display:block;" id="fig:unnamed-chunk-415"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-415-1.png" alt="Histogram of the HR90 variable" width="672" />
+<p class="caption">
+FIGURE 15.1: Histogram of the HR90 variable
+</p>
+</div>
 <p>Once one has gone through the process of exploring the data in this way (or maybe using the <code>skimr</code> package - see <em>Appendix: A quick intro to R and RStudio</em>) for all the variables you want to work with, you can start exploring bivariate associations with your dependent, response or outcome variable. So, as an illustration, you could explore the association with resource deprivation (<em>RD90</em>), a measure of the level of concentrated disadvantage or social exclusion in an area, via a scatterplot:</p>
 <div class="sourceCode" id="cb682"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb682-1"><a href="appendix-b-regression-analysis-a-refresher.html#cb682-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(ncovr, <span class="fu">aes</span>(<span class="at">x =</span> RD90, <span class="at">y =</span> HR90)) <span class="sc">+</span></span>
 <span id="cb682-2"><a href="appendix-b-regression-analysis-a-refresher.html#cb682-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha=</span>.<span class="dv">2</span>) </span></code></pre></div>
-<p><img src="crime_mapping_files/figure-html/unnamed-chunk-410-1.png" width="672" /></p>
+<div class="figure"><span style="display:block;" id="fig:unnamed-chunk-416"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-416-1.png" alt="Scatterplot showing relationship between resource deprivation (RD90) and homicide rate (HR90) in the 90s" width="672" />
+<p class="caption">
+FIGURE 15.2: Scatterplot showing relationship between resource deprivation (RD90) and homicide rate (HR90) in the 90s
+</p>
+</div>
 <p>What do you think when looking at this scatterplot? Is there a relationship between the variables? Does it look as if individuals that have a high score on the X axis also have a high score on the Y axis? Or viceversa?</p>
 </div>
 <div id="motivating-regression" class="section level2 hasAnchor" number="15.2">
@@ -559,7 +569,12 @@ div.csl-indent {
 <span id="cb683-5"><a href="appendix-b-regression-analysis-a-refresher.html#cb683-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="fu">mean</span>(ncovr<span class="sc">$</span>HR90), <span class="at">linetype =</span> <span class="st">&quot;dashed&quot;</span>, <span class="at">size =</span> <span class="dv">1</span>, </span>
 <span id="cb683-6"><a href="appendix-b-regression-analysis-a-refresher.html#cb683-6" aria-hidden="true" tabindex="-1"></a>             <span class="at">color=</span><span class="st">&quot;blue&quot;</span>) <span class="sc">+</span> <span class="co"># mean = 6.183</span></span>
 <span id="cb683-7"><a href="appendix-b-regression-analysis-a-refresher.html#cb683-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">&quot;Density estimate, mean and median of homicide rate 1990&quot;</span>)</span></code></pre></div>
-<p><img src="crime_mapping_files/figure-html/unnamed-chunk-411-1.png" width="672" /></p>
+<div class="figure"><span style="display:block;" id="fig:unnamed-chunk-417"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-417-1.png" alt="Density estimate, mean, and median of homicide rate in 1990" width="672" />
+<p class="caption">
+FIGURE 15.3: Density estimate, mean, and median of homicide rate in 1990
+</p>
+</div>
 <div class="sourceCode" id="cb684"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb684-1"><a href="appendix-b-regression-analysis-a-refresher.html#cb684-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(ncovr<span class="sc">$</span>HR90)</span></code></pre></div>
 <pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 ##    0.00    1.33    4.38    6.18    8.94   71.38</code></pre>
@@ -576,16 +591,25 @@ div.csl-indent {
 <span id="cb686-7"><a href="appendix-b-regression-analysis-a-refresher.html#cb686-7" aria-hidden="true" tabindex="-1"></a>           <span class="at">size =</span> <span class="dv">2</span>, <span class="at">arrow =</span> <span class="fu">arrow</span>()) <span class="sc">+</span></span>
 <span id="cb686-8"><a href="appendix-b-regression-analysis-a-refresher.html#cb686-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">&quot;text&quot;</span>, <span class="at">x =</span> <span class="dv">3</span>, <span class="at">y =</span> <span class="dv">29</span>, <span class="at">label =</span> <span class="st">&quot;Pick this one!&quot;</span>, </span>
 <span id="cb686-9"><a href="appendix-b-regression-analysis-a-refresher.html#cb686-9" aria-hidden="true" tabindex="-1"></a>           <span class="at">size =</span><span class="dv">7</span>, <span class="at">colour =</span> <span class="st">&quot;blue&quot;</span>)</span></code></pre></div>
-<p><img src="crime_mapping_files/figure-html/unnamed-chunk-413-1.png" width="672" /></p>
+<div class="figure"><span style="display:block;" id="fig:unnamed-chunk-419"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-419-1.png" alt="Our best guess for homicide rate when resource deprivation score in the county is 4" width="672" />
+<p class="caption">
+FIGURE 15.4: Our best guess for homicide rate when resource deprivation score in the county is 4
+</p>
+</div>
 <p>Linear regression tackles this problem using a slightly different approach. Rather than focusing on the conditional mean (smoothed or not), it draws a straight line that tries to capture the trend in the data. If we focus in the region of the scatterplot that are less sparse we see that this is an upward trend, suggesting that as resource deprivation increases so does the homicide rate.</p>
 <p>Simple linear regression draws a single straight line of predicted values as the model for the data. This line would be a <strong>model</strong>, a <em>simplification</em> of the real world like any other model (e.g., a toy pistol, an architectural drawing, a subway map), that assumes that there is approximately a linear relationship between X and Y. Let’s draw the regression line using the function <code>geom_smooth()</code>. This ask for a <code>method=</code> parameter where we specify <code>lm</code> for the linear regression line. We also set <code>se=</code> to <code>FALSE</code> so we ask for just the line to be printed but not the standard error around it. The other arguments specify the color and thickness of the line.</p>
 <div class="sourceCode" id="cb687"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb687-1"><a href="appendix-b-regression-analysis-a-refresher.html#cb687-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> ncovr, <span class="fu">aes</span>(<span class="at">x =</span> RD90, <span class="at">y =</span> HR90)) <span class="sc">+</span></span>
 <span id="cb687-2"><a href="appendix-b-regression-analysis-a-refresher.html#cb687-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> .<span class="dv">2</span>) <span class="sc">+</span></span>
 <span id="cb687-3"><a href="appendix-b-regression-analysis-a-refresher.html#cb687-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">&quot;lm&quot;</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">color =</span> <span class="st">&quot;red&quot;</span>, <span class="at">size =</span> <span class="dv">1</span>) </span></code></pre></div>
-<p><img src="crime_mapping_files/figure-html/unnamed-chunk-414-1.png" width="672" /></p>
+<div class="figure"><span style="display:block;" id="fig:unnamed-chunk-420"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-420-1.png" alt="Linear regression line on relationship between homicide rate and resource deprivation" width="672" />
+<p class="caption">
+FIGURE 15.5: Linear regression line on relationship between homicide rate and resource deprivation
+</p>
+</div>
 <p>What that line is doing is giving you guesses (predictions) for the values of homicide based in the information that we have about the level of resource deprivation. It gives you one possible guess for the value of homicide for every possible value of resource deprivation and links them all together in a straight line.</p>
-<p>The linear model then is a model that takes the form of the equation of a straight line through the data. The line does not go through all the points. In fact, you can see is a slightly less accurate representation than the (smoothed) conditional means:</p>
-<p><img src="crime_mapping_files/figure-html/unnamed-chunk-415-1.png" width="672" /></p>
+<p>The linear model then is a model that takes the form of the equation of a straight line through the data. The line does not go through all the points.</p>
 <p>Our regression line underpredicts at low levels of resource deprivation and does not seem to capture well the variability at higher levels of resource deprivation. But imperfect as a model as it might be it simplifies well the overall growing trend for homicide as resource deprivation increases.</p>
 <p>As <span class="citation">Veaux, Velleman, and Bock (<a href="#ref-DeVeaux_2012" role="doc-biblioref">2012</a>)</span> highlight: “like all models of the real world, the line will be wrong, wrong in the sense that it can’t match reality exactly. But it can help us understand how the variables are associated” (p. 179). A map is never a perfect representation of the world, the same happens with statistical models. Yet, as with maps, models can be helpful.</p>
 </div>
@@ -667,14 +691,24 @@ div.csl-indent {
 <div id="residuals-revisited-r-squared" class="section level2 hasAnchor" number="15.4">
 <h2><span class="header-section-number">15.4</span> Residuals revisited: R squared<a href="appendix-b-regression-analysis-a-refresher.html#residuals-revisited-r-squared" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>In the output above we saw there was something called the residuals. The residuals are the differences between the observed values of Y for each case minus the predicted or expected value of Y, in other words the distances between each point in the dataset and the regression line (see the visual example below).</p>
-<p><img src="crime_mapping_files/figure-html/unnamed-chunk-422-1.png" width="672" /></p>
+<div class="figure"><span style="display:block;" id="fig:unnamed-chunk-427"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-427-1.png" alt="Predicted values, measured value, and residual" width="672" />
+<p class="caption">
+FIGURE 15.6: Predicted values, measured value, and residual
+</p>
+</div>
 <p>You see that we have our line, which is our predicted values, and then we have the black dots which are our actually observed values. The distance between them is essentially the amount by which we were wrong, and all these distances between observed and predicted values are our residuals. Least square estimation essentially aims to reduce the average of the squares of all these distances: that’s how it draws the line.</p>
 <p>Why do we have residuals? Well, think about it. The fact that the line is not a perfect representation of the cloud of points makes sense, doesn’t it? You cannot predict perfectly what the value of Y is for every observation just by looking ONLY at their level of resource deprivation! This line only uses information regarding resource deprivation. This means that there’s bound to be some difference between our predicted level of homicide given our knowledge of deprivation (the regression line) and the actual level of homicide (the actual location of the points in the scatterplot). There are other things that matter not being taken into account by our model to predict the values of Y. There are other things that surely matter in terms of understanding homicide. And then, of course, we have measurement error and other forms of noise.</p>
 <p>We can re-write our equation like this if we want to represent each value of Y (rather than the predicted value of Y) then:
 <span class="math inline">\(y = \beta_0 + \beta_1x + \text{residuals}\)</span></p>
 <p>The residuals capture how much variation is unexplained, how much we still have to learn if we want to understand variation in Y. A good model tries to maximise explained variation and reduce the magnitude of the residuals.</p>
 <p>We can use information from the residuals to produce a measure of effect size, of how good our model is in predicting variation in our dependent variables. Remember our game where we try to guess homicide (Y)? If we did not have any information about X our best bet for Y would be the mean of Y. The regression line aims to improve that prediction. By knowing the values of X we can build a regression line that aims to get us closer to the actual values of Y (look at the Figure below).</p>
-<p><img src="crime_mapping_files/figure-html/unnamed-chunk-423-1.png" width="672" /></p>
+<div class="figure"><span style="display:block;" id="fig:unnamed-chunk-428"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-428-1.png" alt="Illustration of explained, unexplained, and total deviation" width="672" />
+<p class="caption">
+FIGURE 15.7: Illustration of explained, unexplained, and total deviation
+</p>
+</div>
 <p>The distance between the mean (our best guess without any other piece of information) and the observed value of Y is what we call the <strong>total variation</strong>. The residual is the difference between our predicted value of Y and the observed value of Y. This is what we cannot explain (i.e, variation in Y that is <em>unexplained</em>). The difference between the mean value of Y and the expected value of Y (the value given by our regression line) is how much better we are doing with our prediction by using information about X (i.e., in our previous example it would be variation in Y that can be <em>explained</em> by knowing about resource deprivation). How much closer the regression line gets us to the observed values. We can then contrast these two different sources of variation (explained and unexplained) to produce a single measure of how good our model is. The formula is as follows:</p>
 <p><span class="math display">\[R^2 = \dfrac{SSR}{SST} = \dfrac{\Sigma(\hat y_i - \bar y )^2}{\Sigma(y_i - \bar y )^2}\]</span></p>
 <p>All this formula is doing is taking a ratio of the explained variation (the squared differences between the regression line and the mean of Y for each observation) by the total variation (the squared differences of the observed values of Y for each observation from the mean of Y). This gives us a measure of the <strong>percentage of variation in Y that is “explained” by X</strong>. If this sounds familiar is because it is a measure similar to eta squared (<span class="math inline">\(eta^2\)</span>) in ANOVA.</p>
@@ -717,15 +751,9 @@ div.csl-indent {
 <p>There is only one categorical explanatory variable in this dataset, a binary indicator that indicates whether the county is in a Southern State or not. We can also explore this relationship using regression and a regression line. This is how you would express the model:</p>
 <div class="sourceCode" id="cb709"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb709-1"><a href="appendix-b-regression-analysis-a-refresher.html#cb709-1" aria-hidden="true" tabindex="-1"></a><span class="co">#We use the as.factor function to tell R that SOUTH is a categorical variable</span></span>
 <span id="cb709-2"><a href="appendix-b-regression-analysis-a-refresher.html#cb709-2" aria-hidden="true" tabindex="-1"></a>fit_2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(HR90 <span class="sc">~</span> <span class="fu">as.factor</span>(SOUTH), <span class="at">data=</span>ncovr)</span></code></pre></div>
-<p>Notice that there is nothing different in how we ask for the model. And see below the regression line:</p>
-<div class="sourceCode" id="cb710"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb710-1"><a href="appendix-b-regression-analysis-a-refresher.html#cb710-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>ncovr, <span class="fu">aes</span>(<span class="at">x=</span><span class="fu">as.factor</span>(SOUTH), <span class="at">y=</span>HR90)) <span class="sc">+</span></span>
-<span id="cb710-2"><a href="appendix-b-regression-analysis-a-refresher.html#cb710-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha=</span>.<span class="dv">2</span>, <span class="at">position=</span><span class="st">&quot;jitter&quot;</span>, <span class="at">color=</span><span class="st">&quot;orange&quot;</span>) <span class="sc">+</span></span>
-<span id="cb710-3"><a href="appendix-b-regression-analysis-a-refresher.html#cb710-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">intercept =</span> fit_2<span class="sc">$</span>coefficients[<span class="dv">1</span>],</span>
-<span id="cb710-4"><a href="appendix-b-regression-analysis-a-refresher.html#cb710-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">slope =</span> fit_2<span class="sc">$</span>coefficients[<span class="dv">2</span>], <span class="at">color=</span><span class="st">&quot;red&quot;</span>, <span class="at">size=</span><span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb710-5"><a href="appendix-b-regression-analysis-a-refresher.html#cb710-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code></pre></div>
-<p><img src="crime_mapping_files/figure-html/unnamed-chunk-429-1.png" width="672" /></p>
+<p>Notice that there is nothing different in how we ask for the model.</p>
 <p>Let’s have a look at the results:</p>
-<div class="sourceCode" id="cb711"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb711-1"><a href="appendix-b-regression-analysis-a-refresher.html#cb711-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_2)</span></code></pre></div>
+<div class="sourceCode" id="cb710"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb710-1"><a href="appendix-b-regression-analysis-a-refresher.html#cb710-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_2)</span></code></pre></div>
 <pre><code>## 
 ## Call:
 ## lm(formula = HR90 ~ as.factor(SOUTH), data = ncovr)
@@ -751,9 +779,9 @@ div.csl-indent {
 <p>As you will see the output does not look too different. But notice that in the print out you see how the row with the coefficient and other values for our input variable <code>SOUTH</code> we see that R is printing <code>1</code>. What does this mean?</p>
 <p>It turns out that a linear regression model with just one dichotomous categorical predictor is just the equivalent of a t test. When you only have one predictor the value of the intercept is the mean value of the <strong>reference category</strong> and the coefficient for the slope tells you how much higher (if it is positive) or how much lower (if it is negative) is the mean value for the other category in your factor.</p>
 <p>The reference category is the one for which R does not print the <em>level</em> next to the name of the variable for which it gives you the regression coefficient. Here we see that the named level is “1”. That’s telling you that the reference category here is “0”. If you look at the codebook you will see that 1 means the county is in a Southern state. Therefore the Y intercept in this case is the mean value of fear of violent crime for the northern counties, whereas the coefficient for the slope is telling you how much higher (since it is a positive value) the mean value is for the southern counties. Don’t believe me?</p>
-<div class="sourceCode" id="cb713"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb713-1"><a href="appendix-b-regression-analysis-a-refresher.html#cb713-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(ncovr<span class="sc">$</span>HR90[ncovr<span class="sc">$</span>SOUTH <span class="sc">==</span> <span class="dv">0</span>], <span class="at">na.rm=</span><span class="cn">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb712"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb712-1"><a href="appendix-b-regression-analysis-a-refresher.html#cb712-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(ncovr<span class="sc">$</span>HR90[ncovr<span class="sc">$</span>SOUTH <span class="sc">==</span> <span class="dv">0</span>], <span class="at">na.rm=</span><span class="cn">TRUE</span>)</span></code></pre></div>
 <pre><code>## [1] 3.342</code></pre>
-<div class="sourceCode" id="cb715"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb715-1"><a href="appendix-b-regression-analysis-a-refresher.html#cb715-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(ncovr<span class="sc">$</span>HR90[ncovr<span class="sc">$</span>SOUTH <span class="sc">==</span> <span class="dv">1</span>], <span class="at">na.rm=</span><span class="cn">TRUE</span>) <span class="sc">-</span> <span class="fu">mean</span>(ncovr<span class="sc">$</span>HR90[ncovr<span class="sc">$</span>SOUTH <span class="sc">==</span> <span class="dv">0</span>], <span class="at">na.rm=</span><span class="cn">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb714"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb714-1"><a href="appendix-b-regression-analysis-a-refresher.html#cb714-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(ncovr<span class="sc">$</span>HR90[ncovr<span class="sc">$</span>SOUTH <span class="sc">==</span> <span class="dv">1</span>], <span class="at">na.rm=</span><span class="cn">TRUE</span>) <span class="sc">-</span> <span class="fu">mean</span>(ncovr<span class="sc">$</span>HR90[ncovr<span class="sc">$</span>SOUTH <span class="sc">==</span> <span class="dv">0</span>], <span class="at">na.rm=</span><span class="cn">TRUE</span>)</span></code></pre></div>
 <pre><code>## [1] 6.208</code></pre>
 <p>So, to reiterate, for a binary predictor, the coefficient is nothing else than the difference between the mean of the two levels in your factor variable, between the averages in your two groups.</p>
 <p>With categorical variables encoded as <strong>factors</strong> you always have a situation like this: a reference category and then as many additional coefficients as there are additional levels in your categorical variable. Each of these additional categories is included into the model as <strong>“dummy” variables</strong>. Here our categorical variable has two levels, thus we have only one dummy variable. There will always be one fewer dummy variable than the number of levels. The level with no dummy variable, northern counties in this example, is known as the <strong>reference category</strong> or the <strong>baseline</strong>.</p>
@@ -772,9 +800,9 @@ div.csl-indent {
 <div id="fitting-and-interpreting-a-multiple-regression-model" class="section level2 hasAnchor" number="15.8">
 <h2><span class="header-section-number">15.8</span> Fitting and interpreting a multiple regression model<a href="appendix-b-regression-analysis-a-refresher.html#fitting-and-interpreting-a-multiple-regression-model" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>It could not be any easier to fit a multiple regression model. You simply modify the formula in the <code>lm()</code> function by adding terms for the additional inputs.</p>
-<div class="sourceCode" id="cb717"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb717-1"><a href="appendix-b-regression-analysis-a-refresher.html#cb717-1" aria-hidden="true" tabindex="-1"></a>ncovr<span class="sc">$</span>SOUTH_f <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(ncovr<span class="sc">$</span>SOUTH)</span>
-<span id="cb717-2"><a href="appendix-b-regression-analysis-a-refresher.html#cb717-2" aria-hidden="true" tabindex="-1"></a>fit_3 <span class="ot">&lt;-</span> <span class="fu">lm</span>(HR90 <span class="sc">~</span> RD90 <span class="sc">+</span> SOUTH_f, <span class="at">data=</span>ncovr)</span>
-<span id="cb717-3"><a href="appendix-b-regression-analysis-a-refresher.html#cb717-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_3)</span></code></pre></div>
+<div class="sourceCode" id="cb716"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb716-1"><a href="appendix-b-regression-analysis-a-refresher.html#cb716-1" aria-hidden="true" tabindex="-1"></a>ncovr<span class="sc">$</span>SOUTH_f <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(ncovr<span class="sc">$</span>SOUTH)</span>
+<span id="cb716-2"><a href="appendix-b-regression-analysis-a-refresher.html#cb716-2" aria-hidden="true" tabindex="-1"></a>fit_3 <span class="ot">&lt;-</span> <span class="fu">lm</span>(HR90 <span class="sc">~</span> RD90 <span class="sc">+</span> SOUTH_f, <span class="at">data=</span>ncovr)</span>
+<span id="cb716-3"><a href="appendix-b-regression-analysis-a-refresher.html#cb716-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_3)</span></code></pre></div>
 <pre><code>## 
 ## Call:
 ## lm(formula = HR90 ~ RD90 + SOUTH_f, data = ncovr)
@@ -810,38 +838,48 @@ div.csl-indent {
 <h2><span class="header-section-number">15.9</span> Presenting your regression results.<a href="appendix-b-regression-analysis-a-refresher.html#presenting-your-regression-results." class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Communicating your results in a clear manner is incredibly important. We have seen the tabular results produced by R. If you want to use them in a paper you may need to do some tidying up of those results. There are a number of packages (<code>textreg</code>, <code>stargazer</code>) that automatise that process. They take your <code>lm</code> objects and produce tables that you can put straight away in your reports or papers. One popular trend in presenting results is the <strong>coefficient plot</strong> as an alternative to the table of regression coefficients. There are various ways of producing coefficient plots with R for a variety of models.</p>
 <p>We are going to use instead the <code>plot_model()</code> function of the <code>sjPlot</code> package, that makes it easier to produce this sort of plots.</p>
-<div class="sourceCode" id="cb719"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb719-1"><a href="appendix-b-regression-analysis-a-refresher.html#cb719-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sjPlot)</span></code></pre></div>
+<div class="sourceCode" id="cb718"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb718-1"><a href="appendix-b-regression-analysis-a-refresher.html#cb718-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sjPlot)</span></code></pre></div>
 <p>Let’s try with a more complex example:</p>
-<div class="sourceCode" id="cb720"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb720-1"><a href="appendix-b-regression-analysis-a-refresher.html#cb720-1" aria-hidden="true" tabindex="-1"></a>fit_4 <span class="ot">&lt;-</span> <span class="fu">lm</span>(HR90 <span class="sc">~</span> RD90 <span class="sc">+</span> SOUTH_f <span class="sc">+</span> DV90 <span class="sc">+</span> MA90 <span class="sc">+</span> PS90, <span class="at">data=</span>ncovr)</span>
-<span id="cb720-2"><a href="appendix-b-regression-analysis-a-refresher.html#cb720-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_model</span>(fit_4, <span class="at">breakLabelsAt =</span> <span class="dv">30</span>)</span></code></pre></div>
-<p><img src="crime_mapping_files/figure-html/unnamed-chunk-434-1.png" width="672" /></p>
+<div class="sourceCode" id="cb719"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb719-1"><a href="appendix-b-regression-analysis-a-refresher.html#cb719-1" aria-hidden="true" tabindex="-1"></a>fit_4 <span class="ot">&lt;-</span> <span class="fu">lm</span>(HR90 <span class="sc">~</span> RD90 <span class="sc">+</span> SOUTH_f <span class="sc">+</span> DV90 <span class="sc">+</span> MA90 <span class="sc">+</span> PS90, <span class="at">data=</span>ncovr)</span>
+<span id="cb719-2"><a href="appendix-b-regression-analysis-a-refresher.html#cb719-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_model</span>(fit_4, <span class="at">breakLabelsAt =</span> <span class="dv">30</span>)</span></code></pre></div>
+<div class="figure"><span style="display:block;" id="fig:unnamed-chunk-438"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-438-1.png" alt="Regression forest plot for the results of a regression" width="672" />
+<p class="caption">
+FIGURE 15.8: Regression forest plot for the results of a regression
+</p>
+</div>
 <p>What you see plotted here is the point estimates (the circles), the confidence intervals around those estimates (the longer the line the less precise the estimate), and the colours represent whether the effect is negative (red) or positive (blue). There are other packages that also provide similar functionality, like the <code>dotwhisker</code> package that you may want to explore.</p>
 <p>The <code>sjPlot</code> package also allows you to produce html tables for more professional presentation of your regression tables. For this we use the <code>tab_model()</code> function.</p>
-<div class="sourceCode" id="cb721"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb721-1"><a href="appendix-b-regression-analysis-a-refresher.html#cb721-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tab_model</span>(fit_4)</span></code></pre></div>
+<div class="sourceCode" id="cb720"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb720-1"><a href="appendix-b-regression-analysis-a-refresher.html#cb720-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tab_model</span>(fit_4)</span></code></pre></div>
 <p>You can customise this table. For example, you can change the name that is displayed for the dependent variable with the <code>dv.labels =</code> parameter, and you could change the labels for the independent variables with the <code>pred.labels =</code> parameter.</p>
-<div class="sourceCode" id="cb722"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb722-1"><a href="appendix-b-regression-analysis-a-refresher.html#cb722-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tab_model</span>(fit_4, </span>
-<span id="cb722-2"><a href="appendix-b-regression-analysis-a-refresher.html#cb722-2" aria-hidden="true" tabindex="-1"></a>          <span class="at">dv.labels =</span> <span class="st">&quot;Homicide rate 1990&quot;</span>, </span>
-<span id="cb722-3"><a href="appendix-b-regression-analysis-a-refresher.html#cb722-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">pred.labels =</span> <span class="fu">c</span>(<span class="st">&quot;(Intercept)&quot;</span>, <span class="st">&quot;Resource deprivation&quot;</span>,<span class="st">&quot;South&quot;</span>, </span>
-<span id="cb722-4"><a href="appendix-b-regression-analysis-a-refresher.html#cb722-4" aria-hidden="true" tabindex="-1"></a>                          <span class="st">&quot;Percent divorced males&quot;</span>, <span class="st">&quot;Median age&quot;</span>,<span class="st">&quot;Population structure&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb721"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb721-1"><a href="appendix-b-regression-analysis-a-refresher.html#cb721-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tab_model</span>(fit_4, </span>
+<span id="cb721-2"><a href="appendix-b-regression-analysis-a-refresher.html#cb721-2" aria-hidden="true" tabindex="-1"></a>          <span class="at">dv.labels =</span> <span class="st">&quot;Homicide rate 1990&quot;</span>, </span>
+<span id="cb721-3"><a href="appendix-b-regression-analysis-a-refresher.html#cb721-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">pred.labels =</span> <span class="fu">c</span>(<span class="st">&quot;(Intercept)&quot;</span>, <span class="st">&quot;Resource deprivation&quot;</span>,<span class="st">&quot;South&quot;</span>, </span>
+<span id="cb721-4"><a href="appendix-b-regression-analysis-a-refresher.html#cb721-4" aria-hidden="true" tabindex="-1"></a>                          <span class="st">&quot;Percent divorced males&quot;</span>, <span class="st">&quot;Median age&quot;</span>,<span class="st">&quot;Population structure&quot;</span>))</span></code></pre></div>
 <p>The <code>tab_model()</code> function is great if you have a html output. In case you’re making your tables for a PDF output, you might want to consider the <code>stargazer</code> package, from which the function <code>stargazer()</code> stargazer command produces LaTeX code, HTML code and ASCII text for well-formatted tables.</p>
-<div class="sourceCode" id="cb723"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb723-1"><a href="appendix-b-regression-analysis-a-refresher.html#cb723-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stargazer)</span></code></pre></div>
-<div class="sourceCode" id="cb724"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb724-1"><a href="appendix-b-regression-analysis-a-refresher.html#cb724-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stargazer</span>(fit_4)</span></code></pre></div>
+<div class="sourceCode" id="cb722"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb722-1"><a href="appendix-b-regression-analysis-a-refresher.html#cb722-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stargazer)</span></code></pre></div>
+<div class="sourceCode" id="cb723"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb723-1"><a href="appendix-b-regression-analysis-a-refresher.html#cb723-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stargazer</span>(fit_4)</span></code></pre></div>
 % Table created by stargazer v.5.2.3 by Marek Hlavac, Social Policy Institute. E-mail: marek.hlavac at gmail.com
-% Date and time: Fri, Sep 02, 2022 - 14:57:38
+% Date and time: Mon, Sep 05, 2022 - 13:49:37
 <p>You could also use this to show the results of several models side by side.</p>
-<div class="sourceCode" id="cb725"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb725-1"><a href="appendix-b-regression-analysis-a-refresher.html#cb725-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stargazer</span>(fit_3, fit_4)</span></code></pre></div>
+<div class="sourceCode" id="cb724"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb724-1"><a href="appendix-b-regression-analysis-a-refresher.html#cb724-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stargazer</span>(fit_3, fit_4)</span></code></pre></div>
 % Table created by stargazer v.5.2.3 by Marek Hlavac, Social Policy Institute. E-mail: marek.hlavac at gmail.com
-% Date and time: Fri, Sep 02, 2022 - 14:57:38
+% Date and time: Mon, Sep 05, 2022 - 13:49:37
 <p>Besides tables, visual display of the effects of the variables in the model are particularly helpful. The <code>effects</code> package allows us to produce plots to visualise these relationships (when adjusting for the other variables in the model). Here’s an example going back to our model fit_3 which contained <em>SOUTH</em> and <em>RD90</em> predictor variables:</p>
-<div class="sourceCode" id="cb726"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb726-1"><a href="appendix-b-regression-analysis-a-refresher.html#cb726-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(effects)</span>
-<span id="cb726-2"><a href="appendix-b-regression-analysis-a-refresher.html#cb726-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">allEffects</span>(fit_3), <span class="at">ask=</span><span class="cn">FALSE</span>)</span></code></pre></div>
-<p><img src="crime_mapping_files/figure-html/unnamed-chunk-438-1.png" width="672" /></p>
+<div class="sourceCode" id="cb725"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb725-1"><a href="appendix-b-regression-analysis-a-refresher.html#cb725-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(effects)</span>
+<span id="cb725-2"><a href="appendix-b-regression-analysis-a-refresher.html#cb725-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">allEffects</span>(fit_3), <span class="at">ask=</span><span class="cn">FALSE</span>)</span></code></pre></div>
+<div class="figure"><span style="display:block;" id="fig:unnamed-chunk-442"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-442-1.png" alt="Effect plots for a regression" width="672" />
+<p class="caption">
+FIGURE 15.9: Effect plots for a regression
+</p>
+</div>
 <p>Notice that the line has a confidence interval drawn around it and that the predicted means for southern and northern counties (when controlling for <em>RD90</em>) also have a confidence interval.</p>
 </div>
 <div id="rescaling-input-variables-to-assist-interpretation" class="section level2 hasAnchor" number="15.10">
 <h2><span class="header-section-number">15.10</span> Rescaling input variables to assist interpretation<a href="appendix-b-regression-analysis-a-refresher.html#rescaling-input-variables-to-assist-interpretation" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>The interpretation or regression coefficients is sensitive to the scale of measurement of the predictors. This means one cannot compare the magnitude of the coefficients to compare the relevance of variables to predict the response variable. Let’s look at the more recent model, how can we tell what predictors have a stronger effect?</p>
-<div class="sourceCode" id="cb727"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb727-1"><a href="appendix-b-regression-analysis-a-refresher.html#cb727-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_4)</span></code></pre></div>
+<div class="sourceCode" id="cb726"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb726-1"><a href="appendix-b-regression-analysis-a-refresher.html#cb726-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_4)</span></code></pre></div>
 <pre><code>## 
 ## Call:
 ## lm(formula = HR90 ~ RD90 + SOUTH_f + DV90 + MA90 + PS90, data = ncovr)
@@ -868,7 +906,7 @@ div.csl-indent {
 <p>We just cannot. One way of dealing with this is by rescaling the input variables. A common method involves subtracting the mean and dividing by the standard deviation of each numerical input. The coefficients in these models is the expected difference in the response variable, comparing units that differ by one standard deviation in the predictor while adjusting for other predictors in the model.</p>
 <p>Instead, <span class="citation">Gelman (<a href="#ref-Gelman_2008" role="doc-biblioref">2008</a>)</span> has proposed dividing each numeric variables <em>by two times its standard deviation</em>, so that the generic comparison is with inputs equal to plus/minus one standard deviation. As Gelman explains the resulting coefficients are then comparable to untransformed binary predictors. The implementation of this approach in the <code>arm</code> package subtract the mean of each binary input while it subtract the mean and divide by two standard deviations for every numeric input.</p>
 <p>The way we would obtain these rescaled inputs uses the <code>standardize()</code> function of the <code>arm</code> package, that takes as an argument the name of the stored fit model.</p>
-<div class="sourceCode" id="cb729"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb729-1"><a href="appendix-b-regression-analysis-a-refresher.html#cb729-1" aria-hidden="true" tabindex="-1"></a>arm<span class="sc">::</span><span class="fu">standardize</span>(fit_4)</span></code></pre></div>
+<div class="sourceCode" id="cb728"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb728-1"><a href="appendix-b-regression-analysis-a-refresher.html#cb728-1" aria-hidden="true" tabindex="-1"></a>arm<span class="sc">::</span><span class="fu">standardize</span>(fit_4)</span></code></pre></div>
 <pre><code>## 
 ## Call:
 ## lm(formula = HR90 ~ z.RD90 + c.SOUTH_f + z.DV90 + z.MA90 + z.PS90, 
@@ -888,10 +926,10 @@ div.csl-indent {
 <p>One of the assumptions of the regression model is that the relationship between the response variable and your predictors is additive. That is, if you have two predictors <span class="math inline">\(x_1\)</span> and <span class="math inline">\(x_2\)</span>. Regression assumes that the effect of <span class="math inline">\(x_1\)</span> on <code>y</code> is the same at all levels of <span class="math inline">\(x_2\)</span>. If that is not the case, you are then violating one of the assumptions of regression. This is in fact one of the most important assumptions of regression, even if researchers often overlook it.</p>
 <p>One way of extending our model to accommodate for interaction effects is to add additional terms to our model, a third predictor <span class="math inline">\(x_3\)</span>, where <span class="math inline">\(x_3\)</span> is simply the product of multiplying <span class="math inline">\(x_1\)</span> by <span class="math inline">\(x_2\)</span>. Notice we keep a term for each of the <strong>main effects</strong> (the original predictors) as well as a new term for the interaction effect. “Analysts should include all constitutive terms when specifying multiplicative interaction models except in very rare circumstances” <span class="citation">Brambor, Clark, and Golder (<a href="#ref-Brambor_2006" role="doc-biblioref">2006</a>)</span> p.66).</p>
 <p>How do we do this in R? One way is to use the following notation in the formula argument. Notice how we have added a third term <code>RD90:SOUTH_f</code>, which is asking R to test the conditional hypothesis that resource deprivation may have a different impact on homicide for southern and northern counties.</p>
-<div class="sourceCode" id="cb731"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb731-1"><a href="appendix-b-regression-analysis-a-refresher.html#cb731-1" aria-hidden="true" tabindex="-1"></a>fit_5 <span class="ot">&lt;-</span> <span class="fu">lm</span>(HR90 <span class="sc">~</span> RD90 <span class="sc">+</span> SOUTH_f <span class="sc">+</span> RD90<span class="sc">:</span>SOUTH_f , <span class="at">data=</span>ncovr)</span>
-<span id="cb731-2"><a href="appendix-b-regression-analysis-a-refresher.html#cb731-2" aria-hidden="true" tabindex="-1"></a><span class="co"># which is equivalent to: </span></span>
-<span id="cb731-3"><a href="appendix-b-regression-analysis-a-refresher.html#cb731-3" aria-hidden="true" tabindex="-1"></a><span class="co"># fit_5 &lt;- lm(HR90 ~ RD90 * SOUTH_f , data=ncovr)</span></span>
-<span id="cb731-4"><a href="appendix-b-regression-analysis-a-refresher.html#cb731-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_5)</span></code></pre></div>
+<div class="sourceCode" id="cb730"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb730-1"><a href="appendix-b-regression-analysis-a-refresher.html#cb730-1" aria-hidden="true" tabindex="-1"></a>fit_5 <span class="ot">&lt;-</span> <span class="fu">lm</span>(HR90 <span class="sc">~</span> RD90 <span class="sc">+</span> SOUTH_f <span class="sc">+</span> RD90<span class="sc">:</span>SOUTH_f , <span class="at">data=</span>ncovr)</span>
+<span id="cb730-2"><a href="appendix-b-regression-analysis-a-refresher.html#cb730-2" aria-hidden="true" tabindex="-1"></a><span class="co"># which is equivalent to: </span></span>
+<span id="cb730-3"><a href="appendix-b-regression-analysis-a-refresher.html#cb730-3" aria-hidden="true" tabindex="-1"></a><span class="co"># fit_5 &lt;- lm(HR90 ~ RD90 * SOUTH_f , data=ncovr)</span></span>
+<span id="cb730-4"><a href="appendix-b-regression-analysis-a-refresher.html#cb730-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_5)</span></code></pre></div>
 <pre><code>## 
 ## Call:
 ## lm(formula = HR90 ~ RD90 + SOUTH_f + RD90:SOUTH_f, data = ncovr)
@@ -915,8 +953,13 @@ div.csl-indent {
 ## F-statistic:  592 on 3 and 3081 DF,  p-value: &lt;2e-16</code></pre>
 <p>You see here that essentially you have only two inputs (resource deprivation and south) but several regression coefficients. Gelman and Hill (2007) suggest reserving the term input for the variables encoding the information and to use the term predictor to refer to each of the terms in the model. So here we have two inputs and three predictors (one for SOUTH, another for resource deprivation, and a final one for the interaction effect).</p>
 <p>In this case the test for the interaction effect is significant, which suggests there is such an interaction. Let’s visualise the results with the <code>effects</code> package:</p>
-<div class="sourceCode" id="cb733"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb733-1"><a href="appendix-b-regression-analysis-a-refresher.html#cb733-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">allEffects</span>(fit_5), <span class="at">ask=</span><span class="cn">FALSE</span>)</span></code></pre></div>
-<p><img src="crime_mapping_files/figure-html/unnamed-chunk-442-1.png" width="672" /></p>
+<div class="sourceCode" id="cb732"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb732-1"><a href="appendix-b-regression-analysis-a-refresher.html#cb732-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">allEffects</span>(fit_5), <span class="at">ask=</span><span class="cn">FALSE</span>)</span></code></pre></div>
+<div class="figure"><span style="display:block;" id="fig:unnamed-chunk-446"></span>
+<img src="crime_mapping_files/figure-html/unnamed-chunk-446-1.png" alt="Effecet plots for regression testing conditional hypothesis" width="672" />
+<p class="caption">
+FIGURE 15.10: Effecet plots for regression testing conditional hypothesis
+</p>
+</div>
 <p>Notice that essentially what we are doing is running two regression lines and testing whether the slope is different for the two groups. The intercept is different, we know that Southern counties are more violent, but what we are testing here is whether the level of homicide goes up in a steeper fashion (and in the same direction) for one or the other group as the level of resource deprivation goes up. We see that’s the case here. The estimated lines are almost parallel, but the slope is a bit more steep in the Southern counties. In southern counties resource deprivation seems to have more of an impact on homicide than in northern counties.</p>
 <p>A word of warning, the moment you introduce an interaction effect the meaning of the coefficients for the other predictors changes (what it is often referred as to the “main effects” as opposed to the interaction effect). You cannot retain the interpretation we introduced earlier. Now, for example, the coefficient for the <code>SOUTH</code> variable relates the marginal effect of this variable when <code>RD90</code> equals zero. The typical table of results helps you to understand whether the effects are significant but offers little of interest that will help you to meaningfully interpret what the effects are. For this is better you use some of the graphical displays we have covered.</p>
 <p>Essentially what happens is that the regression coefficients that get printed are interpretable only for certain groups. So now:</p>

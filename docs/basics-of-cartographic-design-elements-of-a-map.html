@@ -23,7 +23,7 @@
 <meta name="author" content="Juanjo Medina and Reka Solymosi" />
 
 
-<meta name="date" content="2022-09-02" />
+<meta name="date" content="2022-09-05" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -693,7 +693,12 @@ FIGURE 6.8: Graduated symbol map with triangle shape
 <div class="sourceCode" id="cb240"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb240-1"><a href="basics-of-cartographic-design-elements-of-a-map.html#cb240-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> hu_dd) <span class="sc">+</span> </span>
 <span id="cb240-2"><a href="basics-of-cartographic-design-elements-of-a-map.html#cb240-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill =</span> pos_rate), <span class="at">lwd =</span> <span class="fl">0.5</span>, <span class="at">col =</span> <span class="st">&quot;white&quot;</span>) <span class="sc">+</span> </span>
 <span id="cb240-3"><a href="basics-of-cartographic-design-elements-of-a-map.html#cb240-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>()</span></code></pre></div>
-<p><img src="crime_mapping_files/figure-html/themmapratefill-1.png" width="672" /></p>
+<div class="figure"><span style="display:block;" id="fig:themmapratefill"></span>
+<img src="crime_mapping_files/figure-html/themmapratefill-1.png" alt="The map of Hungary, shaded in blues similar to before. A legend to the right, labeled 'pos rate', matches lighter shades of blue to higher numbers. A vertical strip along the centre of the country is much lighter than the east or west." width="672" />
+<p class="caption">
+FIGURE 6.9: FIXME
+</p>
+</div>
 </div>
 </div>
 <div id="colour" class="section level2 hasAnchor" number="6.3">
@@ -714,7 +719,7 @@ FIGURE 6.8: Graduated symbol map with triangle shape
 <div class="figure"><span style="display:block;" id="fig:dsplayallcolourbrewerpallettes"></span>
 <img src="crime_mapping_files/figure-html/dsplayallcolourbrewerpallettes-1.png" alt="A list of names of colour palettes, which are often concatenated abbreviations of shortened colour names or a small descriptor. The names are accompanied by a series of wide rectangles coloured in according to the palette." width="672" />
 <p class="caption">
-FIGURE 6.9: Palettes in RColorBrewer package
+FIGURE 6.10: Palettes in RColorBrewer package
 </p>
 </div>
 <p>The above gives a wide choice of pallettes, and while they are applicable to all sorts of data visualisations, they were created especially for the case of thematic maps. We might use the above code to pick a palette we like. We might then want to examine the colours more closely. To do this we can use the <code>display.brewer.pal()</code> function, and specify <code>n=</code> - the number of colours we need, as well as the palette name with <code>name =</code>:</p>
@@ -722,7 +727,7 @@ FIGURE 6.9: Palettes in RColorBrewer package
 <div class="figure"><span style="display:block;" id="fig:unnamed-chunk-171"></span>
 <img src="crime_mapping_files/figure-html/unnamed-chunk-171-1.png" alt="Five wide rectangles side by side, coloured red, orange, light yellow, green, and blue." width="672" />
 <p class="caption">
-FIGURE 6.10: The “spectral” palette in RColorBrewer package
+FIGURE 6.11: The “spectral” palette in RColorBrewer package
 </p>
 </div>
 <p>Let’s go back to our choropleth map of the quantiles of total breath tests per county. We might be interested in this map to show distribution of policing activity for example. We made this map earlier with the default colour scheme, which didn’t really communicate to us the graduated nature of our data we were visualising. To properly do this, we may imagine using a <em>sequential</em> scale. We can use one of the sequential scales available within <code>RColorBrewer</code> with adding the <code>scale_fill_brewer()</code> function to our ggplot. In this function we can specify the <code>type=</code> parameter, i.e. if we want to use sequential, divergining, or qualitative colour schemes (specified as either “seq” (sequential), “div” (diverging) or “qual” (qualitative)). We can then specify our preferred palette with the <code>palette =</code> argument. Let’s demonstrate here with the “YlOrRd” sequential palette:</p>
@@ -736,7 +741,7 @@ FIGURE 6.10: The “spectral” palette in RColorBrewer package
 <div class="figure"><span style="display:block;" id="fig:colourbbrewerratefill"></span>
 <img src="crime_mapping_files/figure-html/colourbbrewerratefill-1.png" alt="A previously shown map of counties of Hungary, previously with four bright colours, with shaded counties and a white border between them. Now, the map has a more visually pleasing colour scheme, with colours ranging from yellow to orange to red. The legend to the right, labeled total quantiles, also reflects the new colours." width="672" />
 <p class="caption">
-FIGURE 6.11: Thematic map with “YlOrRd” sequential palette
+FIGURE 6.12: Thematic map with “YlOrRd” sequential palette
 </p>
 </div>
 <p>This looks much better, and communicates our message much more clearly. Is this accessible to our colourblind colleagues? Earlier, when we asked to view all the palettes with the <code>display.brewer.all()</code> function, we did not specify any arguments. However, we can do so in order to filter only those palettes which are accessible for all audiences. We can include the parameter <code>colorblindFriendly =</code> to do so:</p>
@@ -744,7 +749,7 @@ FIGURE 6.11: Thematic map with “YlOrRd” sequential palette
 <div class="figure"><span style="display:block;" id="fig:unnamed-chunk-172"></span>
 <img src="crime_mapping_files/figure-html/unnamed-chunk-172-1.png" alt="Much like before, this is another list of names of colour palettes, which are still concatenated abbreviations of shortened colour names or a small descriptor. The names are yet again accompanied by a series of wide rectangles coloured in according to the palette." width="672" />
 <p class="caption">
-FIGURE 6.12: Colourblind friendly palettes in RColorBrewer package
+FIGURE 6.13: Colourblind friendly palettes in RColorBrewer package
 </p>
 </div>
 <p>You can see there are a few palettes missing from our earlier results, when we did not specify this requirement. Our recommendation is to always use one of these palettes.</p>
@@ -756,7 +761,7 @@ FIGURE 6.12: Colourblind friendly palettes in RColorBrewer package
 <div class="figure"><span style="display:block;" id="fig:greyscaletestsmap"></span>
 <img src="crime_mapping_files/figure-html/greyscaletestsmap-1.png" alt="The previous map of Hungary and its counties, is now shaded in four shades of grey. The legend shows that the darkest grey corresponds to the smallest 'total quantiles'." width="672" />
 <p class="caption">
-FIGURE 6.13: Map with greyscale palette
+FIGURE 6.14: Map with greyscale palette
 </p>
 </div>
 <p>Sometimes you might prefer such a map. However, do keep in mind, a number of studies have shown the desirability of monochrome colour (over greyscale) thematic maps, as they are linked to less observer variability in interpretation <span class="citation">(<a href="#ref-Lawson_2006" role="doc-biblioref">Lawson 2021b</a>)</span>. So you might want to use something like this instead:</p>
@@ -767,7 +772,7 @@ FIGURE 6.13: Map with greyscale palette
 <div class="figure"><span style="display:block;" id="fig:unnamed-chunk-173"></span>
 <img src="crime_mapping_files/figure-html/unnamed-chunk-173-1.png" alt="The same map, now in shades of light green to dark green. The lighter greens corresponds to the smaller 'total quantiles' here." width="672" />
 <p class="caption">
-FIGURE 6.14: Map with monochrome palette
+FIGURE 6.15: Map with monochrome palette
 </p>
 </div>
 <p>Overall, the key thing is to be conscious with the colours you choose to represent your data. Make sure that they are accessible for all audiences, and best represent the patterns in your data which you want to communicate.</p>
@@ -794,7 +799,7 @@ FIGURE 6.14: Map with monochrome palette
 <div class="figure"><span style="display:block;" id="fig:unnamed-chunk-174"></span>
 <img src="crime_mapping_files/figure-html/unnamed-chunk-174-1.png" alt="The previous green map now has a title, 'Number of breathalyser tests per county in Hungary', and a subtitle 'January 2020'." width="672" />
 <p class="caption">
-FIGURE 6.15: Add title(s) to map
+FIGURE 6.16: Add title(s) to map
 </p>
 </div>
 </div>
@@ -809,7 +814,7 @@ FIGURE 6.15: Add title(s) to map
 <div class="figure"><span style="display:block;" id="fig:legend"></span>
 <img src="crime_mapping_files/figure-html/legend-1.png" alt="The same titled map again, with the legend updated. It now features a better label, 'Total tests (quantiles)'." width="672" />
 <p class="caption">
-FIGURE 6.16: Add title to map legend
+FIGURE 6.17: Add title to map legend
 </p>
 </div>
 <p>Besides the legend title, we can also change how the levels are labeled. For this, we can use text manipulation functions, such as <code>gsub()</code> which substitutes one string for another. For example, we can replace the “,” with a ” - ” if we’d like using the <code>gsub()</code> function. We can create a new object, here <code>new_levels</code>, which has the desired labels:</p>
@@ -825,7 +830,7 @@ FIGURE 6.16: Add title to map legend
 <div class="figure"><span style="display:block;" id="fig:legendlabelsplot"></span>
 <img src="crime_mapping_files/figure-html/legendlabelsplot-1.png" alt="The legend continues to improve, with the ranges next to the colours changing from the form 'x comma y' to 'x dash y'." width="672" />
 <p class="caption">
-FIGURE 6.17: Edit labels on map legend
+FIGURE 6.18: Edit labels on map legend
 </p>
 </div>
 <p>Of course it is possible that we want to completely re-write the levels, rather than just swap out one character for another. In this case, we can completely rename the levels if we liked, by passing the new, desired labels into this <code>new_levels</code> object</p>
@@ -838,7 +843,7 @@ FIGURE 6.17: Edit labels on map legend
 <div class="figure"><span style="display:block;" id="fig:newnewlabelsplot"></span>
 <img src="crime_mapping_files/figure-html/newnewlabelsplot-1.png" alt="Further changes to the same map of Hungary, the ranges next to the colours now use the connecting word 'to', and 'less than' and 'greater than' signs where needed." width="672" />
 <p class="caption">
-FIGURE 6.18: Rewrite values on map legend
+FIGURE 6.19: Rewrite values on map legend
 </p>
 </div>
 <p>You can change the labels however you would like, but do keep in mind any loss of information you may introduce. For example with this second version, we no longer know what are the minimum and maximum values on our map, as we’ve removed that information with our new levels. Again, no wrong answers here, but whatever best fits the data and the purpose of the map. Depending on the context, for example, you may use the title to draw home the key finding or lesson you want the reader to take from the map (rather than describing the plot variable).</p>
@@ -852,7 +857,7 @@ FIGURE 6.18: Rewrite values on map legend
 <div class="figure"><span style="display:block;" id="fig:addcountynames"></span>
 <img src="crime_mapping_files/figure-html/addcountynames-1.png" alt="Once more the same map has been altered, gaining rounded white boxes with a thin black outline overlaid on each county. These boxes include the names of the counties in black text. Many boxes cover one another. The legend has also reverted to one with a dash between values." width="672" />
 <p class="caption">
-FIGURE 6.19: Add labels to map
+FIGURE 6.20: Add labels to map
 </p>
 </div>
 <p>You may notice there is some overlapping here which renders some names unreadable. Well while <a href="https://github.com/slowkow/ggrepel/issues/111">there is work in this space to develop the function geom_sf_label_repel()</a> at the time of writing this is not yet available. However this application of the <code>geom_label_repel()</code> function from the <code>ggrepel</code> package advised by <span class="citation">Yutani (<a href="#ref-Yutani_2018" role="doc-biblioref">2018</a>)</span> achieves the same outcome:</p>
@@ -867,7 +872,7 @@ FIGURE 6.19: Add labels to map
 <div class="figure"><span style="display:block;" id="fig:unnamed-chunk-175"></span>
 <img src="crime_mapping_files/figure-html/unnamed-chunk-175-1.png" alt="The boxes have shifted around to mostly prevent overlapping. A thin black line connects each box to the centre of the county it corresponds to. Most of these lines are very short, though a few labels are some distance from their county." width="672" />
 <p class="caption">
-FIGURE 6.20: Repel labels for legibility
+FIGURE 6.21: Repel labels for legibility
 </p>
 </div>
 <p>This way we can display the names of all the counties without overlap, so they all become legible. While this is achievable, think back to the principles of good design. This seems busy, and like it may overwhelm the reader. Not to mention - is it important that all polygons are labelled here? It might be - remember this depends on the message the map is intended to communicate! But here let’s consider a different scenario, where we want to use annotation to label only those counties which meet some specific criteria. For example, you might want to label only those which are in the top quartile. One way to achieve this is to create a separate dataframe, which only includes the desired polygons, and pass this into the <code>geom_sf_label()</code> function.</p>
@@ -881,7 +886,7 @@ FIGURE 6.20: Repel labels for legibility
 <div class="figure"><span style="display:block;" id="fig:addcountynamestoponly"></span>
 <img src="crime_mapping_files/figure-html/addcountynamestoponly-1.png" alt="We are back to the map with the labels centred on the counties, but only five labels appear, with no overlap. They are in the northwest, southwest, and east of the country." width="672" />
 <p class="caption">
-FIGURE 6.21: Label only polygons in top quartile of value on variable of interest
+FIGURE 6.22: Label only polygons in top quartile of value on variable of interest
 </p>
 </div>
 <p>In another scenario, you might want to label only one region of interest. In this case, we might actually want to keep our annotation off the map, and draw an arrow onto the map pointing to where this annotation refers to. We can do this by using the <code>nudge_x</code> and <code>nudge_y</code> parameters of the <code>geom_sf_label()</code> function, to <em>nudge</em> the label position along the x and y axis respectively. In this case, let’s label only Budapest.</p>
@@ -895,7 +900,7 @@ FIGURE 6.21: Label only polygons in top quartile of value on variable of interes
 <div class="figure"><span style="display:block;" id="fig:addcountynamesBPonly"></span>
 <img src="crime_mapping_files/figure-html/addcountynamesBPonly-1.png" alt="Still the same green shaded map of the counties of Hungary, now a label for 'Budapest' floats north of the country, not covering any of it." width="672" />
 <p class="caption">
-FIGURE 6.22: Label only one area of interest
+FIGURE 6.23: Label only one area of interest
 </p>
 </div>
 <p>But this floating label is a little ambiguous, and needs to be more explicitly connected to the map. To achieve this, we might want to use an arrow to point out Budapest on the map. To do this, we can use <code>geom_curve()</code> within <code>ggplot2</code>. We will need two sets of x and y values for this segment, the start point (<code>x</code> and <code>y</code>) and the end point (<code>xend</code> and <code>yend</code>). The end point will be the coordinates where we want the arrow pointing to. This would be some x,y pair within Budapest. We can use the <code>st_coordinates()</code> function once again the extract the centroid, this time of the Budapest polygon. Let’s extract the longitude of the centroid into an object called <code>bp_x</code> for our x value, and the latitude of the centroid into an object called <code>bp_y</code> for our y value.</p>
@@ -922,7 +927,7 @@ FIGURE 6.22: Label only one area of interest
 <div class="figure"><span style="display:block;" id="fig:unnamed-chunk-177"></span>
 <img src="crime_mapping_files/figure-html/unnamed-chunk-177-1.png" alt="The previous image, with a curved arrow from the label to the centre of Budapest itself." width="672" />
 <p class="caption">
-FIGURE 6.23: Add arrow to clarify label off map
+FIGURE 6.24: Add arrow to clarify label off map
 </p>
 </div>
 <p>This is one way to include annotation while keeping the map clear, but still using the geographic information to reference. Annotations can be useful, but think carefully about whether you need them for your map, as they can also be distracting if not used appropriately.</p>
@@ -944,7 +949,7 @@ FIGURE 6.23: Add arrow to clarify label off map
 <div class="figure"><span style="display:block;" id="fig:unnamed-chunk-179"></span>
 <img src="crime_mapping_files/figure-html/unnamed-chunk-179-1.png" alt="The exact same map with the arrow, with attributions placed beneath the country in a right-aligned text block. This includes the creator on one line, and sources for data on the rest." width="672" />
 <p class="caption">
-FIGURE 6.24: Include production notes in map
+FIGURE 6.25: Include production notes in map
 </p>
 </div>
 <p>In this way we give credibility to our map, and we also make the proper attributions to where our data come from.</p>
@@ -964,7 +969,7 @@ FIGURE 6.24: Include production notes in map
 <div class="figure"><span style="display:block;" id="fig:orientation"></span>
 <img src="crime_mapping_files/figure-html/orientation-1.png" alt="Once more the same green map of Hungary's counties has had an addition, a small half white half black arrow pointing upwards in the bottom left corner, with the letter 'N' for north underneath." width="672" />
 <p class="caption">
-FIGURE 6.25: Add north arrow
+FIGURE 6.26: Add north arrow
 </p>
 </div>
 <p>You can also change the style with the <code>style =</code> parameter, and choose from styles such as <code>north_arrow_fancy_orienteering()</code> or <code>north_arrow_minimal()</code>:</p>
@@ -976,7 +981,7 @@ FIGURE 6.25: Add north arrow
 <div class="figure"><span style="display:block;" id="fig:orientationarrowstyle"></span>
 <img src="crime_mapping_files/figure-html/orientationarrowstyle-1.png" alt="The arrow above the letter 'N' is now longer, and bisects the letter." width="672" />
 <p class="caption">
-FIGURE 6.26: Change stype of north arrow
+FIGURE 6.27: Change stype of north arrow
 </p>
 </div>
 </div>
@@ -991,7 +996,7 @@ FIGURE 6.26: Change stype of north arrow
 <div class="figure"><span style="display:block;" id="fig:scale"></span>
 <img src="crime_mapping_files/figure-html/scale-1.png" alt="The addition this time is a longer horizontal bar, segmented into five sections alternating black and white. The text 'one hundred kilometers' appears next to it. It appears beneath the map of Hungary but above the attributions." width="672" />
 <p class="caption">
-FIGURE 6.27: Include scale indicator on map
+FIGURE 6.28: Include scale indicator on map
 </p>
 </div>
 <p>You can move these elements about however you like to achieve your desired composition.</p>
@@ -1010,7 +1015,7 @@ FIGURE 6.27: Include scale indicator on map
 <div class="figure"><span style="display:block;" id="fig:basemap"></span>
 <img src="crime_mapping_files/figure-html/basemap-1.png" alt="The title, subtitle, 'Budapest' label and its arrow, attributions, north indicator, and scale indicator have fled the map, however the axes with latitudes and longitudes have returned. In addition, a street map appears behind the green shaded white bordered map of the counties of Hungary. A little of the neighbouring countries can be seen, along with larger cities and major roads." width="672" />
 <p class="caption">
-FIGURE 6.28: Add a basemap to our map
+FIGURE 6.29: Add a basemap to our map
 </p>
 </div>
 <p>This provides one way to add context. In previous iterations, we have adjusted the opacity of our other layers, in order to aid visibility of the basemap underneath them, so this might be something to consider.</p>
@@ -1056,7 +1061,7 @@ FIGURE 6.28: Add a basemap to our map
 <div class="figure"><span style="display:block;" id="fig:insetmapfinal"></span>
 <img src="crime_mapping_files/figure-html/insetmapfinal-1.png" alt="We return to the map from two figures ago, with all of its features present including the title, subtitle, 'Budapest' label and its arrow, attributions, north indicator, and scale indicator. The counties are still shaded green, and the legend still appears to the right. The addition this time is a box beneath the legend and to the right of the scale indicator and attributions. This box contains a small featureless map of Europe, with black borders, where Hungary has been outlined with a thicker red border." width="672" />
 <p class="caption">
-FIGURE 6.29: Adding an inset map to our map
+FIGURE 6.30: Adding an inset map to our map
 </p>
 </div>
 <p>You can play around with where you position your inset map by adjusting the x and y coordinates. You can also play around with the size of it by adjusting the parameters for height and width. And like mentioned above, you can use inset maps not only for context, but also to include geographically far away regions which belong to the same political unity, for example to include Alaska and Hawaii in maps of the United States.</p>

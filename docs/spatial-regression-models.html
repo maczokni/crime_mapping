@@ -23,7 +23,7 @@
 <meta name="author" content="Juanjo Medina and Reka Solymosi" />
 
 
-<meta name="date" content="2022-09-02" />
+<meta name="date" content="2022-09-05" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -534,14 +534,14 @@ div.csl-indent {
 <h2><span class="header-section-number">12.1</span> Introduction<a href="spatial-regression-models.html#introduction-9" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>In science one of our main concerns is to develop models of the world, models that help us to understand the world a bit better or to predict how things will develop better. Crime analysis also is interested in understanding the processes that may drive crime. This is a key element in the SARA process (<em>analysis</em>) that form part of the problem oriented policing approach <span class="citation">(<a href="#ref-Eck_1997" role="doc-biblioref">Eck and Spelman 1997</a>)</span>. Statistics provides a set of tools that help researchers build and test scientific models, and to develop predictions. Our models can be simple. We can think that unemployment is a factor that may help us to understand why cities differ in their level of violent crime. We could express such a model like this:</p>
 <div class="figure"><span style="display:block;" id="fig:unnamed-chunk-343"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-343-1.png" alt="A simple model" width="672" />
+<img src="crime_mapping_files/figure-html/unnamed-chunk-343-1.png" alt="A rounded box with label 'Unemployment', with an arrow pointing to the right to a second rounded box with label 'Violent Crime'." width="672" />
 <p class="caption">
 FIGURE 12.1: A simple model
 </p>
 </div>
 <p>Surely we know the world is complex and likely there are other things that may help us to understand why some cities have more crime than others. So, we may want to have tools that allow us to examine such models. Like, for example, the one below:</p>
 <div class="figure"><span style="display:block;" id="fig:unnamed-chunk-344"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-344-1.png" alt="A slightly less simple model" width="672" />
+<img src="crime_mapping_files/figure-html/unnamed-chunk-344-1.png" alt="Three vertically tiled rounded boxes, with labels 'Education', 'Unemployment, and 'Police levels', each with an arrow pointing to a fourth box, labeled 'Violent Crime'." width="672" />
 <p class="caption">
 FIGURE 12.2: A slightly less simple model
 </p>
@@ -656,9 +656,9 @@ FIGURE 12.2: A slightly less simple model
 <p>You see here that essentially you have only two inputs (resource deprivation and south) but several regression coefficients. <span class="citation">Gelman and Hill (<a href="#ref-Gelman_2007" role="doc-biblioref">2007</a>)</span> suggest reserving the term input for the variables encoding the information and to use the term predictor to refer to each of the terms in the model. So here we have two inputs and three predictors (one for SOUTH, another for resource deprivation, and a final one for the interaction effect). In this case the test for the interaction effect is significant, which suggests there may be such an interaction. Let’s visualise the results with the <code>effects</code> package:</p>
 <div class="sourceCode" id="cb563"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb563-1"><a href="spatial-regression-models.html#cb563-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">allEffects</span>(fit2_90), <span class="at">ask=</span><span class="cn">FALSE</span>)</span></code></pre></div>
 <div class="figure"><span style="display:block;" id="fig:unnamed-chunk-352"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-352-1.png" alt="Effect plots for effect if South varaible on relationship between homicide rate and resource deprivation" width="672" />
+<img src="crime_mapping_files/figure-html/unnamed-chunk-352-1.png" alt="Two plots side by side, with the same axes, but one with the title 'South f equals zero', and one with 'South f equals one'. The vertical axis, labeled 'HR90', ranges from zero to thirty, while the horizontal axis, labeled 'RD90', ranges from negative two to six. A blue line appears in each of the two plots, with a light blue shaded area growing around them as you move away from the zero value on the horizontal axis. The second plot, with 'South f equals one', has a blue line with a steeper slope, and the light blue covers a smaller area." width="672" />
 <p class="caption">
-FIGURE 12.3: Effect plots for effect if South varaible on relationship between homicide rate and resource deprivation
+FIGURE 12.3: Effect plots for effect of South variable on relationship between homicide rate and resource deprivation
 </p>
 </div>
 <p>Notice that essentially what we are doing is running two regression lines and testing whether the slope is different for the two groups. The intercept is different, we know that Southern counties are more violent, but what we are testing here is whether the level of homicide goes up in a steeper fashion (and in the same direction) for one or the other group as the level of resource deprivation goes up. We see that’s the case here. The estimated lines are almost parallel, but the slope is a bit steeper in the Southern counties. In Southern counties resource deprivation seems to have more of an impact on homicide than in Northern counties. This is related to one of the issues we raised earlier regarding spatial regression, that of hetereogeneity. Here what we see is that there some evidence of non-stationarity in the relationship between our predictors and our outcome.</p>
@@ -726,7 +726,7 @@ FIGURE 12.3: Effect plots for effect if South varaible on relationship between h
 <span id="cb570-6"><a href="spatial-regression-models.html#cb570-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_layout</span>(<span class="at">main.title =</span> <span class="st">&quot;Residuals&quot;</span>, <span class="at">main.title.size =</span> <span class="fl">0.7</span> ,</span>
 <span id="cb570-7"><a href="spatial-regression-models.html#cb570-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">legend.position =</span> <span class="fu">c</span>(<span class="st">&quot;right&quot;</span>, <span class="st">&quot;bottom&quot;</span>), <span class="at">legend.title.size =</span> <span class="fl">0.8</span>)</span></code></pre></div>
 <div class="figure"><span style="display:block;" id="fig:unnamed-chunk-356"></span>
-<img src="crime_mapping_files/figure-html/unnamed-chunk-356-1.png" alt="Map of regression model residuals" width="672" />
+<img src="crime_mapping_files/figure-html/unnamed-chunk-356-1.png" alt="A map outlining the counties in the United States, titled 'Residuals'. A legend near the bottom right, also labeled 'residuals', matches negative values to shades of blue, zero to white, and positive values to reds, and ranges from negative to positive fourteen. Most of the counties are white, though reds and blues are spread all over. Blues seem to appear more in the central south, spreading eastwards. Reds are more prominent in the west half of the country, as well as along the east coast, but also frequently appear among the blues." width="672" />
 <p class="caption">
 FIGURE 12.4: Map of regression model residuals
 </p>

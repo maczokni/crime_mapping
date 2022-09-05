@@ -9,8 +9,12 @@ In this appendix we will cover all you need to know about R in order to benefit 
 
 You can use R without using R Studio, but R Studio is an app that makes it easier to work with R. R Studio is what we call an IDE, an **integrated development environment**. It is a fancy way of saying that it is a cool interface designed to write programming code. Every time you open up R Studio you are in fact starting a R session. R Studio automatically runs R in the background. 
 
+```{r, echo=FALSE, fig.cap="Screenshot of RStudio IDE"}
 
-![](img/rstudio.png) 
+knitr::include_graphics("img/rstudio.png")
+
+```
+
 
 When you first open R Studio, you will see (as in the image above) that there are 3 main windows. The bigger one to your left is the console. If you read the text in the console you will see that R Studio is indeed opening R and you can see what version of R you are running. Since R is constantly being updated the version you installed is likely more recent that the one we used at time of writing.
 
@@ -18,11 +22,21 @@ When you first open R Studio, you will see (as in the image above) that there ar
 
 The view in R Studio is structured so that you have 4 open windows in a regular session. However when you first open, you might be starting with only 3. To open the script pane (the one missing) click in the *File* drop down Menu, select *New File*, then *R Script*.
 
-![](img/openscript.png)
+```{r, echo=FALSE, fig.cap="Navigate to File > New File> R Script to open script pane"}
+
+knitr::include_graphics("img/openscript.png")
+
+```
+
 
 You will now see the 4 window areas in display. On each of these areas you can shift between different views and panels. You can also use your mouse to re-size the different windows if that is convenient.
 
-![](img/the4views.png)
+```{r, echo=FALSE, fig.cap="The 4 panes of RStudio"}
+
+knitr::include_graphics("img/the4views.png")
+
+```
+
 
 ### The four panes of R Studio
 
@@ -84,15 +98,21 @@ R Studio allows you to customise the way it looks. Working with white background
 
 Click in the *Tools* menu and select *Global options*. This will open up a pop up window with various options. Select *Appearance*. In this section you can change the font type and size, but also the kind of theme background that R will use in the various windows. 
 
-![](img/tools_global_options.png)
+```{r, echo=FALSE, fig.cap="Find Tools > Global options"}
+
+knitr::include_graphics("img/tools_global_options.png")
+
+```
+
 
 
 You can make any changes you'd like to here, including the theme background that `R` will use as the interface. For example, you may choose a darker theme like 'tomorrow night bright'.
 
-![](img/appearance_choose_tomorrow_night_bright.png)
+```{r, echo=FALSE, fig.cap="Select tomorrow night bright theme"}
 
-![](img/consoleresults.png)
-As indicated above, the window in the bottom left corner is the main **console**.You will see that the words "I love maps" appear printed there.  If rather than using R Studio you were working directly from R, that's all you would get: the main console where you can write code interactively (rather than all the different windows you see in R Studio). You can write your code directly in the main console and execute it line by line in an interactive fashion. However, we will be running code from scripts, so that you get used to the idea of properly documenting all the steps you take,
+knitr::include_graphics("img/appearance_choose_tomorrow_night_bright.png")
+
+```
 
 
 ## Elements of R grammar
@@ -169,8 +189,6 @@ Everything that exists in `R` is an **object**. Think of objects as boxes where 
 #### Creating an object
 
 Let us create an object called 'plates'. To do this, you go to your script, and type 'plates'. 
-
-![](img/plates.png)
 
 
 But if you run this code, you will get an error. Try it and you will see the error 'Error! Object plates not found'. This is because you have not yet put anything inside the plates 'box'. Remember objects are like boxes,so there must be something inside our object 'plates'. In order for this object to exist, you have to put something inside it, or in `R`-speak *assign it some value*.
@@ -334,7 +352,13 @@ The object we will use most frequently though is data frames. These hold your da
 
 Just earlier, we had created a dataframe called `df` previously. If you have not yet copied this over into your own `R Studio`, do this now. You should have the object `df` in your environment. When you run `View(df)`, you should see this dataset:
 
-![](img/df_view.png)
+
+```{r, echo=FALSE, fig.cap="View your dataframes"}
+
+knitr::include_graphics("img/df_view.png")
+
+```
+
 
 To do something to an entire dataframe, we would use the name of the object (`df`) to refer to it. In the case of the `View()` function, we want to see the whole thing, so we will call `View(df)`. On the other hand, if we want to refer to only one variable in the data, (remember back to term 1 - each varible is held in each column) there is a special notation to do this. 
 
@@ -355,9 +379,7 @@ View(df$VioRatePer1k)
 
 ```
 
-You should see: 
-
-![](img/view_col_only.png)
+You should see one column of the dataframe appear in the top left pane. 
 
 
 Say we wanted to know the mean violence rate across our units of analysis, the cities, for example, we would take the numeric column to calculate this: 
@@ -381,9 +403,6 @@ Throughout the book, and hopefully afterwards, you will find yourself installing
 You can see what packages are available in your local install by looking at the *packages* tab in the *File directory, Plots, Packages* pane. 
 
 
-![](img/packages.png){width=35%}
-
-
 A number of the packages we will use belong to a set of packages called **tidyverse**. These packages help make your data tidy. According to Statistician and Chief Scientist at `RStudio`, Hadley Wickham, transforming your data into *tidy data* is one of the most important steps of the data analysis process. It will ensure your data are in the format you need to conduct your analyses. We will also be using the simple features package **sf** and many more associated with spatial data analysis. 
 
 Packages can be installed using the `install.packages()` function. Remember that while you only need to install packages once, they need to be loaded with the `library()`function each time you open up `RStudio`. Let us install the package `dplyr` from `tidyverse` and load it:
@@ -397,11 +416,7 @@ library(dplyr)
 
 A lot of code and activity appears in the console. Warnings may manifest. Most of the time, the warnings explain what is being loaded and confirm that the package is successfully loaded. If there is an error, you will have to figure out what the warnings are telling you to successfully load the package. This happens and is normal.
 
-To double check that you have actually installed `dplyr`, go to that *File Directory, Plots, Packages* pane and click on the *Packages* tab. The list of packages is in alphabetical order and `dplyr` should be there. If there is a tick in its box, it means that this package is currently loaded and you can use it; if there is no tick, it means that it is inactive, and you will have to bring it up with `library()`, or just tick its box (Figure 1.6). 
-
-
-![](img/dplyr.png){width=35%}
-
+To double check that you have actually installed `dplyr`, go to that *File Directory, Plots, Packages* pane and click on the *Packages* tab. The list of packages is in alphabetical order and `dplyr` should be there. If there is a tick in its box, it means that this package is currently loaded and you can use it; if there is no tick, it means that it is inactive, and you will have to bring it up with `library()`, or just tick its box. 
  
 On *masking*:  sometimes packages introduce functions that have the same name as those that are already loaded into your session. When that happens, the newly loaded ones will override the previous ones. You can still use them but you will have to refer to them explicitly by bringing them up by specifying to which package they belong with `library()`.
 
@@ -458,8 +473,6 @@ Now use the `View()` function to glance at your data frame. What you get there i
 
 
 Ok, let's now have a quick look at the data. There are so many different ways of producing summary stats for data stored in R that is impossible to cover them all! We will just introduce a few functions that you may find useful for summarising data. Before we do any of that it is important you get a sense for what is available in this data set. Go to the help tab and in the search box input the name of the data frame, this will take you to the documentation for this data frame. Here you can see a list of the available variables.
-
-![](img/codebook.png)
 
 Let's start with the *mean*. This function takes as an argument the numeric variable for which you want to obtain the mean. If you want to obtain the mean of the variable that gives us the proportion of people that voted for Donald Trump you can use the following expression:
 
@@ -534,22 +547,12 @@ When a project is reopened, R Studio opens every file and data view that was ope
 
 First things first, hopefully you have already created a separate folder on your computer. Now save the script you've been working on into this folder. By clicking on "File" and "Save as...".
 
-![](img/save_script_as.png)
 
 Then navigate to your folder for this module, and for your script make sure to give it some meaningful name like appendixlab.R or something like this. Then click 'save'.
 
-![](img/rename_and_save.png)
-
-
 Now, go back to "File" and select "New project..."
 
-
-![](img/file_newproj.png)
-
-Then in the options that appear choose "Existing Directory". This is because you already have a folder for this work, this is where you saved your script just before. For me this was my folder called 'crime_mapping' you saw above.
-
-
-![](img/existing_dir.png)
+Then in the options that appear choose "Existing Directory". This is because you already have a folder for this work, this is where you saved your script just before. For me this was my folder called 'crime_mapping'.
 
 So select 'Existing Directory', and on the next page use the "Browse" button to select this folder (the directory) where you saved the script earlier. Once you have done this, click on 'Create Project' on the bottom.
 
