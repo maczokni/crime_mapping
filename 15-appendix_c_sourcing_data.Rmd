@@ -37,7 +37,7 @@ all_countries <- ne_countries(returnclass = "sf")
 If we wanted now to plot this, we can use any of the many methods covered in this book from `plot()` to `ggplot()` to `tmap` and so on. 
 
 
-```{r, fig.cap="Map of countries of the world"}
+```{r, fig.cap="Map of countries of the world", fig.alt="A featureless map of the world, with countries outlined in grey and shaded light grey. Oceans and seas are white."}
 library(ggplot2)
 
 ggplot() + 
@@ -81,7 +81,7 @@ uganda_2 <- ne_countries(country = 'Uganda', returnclass = "sf")
 You should be able to see the two results are the same.
 
 
-```{r, fig.cap="Two identical maps showing border of Uganda"}
+```{r, fig.cap="Two identical maps showing border of Uganda", fig.alt="Two identical rough grey outlines of Uganda's border, with the interior shaded in light grey."}
 u1 <- ggplot() + geom_sf(data = uganda) + theme_void()
 
 u2 <- ggplot() + geom_sf(data = uganda_2) + theme_void()
@@ -103,7 +103,7 @@ uganda <- ne_states(country = "Uganda", returnclass = "sf")
 
 Now if we have a look we can see the different districts within Uganda have been also downloaded. 
 
-```{r, fig.cap="Map of districts of Uganda"}
+```{r, fig.cap="Map of districts of Uganda", fig.alt="Uganda broken up into districts by grey borders. Each district is the same light grey shade."}
 
 ggplot() + geom_sf(data = uganda) + theme_void()
 
@@ -114,7 +114,7 @@ It is possible that sometimes this is not the ideal sub-geometry for you analysi
 
 You can also change the scale of resolution at which you want to download your boundaries. 
 
-```{r, fig.cap="Three maps of uganda with difference scale of resolution for the boundary"}
+```{r, fig.cap="Three maps of Uganda with difference scale of resolution for the boundary", fig.alt="Three side by side grey maps of Uganda. The borders of the first map looks very polygonal, while the detail increases in each successive map."}
 
 # small
 uganda_1 <- ne_countries(country = "Uganda", returnclass = "sf", scale = 110)
@@ -142,7 +142,7 @@ You can see as we move to lower numbers we get better resolution, which results 
 A final note on `rnaturalearth` before we move on. With the `ne_states()` function, we specified which country we wanted with the `country` argument. This was OK for Uganda, but what if we wanted to plot something in France instead? 
 
 
-```{r, fig.cap="Map of France which shows also overseas territories of France"}
+```{r, fig.cap="Map of France which shows also overseas territories of France", fig.alt="A map which is mostly white space, with France, broken into regions, appearing squished and very small near the top. Small, hard to see islands are scattered at the bottom right and left side of the map. French Guinea can be made out on the left side as well."}
 france <- ne_states(country = "France", returnclass = "sf")
 
 ggplot() + geom_sf(data = france) + theme_void()
@@ -152,7 +152,7 @@ ggplot() + geom_sf(data = france) + theme_void()
 
 You see France appears, but so do the overseas territories of France, such as French Guiana, Guadeloupe, French Polynesia, and so on. It is possible you want to focus only on France. In this case, you can specify, instead of `country`, the parameter `geounit`. Like so: 
 
-```{r, fig.cap="Map of France that shows only France without overseas territories"}
+```{r, fig.cap="Map of France that shows only France without overseas territories", fig.alt="A grey outline of France and its districts, shaded in light grey."}
 
 france <- ne_states(geounit = "France", returnclass = "sf")
 
@@ -223,7 +223,7 @@ las <- st_read("data/England_lad_2011_gen_clipped/england_lad_2011_gen_clipped.k
 And plot it to see: 
 
 
-```{r, fig.cap="Map of English Local Authorities boundaries"}
+```{r, fig.cap="Map of English Local Authorities boundaries, fig.alt="A grey outline of England, and the borders of the Local Authorities, all shaded in light grey."}
 ggplot() + geom_sf(data = las) + theme_void()
 
 ```
@@ -272,7 +272,7 @@ kampala_bb <- getbb("kampala", format_out = "sf_polygon")
 We should check on this object to make sure it looks the way we would expect: 
 
 
-```{r, fig.cap="Boundary which follows the shape of Kampala"}
+```{r, fig.cap="Boundary which follows the shape of Kampala", fig.alt="A grey outline of Kampala, shaded light grey."}
 
 ggplot() + geom_sf(data = kampala_bb) + theme_void()
 
@@ -307,7 +307,7 @@ kampala_boundaries <- kampala_boundaries$osm_multipolygons
 And now we can plot our results, labelling each region for clarity: 
 
 
-```{r, warning=FALSE, message=FALSE, fig.cap="Kampala with regions labelled"}
+```{r, warning=FALSE, message=FALSE, fig.cap="Kampala with regions labelled", fig.alt="A grey outline of Kampala and borders of its five regions, shaded light grey. Each region has a rounded white box with the name of the region as a label inside."}
 
 ggplot() + geom_sf(data = kampala_boundaries) + 
   geom_sf_label(data = kampala_boundaries, aes(label = name)) + theme_void()
