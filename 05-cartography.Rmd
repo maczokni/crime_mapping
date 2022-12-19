@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This chapter aims to focus on introducing good practice in map design and presentation. When putting a map together you need to think about its intended audience (their level of expertise, whether you want them to interact with the map), purpose, and format of delivery (e.g., printed, web, projected in a screen, etc). There are many design decisions you need to consider: fonts, labels, colour, legends, layout, etc. In this chapter we provide a general introduction to some basic design principles for map production. These themes, and the appropriate election of symbol representation, are the subject matter of cartography, the art and science of map making. Within cartography a considerable body of research and scholarship has focused on studying the visual and psychological implications of our mapping choices. As noted in previous chapters one of the problems with maps is that powerful as a tool as they can be, they can lead to misunderstanding. What the mapmaker chooses to emphasise and what the map reader see may not be the same thing. We will work you through an example of a fairly basic map and the process of taking to a point where it could be ready for presentation to an audience other than yourself.
+This chapter aims to focus on introducing good practice in map design and presentation. When putting a map together, you need to think about its intended audience (their level of expertise, whether you want them to interact with the map), purpose, and format of delivery (e.g., printed, web, projected in a screen, etc.). There are many design decisions you need to consider: fonts, labels, colour, legends, layout, etc. In this chapter we provide a general introduction to some basic design principles for map production. These themes, and the appropriate election of symbol representation, are the subject matter of cartography, the art and science of map making. Within cartography, a considerable body of research and scholarship has focused on studying the visual and psychological implications of our mapping choices. As noted in previous chapters, one of the problems with maps is that powerful as a tool as they can be, they can lead to misunderstanding. What the mapmaker chooses to emphasise and what the map reader sees may not be the same thing. We will work you through an example of a fairly basic map and the process of taking to a point where it could be ready for presentation to an audience other than yourself.
 
 In this chapter we will be working with some data published by Hungarian police available online [@Policehu_2021]. Specifically we will be looking at some statistics related to drink driving. Drink driving is one of a number of problems police confront that relate to impaired and dangerous driving. Hungary has a strict drink driving policy, with the maximum drink diving limit being 0.0 BAC. Most European countries are at 0.5 BAC, while the UK is 0.8 (except 0.5 for Scotland). We have records for each county with the number of breathalyser checks carried out, and the number of these which returned a positive result. 
 
@@ -29,7 +29,7 @@ library(cowplot)
 
 ```
 
-So let's read in our data sets, and join the attribute data to the geometry using `left_join()` (if you're unsure about any of the below code, revisit Chapter 1 of this book for a refresher!). 
+So let's read in our datasets, and join the attribute data to the geometry using `left_join()` (if you're unsure about any of the below code, revisit Chapter 1 of this book for a refresher!). 
 
 ```{r, results='hide', message=FALSE}
 # read in geojson polygon for Hungary
@@ -45,17 +45,17 @@ hu_dd <- left_join(hungary, drink_driving, by = c("name" = "name"))
 
 We can now use this example to talk through the important principles of good visualisation of spatial data. We draw specifically from two areas of research: cartography and data visualisation. Let's start with cartography. 
 
-Cartographers have always been concerned about the appearance of maps and how the display marries form with function [@Field_2012]. As there is no definitive definition for what is meant by *cartographic design* it can be challenging to evaluate what makes *good* design. However there are themes and elements which can be used to guide the map maker, and offer points of reflection to encourage thoughtful designs. 
+Cartographers have always been concerned about the appearance of maps and how the display marries form with function [@Field_2012]. As there is no definitive definition for what is meant by *cartographic design*, it can be challenging to evaluate what makes *good* design. However, there are themes and elements which can be used to guide the map maker, and offer points of reflection to encourage thoughtful designs. 
 
-The primary aim of maps is the communication of information in an honest and ethical way. This means each map should have a clear goal and know its audience, show all relevant data and not use the data to lie or mislead [@Dent_2008]. It should also be reproducible, transparent, cite all data sources, and consider diversity in its audience [@Dent_2008]. So what does that mean for specifically implementing these into practice. While a good amount of critical thought from the map maker will be required, there are aids we can rely upon. For example, @Field_2007 developed a map evaluation checklist which asks the map maker a series of questions to guide their map making process. The questions fall into three broad categories: 
+The primary aim of maps is the communication of information in an honest and ethical way. This means each map should have a clear goal and know its audience, show all relevant data and not use the data to lie or mislead [@Dent_2008]. It should also be reproducible, transparent, cite all data sources, and consider diversity in its audience [@Dent_2008]. So what does that mean for specifically implementing these into practice. While a good amount of critical thought from the map-maker will be required, there are aids we can rely upon. For example, @Field_2007 developed a map evaluation checklist which asks the map maker a series of questions to guide their map-making process. The questions fall into three broad categories: 
 
-- *Cartographic Requirements*:  such as what is the rationale for the map, who are the audience? 
-- *Cartographic Complication and Design* such as are all the relevant features included and do the colours, symbols, and other features legible and appropriate to achieve the map's objectives? And finally, 
+- *Cartographic Requirements* such as what is the rationale for the map? who are the audience? 
+- *Cartographic Complication and Design* such as are all the relevant features included and the colours, symbols, and other features legible and appropriate to achieve the map's objectives?
 - *Map Elements and Page Layout* which tackle some specific features such as orientation indicator, scale indicator, legend, titles and subtitles, and production notes. 
 
 We will discuss these elements in this chapter to some degree, and the recommended reading will guide the reader to further advice on these topics.    
 
-Data visualisation is a somewhat newer field, however, it seems to encompass the same guiding principles when considering what makes good design. According to @Kirk_2016 three principles offer a guide when deciding what makes a *good* data visualisation. It must be: ttrustworthy, accessible, and elegant. The first principle, of **trust** speaks to the integrity, accuracy, and legitimacy of any data visualisation we produce. @Kirk_2016 suggests this principle to be held above all else, as our primary goal is to communicate truth (as far as we know it) and avoid at all cost to present what we know to be misleading content (see as well @Cairo_2016).  **Accessibility** refers to our visualisation being useful, understandable, and unobtrusive, as well as accessible for all users. There are many things to consider in your audience such as *dynamic of need* (do they have to engage with your visualisation, or is it voluntary?), *subject-matter knowledge* are they experts in the area, are they lay people to whom you must communicate a complex message?, and many other factors (see @Kirk_2016). Finally, **elegance** refers to aesthetics, attention to detail, and an element of *doing as little design as possible* - meaning a certain invisibility whereby the viewer of your visualisation focussed on the content, rather than the design - that is the main point is the message that you are trying to communicate with your data. There are various schools of though within data visualisation research. For example, the work of @Tufte_1983 emphasises clean, minimalist approaches to data visualisation, emphasising a low *data-to-ink-ratio*, which means all the ink needed to print the visualisation should contribute data to the graph. However, other research has explored the usefulness of additional embellishments on charts (which Tufte calls "chart junk") - finding there may be value to these sorts of approaches as well (e.g., see @Li_2014). In this chapter, we will aim to bring together the above principles, and work through a practical example of how to apply these to the maps we make. 
+Data visualisation is a somewhat newer field; however, it seems to encompass the same guiding principles when considering what makes good design. According to @Kirk_2016 three principles offer a guide when deciding what makes a *good* data visualisation. It must be: ttrustworthy, accessible, and elegant. The first principle of **trust** speaks to the integrity, accuracy, and legitimacy of any data visualisation we produce. @Kirk_2016 suggests this principle to be held above all else, as our primary goal is to communicate truth (as far as we know it) and avoid at all cost to present what we know to be misleading content (see as well @Cairo_2016).  **Accessibility** refers to our visualisation being useful, understandable, and unobtrusive, as well as accessible for all users. There are many things to consider in your audience such as *dynamic of need* (do they have to engage with your visualisation, or is it voluntary?), *subject-matter knowledge* (are they experts in the area, are they lay people to whom you must communicate a complex message? and many other factors) (see @Kirk_2016). Finally, **elegance** refers to aesthetics, attention to detail, and an element of *doing as little design as possible* - meaning a certain invisibility whereby the viewer of your visualisation on the content; rather than the design - that is the main point is the message that you are trying to communicate with your data. There are various schools of thought within data visualisation research. For example, the work of @Tufte_1983 emphasises clean, minimalist approaches to data visualisation, emphasising a low *data-to-ink-ratio*, which means all the ink needed to print the visualisation should contribute data to the graph. However, other research has explored the usefulness of additional embellishments on charts (which Tufte calls "chart junk") — finding there may be value to these sorts of approaches as well (see @Li_2014). In this chapter, we will aim to bring together the above principles, and work through a practical example of how to apply these to the maps we make. 
 
 ## Data representation
 
@@ -63,7 +63,7 @@ Data visualisation is a somewhat newer field, however, it seems to encompass the
 
 We've been working with thematic maps thus far in this book. There are many decisions that go into making a thematic map, which we have explored at length in the previous chapters, such as how (and whether) to bin your data (Chapter 3) and how (or whether) to transform your polygons (Chapter 4). These are important considerations on how to represent your data to your audience, and require a technical understanding, not only an aesthetic one. So please do read over those chapters carefully when thinking about how to represent your data. 
 
-We've covered a few approaches to mapping (using `ggplot2`, `tmap`, and `leaflet`) but here we will continue with `ggplot2` package to plot our thematic maps, specifically a choropleth map. We will map our `sf` objects using the `geom_sf()` function. To shade each polygon with the values of a specific variable, we use the `fill = ` argument within the `aes()` (aesthetics) function. Most simply: 
+We've covered a few approaches to mapping (using `ggplot2`, `tmap`, and `leaflet`), but here we will continue with `ggplot2` package to plot our thematic maps, specifically a choropleth map. We will map our `sf` objects using the `geom_sf()` function. To shade each polygon with the values of a specific variable, we use the `fill = ` argument within the `aes()` (aesthetics) function. Most simply: 
 
 ```{r themmap, fig.cap='Quick thematic map with ggplot2', fig.alt="A map of Hungary broken into its counties, shaded in various shades of blue, with grey borders between them. The background is a grey grid, with the axes labeled with longitudes and latitudes. A legend to the right is labeled 'total breath tests', with a gradient of light blue to dark blue, with notches every ten thousand values. The lightest blue is just over thirty thousand. Lighter colours appear in counties to the east and some parts of the west."}
 
@@ -86,7 +86,7 @@ map
 
 ```
 
-We can change the colour and size of the borders of our polygons with arguments inside the `geom_sf()` function, but outside the `aes()` function, as long as we're not using our data to define these. For example we can change the line width (`lwd =`) to 0, eliminating bordering lines between our polygons: 
+We can change the colour and size of the borders of our polygons with arguments inside the `geom_sf()` function, but outside the `aes()` function, as long as we're not using our data to define these. For example, we can change the line width (`lwd =`) to 0, eliminating bordering lines between our polygons: 
 
 ```{r themmapwithoubord, fig.cap='Thematic map with border lines removed', fig.alt="The previous map, now with the borders between the counties being much thinner."}
 
@@ -107,7 +107,7 @@ ggplot(data = hu_dd) +
 
 ```
 
-Here we have a continuous fill for our values, however we can employ our learning from Chapter 3 and apply a classification system, such as quantiles. To do this we might create a new variable which contains the quantiles of our numeric variable, and then use that as our `fill = `. 
+Here we have a continuous fill for our values; however, we can employ our learning from Chapter 3 and apply a classification system, such as quantiles. To do this, we might create a new variable which contains the quantiles of our numeric variable, and then use that as our `fill = `. 
 
 ```{r, fig.cap='Map of quantiles with default colour scheme', fig.alt="The map still has the white borders between counties, but now those counties have been coloured in four bright colours, red, green, blue, and purple. The legend has changed from a gradient to four colour boxes with labels for their ranges in the form x comma y, and is now labeled 'total quantiles'."}
 
@@ -124,11 +124,11 @@ ggplot(data = hu_dd) +
 
 ```
 
-The colour scheme is terrible, but we will talk about colour in the next section, so we can forgive that for now...
+The colour scheme is terrible, but we will talk about colour in the next section, so we can forgive that for now.
 
 ### Symbols
 
-You might not want to display your map as a choropleth map, you may want to use symbols. Again we explored this in Chapter 3 where you used the `tmap` package for this. Here is another way you can use graduated symbol map with `ggplot()`. You can take the centroid of each county polygon using the `st_centroid()` function from the `sf` package, and then when mapping with `geom_sf()`, within the `aes()` function specify the `size = ` argument to the variable you wish to visualise: 
+You might not want to display your map as a choropleth map. You may want to use symbols. Again we explored this in Chapter 3 where you used the `tmap` package for this. Here is another way you can use the graduated symbol map with `ggplot()`. You can take the centroid of each county polygon using the `st_centroid()` function from the `sf` package, and then when mapping with `geom_sf()`, within the `aes()` function specify the `size = ` argument to the variable you wish to visualise: 
 
 ```{r gradsymbmap, message=FALSE, warning=FALSE, fig.cap='Graduated symbol map', fig.alt="The map of Hungary has lost its bright colours, and now has a black border between counties. The counties are all shaded the same shade of grey, and each one has a solid black circle in its centre. The circles vary in sizes, from a small point to much larger. A legend on the right, labeled 'total breath tests', shows three example circles and corresponding numbers, ten thousand, twenty thousand, and thirty thousand. The largest circles in counties on the map seem to be a similar size to the thirty thousand example circle."}
 
@@ -139,7 +139,7 @@ ggplot(data = hu_dd) +
   theme_void()
 ```
 
-Like with the thematic map you can play around with colour and shape: 
+Like with the thematic map, you can play around with colour and shape: 
 
 ```{r gradsymbmapcol, message=FALSE, warning=FALSE, fig.cap='Graduated symbol map with adjusted colours', fig.alt="The previous map now has white borders between counties again, and the counties are shaded a light yellow. The circles on the map and in the legend are orange."}
 
@@ -153,7 +153,7 @@ ggplot(data = hu_dd) +
 
 ```
 
-You can also change the symbol itself with the `shape = ` parameter. For example you could use a triangle: 
+You can also change the symbol itself with the `shape = ` parameter. For example, you could use a triangle, like below, or to any other symbol.
 
 ```{r gradsymbmapcoltriangle, message=FALSE, warning=FALSE, fig.cap='Graduated symbol map with triangle shape', fig.alt="The previous map of Hungary, in the same colour scheme, has had its circles replaced with triangles of corresponding sizes."}
 
@@ -170,9 +170,9 @@ ggplot(data = hu_dd) +
 
 Or to any other symbol. The possible values that you can use for the shape argument  are the numbers 0 to 25, and the numbers 32 to 127. Only shapes 21 to 25 are filled (and thus are affected by the fill colour), the rest are just drawn in the outline colour. Shapes 32 to 127 correspond to the corresponding ASCII characters. For example, if we wanted to use the exclamation mark, the corresponding value is 33. How you choose to represent your data will depend on your decisions to the questions asked above about audience, message, integrity, and so on. 
 
-### Rate vs count
+### Rate vs. count
 
-In Chapter 3 we have discussed this already in great detail, so do consult this, but it is important that your data are meaningful and easy to interpret. We might, in this case for example, want to consider the rate of positive breath tests per test carried out in each county. To compute this, we might want to consider the proportion of positive results on the breatalyser tests (where the person had been drinking and their result is over the limit). To compute this, we can simply divide the positive results by the total test, and multiply by 100. We also include the `round()` function in there, as we don't need much precision in this case.  
+In Chapter 3 we have discussed this already in great detail, so do consult this, but it is important that your data are meaningful and easy to interpret. We might, in this case for example, want to consider the rate of positive breath tests per test carried out in each county. To compute this, we might want to consider the proportion of positive results on the breathalyser tests (where the person had been drinking and their result is over the limit). To compute this, we can simply divide the positive results by the total test, and multiply by 100. We also include the `round()` function in there, as we don't need much precision in this case.  
 
 ```{r}
 
@@ -183,7 +183,7 @@ hu_dd <- hu_dd %>%
 ```
 
 
-We can see the county with the highers proportion of test yielding drink drivers is `r hu_dd %>% filter(pos_rate == max(pos_rate)) %>% pull(name)` with `r hu_dd %>% filter(pos_rate == max(pos_rate)) %>% pull(pos_rate)` %, while the county with the lowest is `r hu_dd %>% filter(pos_rate == min(pos_rate)) %>% pull(name)` with `r hu_dd %>% filter(pos_rate == min(pos_rate)) %>% pull(pos_rate)` %. We can visualise this rate on our thematic map in exactly the same way as the count data, but using our new variable in the `fill =` argument:  
+We can see the county with the highers proportion of test yielding drink drivers is `r hu_dd %>% filter(pos_rate == max(pos_rate)) %>% pull(name)` with `r hu_dd %>% filter(pos_rate == max(pos_rate)) %>% pull(pos_rate)`%, while the county with the lowest is `r hu_dd %>% filter(pos_rate == min(pos_rate)) %>% pull(name)` with `r hu_dd %>% filter(pos_rate == min(pos_rate)) %>% pull(pos_rate)`%. We can visualise this rate on our thematic map in exactly the same way as the count data, but using our new variable in the `fill =` argument:  
 
 ```{r themmapratefill, fig.cap="Map with rate instead of count", fig.alt="The map of Hungary, shaded in blues similar to before. A legend to the right, labeled 'pos rate', matches lighter shades of blue to higher numbers. A vertical strip along the centre of the country is much lighter than the east or west."}
 
@@ -195,19 +195,19 @@ ggplot(data = hu_dd) +
 
 ## Colour
 
-When choosing a colour palette, the first thing to consider is what kind of colour scheme we need. This will depend on the variable we are trying to visualise. Depending on the kind of varaible we want to visualise, we might want a *qualitative* colour scheme (for categorical nominal variables), a *sequential* colour scheme (for categorical ordinal, or for numeric variables) or a *diverging* colour scheme (for categorical ordinal, or for numeric variables). For qualitative colour schemes, we want each category (each value for the variable) to have a perceptible difference in colour. For sequential and diverging colour schemes, we will want mappings from data to colour that are not just numerically but also perceptually uniform. 
+When choosing a colour palette, the first thing to consider is what kind of colour scheme we need. This will depend on the variable we are trying to visualise. Depending on the kind of variable we want to visualise, we might want a *qualitative* colour scheme (for categorical nominal variables), a *sequential* colour scheme (for categorical ordinal, or for numeric variables) or a *diverging* colour scheme (for categorical ordinal, or for numeric variables). For qualitative colour schemes, we want each category (each value for the variable) to have a perceptible difference in colour. For sequential and diverging colour schemes, we will want mappings from data to colour that are not just numerically but also perceptually uniform. 
 
 - **sequential scales** (also called gradients) go from low to high saturation of a colour. 
 - **diverging scales** represent a scale with a neutral mid-point (as when we are showing temperatures, for instance, or variance in either direction from a zero point or a mean value), where the steps away from the midpoint are perceptually even in both directions. 
-- **qualitative scales** identify as different the different values of your categorical nominal variable from each other. 
+- **qualitative scales** identify as different from each other the different values of your categorical nominal variable . 
 
 For your sequential and diverging scales, the goal in each case is to generate a perceptually uniform scheme, where hops from one level to the next are seen as having the same magnitude. 
 
 Of course, perceptual uniformity matters for your qualitative scales for your unordered categorical variables as well. We often use colour to represent data for different countries, or political parties, or types of people, and so on. In those cases we want the colours in our qualitative palette to be easily distinguishable, but also have the same valence for the viewer. Unless we are doing it deliberately, we do not want one colour to perceptually dominate the others. 
 
-The main message here is that you should generally not put together your colour palettes in an ad hoc way. It is too easy to go astray. In addition to the considerations we have been discussing, there we might also want to avoid producing plots that confuse people who are colour blind. Fortunately for us, almost all of the work has been done for us already. Different colour spaces have been defined and standardized in ways that account for these uneven or nonlinear aspects of human colour perception.
+The main message here is that you should generally not put together your colour palettes in an ad hoc way. It is too easy to go astray. In addition to the considerations we have been discussing, we might also want to avoid producing plots that confuse people who are colour-blind. Fortunately for us, almost all of the work has been done already. Different colour spaces have been defined and standardized in ways that account for these uneven or non-linear aspects of human colour perception.
 
-A good resource is [colorbrewer](http://colorbrewer2.org/). We have come across the work of Cynthia @Brewer_2006 in Chapter 3. Colorbrewer is a resource developed by Cynthia Brewer and colleagues in order to help implement good colour practice in data visualisation and cartography [@Brewer_1994]. This site offers many colour schemes we can make use of for our maps, which are easily integrated into R using the `Rcolorbrewer` package.
+A good resource is [*colorbrewer*](http://colorbrewer2.org/). We have come across the work of Cynthia @Brewer_2006 in Chapter 3. *Colorbrewer* is a resource developed by Brewer and colleagues in order to help implement good colour practice in data visualisation and cartography [@Brewer_1994]. This site offers many colour schemes we can make use of for our maps, which are easily integrated into R using the `Rcolorbrewer` package.
 
 ```{r, loadrcolorbrewer}
 library(RColorBrewer)
@@ -222,7 +222,7 @@ display.brewer.all()
 
 ```
 
-The above gives a wide choice of pallettes, and while they are applicable to all sorts of data visualisations, they were created especially for the case of thematic maps. We might use the above code to pick a palette we like. We might then want to examine the colours more closely. To do this we can use the `display.brewer.pal()` function, and specify `n=` - the number of colours we need, as well as the palette name with `name = `: 
+The above gives a wide choice of pallettes, and while they are applicable to all sorts of data visualisations, they were created especially for the case of thematic maps. We might use the above code to pick a palette we like. We might then want to examine the colours more closely. To do this, we can use the `display.brewer.pal()` function, and specify `n=` - the number of colours we need, as well as the palette name with `name = `: 
 
 ```{r, fig.height=2, fig.cap='The "spectral" palette in RColorBrewer package', fig.alt="Five wide rectangles side by side, coloured red, orange, light yellow, green, and blue."}
 
@@ -230,7 +230,7 @@ display.brewer.pal(n = 5, "Spectral")
 
 ```
 
-Let's go back to our choropleth map of the quantiles of total breath tests per county. We might be interested in this map to show distribution of policing activity for example. We made this map earlier with the default colour scheme, which didn't really communicate to us the graduated nature of our data we were visualising. To properly do this, we may imagine using a *sequential* scale. We can use one of the sequential scales available within `RColorBrewer` with adding the `scale_fill_brewer()` function to our ggplot. In this function we can specify the `type=` parameter, i.e. if we want to use sequential, divergining, or qualitative colour schemes (specified as either "seq" (sequential), "div" (diverging) or "qual" (qualitative)). We can then specify our preferred palette with the `palette = ` argument. Let's demonstrate here with the "YlOrRd" sequential palette: 
+Let's go back to our choropleth map of the quantiles of total breath tests per county. We might be interested in this map to show distribution of policing activity, for example. We made this map earlier with the default colour scheme, which didn't really communicate to us the graduated nature of our data we were visualising. To properly do this, we may imagine using a *sequential* scale. We can use one of the sequential scales available within `RColorBrewer` with adding the `scale_fill_brewer()` function to our ggplot. In this function we can specify the `type=` parameter, i.e., if we want to use sequential, diverging, or qualitative colour schemes (specified as either "seq" (sequential), "div" (diverging) or "qual" (qualitative)). We can then specify our preferred palette with the `palette = ` argument. Let's demonstrate here with the "YlOrRd" sequential palette: 
 
 ```{r, colourbbrewerratefill, fig.cap='Thematic map with "YlOrRd" sequential palette', fig.alt="A previously shown map of counties of Hungary, previously with four bright colours, with shaded counties and a white border between them. Now, the map has a more visually pleasing colour scheme, with colours ranging from yellow to orange to red. The legend to the right, labeled total quantiles, also reflects the new colours."}
 
@@ -238,21 +238,21 @@ ggplot(data = hu_dd) +
   geom_sf(aes(fill = total_quantiles), 
           lwd = 0.5, 
           col = "white") + 
-  scale_fill_brewer(type = "seq",   # pick pallette type
-                    palette = "YlOrRd") +  # specify pallette by name
+  scale_fill_brewer(type = "seq",   # pick palette type
+                    palette = "YlOrRd") +  # specify palette by name
   theme_void()
 
 ```
 
-This looks much better, and communicates our message much more clearly. Is this accessible to our colourblind colleagues? Earlier, when we asked to view all the palettes with the `display.brewer.all()` function, we did not specify any arguments. However, we can do so in order to filter only those palettes which are accessible for all audiences. We can include the parameter `colorblindFriendly = ` to do so: 
+This looks much better, and communicates our message much more clearly. Is this accessible to our colour-blind colleagues? Earlier, when we asked to view all the palettes with the `display.brewer.all()` function, we did not specify any arguments. However, we can do so in order to filter only those palettes which are accessible for all audiences. We can include the parameter `colorblindFriendly = ` to do so: 
 
-```{r, fig.height=6, fig.cap='Colourblind friendly palettes in RColorBrewer package', fig.alt="Much like before, this is another list of names of colour palettes, which are still concatenated abbreviations of shortened colour names or a small descriptor. The names are yet again accompanied by a series of wide rectangles coloured in according to the palette."}
+```{r, fig.height=6, fig.cap='Colour-blind friendly palettes in RColorBrewer package', fig.alt="Much like before, this is another list of names of colour palettes, which are still concatenated abbreviations of shortened colour names or a small descriptor. The names are yet again accompanied by a series of wide rectangles coloured in according to the palette."}
 
 display.brewer.all(colorblindFriendly = TRUE)
 
 ```
 
-You can see there are a few palettes missing from our earlier results, when we did not specify this requirement. Our recommendation is to always use one of these palettes. 
+You can see that there are a few palettes missing from our earlier results, when we did not specify this requirement. Our recommendation is to always use one of these palettes. 
 
 Another way to ensure that we are making accessible maps is to use greyscale (if your map is being printed, this may also save some money). To introduce a greyscale palette, you can use the function `scale_fill_grey() ` from the `ggplot2` package: 
 
@@ -265,7 +265,7 @@ ggplot(data = hu_dd) +
 
 ```
 
-Sometimes you might prefer such a map. However, do keep in mind, a number of studies have shown the desirability of monochrome colour (over greyscale) thematic maps, as they are linked to less observer variability in interpretation [@Lawson_2006]. So you might want to use something like this instead: 
+Sometimes you might prefer such a map. However, do keep in mind: a number of studies have shown the desirability of monochrome colour (over greyscale) thematic maps, as they are linked to less observer variability in interpretation [@Lawson_2006]. So you might want to use something like this instead: 
 
 ```{r, fig.cap="Map with monochrome palette", fig.alt="The same map, now in shades of light green to dark green. The lighter greens corresponds to the smaller 'total quantiles' here."}
 
@@ -276,17 +276,17 @@ ggplot(data = hu_dd) +
 
 ```
 
-Overall, the key thing is to be conscious with the colours you choose to represent your data. Make sure that they are accessible for all audiences, and best represent the patterns in your data which you want to communicate. 
+Overall, the key thing is to be conscious the colours you choose represent your data. Make sure that they are accessible for all audiences, and best represent the patterns in your data which you want to communicate. 
 
 ## Text
 
-There are important pieces of information with every map which are represented by text. Titles, subtitles, legend labels, and annotations all help to make the message communicated by your map more clear and obvious to your readers. Further, important information about the underlying data can be communicated through product notes. You want to acknowledge the sources of your data (both attribute data and geometry data), as well as leave some information about yourself as the map maker, so consumers of your map can understand who is behind this map, and leave some contact information to get in touch with any questions. In this section we go through how to add such text information to your maps. 
+There are important pieces of information with every map which are represented by text. Titles, subtitles, legend labels, and annotations all help to make the message communicated by your map more clear and obvious to your readers. Further, important information about the underlying data can be communicated through product notes. You want to acknowledge the sources of your data (both attribute data and geometry data), as well as leave some information about yourself as the map-maker, so consumers of your map can understand who is behind this map, and leave some contact information to get in touch with any questions. In this section we go through how to add such text information to your maps. 
 
 ### Titles and subtitles
 
-To give your map a title and subtitle, you can use the appropriate functions from the `ggplot2()` package. In this case we can add both within the `ggtitle` function. Make sure that your title is short and specific, so it is clear what your map is about. You can include a subtitle to elaborate on this, or you can add additional information such as the period for which your map represents data (in this case January 2020). 
+To give your map a title and subtitle, you can use the appropriate functions from the `ggplot2()` package. In this case we can add both within the `ggtitle` function. Make sure that your title is short and specific, so it is clear what your map is about. You can include a subtitle to elaborate on this, or you can add additional information such as the period for which your map represents data (in this case, January 2020). 
 
-First let's save our map into an object, call it `map`. Then we can add to this object. 
+First, let's save our map into an object, call it `map`. Then we can add to this object. 
 
 ```{r titlesubtitle}
 
@@ -313,7 +313,7 @@ map
 
 ### Legend
 
-Besides an informative title/subtitle you need your legend to be clear to your readers as well. To modify the title to your legend, you can use the `name =` parameter in your `scale_fill_brewer()` function, where we specified the colour palette. 
+Besides an informative title/subtitle, you need your legend to be clear to your readers as well. To modify the title to your legend, you can use the `name =` parameter in your `scale_fill_brewer()` function, where we specified the colour palette. 
 
 ```{r legend, warning=FALSE, message=FALSE, fig.cap='Add title to map legend', fig.alt="The same titled map again, with the legend updated. It now features a better label, 'Total tests (quantiles)'."}
 
@@ -352,7 +352,7 @@ map
 ```
 
 
-Of course it is possible that we want to completely re-write the levels, rather than just swap out one character for another. In this case, we can completely rename the levels if we liked, by passing the new, desired labels into this `new_levels` object
+Of course it is possible that we want to completely re-write the levels, rather than just swap out one character for another. In this case, we can completely rename the levels if we liked by passing the new, desired labels into this `new_levels` object
 
 ```{r legendlabels2createlabs}
 
@@ -363,7 +363,7 @@ new_levels <- c("< 4796", "4796 to < 10785", "10785  to < 15070", "> 15070")
 And once again, we specify to use these labels in the `labels = ` parameter of the `scale_fill_brewer()` function: 
 
 
-```{r newnewlabelsplot, warning=FALSE, message=FALSE, fig.cap='Rewrite values on map legend', fig.alt="Further changes to the same map of Hungary, the ranges next to the colours now use the connecting word 'to', and 'less than' and 'greater than' signs where needed."}
+```{r newnewlabelsplot, warning=FALSE, message=FALSE, fig.cap='Re-write values on map legend', fig.alt="Further changes to the same map of Hungary, the ranges next to the colours now use the connecting word 'to', and 'less than' and 'greater than' signs where needed."}
 
 map + 
   scale_fill_brewer(type = "seq", palette = "Greens", 
@@ -374,13 +374,13 @@ map +
 ```
 
 
-You can change the labels however you would like, but do keep in mind any loss of information you may introduce. For example with this second version, we no longer know what are the minimum and maximum values on our map, as we've removed that information with our new levels. Again, no wrong answers here, but whatever best fits the data and the purpose of the map. Depending on the context, for example, you may use the title to draw home the key finding or lesson you want the reader to take from the map (rather than describing the plot variable).
+You can change the labels you would like, but do keep in mind any loss of information you may introduce. For example with this second version, we no longer know what are the minimum and maximum values on our map, as we've removed that information with our new levels. Again, there are no wrong answers here, but whatever best fits the data and the purpose of the map. Depending on the context, for example, you may use the title to draw home the key finding or lesson you want the reader to take from the map (rather than describing the plot variable).
 
 ### Annotation
 
-In certain cases, it might be that we want to point out something specific on our map. This would be the case if we imagine showing someone the map in person, and pointing to a specific region, or area, to highlight it. Or we might just want to label all polygons, for clarity. If we are not present to discuss our map, we might want to include some text annotation instead, which will do this for us. From `ggplot2` versions v.3.1.0 the functions `geom_sf_text()` and `geom_sf_label()` make it very smooth for us to do this. 
+In certain cases, it might be that we want to point out something specific on our map. This would be the case if we imagine showing someone the map in person, and pointing to a specific region, or area, to highlight it. Or we might just want to label all polygons, for clarity. If we are not present to discuss our map, we might want to include some text annotation instead, which will do this for us. From `ggplot2` versions v.3.1.0, the functions `geom_sf_text()` and `geom_sf_label()` make it very smooth for us to do this. 
 
-In the below example, let's say we want to label each polygon with the name of the county which it represents. In this case, we use the `geom_sf_label()` geometry, and inside it we use `aes()` to point to which column in our dataframe we want to use (in this case the column is called *name*). 
+In the below example, let's say we want to label each polygon with the name of the county which it represents. In this case, we use the `geom_sf_label()` geometry, and inside it we use `aes()` to point to which column in our dataframe we want to use (in this case, the column is called *name*). 
 
 ```{r addcountynames, warning=FALSE, message=FALSE, fig.cap='Add labels to map', fig.alt="Once more the same map has been altered, gaining rounded white boxes with a thin black outline overlaid on each county. These boxes include the names of the counties in black text. Many boxes cover one another. The legend has also reverted to one with a dash between values."}
 
@@ -389,7 +389,7 @@ map  +
   
 ```
 
-You may notice there is some overlapping here which renders some names unreadable. Well while [there is work in this space to develop the function geom_sf_label_repel()](https://github.com/slowkow/ggrepel/issues/111) at the time of writing this is not yet available. However this application of the `geom_label_repel()` function from the `ggrepel` package advised by @Yutani_2018 achieves the same outcome: 
+You may notice, there is some overlapping here which renders some names unreadable. Well while [there is work in this space to develop the function geom_sf_label_repel()](https://github.com/slowkow/ggrepel/issues/111), at the time of writing this is not yet available. However this application of the `geom_label_repel()` function from the `ggrepel` package advised by @Yutani_2018 achieves the same outcome: 
 
 ```{r, warning=FALSE, message=FALSE, fig.cap='Repel labels for legibility', fig.alt="The boxes have shifted around to mostly prevent overlapping. A thin black line connects each box to the centre of the county it corresponds to. Most of these lines are very short, though a few labels are some distance from their county."}
 
@@ -404,7 +404,7 @@ map +
    
 ```
 
-This way we can display the names of all the counties without overlap, so they all become legible. While this is achievable, think back to the principles of good design. This seems busy, and like it may overwhelm the reader. Not to mention - is it important that all polygons are labelled here? It might be - remember this depends on the message the map is intended to communicate! But here let's consider a different scenario, where we want to use annotation to label only those counties which meet some specific criteria.  For example, you might want to label only those which are in the top quartile. One way to achieve this is to create a separate dataframe, which only includes the desired polygons, and pass this into the `geom_sf_label()` function.  
+This way we can display the names of all the counties without overlap, so they all become legible. While this is achievable, think back to the principles of good design. This seems busy, and it may overwhelm the reader. Not to mention, is it important that all polygons are labelled here? It might be; remember this depends on the message the map is intended to communicate! But here let's consider a different scenario, where we want to use annotation to label only those counties which meet some specific criteria.  For example, you might want to label only those which are in the top quartile. One way to achieve this is to create a separate dataframe, which only includes the desired polygons, and pass this into the `geom_sf_label()` function.  
 
 ```{r addcountynamestoponly, warning=FALSE, message=FALSE, fig.cap='Label only polygons in top quartile of value on variable of interest', fig.alt="We are back to the map with the labels centred on the counties, but only five labels appear, with no overlap. They are in the northwest, southwest, and east of the country."}
 
@@ -418,7 +418,7 @@ map +
 
 ```
 
-In another scenario, you might want to label only one region of interest. In this case, we might actually want to keep our annotation off the map, and draw an arrow onto the map pointing to where this annotation refers to. We can do this by using the `nudge_x` and `nudge_y` parameters of the `geom_sf_label()` function, to *nudge* the label position along the x and y axis respectively. In this case, let's label only Budapest. 
+In another scenario, you might want to label only one region of interest. In this case, we might actually want to keep our annotation off the map, and draw an arrow onto the map pointing to where this annotation refers to. We can do this by using the `nudge_x` and `nudge_y` parameters of the `geom_sf_label()` function, to *nudge* the label position along the x and y axes respectively. In this case, let's label only Budapest. 
 
 ```{r addcountynamesBPonly, warning=FALSE, message=FALSE, fig.cap='Label only one area of interest', fig.alt="Still the same green shaded map of the counties of Hungary, now a label for 'Budapest' floats north of the country, not covering any of it."}
 
@@ -446,7 +446,7 @@ bp_y <- labs_df %>%
 
 ```
 
-Great, so we have the end point for our segment! But where should it start? Well we want it pointing from our label, so we can think back to how we adjusted this label with the `nudge_x` and `nudge_y` parameters inside the `geom_sf_label()` function earlier. We can add (or subtract) these values to our bp_x and bp_y objects to determine the start points for our curve. Finally, we can also specify some characteristics of the arrow head on our curve with the `arrow = ` parameter. Here we specify we want 2 millimeter size. 
+Great, so we have the end point for our segment! But where should it start? Well we want it pointing from our label, so we can think back to how we adjusted this label with the `nudge_x` and `nudge_y` parameters inside the `geom_sf_label()` function earlier. We can add (or subtract) these values to our bp_x and bp_y objects to determine the start points for our curve. Finally, we can also specify some characteristics of the arrow head on our curve with the `arrow = ` parameter. Here we specify that we want 2 millimeters. 
 
 
 ```{r, warning=FALSE, fig.cap='Add arrow to clarify label off map', fig.alt="The previous image, with a curved arrow from the label to the centre of Budapest itself."}
@@ -470,7 +470,7 @@ This is one way to include annotation while keeping the map clear, but still usi
 
 ### Production notes
 
-Something that should be a key feature of all maps is the inclusion of  production notes. This includes some information about you who made it, as well as any attributions for data. Here we can string together a series of information we want to include, appended with a newline character (`\n`), in order to keep our notes nice and legible. We save this into a new object called `caption_text`. 
+Something that should be a key feature of all maps is the inclusion of  production notes. This includes some information about who made it, as well as any attributions for data. Here we can string together a series of information we want to include, appended with a newline character (`\n`), in order to keep our notes nice and legible. We save this into a new object called `caption_text`. 
 
 ```{r}
 
@@ -499,13 +499,13 @@ In this way we give credibility to our map, and we also make the proper attribut
 
 ## Composition
 
-Composition of the map is the process of bringing all its elements together in order that they portray a complete image of what you are representing. Composition includes considerations of size, proportions, generalisation, simplification, and similar topics. We do not address these here, as they rely so much on the specific purpose of the map being created. Is it for the web? Is it for print? Are having detailed outlines of coasts and waterways important, or is a generalised representation of the underlying geography enough? These are questions the map maker should answer early on, and pick geometry data, and specify output sizes and resolutions accordingly. In this section instead, we will focus on the element of composition which is concerned with the inclusion of basic map elements - information required by the map readers to make sense of our data, specifically orientation and scale indicators
+Composition of the map is the process of bringing all its elements together in order that they portray a complete image of what you are representing. Composition includes considerations of size, proportions, generalisation, simplification, and similar topics. We do not address these here, as they rely so much on the specific purpose of the map being created. Is it for the web? Is it for print? Are detailed outlines of coasts and waterways important, or is a generalised representation of the underlying geography enough? These are questions the map-maker should answer early on, and then pick geometry data, and specify output sizes and resolutions accordingly. In this section instead, we will focus on the element of composition which is concerned with the inclusion of basic map elements - information required by the map readers to make sense of our data, specifically orientation and scale indicators.
 
 ### Orientation indicators
 
-It used to be that no map was complete without the inclusion of an orientation indicator (known colloquially as the "North Arrow"). Readers who are geography fans may know that the issue of where is North is maybe not so straight forward - true north (the direction to the North Pole) differs from magnetic north, and the latter actually moves around as the Earth's geophysical conditions change. There are reference maps which include both, however for most crime mapping applications we can conclude that this is overkill. Most maps are oriented to true north, anyway, so we are not being very deviant with choosing this approach. 
+It used to be that no map was complete without the inclusion of an orientation indicator (known colloquially as the "North Arrow"). Readers who are geography fans may know that the issue of where North is maybe not so straightforward. True north (the direction to the North Pole) differs from magnetic north, and the latter actually moves around as the Earth's geophysical conditions change. There are reference maps which include both; however, for most crime-mapping applications we can conclude that this is overkill. Most maps are oriented to true north, anyway, so we are not being very deviant with choosing this approach. 
 
-So how to include this in our mapping in R? Well we can turn to the `ggspatial` library, and employ the function `annotation_north_arrow()`. In this function we can specify some aesthetic properties of our arrow, such as the height and width. Here we do so using millimeters as units. 
+So how to include this in our mapping in R? Well, we can turn to the `ggspatial` library, and employ the function `annotation_north_arrow()`. In this function we can specify some aesthetic properties of our arrow, such as the height and width. Here we do so using millimetres as units. 
 
 ```{r orientation, warning=FALSE, fig.cap='Add north arrow', fig.alt="Once more the same green map of Hungary's counties has had an addition, a small half white half black arrow pointing upwards in the bottom left corner, with the letter 'N' for north underneath."}
 
@@ -517,9 +517,9 @@ map + annotation_north_arrow(height = unit(7, "mm"), # specify arrow height
 
 ```
 
-You can also change the style with the `style = ` parameter, and choose from styles such as `north_arrow_fancy_orienteering()` or `north_arrow_minimal()`:
+You can also change the style with the `style = ` parameter, and then choose from styles such as `north_arrow_fancy_orienteering()` or `north_arrow_minimal()`:
 
-```{r orientationarrowstyle, warning=FALSE, fig.cap='Change stype of north arrow', fig.alt="The arrow above the letter 'N' is now longer, and bisects the letter."}
+```{r orientationarrowstyle, warning=FALSE, fig.cap='Change type of north arrow', fig.alt="The arrow above the letter 'N' is now longer, and bisects the letter."}
 
 map <- map + annotation_north_arrow(height = unit(7, "mm"), # specify arrow height
                          width = unit(5, "mm"), 
@@ -531,7 +531,7 @@ map
 
 ### Scale indicators
 
-Besides the North Arrow another key feature of maps is the scale indicator, which helps to understand distances we are presenting in our maps. Generally, scale should always be indicated or implied, unless the audience is so familiar with the map area or distance of such little relative importance that it can be assumed by the audience. You could use text to indicate scale. For example you could write "One centimeter is equal to one kilometer, or you could write 1:10000. But a common, graphical representation is to use a scale bar. Also in the `ggspatial` library, there is the function `annotation_scale()`, which helps us achieve this. To plot both the north arrow, and the scale indicator, you want to think about where you place these. You can move them along the x-axis using the `pad_x` parameter, and along the y-axis with the `pad_y` parameter. 
+Besides the North Arrow another, key feature of maps is the scale indicator, which helps to understand distances we are presenting in our maps. Generally, scale should always be indicated or implied, unless the audience is so familiar with the map area. You could use text to indicate scale. For example you could write: "One centimeter is equal to one kilometer, or you could write 1:10000. But a common, graphical representation is to use a scale bar. Also in the `ggspatial` library, there is the function `annotation_scale()`, which helps us achieve this. To plot both the north arrow and the scale indicator, you want to think about where you place these. You can move them along the x axis using the `pad_x` parameter, and along the y axis with the `pad_y` parameter. 
 
 ```{r scale, warning=FALSE, fig.cap='Include scale indicator on map', fig.alt="The addition this time is a longer horizontal bar, segmented into five sections alternating black and white. The text 'one hundred kilometers' appears next to it. It appears beneath the map of Hungary but above the attributions."}
 
@@ -544,16 +544,16 @@ map
 
 ```
 
-You can move these elements about however you like to achieve your desired composition. 
+You can move these elements about to achieve your desired composition. 
 
 
 ## Context
 
-Besides the orientation and scale indicators, there are other ways to give context to your map, that is situate it within the wider environment, and put things into perspective for your map readers. In this section we will touch on basemaps, although this is something we have already encountered in great detail in earlier chapters, we illustrate how to add basemaps in ggplot. We also introduce inset maps, as a way of highlighting where your map sits in the wider context. 
+Besides the orientation and scale indicators, there are other ways to give context to your map, that is situate it within the wider environment, and put things into perspective for your map readers. In this section we will touch on basemaps, although this is something we have already encountered in great detail in earlier chapters, here we illustrate how to add basemaps in ggplot. We also introduce inset maps, as a way of highlighting where your map sits in the wider context. 
 
 ### Basemap
 
-As mentioned above, we have encountered and included basemaps in previous exercises in previous chapters. For the sake of illustration, we can add a basemap now using the the `annotation_map_tile()` function also from the `ggspatial` package (like the orientation and scale indicators). Make sure that the basemap is the first layer added to the map, so that all subsequent layers are drawn on top of it. If we were to add `annotation_map_tile()` last, it would cover all the other layers. 
+As mentioned above, we have encountered and included basemaps in exercises in previous chapters. For the sake of illustration, we can add a basemap now using the `annotation_map_tile()` function also from the `ggspatial` package (like the orientation and scale indicators). Make sure that the basemap is the first layer added to the map, so that all subsequent layers are drawn on top of it. If we were to add `annotation_map_tile()` last, it would cover all the other layers. 
 
 ```{r basemap, warning=FALSE, message=FALSE, fig.cap='Add a basemap to our map', fig.alt="The title, subtitle, 'Budapest' label and its arrow, attributions, north indicator, and scale indicator have fled the map, however the axes with latitudes and longitudes have returned. In addition, a street map appears behind the green shaded white bordered map of the counties of Hungary. A little of the neighbouring countries can be seen, along with larger cities and major roads."}
 
@@ -569,9 +569,9 @@ This provides one way to add context. In previous iterations, we have adjusted t
 
 ### Inset maps
 
-Inset maps provide another approach to situating your map in context. You might use this to show where your main map fits into the context of a larger area, for example, here we might illustrate how Hungary is situated within Europe.  You might also use an inset map in another situation, where you have additional areas which you want to show which may be geographically far but politically related to your region. For example, we might want to portray a map of the United States of America, and make sure to include Hawaii and Alaska on the map. The basic principles behind these maps is the same. Essentially we must create two map objects, and then bring these together. Let's illustrate how. 
+Inset maps provide another approach to situating your map in context. You might use this to show where your main map fits into the context of a larger area; for example, here we might illustrate how Hungary is situated within Europe.  You might also use an inset map in another situation, where you have additional areas which you want to show which may be geographically far but politically related to your region. For example, we might want to portray a map of the United States of America and make sure to include Hawaii and Alaska on the map. The basic principles behind these maps are the same. Essentially we must create two map objects, and then bring these together. Let's illustrate how. 
 
-First, we need to create the map we will be displaying in the inset map. In this case, let's highlight the location of Hungary on a map of Europe. We can do this by creating a map of Europe (let's use the `rnaturalearth` package for this). We create a list of the countries from the world map `countries110', and filter only Europe (we also exclude Russia because it is so big it makes the rest of Europe hard do see on a smaller map, and Iceland as it's far, also making the map bigger than we need). 
+First, we need to create the map we will be displaying in the inset map. In this case, let's highlight the location of Hungary on a map of Europe. We can do this by creating a map of Europe (let's use the `rnaturalearth` package for this). We create a list of the countries from the world map `countries110', and filter only Europe (we also exclude Russia, because it is so big it makes the rest of Europe hard to see on a smaller map, and Iceland as it's far, also making the map bigger than we need). 
 
 ```{r}
 
@@ -589,7 +589,7 @@ europe <- ne_countries(geounit = europe_countries, # get geoms for countries in 
 ```
 
 
-Now we can use the returned sf object `europe` to create a map of Europe. But this isn't necessarily enough context. We also want the inset map to highlight Hungary within this map. We can do this by creating another layer, with only Hungary, and making its border red and a use thicker line width. By layering this on top of the Europe map, we are essentially highlighting our study region.  
+Now we can use the returned sf object `europe` to create a map of Europe. But this isn't necessarily enough context. We also want the inset map to highlight Hungary within this map. We can do this by creating another layer, with only Hungary, and making its border red and use a thicker line width. By layering this on top of the Europe map, we are essentially highlighting our study region.  
 
 ```{r}
 
@@ -607,9 +607,9 @@ inset_map <- ggplot() +  # create new ggplot
 
 ```
 
-We now have this separate map, which highlights where Hungary can be found, right there in Central Europe. To display this jointly with our map of breathalyser test, we must join the two maps. For this, we will need both as separate objects. We've already assigned out inset map to the object `inset_map`, and we also have our main map object we've been working with, called `map`. 
+We now have this separate map, which highlights where Hungary can be found, right there in Central Europe. To display this jointly with our map of the breathalyser test, we must join the two maps. For this, we will need both as separate objects. We've already assigned our inset map to the object `inset_map`, and we also have our main map object we've been working with, called `map`. 
 
-So now we have our inset map and main map stored as two map objects. To display them together we can use the `ggdraw()` and `draw_plot()` functions from the `cowplot` package. Let's load this package. 
+So now we have our inset map and main map stored as two map objects. To display them together, we can use the `ggdraw()` and `draw_plot()` functions from the `cowplot` package. Let's load this package. 
 
 ```{r cowplot}
 
@@ -618,7 +618,7 @@ library(cowplot)
 ```
 
 
-First, we set up an empty drawing layer for our ggplot using the `ggdraw()` function. Then we layer on the two maps both using the `draw_plot()` function. This allows us to draw plots and sub plots. This function places a plot (which we specify as the first parameter of this function) somewhere onto the drawing canvas. By default, coordinates run from 0 to 1, and the point (0, 0) is in the lower left corner of the canvas. We want to therefore specify where the plots go on our canvas explicitly. Alongside position, we can also specify size. This is important, we usually make the inset map smaller. 
+First, we set up an empty drawing layer for our ggplot using the `ggdraw()` function. Then we layer on the two maps both using the `draw_plot()` function. This allows us to draw plots and subplots. This function places a plot (which we specify as the first parameter of this function) somewhere onto the drawing canvas. By default, coordinates run from 0 to 1, and the point (0, 0) is in the lower left corner of the canvas. We want to therefore specify where the plots go on our canvas explicitly. Alongside position, we can also specify size. This is important, as we usually make the inset map smaller. 
 
 
 ```{r insetmaptogether, warning = FALSE}
@@ -641,13 +641,13 @@ hu_dd_with_inset
 
 ```
 
-You can play around with where you position your inset map by adjusting the x and y coordinates. You can also play around with the size of it by adjusting the parameters for height and width. And like mentioned above, you can use inset maps not only for context, but also to include geographically far away regions which belong to the same political unity, for example to include Alaska and Hawaii in maps of the United States. 
+You can play around with where you position your inset map by adjusting the x and y coordinates. You can also play around with the size of it by adjusting the parameters for height and width. And as mentioned above, you can use inset maps not only for context, but also to include geographically far away regions which belong to the same political unity, for example to include Alaska and Hawaii in maps of the United States. 
 
 
 ## Summary and further reading
 
-In this chapter we covered some principles of data visualisation and good map design, specifically how to implement some of these using `ggplot2` library in R. We talked about symbols, about colour, about text, and about adding context. `ggplot2` provides an incredibly flexible framework, and through the use of layers you can achieve a very beautiful and meaningful map output. We could for example consider adding topography, such as rivers, lakes, and mountains to our maps, and it would be only a case of adding another layer. To get more familiar with this we recommend @Wickham_2010 and @Healy_2019. 
+In this chapter we covered some principles of data visualisation and good map design, specifically how to implement some of these using `ggplot2` library in R. We talked about symbols, colour, text, and adding context. `ggplot2` provides an incredibly flexible framework, and through the use of layers you can achieve a very beautiful and meaningful map output. We could for example consider adding topography, such as rivers, lakes, and mountains to our maps, and it would be only a case of adding another layer. To get more familiar with this, we recommend @Wickham_2010 and @Healy_2019. 
 
-For general readings on cartography, the work of Kenneth Field provides thorough and engaging guidance (eg: @Field_2012 or @Field_2018). For data visualisation, while @Tufte_1983 is a classic text, those looking for practical instruction may wish to turn to @Kirk_2016 or @Cairo_2016 for more guidance. 
+For general readings on cartography, the work of Kenneth Field provides thorough and engaging guidance (e.g., @Field_2012 or @Field_2018). For data visualisation, while @Tufte_1983 is a classic text, those looking for practical instruction may wish to turn to @Kirk_2016 or @Cairo_2016 for more guidance. 
 
 
