@@ -2,11 +2,11 @@
 
 ## Introduction
 
-This chapter we begin to explore the analysis of spatial autocorrelation statistics. It has been long known that attribute values that are close together in space are unlikely to be independent. This is often referred to as Tobler's first law of geography : "everything is related to everything else, but near things are more related than distant things". For example, if area $n_i$ has a high level of violence, we often observe that the areas geographically close to $n_i$ tend to also exhibit high levels of violence. Spatial autocorrelation is the measure of this *correlation* between near things.
+This chapter begins to explore the analysis of spatial autocorrelation statistics. It has been long known that attribute values that are close together in space are unlikely to be independent. This is often referred to as Tobler's first law of geography: "everything is related to everything else, but near things are more related than distant things". For example, if area $n_i$ has a high level of violence, we often observe that the areas geographically close to $n_i$ tend to also exhibit high levels of violence. Spatial autocorrelation is the measure of this *correlation* between near things.
 
-The analysis of spatial dependence and global clustering is generally a first step before we explore the location of clusters. In spatial statistics we generally distinguish global clustering from the detection of local clusters. Some techniques, the focus of this chapter, are based on the global view and is appropriate for assessing the existence of dependence in the whole distribution, or *clustering*. It is important to first evaluate the presence of clustering before one explores the location of *clusters* -which we will cover in the next chapter.
+The analysis of spatial dependence and global clustering is generally a first step before we explore the location of clusters. In spatial statistics we generally distinguish global clustering from the detection of local clusters. Some techniques, the focus of this chapter, are based on the global view and are appropriate for assessing the existence of dependence in the whole distribution, or *clustering*. It is important to first evaluate the presence of clustering before one explores the location of *clusters*, which we will cover in Chapter 10.
 
-In this chapter we are going to discuss ways in which you can quantify the answer to this question. We will start introducing methods to assess spatial clustering with point pattern data, which typically start from exploring continuous distance between the location of the points. Then, we will discuss measures of global spatial autocorrelation for lattice data, which essentially aim to answer the degree to which areas (census tracts, police precincts, etc) that are near each other tend to be more alike. 
+In this chapter we are going to discuss ways in which you can quantify the answer to this question. We will start introducing methods to assess spatial clustering with point pattern data, which typically start from exploring continuous distance between the location of the points. Then, we will discuss measures of global spatial autocorrelation for lattice data, which essentially aim to answer the degree to which areas (census tracts, police precincts, etc.) that are near each other tend to be more alike. 
 
 We will be making use of the following packages:
 
@@ -33,43 +33,43 @@ library(ggspatial)
 
 ## Exploring spatial dependence in point pattern data
 
-### The empirical K function
+### The empirical K-function
 
-In Chapter 7 we assessed homogeneity, or lack of, in point pattern data. Another important aspect of point location is whether they show some kind of interpoint dependence. In observing a point pattern one is interested in what are referred to as first order properties (varying intensity across the study surface vs homogeneity) and second order properties (independence vs correlation among the points). As @Bivand_2013 explain:
+In Chapter 7 we assessed homogeneity, or lack of, in point pattern data. Another important aspect of point location is whether they show some kind of interpoint dependence. In observing a point pattern, one is interested in what are referred to as first order properties (varying intensity across the study surface vs. homogeneity) and second order properties (independence vs. correlation among the points). As @Bivand_2013 explain:
 
->" Spatial variation occurs when the risk is not homogeneous in the study region (i.e. all individuals do not have the same risk) but cases appear independently of each other according to this risk surface, whilst clustering occurs when the occurrence of cases is not at random and the presence of a case increases the probability of other cases appearing nearby." (p. 204)
+> Spatial variation occurs when the risk is not homogeneous in the study region (i.e. all individuals do not have the same risk) but cases appear independently of each other according to this risk surface, whilst clustering occurs when the occurrence of cases is not at random and the presence of a case increases the probability of other cases appearing nearby. (p. 204)
 
-In chapter 7 we covered the Chi Square test and we very briefly discussed how it can only help us to reject the notion of spatial randomness in our point pattern, but it cannot help us to determine whether this is due to varying intensity or to interpoint dependence.
+In Chapter 7 we covered the Chi Square test and we very briefly discussed how it can only help us to reject the notion of spatial randomness in our point pattern, but it cannot help us to determine whether this is due to varying intensity or to interpoint dependence.
 
 Both processes may lead to apparent observed clustering:
 
-- **First order clustering** near particular locations in the region of study takes place when we observe more points in certain neighborhoods or street segments or whatever our unit of interest is;
+- **First order clustering** near particular locations in the region of study takes place when we observe more points in certain neighbourhoods or street segments or whatever our unit of interest is;
 - **Second order clustering** is present when we observe more points around a given location in a way that is associated with the appearance of points around this given location.
 
 [This may sound subtle and in practice it may be difficult, nearly impossible, to distinguish "first order inhomogeneity" and "second order clustering due to interactions between points" based on a single point pattern](https://stats.stackexchange.com/questions/411402/spatial-point-process-does-an-inhomogeneous-first-order-intensity-function-affe).
 
 
-A technique commonly used to assess whether points are independent is Ripley's K-function. For exploring global clustering in a point pattern we use the K-function. @Baddeley_2016 defines the K function as the "cumulative average number of data points lying within a distance $r$ of a typical data point, corrected for edge effects, and standardised by dividing by the intensity" (p. 204). This is a test that, as we will see, assumes that the process is spatially homogeneous. As @Lu_2007 indicate:
+A technique commonly used to assess whether points are independent is Ripley's K-function. For exploring global clustering in a point pattern, we use the K-function. @Baddeley_2016 define the K-function as the "cumulative average number of data points lying within a distance $r$ of a typical data point, corrected for edge effects, and standardised by dividing by the intensity" (p. 204). This is a test that, as we will see, assumes that the process is spatially homogeneous. As @Lu_2007 indicate:
 
 
 >"The basic idea of K-function is to examine whether the observed point distribution is different from random distributions. In a random distribution, each point event has the equal probability to occur at any location in space; the presence of one point event at a location does not impact the occurrence possibilities of other point events." (p. 613)
 
-Imagine we want to know if the location of crime events are independent. Ripley's K function evaluates distances across crime events to assess this. In this case, it would count the number of neighboring crime events represented by the points found within a given distance of each individual crime location. The number of observed neighboring crime events is then traditionally compared to the number of crime events one would expect to find based on a completely spatially random point pattern. If the number of crimes found within a given distance of each individual crime is greater than that for a random distribution, the distribution is then considered to be clustered. If the number is smaller, the distribution is considered not to be clustered. 
+Imagine we want to know if the locations of crime events are independent. Ripley's K-function evaluates distances across crime events to assess this. In this case, it would count the number of neighbouring crime events represented by the points found within a given distance of each individual crime location. The number of observed neighbouring crime events is then traditionally compared to the number of crime events one would expect to find based on a completely spatially random point pattern. If the number of crimes found within a given distance of each individual crime is greater than that for a random distribution, the distribution is then considered to be clustered. If the number is smaller, the distribution is considered not to be clustered. 
 
-Typically, what we do to study correlation in a point pattern data is to plot the empirical K function estimated from the data and compare this with the theoretical K-function of the homogeneous Poisson process. So, for this to work, we need to assume that the process is spatially homogeneous. If we suspect this is not the case, then we cannot use the standard Ripley's K methods. Let's illustrate how all this works with the example of some homicide data in Buenos Aires.
+Typically, what we do to study correlation in a point pattern data is to plot the empirical K-function estimated from the data and compare this with the theoretical K-function of the homogeneous Poisson process. So, for this to work, we need to assume that the process is spatially homogeneous. If we suspect this is not the case, then we cannot use the standard Ripley's K-methods. Let's illustrate how all this works with the example of some homicide data in Buenos Aires.
 
 ### Homicide in Buenos Aires
 
-For this exercise we travel to Buenos Aires, the capital and largest city in Argentina.  The government of Buenos Aires provides open geocoded crime data from 2016 onwards. The data is freely available from the [official source](http://mapa.seguridadciudad.gob.ar/). But we have added it already as supplementary material available with this book. Specifically we are after the file `delitos.csv`.  
+For this exercise we travel to Buenos Aires, the capital and largest city in Argentina.  The government of Buenos Aires provides open geocoded crime data from 2016 onwards. The data is freely available from the [official source](http://mapa.seguridadciudad.gob.ar/). But we have added it already as supplementary material available with this book. Specifically, we are after the file `delitos.csv`.  
 
-We will filter on "homicidios dolosos" (intentional homicides) and we are using all homicides from 2016 and 2017. After reading the .csv file we turn it into a `sf` object and plot it. We are also reading a GeoJSON file with the administrative boundary of Buenos Aires. The code below uses functions in ways we have demonstrated in earlier chapters.
+We will filter on "homicidios dolosos" (intentional homicides) and we are using all homicides from 2016 and 2017. After reading the .csv file, we turn it into a `sf` object and plot it. We are also reading a GeoJSON file with the administrative boundary of Buenos Aires. The code below uses functions in ways we have demonstrated in earlier chapters.
 
 ```{r, message=FALSE, warning=FALSE}
 
 
 delitos <- read_csv("data/delitos.csv") %>%   # read csv
-  filter(tipo_delito == "Homicidio Doloso") %>%    # filter international homicides
-  mutate(year = year(fecha)) %>%    # create new variable for 'year' from date column
+  filter(tipo_delito == "Homicidio Doloso") %>% # filter international homicides
+  mutate(year = year(fecha)) %>%    # create new variable for 'year' 
   filter(year == "2016" | year == "2017")    # filter only 2016 and 2017
 
 
@@ -86,7 +86,7 @@ buenos_aires <- st_read("data/buenos_aires.geojson", quiet = TRUE)
 
 ```
 
-After reading the files and turn them on `sf` objects, we can plot them. Let's use the `tmap` package introduced in Chapter 3. 
+After reading the files and turning them into `sf` objects, we can plot them. Let's use the `tmap` package introduced in Chapter 3. 
 
 ```{r, fig.cap='Map of homicides in Buenos Aires', fig.alt="An outline of the border of Buenos Aires, with the interior shaded grey, inside a black square border with the title 'Homicides in Buenos Aires, 2016'. Several red dots are spread out in the interior of the city, with the north half appearing more sparse."}
 tm_shape(buenos_aires) + 
@@ -98,15 +98,15 @@ tm_shape(buenos_aires) +
 
 ```
 
-We will be using the `spatstat` functionality, thus, need to turn this spatial point pattern data into a `ppp` object, using the boundaries of Buenos Aires as an `owin` object. We are using code already explained in Chapter 7. As we will see there are duplicate points. Since the available documentation does not mention any masking of the locations for privacy purposes, we cant assume that's the reason for it. For simplicity purpose we will do as in Chapter 7 and introduce a small degree of jittering with a rather narrow radius.
+We will be using the `spatstat` functionality; thus, we need to turn this spatial point pattern data into a `ppp` object, using the boundaries of Buenos Aires as an `owin` object. We are using code already explained in Chapter 7. As we will see, there are duplicate points. Since the available documentation does not mention any masking of the locations for privacy purposes, we cannot assume that's the reason for it. For simplicity we will do as in Chapter 7 and introduce a small degree of jittering with a rather narrow radius.
 
 ```{r, warning=FALSE}
 
-# create window from geometry of buenos_aired object
+# create window from geometry of buenos_aires object
 window <- as.owin(st_geometry(buenos_aires))
 
 # name the unit in window
-unitname(window) <- "Meter"
+unitname(window) <- "Metre"
 
 # create matrix of coordinates of homicides
 delitos_coords <- matrix(unlist(delitos_sf$geometry), ncol = 2, byrow = T)
@@ -124,18 +124,18 @@ delitos_jit <- rjitter(delitos_ppp, retry=TRUE, nsim=1,
 
 ### Estimating and plotting the K-function
 
-For obtaining the observed K, we use the `Kest` function from the `spatstat` package. `Kest` takes two key inputs, the `ppp` object and a character vector indicating the edge *corrections* we are using when estimating K. Edge corrections are necessary because we do not have data on homicide outside our window of observation and, thus, cannot consider dependence with homicide events around the city of Buenos Aires. If we don't apply edge correction we are ignoring the possibility of dependence between those events outside the window and those in the window close to the edge. There is also a convenient argument (`nlarge`) if your dataset is very large (not the case here) that uses a faster algorithm.
+For obtaining the observed K, we use the `Kest` function from the `spatstat` package. `Kest` takes two key inputs, the `ppp` object and a character vector indicating the edge *corrections* we are using when estimating K. Edge corrections are necessary because we do not have data on homicide outside our window of observation and, thus, cannot consider dependence with homicide events around the city of Buenos Aires. If we don't apply edge correction, we are ignoring the possibility of dependence between those events outside the window and those in the window close to the edge. There is also a convenient argument (`nlarge`) if your data-set is very large (not the case here) that uses a faster algorithm.
 
-As noted by @Baddeley_2016, "most users... will not need to know the theory behind edge correction, the details of the technique, or their relative merits" and "so long as some kind of edge correction is performed (which happens automatically in `spatstat`), the particular choice of edge correction technique is usually not critical" (p. 212). As a rule of thumb they suggest using translation or isotropic in smaller datasets, the border method in medium size datasets (1000 to 10000 points), and that there is no need for correction with larger datasets. Since this is a smallish dataset, we show how we use two different corrections: *isotropic* and *translation* (for more details see @Baddeley_2016).
+As noted by @Baddeley_2016, "most users... will not need to know the theory behind edge correction, the details of the technique, or their relative merits" and "so long as some kind of edge correction is performed (which happens automatically in `spatstat`), the particular choice of edge correction technique is usually not critical" (p. 212). As a rule of thumb, they suggest using translation or isotropic in smaller data-sets, the border method in medium-sized data-sets (1000 to 10000 points), and that there is no need for correction with larger data-sets. Since this is a smallish data-set, we show how we use two different corrections: *isotropic* and *translation* (for more details, see @Baddeley_2016).
 
-```{r, fig.cap= 'Isotropic and translation correction techniques for edge effects', fig.alt="A plot of three curves, titled 'k1', with vertical axis 'K of r', from zero to large values, and horizontal axis 'r in Meters', from zero to five thousand. A legend near the top left identifies the three curves, all of which steadily increase from near the origin, with an increasing rate of growth. The top curve, namely 'K hat trans of r', rises the fastest, and is nearly matched by 'K hat iso of r', a tiny difference at two thousand meters growing to a small difference at five thousand. The third curve, 'K pois of r', is much smoother than, and is significantly beneath the other two curves."}
+```{r, fig.cap= 'Isotropic and translation correction techniques for edge effects', fig.alt="A plot of three curves, titled 'k1', with vertical axis 'K of r', from zero to large values, and horizontal axis 'r in Metres', from zero to five thousand. A legend near the top left identifies the three curves, all of which steadily increase from near the origin, with an increasing rate of growth. The top curve, namely 'K hat trans of r', rises the fastest, and is nearly matched by 'K hat iso of r', a tiny difference at two thousand metres growing to a small difference at five thousand. The third curve, 'K pois of r', is much smoother than, and is significantly beneath the other two curves."}
 k1 <- Kest(delitos_jit, correction = c("isotropic", "translate"))
 plot(k1)
 ```
 
-The graphic shows the K function using each of the corrections and the theoretical expected curve under a Poisson process of independence. When there is clustering we expect the empirical K-function estimated from the observed data to lie above the empirical K-function for a completely random pattern. This indicates that a point has more "neighboring" points than it would be expected under a random process.
+The graphic shows the K-function using each of the corrections and the theoretical expected curve under a Poisson process of independence. When there is clustering, we expect the empirical K-function estimated from the observed data to lie above the empirical K-function for a completely random pattern. This indicates that a point has more "neighbouring" points than it would be expected under a random process.
 
-It is possible to use Monte Carlo simulations to draw the confidence interval around the theoretical expectations. This allow us to draw *envelope* plots, that can be interpreted as a statistical significance test. If the homicide data were generated at random we would expect the observed K function to overlap with the envelope of the theoretical expectation. @Baddeley_2016, in particular, suggest the use of global envelopes as a way to avoid data snooping. For this we use the `envelop` function from `spatstat`. As arguments we use the data input, the function we are using for generating K (`Kest`), the number of simulations, and the parameters needed to obtain the global envelope.
+It is possible to use Monte Carlo simulations to draw the confidence interval around the theoretical expectations. This allow us to draw *envelope* plots that can be interpreted as a statistical significance test. If the homicide data were generated at random, we would expect the observed K-function to overlap with the envelope of the theoretical expectation. @Baddeley_2016, in particular, suggest the use of global envelopes as a way to avoid data snooping. For this we use the `envelop` function from `spatstat`. As arguments we use the data input, the function we are using for generating K (`Kest`), the number of simulations, and the parameters needed to obtain the global envelope.
 
 ```{r, message=FALSE, fig.cap='Global envelope plot for clustering in Buenos Aires homicide data', fig.alt="A plot similar to the previous figure, titled 'E 1'. The curve previously labeled as 'K hat iso of r', now bears the label 'K hat obs of r', and is joined by one other curve 'K theo of r', which looks similar to the previous 'K pois of r'. This second curve is enveloped by a thick grey backdrop, covering values close to the line. The envelope overlaps with the first line until around two hundred."}
 set.seed(200)
@@ -144,7 +144,7 @@ E_1 <- envelope(delitos_jit, Kest, nsim=39, rank = 1, global = TRUE,
 plot(E_1)
 ```
 
-This envelope suggest significant clustering above the 200 meter mark. The problem, though, is that (as noted above) this test only works if we have a homogeneous process. The envelope will also fail to overlap with the observed K function if there are variations in intensity. We also saw previously the reverse, that it is hard to assess homogeneity without assuming independence. In Chapter 7 we saw how if we suspect the process is not homogeneous, we can estimate it with nonparametric techniques such as kernel density estimation. We can apply this here (see also *Chapter 7: Spatial point patterns of crime events* in this book). 
+This envelope suggests significant clustering above the 200 metre mark. The problem, though, is that (as noted above) this test only works if we have a homogeneous process. The envelope will also fail to overlap with the observed K-function if there are variations in intensity. We also saw previously the reverse, that it is hard to assess homogeneity without assuming independence. In Chapter 7 we saw how if we suspect the process is not homogeneous, we can estimate it with non-parametric techniques such as kernel density estimation. We can apply this here (see also *Chapter 7: Spatial Point Patterns of Crime Events* in this book). 
 
 ```{r, fig.cap='KDE map of homicides in Buenos Aires', fig.alt = "A shaded map of Buenos Aires, with the title 'Density estimate of homicides in Buenos Aires'. To the right, a legend matches a gradient from dark blue to purple to yellow, to values from zero to slightly more. The region of Buenos Aires is mostly dark blue in the north. Two yellow areas appear, one in the south, and one in the east. The area between them and further southwest is purple."}
 set.seed(200)
@@ -153,9 +153,9 @@ plot(density.ppp(delitos_jit, sigma = bw.scott(delitos_jit),edge=T),
 
 ```
 
-@Baddeley_2016 discuss how we can adjust our test for independence when we suspect inhomogeneity, as long as we are willing to make other assumptions (e.g., the correlation between any two given points only depend on their relative location). This adjusted K-function is implemented in the `Kinhom()` function in `spatstat`. This function estimates the inhomogeneous K function of a non-stationary point pattern. It requires as necessary inputs the `ppp` object with the point pattern we are analysing and a second argument `lambda` which should provide the values of the estimated intensity function. The function provides flexibility in how lambda can be entered. It could be a vector with the values, an object of class `im` like the ones we generate with `density.ppp()`, or it could be omitted. If lambda is not provided, we can provide the parameters as we did in the `density.ppp()` function, and the relevant values will be generated for us that way. We could, for example, input this parameter as below:
+@Baddeley_2016 discuss how we can adjust our test for independence when we suspect inhomogeneity, as long as we are willing to make other assumptions (e.g., the correlation between any two given points only depend on their relative location). This adjusted K-function is implemented in the `Kinhom()` function in `spatstat`. This function estimates the inhomogeneous K-function of a non-stationary point pattern. It requires as necessary inputs the `ppp` object with the point pattern we are analysing and a second argument `lambda` which should provide the values of the estimated intensity function. The function provides flexibility in how lambda can be entered. It could be a vector with the values, an object of class `im` like the ones we generate with `density.ppp()`, or it could be omitted. If lambda is not provided, we can provide the parameters as we did in the `density.ppp()` function, and the relevant values will be generated for us that way. We could, for example, input this parameter as below:
 
-```{r, fig.cap='Inhomogeneous (adjusted) K function for non-stationary point pattern', fig.alt="A plot of 'K inhom of r' versus the previously seen 'r in meters', up to five thousand. Three curves appear, climbing similarly to before, each of which now has the subscript 'inhom' in the legend.  Two are nearly identical, labeled 'K hat iso of r', and 'K hat trans of r', and dip from above to below the third smoother curve, 'K pois of r', at around twelve hundred."}
+```{r, fig.cap='Inhomogeneous (adjusted) K-function for non-stationary point pattern', fig.alt="A plot of 'K inhom of r' versus the previously seen 'r in metres', up to five thousand. Three curves appear, climbing similarly to before, each of which now has the subscript 'inhom' in the legend.  Two are nearly identical, labeled 'K hat iso of r', and 'K hat trans of r', and dip from above to below the third smoother curve, 'K pois of r', at around twelve hundred."}
 set.seed(200)
 inhk_hom <- Kinhom(delitos_jit,
                    correction = c("isotropic", "translate"),
@@ -175,17 +175,17 @@ E_2 <- envelope(delitos_jit, Kinhom, nsim=39, rank = 1, global = TRUE,
 plot(E_2)
 ```
 
-In this example once we allow for varying intensity, the spatial dependence no longer holds for a range of distances.
+In this example, once we allow for varying intensity, the spatial dependence no longer holds for a range of distances.
 
-### Network constrained K function
+### Network constrained K-function
 
-We already warned in Chapter 8 about the dangers of using planar point pattern analysis to data that lies along a network. Not recognising this network structure can lead to errors. @Lu_2007, for example, have shown how the standard K functions are problematic when studying crime in an urban environment. They discuss how the planar K-function to analyze the spatial autocorrelation patterns of crimes (that are typically distributed along street networks) can result in false alarm problems, which depending on the nature of the street network and the particular point pattern, could be positive or negative. As @Baddeley_2016 also indicates when the point locations are constrained to only exist in a network we are likely to find "spurious evidence of short-range clustering (due to concentrations of points in a road) and long-range regularity (due to spatial separation of different roads)" (p. 736).
+We already warned in Chapter 8 about the dangers of using planar point pattern analysis to data that lies along a network. Not recognising this network structure can lead to errors. @Lu_2007, for example, have shown how the standard K-functions are problematic when studying crime in an urban environment. They discuss how the planar K-function to analyze the spatial autocorrelation patterns of crimes (that are typically distributed along street networks) can result in false alarm problems, which depending on the nature of the street network and the particular point pattern, could be positive or negative. As @Baddeley_2016 also indicate when the point locations are constrained to only exist in a network we are likely to find "spurious evidence of short-range clustering (due to concentrations of points in a road) and long-range regularity (due to spatial separation of different roads)" (p. 736).
 
-@Lu_2007 recommend to use a network K function that examines distance along the network, by street distance. They argued this should be "more relevant for crime control policing and police man-power dispatching purpose, considering that police patrol and many other crime management activities are commonly conducted following street networks" (p. 627). This recommendation is being followed in recent studies (see, for example, @Khalid_2018), although it is still much more common in the professional practice of crime analysis to continue using, incorrectly, the planar K function.
+@Lu_2007 recommend to use a network K-function that examines distance along the network, by street distance. They argued that this should be "more relevant for crime control policing and police man-power dispatching purpose, considering that police patrol and many other crime management activities are commonly conducted following street networks" (p. 627). This recommendation is being followed in recent studies (see, for example, @Khalid_2018), although it is still much more common in the professional practice of crime analysis to continue using, incorrectly, the planar K-function.
 
-The network K function was developed by @Okabe_2001 and was first implemented in SANET. Chapter 7 of @Okabe_2012 also provides a thorough discussion of this adaptation and its computation. We can use functionality implemented in the `spatstat` package to use the network constrained K. For that we need a `lpp` object, that we discussed in Chapter 8. For convenience we will use a `lpp` data set about crime around University of Chicago that ships with the `spatstat` package. We could get the standard K as above.
+The network K-function was developed by @Okabe_2001 and was first implemented in SANET. Chapter 7 of @Okabe_2012 also provides a thorough discussion of this adaptation and its computation. We can use functionality implemented in the `spatstat` package to use the network constrained K. For that we need a `lpp` object, which we discussed in Chapter 8. For convenience we will use a `lpp` data-set about crime around University of Chicago that ships with the `spatstat` package. We could get the standard K as above.
 
-```{r, fig.cap="Ripley's K for crime around University of Chicago with envelope", fig.alt="Another plot similar to the two previous ones with envelopes, we have 'K of r' against 'r in feet' this time, up to three hundred. 'K hat obs of r' climbs much faster than 'K theo of r', and exist the envelope after about seventy feet."}
+```{r, fig.cap="Ripley's K for crime around the University of Chicago with envelope", fig.alt="Another plot similar to the two previous ones with envelopes, we have 'K of r' against 'r in feet' this time, up to three hundred. 'K hat obs of r' climbs much faster than 'K theo of r', and exist the envelope after about seventy feet."}
 
 set.seed(200)   # set seed for reproducibility
 data(chicago)   # load chicago data (in spatstat package)
@@ -195,9 +195,9 @@ E_3 <- envelope(as.ppp(chicago), Kest, nsim=99, rank = 1, global = TRUE, verbose
 plot(E_3) # plot result
 ```
 
-How would we do this now taking the network into consideration? We can use the methods introduced by @Okabe_2001 with the function `linearK()`. The function `linearK()` computes an estimate of the linear K function for a point pattern on a linear network.  For this we need to specify the parameter for `correction=` to be `"none"`. If correction="none", the calculations do not include any correction for the geometry of the linear network. The result is the network K function as defined by @Okabe_2001. 
+How would we do this now taking the network into consideration? We can use the methods introduced by @Okabe_2001 with the function `linearK()`. The function `linearK()` computes an estimate of the linear K-function for a point pattern on a linear network.  For this we need to specify the parameter for `correction=` to be `"none"`. If correction="none", the calculations do not include any correction for the geometry of the linear network. The result is the network K-function as defined by @Okabe_2001. 
 
-We can wrap this within the `envelope()` function for inference purposes. This will generate an envelope assuming a homogeneous Poisson process. We also limit the number of simulations (`nsim = `) to 99, and suppress a verbose output. 
+We can wrap this within the `envelope()` function for inference purposes. This will generate an envelope assuming a homogeneous Poisson process. We also limit the number of simulations (`nsim = `) to 99, and we suppress a verbose output. 
 
 
 ```{r, fig.cap='Estimate linear K for a point pattern (crimes) on a linear network (University of Chicago network)', fig.alt="A slightly different plot from the previous ones, plotting 'K net of r' against 'r in feet', from zero to eleven hundred. Two curves appear, one of which is enveloped, however the envelope grows wider as r increases. Both curves are increasing, however their rate of increase slows near the middle of the plot. 'K hat obs of r' is slightly above 'K bar net of r', and manages to stay above its envelope as well."}
@@ -208,20 +208,20 @@ E_4 <- envelope(chicago, linearK, correction = "none", nsim= 99, verbose = FALSE
 plot(E_4) # plot result
 ```
 
-As noted by @Baddeley_2016 in there is a difference between what we get with `Kest` and with `linearK`. Whereas the two planar "K function is a *theoretical expectation* for the point process that is assumed to have generated our data... the empirical K-function of point pattern data" (that we get with `linearK`) "is an *empirical estimator* of the K-function of the point process" (p. 739, the emphasis is ours).
+As noted by @Baddeley_2016, there is a difference between what we get with `Kest` and with `linearK`. Whereas the two planar "K-function is a *theoretical expectation* for the point process that is assumed to have generated our data... the empirical K-function of point pattern data" (that we get with `linearK`) "is an *empirical estimator* of the K-function of the point process" (p. 739, the emphasis is ours).
 
-A limitation of the Okabe-Yamada network-K function is that, unlike the general Ripley´s K which is normalised, you cannot use it for "comparison between different point processes, with different intensities, observed in different windows... because it depends on the network geometry" (p. 739). This is a problem that was approached by @Ang_2012 who proposed a "geometrically corrected" K function. You can see the mathematical details for this function in either @Baddeley_2016 or in greater depth in @Ang_2012. This geometrically corrected k function is implemented as well in the `linearK()` function. If we want to obtain this solution we need to specify as an argument `correction="Ang"` or simply not include this argument, for this is the default in `linearK()`:
+A limitation of the Okabe-Yamada network K-function is that, unlike the general Ripley's K which is normalised, you cannot use it for "comparison between different point processes, with different intensities, observed in different windows... because it depends on the network geometry" (p. 739). This is a problem that was approached by @Ang_2012 who proposed a "geometrically corrected" K-function. You can see the mathematical details for this function in either @Baddeley_2016 or in greater depth in @Ang_2012. This geometrically corrected K-function is implemented as well in the `linearK()` function. If we want to obtain this solution, we need to specify as an argument `correction="Ang"` or simply not include this argument, for this is the default in `linearK()`:
 
-```{r, fig.cap = 'Geometrically corrected linear K function for a point pattern (crimes) on a linear network (University of Chicago network)', fig.alt="This time we plot 'K L of r' against 'r in feet' up to eleven hundred. The curve labeled 'K theo of r' is a straight line from the origin, with an envelope that increases in width near zero. The curve 'K hat obs of r' escapes this envelope after just a few feet, and stays well above it further on."}
+```{r, fig.cap = 'Geometrically corrected linear K-function for a point pattern (crimes) on a linear network (University of Chicago network)', fig.alt="This time we plot 'K L of r' against 'r in feet' up to eleven hundred. The curve labeled 'K theo of r' is a straight line from the origin, with an envelope that increases in width near zero. The curve 'K hat obs of r' escapes this envelope after just a few feet, and stays well above it further on."}
 
 set.seed(200)
 E_5 <- envelope(chicago, linearK, correction = "Ang", nsim= 99, verbose = FALSE)
 plot(E_5)
 ```
 
-Finally, there is also an equivalent to the geometrically corrected K function that allows for an inhomogeneous point process that can be obtained using `linearKinhom()` (see @Baddeley_2005 for details).
+Finally, there is also an equivalent to the geometrically corrected K-function that allows for an inhomogeneous point process that can be obtained using `linearKinhom()` (see @Baddeley_2005 for details).
 
-These methods all help discuss about spatial autocorrelation in point pattern data. In the next section, we will consider how we might find out whether such clustering exists in data measured at polygon (rather than point) level. 
+These methods all help discuss spatial autocorrelation in point pattern data. In the next section, we will consider how we might find out whether such clustering exists in data measured at polygon (rather than point) level. 
 
 
 
@@ -257,9 +257,9 @@ Previously we asked whether areas are similar to their neighbours or to areas th
 
 #### Contiguity-based neighbours
 
-There are various ways of defining a neighbour. Most rely on topological or geometrical relationships among the areas. First, we can say that two areas are neighbours if they share boundaries, if they are next to each other. In this case we talk of neighbours by **contiguity**. By contiguous you can, at the same time, mean all areas that share common boundaries (what we call contiguity using the **rook** criteria, like in chess) or areas that share common boundaries and common *corners*, that is, that have any point in common (and we call this contiguity using the **queen** criteria). When we use this criteria we can refine our definition by defining the intensity of neighbourliness "as a function of the lenght of the common border as a proportion of the total border" [@Haining_2020 p. 89]. Given that in criminology we mostly work with irregular lattice data (such as police districts or census geographies), the queen criteria makes more sense. There is little theoretical justification for why, say, a police district would only exhibit dependence according to the rook criteria.
+There are various ways of defining a neighbour. Most rely on topological or geometrical relationships among the areas. First, we can say that two areas are neighbours if they share boundaries, if they are next to each other. In this case we talk of neighbours by **contiguity**. Contiguous can, at the same time, mean all areas that share common boundaries (what we call contiguity using the **rook** criteria, like in chess) or areas that share common boundaries and common *corners*, that is, that have any point in common (and we call this contiguity using the **queen** criteria). When we use this criteria we can refine our definition by defining the intensity of neighbourliness "as a function of the length of the common border as a proportion of the total border" [@Haining_2020 p. 89]. Given that in criminology we mostly work with irregular lattice data (such as police districts or census geographies), the queen criteria makes more sense. There is little theoretical justification for why, say, a police district would only exhibit dependence according to the rook criteria.
 
-When defining neighbours by contiguity we may also specify the *order* of contiguity. **First order contiguity** means that we are focusing on areas immediately contiguous (those in dark blue in the figure below. **Second order** means that we consider neighbours only those areas that are immediately contiguous to our first order neighbours (the light blue areas in the figure below) and you could go on and on. Look at the graphic below for clarification:
+When defining neighbours by contiguity, we may also specify the *order* of contiguity. **First order contiguity** means that we are focusing on areas immediately contiguous (those in dark blue in the figure below). **Second order** means that we consider neighbours only those areas that are immediately contiguous to our first order neighbours (the light blue areas in the figure below) and you could go on and on. Look at the graphic below for clarification:
 
 ```{r adjacencyfigure, echo=FALSE, fig.height=2, fig.cap="Defining neighbours by contiguity", fig.alt="Two seven by seven grids of rectangles, the first titled 'Queen criteria', the second 'Rook Criteria'. A legend at the bottom, labeled 'Contiguity', matches the colours green to 'Area itself', dark blue to 'First order', and light blue to 'Second order'. The centre of each grid is shaded green. In the first grid, 'Queen criteria', the eight neighbouring rectangles, including corners, are shaded dark blue. Radiating outwards, all sixteen rectangles neighbouring these dark blue ones are shaded light blue. In the second grid, 'Rook criteria', only the four direct neighbours of the central green rectangle are shaded in dark blue. Continuing, the eight direct neighbours of these dark blue cells are shaded light blue."}
 
@@ -391,17 +391,17 @@ ggpubr::ggarrange(p1, p2, nrow = 1, common.legend = TRUE, legend="bottom")
 
 #### Distance-based neighbours
 
-Secondly, we may define neighbours **by geographical distance**. You can consider neighbours those areas that distant-wise are close to each other (regardless of whether boundaries are shared). The distance metric often will be euclidean, but other commonly used distance metrics could also be employed (for example, Manhattan). Often one takes the centroid of the polygon as the location to take the distance from. More sophisticated approaches may involve taking a population weighted centroid, where the location of the centroid depends on the distribution of the population within an area. 
+We may also define neighbours by **geographical distance**. You can consider neighbours those areas that distance-wise are close to each other (regardless of whether boundaries are shared). The distance metric often will be Euclidean, but other commonly used distance metrics could also be employed (for example, Manhattan). Often one takes the centroid of the polygon as the location to take the distance from. More sophisticated approaches may involve taking a population weighted centroid, where the location of the centroid depends on the distribution of the population within an area. 
 
 Other approaches to define neighbours are graph-based, attribute-based, or interaction-based (e.g., flow of goods or people between areas). Contiguity and distance are the two most commonly used methods, though. 
 
-You will come across the term **spatial weight matrix** at some point or, using mathematical notation, $W$. Essentially the spatial weight matrix is a $n$ by $n$ matrix with, often, ones and zeroes (in the case of contiguity based definitions) identifying if any two observations are neighbours. So you can think of the spatial weight matrix as the new data table that we are constructing with our definition of neighbours (whichever definition that is).
+You will come across the term **spatial weight matrix** at some point or, using mathematical notation, $W$. Essentially the spatial weight matrix is a $n$ by $n$ matrix with, often, ones and zeroes (in the case of contiguity-based definitions) identifying if any two observations are neighbours. So you can think of the spatial weight matrix as the new data table that we are constructing with our definition of neighbours (whichever definition that is).
 
-When working with contiguity measures the problem of "islands" sometimes arise. The spatial weight matrix in this case would have zeroes for the row representing this "island". This is not permitted in the subsequent statistical use of this kind of matrix. A common solution is to "join" islands to the spatial units in the "mainland" that are closer.
+When working with contiguity measures, the problem of "islands" sometimes arises. The spatial weight matrix in this case would have zeroes for the row representing this "island". This is not permitted in the subsequent statistical use of this kind of matrix. A common solution is to "join" islands to the spatial units in the "mainland" that are closer.
 
-So how do you build such a matrix with R? Well, let's turn to that. But to make things a bit simpler, let's focus not on the whole of Manchester, but just in the LSOAs within the city centre. Calculating a spatial weights matrix is a computationally intensive process, which means it takes a long time. The larger area you have (which will have more LSOAs) the longer this will take.
+So how do you build such a matrix with R? Well, let's turn to that. But to make things a bit simpler, let's focus not on the whole of Manchester, but just in the LSOAs within the city centre. Calculating a spatial weights matrix is a computationally intensive process, which means it takes a long time. The larger area you have (which will have more LSOAs), the longer this will take.
 
-We will use code we covered in Chapter 2 to clip the spatial object with the counts of burglaries to only those that intersect with the City Centre ward. If any of the following are unclear, visit *Basic geospatial operations in R* in this book. 
+We will use code we covered in Chapter 2 to clip the spatial object with the counts of burglaries to only those that intersect with the City Centre ward. If any of the following are unclear, visit *Chapter 2: Basic Geospatial Operations in R* in this book. 
 
 ```{r, warning = FALSE, message = FALSE}
 # Read a geojson file with Manchester wards and select only the city centre ward
@@ -421,7 +421,7 @@ rm(cc_intersects)
 
 We can now have a look at our data. Let's use the `view` mode of `tmap` to enable us to interact with the map. 
 
-```{r, fig.cap='Interactive tmap plot of data for lattice spatial dependence', warning=FALSE, message=FALSE, fig.alt="A simple grey and white leaflet steet map of central Manchester, with a legend labeled 'burglary' in the top right. The legend matches five shades of red with number ranges, the lightest four covering between ten and twenty values each, and the darkest nearly two hundred. A handful of the LSOAs have been outlined in black over the map, and have been shaded in these five shades of red. The southwest of the map contains lighter regions, while the centre and the north and some of the east is shaded in the darkest red."}
+```{r, fig.cap='Interactive plot of data for lattice spatial dependence', warning=FALSE, message=FALSE, fig.alt="A simple grey and white leaflet steet map of central Manchester, with a legend labeled 'burglary' in the top right. The legend matches five shades of red with number ranges, the lightest four covering between ten and twenty values each, and the darkest nearly two hundred. A handful of the LSOAs have been outlined in black over the map, and have been shaded in these five shades of red. The southwest of the map contains lighter regions, while the centre and the north and some of the east is shaded in the darkest red."}
 # Plot with tmap
 tmap_mode("view")
 tm_shape(cc_burglary) + 
@@ -432,11 +432,11 @@ tm_shape(cc_burglary) +
 
 ```
 
-So now we have a new spatial object "cc_burglary" with the 23 LSOA units that compose the City Centre of Manchester. By focusing in a smaller subset of areas we can visualise perhaps a bit better what comes next. 
+So now we have a new spatial object "cc_burglary" with the 23 LSOA units that compose the City Centre of Manchester. By focusing in a smaller subset of areas, we can visualise perhaps a bit better what comes next. 
 
 ### Creating a list of neighbours based on contiguity
 
-Since it is an interactive map, if you are following along, you should be able to click on each LSOA, and see it's unique ID. You could, manually go through, and find the neighbours for each one this way. However, it would be very, very tedious having to identify the neighbours of all the areas in our study area by hand. That's why we love computers. We can automate tedious work so that they do it and we have more time to do fun stuff. 
+Since it is an interactive map, if you are following along, you should be able to click on each LSOA, and see its unique ID. You could, manually go through and find the neighbours for each one this way. However, it would be very, very tedious having to identify the neighbours of all the areas in our study area by hand. That's why we love computers. We can automate tedious work so that they do it, and we have more time to do fun stuff. 
 
 
 
@@ -448,9 +448,9 @@ To calculate our neighbours, we are first going to turn our `sf` object into spa
 cc_burglary_sp <- as(cc_burglary, "Spatial")
 ```
 
-In order to identify neighbours we will use the `poly2nb()` function from the `spdep` package that we loaded at the beginning of our session. The `spdep` package provides basic functions for building neighbour lists and spatial weights and tests for spatial autocorrelation for areal data like Moran's I (more on this below). 
+In order to identify neighbours, we will use the `poly2nb()` function from the `spdep` package that we loaded at the beginning of our session. The `spdep` package provides basic functions for building neighbour lists and spatial weights and tests for spatial autocorrelation for areal data like Moran's I (more on this below). 
 
-The `poly2nb()` function builds a neighbours list based on regions with contiguous boundaries. If you look at the documentation you will see that you can pass a `queen` argument that takes `TRUE` or `FALSE` as options. If you do not specify this argument the default is set to true, that is, if you don't specify `queen = FALSE` this function will return a list of first order neighbours using the Queen criteria. 
+The `poly2nb()` function builds a neighbours list based on regions with contiguous boundaries. If you look at the documentation, you will see that you can pass a `queen` argument that takes `TRUE` or `FALSE` as options. If you do not specify this argument the default is set to true; that is, if you don't specify `queen = FALSE`, this function will return a list of first order neighbours using the Queen criteria. 
 
 ```{r}
 nb_queen <- poly2nb(cc_burglary_sp, row.names=cc_burglary_sp$code)
@@ -471,7 +471,7 @@ plot(cc_burglary_sp, col='white', border='blue', lwd=2)
 # Then we use the coordinates function to obtain 
 # the coordinates of the polygon centroids
 xy <- coordinates(cc_burglary_sp)
-#Then we draw lines between the polygons centroids 
+#Then we draw lines between the polygon centroids 
 # for neighbours that are listed as linked in nb_bur
 plot(nb_queen, xy, col='red', lwd=2, add=TRUE)
 ```
@@ -490,7 +490,7 @@ You can view this matrix by autoprinting the object `wm_queen` which we just cre
 wm_queen
 ```
 
-This matrix has values of 0 or 1 indicating whether the elements listed in the rows are adjacent (using our definition, which in this case was the Queen criteria) with each other. The diagonal is full of zeroes. An area cannot be a neighbour of itself. So, if you look at the first two and the second column you see a 1. That means that the LSOA with the code E01005065 is a neighbour of the second LSOA (as listed in the rows) which is E01005066. You will have zeroes for many of the other columns because this LSOA only has 4 neighbours.
+This matrix has values of 0 or 1 indicating whether the elements listed in the rows are adjacent (using our definition, which in this case was the Queen criteria) with each other. The diagonal is full of zeroes. An area cannot be a neighbour of itself. So, if you look at the first two and the second column, you see a 1. That means that the LSOA with the code E01005065 is a neighbour of the second LSOA (as listed in the rows) which is E01005066. You will have zeroes for many of the other columns because this LSOA only has 4 neighbours.
 
 In many computations we will see that the matrix is **row standardised**. We can obtain a row standardise matrix changing the code, specifically setting the `style` to `W` (the indicator for row standardised in this function):
 
@@ -499,32 +499,33 @@ wm_queen_rs <- nb2mat(nb_queen, style='W')
 
 ```
 
-Row standardisation of a matrix ensure that the sum of the rows adds up to 1. So, for example, if you have four neighbours and that has to add up to 4, you need to divide 1 by 4, which gives you 0.25. So in the columns for a polygon with 4 neighbours you will see 0.25 in the column representing each of the neighbours.
+Row standardisation of a matrix ensures that the sum of the rows adds up to 1. So, for example, if you have 4 neighbours and that has to add up to 4, you need to divide 1 by 4, which gives you 0.25. So in the columns for a polygon with 4 neighbours you will see 0.25 in the column representing each of the neighbours.
 
 ### Spatial weight matrix based on distance
 
 #### Defining neighbours based on a critical threshold of distance
 
-As noted earlier we can also build the spatial weight matrix using some metric of distance. Remember that metrics such as Euclidean distance only makes sense if you have projected data. This is so because it does not take into account the curvature of the earth. If you have non projected data, you can either transform the data into a projected system (what we have been doing in earlier examples) or you need to use distance metrics that work with the curvature of earth (e.g., arc-distance or great-circle distance).
+As noted earlier, we can also build the spatial weight matrix using some metric of distance. Remember that metrics such as Euclidean distance only makes sense if you have projected data. This is so because it does not take into account the curvature of the earth. If you have non-projected data, you can either transform the data into a projected system (what we have been doing in earlier examples) or you need to use distance metrics that work with the curvature of the Earth (e.g., arc-distance or great-circle distance).
 
-The simplest spatial distanced-based weights matrix is obtained defining a given radius within each area and only consider as neighbours other areas that fall within such radius. So that we avoid "islands", the radius needs to be chosen in a way that guarantees that each location has at least one neighbor. So the first step would be to find an appropriate radius for establishing neighbourliness. 
+The simplest spatial distance-based weights matrix is obtained defining a given radius within each area and only considers as neighbours other areas that fall within such radius. So that we avoid "islands", the radius needs to be chosen in a way that guarantees that each location has at least one neighbour. So the first step would be to find an appropriate radius for establishing neighbourliness. 
 
-Previous to this we need the centroids for the polygons. We already showed above how to obtain this using `coordinates()` function in the `sp` package.
+Previous to this, we need the centroids for the polygons. We already showed above how to obtain this using `coordinates()` function in the `sp` package.
 
 ```{r, eval=FALSE}
 xy <- coordinates(cc_burglary_sp)
 ```
 
-Then we use the `knearneigh()` function from the `spdep` package to find the nearest neighbour to each centroid. This function will just do that, look for the centroid closest to each of the other centroids. Then we turn the created object with this information into a `nb` object as defined earlier using `knn2nb()` also in `spdep` package:
+Then we use the `knearneigh()` function from the `spdep` package to find the nearest neighbour to each centroid. This function will just do that, which is to look for the centroid closest to each of the other centroids. Then we turn the created object with this information into a `nb` object as defined earlier using `knn2nb()` also in `spdep` package:
 
 ```{r}
-
-nearest_n <- knearneigh(xy) # find nearest neighbours for each centroid coordiate pair
-nb_nearest_n <- knn2nb(nearest_n) # transform into nb class object
+# find nearest neighbours for each centroid coordinate pair
+nearest_n <- knearneigh(xy) 
+# transform into nb class object
+nb_nearest_n <- knn2nb(nearest_n) 
 ```
 
 
-Now we have a `nb` list that for each area define its nearest neighbour. What we need to do is to compute the distance from each centroid to its nearest neighbour (`nbdists()` will do this for us) and then find out what is the maximum distance (we can use `max()`), so that we use this as the critical threshold to define the radius we will use (to avoid the appearance of isolates in our matrix).
+Now we have a `nb` list that for each area defines its nearest neighbour. What we need to do is to compute the distance from each centroid to its nearest neighbour (`nbdists()` will do this for us) and then find out what is the maximum distance (we can use `max()`), so that we use this as the critical threshold to define the radius we will use (to avoid the appearance of isolates in our matrix).
 
 
 ```{r}
@@ -532,18 +533,18 @@ radius <- max(unlist(nbdists(nb_nearest_n, xy)))
 radius
 ```
 
-Now that we now the maximum radius we can use it to avoid isolates. The function `dnearneigh()` will generate a list of neigbhours within the radius we will specify. Notice the difference between `knearneigh()`, that we used earlier, and `dnearneigh()`. The first function generates a `knn` class object with the single nearest neighbour to each area $i$, whereas `dnearneigh()` generates a `nb` object with *all* the areas $j$ within a given radius of area $i$ being defined as neighbours.
+Now that we know the maximum radius, we can use it to avoid isolates. The function `dnearneigh()` will generate a list of neigbhours within the radius we will specify. Notice the difference between `knearneigh()`, that we used earlier, and `dnearneigh()`. The first function generates a `knn` class object with the single nearest neighbour to each area $i$, whereas `dnearneigh()` generates a `nb` object with *all* the areas $j$ within a given radius of area $i$ being defined as neighbours.
 
-For `dnearneigh()` we need to define as parameters the object with the coordinates, the lower distance bound andthe upper distance bound (the "radius" we just calculated). If you were to be working with non projected data you would need to specify `longlat` as `TRUE`. The function assumes we have projected data and, thus, we don't need to specify this argument in our case, since our data are indeed using the British Grid projection. As we did with the `nb` objects generated through contiguity we can use `summary()` to get a sense of the resulting list of neighbours.
+For `dnearneigh()` we need to define as parameters the object with the coordinates, the lower distance bound and the upper distance bound (the "radius" we just calculated). If you were to be working with non-projected data, you would need to specify `longlat` as `TRUE`. The function assumes we have projected data and, thus, we don't need to specify this argument in our case, since our data are indeed using the British Grid projection. As we did with the `nb` objects generated through contiguity, we can use `summary()` to get a sense of the resulting list of neighbours.
 
 ```{r}
 nb_distance <- dnearneigh(xy, 0, radius)
 summary(nb_distance)
 ```
 
-And as earlier we can also plot the results:
+And as earlier, we can also plot the results:
 
-```{r, fig.cap='Neighbouring relationships between LSOAs with distance based criteria', fig.alt="Like in the previous figure, LSOAs from Manchester have been outlined in blue, with a small black circle in the centre of each one. Many of the longer red lines have been culled from before, and do not appear. The LSOA to the far north, and two to the east only have one neighbour now."}
+```{r, fig.cap='Neighbouring relationships between LSOAs with distance-based criteria', fig.alt="Like in the previous figure, LSOAs from Manchester have been outlined in blue, with a small black circle in the centre of each one. Many of the longer red lines have been culled from before, and do not appear. The LSOA to the far north, and two to the east only have one neighbour now."}
 # We first plot the boundaries
 plot(cc_burglary_sp, col='white', border='blue', lwd=2)
 # Then we plot the distance-based neighbours
@@ -556,17 +557,17 @@ We could now use this `nb` object to generate a spatial weight matrix in the sam
 wm_distance <- nb2mat(nb_distance, style='B')
 ```
 
-If we we autoprint the object we will see this is a matrix with 1 and 0 just as the contiguity-based matrix we generated earlier.
+If we we autoprint the object, we will see this is a matrix with 1 and 0 just as the contiguity-based matrix we generated earlier.
 
 #### Using the inverse distance weights
 
-Instead of just using a critical threshold of distance to define a neighbour we could use a function to define the weight assigned to the distance between two areas. Typical functions used are the inverse distance, the inverse distance raised to a power, and the negative exponential. All these functions essentially do the same, they decrease the weight as the distance increases. They impose a **distance decay** effect. Sometimes these functions are combined with a distance threshold [@Haining_2020].
+Instead of just using a critical threshold of distance to define a neighbour, we could use a function to define the weight assigned to the distance between two areas. Typical functions used are the inverse distance, the inverse distance raised to a power, and the negative exponential. All these functions essentially do the same; they decrease the weight as the distance increases. They impose a **distance decay** effect. Sometimes these functions are combined with a distance threshold [@Haining_2020].
 
-The first steps in the procedure simply reproduce what we did earlier up to the point where we generated the `bur_dist_1` object, so we won't repeat them here and simply invoke this object. We adapt code and instructions provided by the tutorials of the Center for Spatial Data Science of the University of Chicago prepared by @Anselin_2021. Once we get to this point we need to generate the inverse distances. This requires us to take the following steps:
+The first steps in the procedure simply reproduce what we did earlier up to the point where we generated the `bur_dist_1` object, so we won't repeat them here and simply invoke this object. We adapt code and instructions provided by the tutorials of the Center for Spatial Data Science of the University of Chicago prepared by @Anselin_2021. Once we get to this point, we need to generate the inverse distances. This requires us to take the following steps:
 
--Calculate the distance between all neighbours
--Compute the inverse distance for this calculated distances
--Assign them as weight values
+- Calculate the distance between all neighbours
+- Compute the inverse distance for this calculated distances
+- Assign them as weight values
 
 
 Let's go one step at the time. First we use `nbdists()` from the `spdep` package to generate all the distances:
@@ -575,25 +576,25 @@ Let's go one step at the time. First we use `nbdists()` from the `spdep` package
 distances <- nbdists(nb_distance, xy)
 ```
 
-Now that we have an object with all the distances we need to compute the inverse distances. Taking the inverse simply involves dividing 1 by each of the distances. We can easily do that with the following code:
+Now that we have an object with all the distances, we need to compute the inverse distances. Taking the inverse simply involves dividing 1 by each of the distances. We can easily do that with the following code:
 
 ```{r}
 inv_distances <- lapply(distances, function(x) (1/x))
 ```
 
-If you look inside the generated object you will see all the inverse distances:
+If you look inside the generated object, you will see all the inverse distances:
 
 ```{r, eval = FALSE}
 View(inv_distances)
 ```
 
-You will notice that the values are rather small. The projection we use measures distance in meters. Considering our polygons are census geographies "close" to the ideas of neighbourhoods you will have distances between their centroids that are large. If we take the inverse, as we did, we will unavoidably produce small values very close to zero. We could rescale this to obtain values that are not this small. We can change our units to something larger, like kilometers, or if we want, we can just apply some maths here:
+You will notice that the values are rather small. The projection we use measures distance in metres. Considering our polygons are census geographies "close" to the ideas of neighbourhoods you will have distances between their centroids that are large. If we take the inverse, as we did, we will unavoidably produce small values very close to zero. We could rescale this to obtain values that are not this small. We can change our units to something larger, like kilometres, or if we want, we can just apply some maths here:
 
 ```{r}
 inv_distances_r <- lapply(distances, function(x) (1/(x/100)))
 ```
 
-Once we have generated the inverse distance we can move to generate the weights based on these using `nb2mat()`.
+Once we have generated the inverse distance, we can move to generate the weights based on these using `nb2mat()`.
 
 ```{r}
 wm_inverse_dist <- nb2mat(nb_distance,
@@ -601,11 +602,11 @@ wm_inverse_dist <- nb2mat(nb_distance,
                 style='B')
 ```
 
-The `glist` argument identifies the inverse distances and the `style` set to `"B"` ensures we are not using row standardisation. If we view this object we will see that rather than zeroes and ones we see the inverse distances used as weights. In this case, all areas neighbour each other (but not themselves!) and their "neighbouringness" is defined with this distance measure. 
+The `glist` argument identifies the inverse distances, and the `style` set to `"B"` ensures we are not using row standardisation. If we view this object, we will see that rather than zeroes and ones we see the inverse distances used as weights. In this case, all areas neighbour each other (but not themselves!) and their "neighbouringness" is defined with this distance measure. 
 
-### Spatial weight matrix based on k-neighbors
+### Spatial weight matrix based on k-neighbours
 
-@Chi_2020 suggest that using the distance based spatial weight matrix tend to result in too few neighbours for rural areas and many neighbours for urban areas. In this case they point out that the k-nearest neighbourhood structure may be more appropriate. K-neighbours also avoids the problem of isolates without having to specify a radius for a critical threshold.
+@Chi_2020 suggest that using the distance-based spatial weight matrix tend to result in too few neighbours for rural areas and many neighbours for urban areas. In this case they point out that the k-nearest neighbourhood structure may be more appropriate. K-neighbours also avoids the problem of isolates without having to specify a radius for a critical threshold.
 
 Computing the list of neighbours is pretty straightforward and uses functions we are familiar with by now. In the first place we use `knearneigh()` to get an oject of class `knn`. In this instance, though, we pass a parameter `k` identifying the number of neighbours we want for each area. We will set this to 3. Then we use `knn2nb()` to generate the list of neighbours. 
 
@@ -613,9 +614,9 @@ Computing the list of neighbours is pretty straightforward and uses functions we
 nb_k3 <- knn2nb(knearneigh(xy, k = 3))
 ```
 
-As before we can use this list of neighbours to create a matrix and we can visualise the relationships with a plot:
+As before, we can use this list of neighbours to create a matrix and we can visualise the relationships with a plot:
 
-```{r, fig.cap='Neighbouring relationships between LSOAs with distance based criteria using k (k=3) nearest neighbours approach', fig.alt="Once again we have LSOAs from Manchester outlined in blue, with a small black circle in the centre of each one. Some more connections are present compared to the previous figure, and in particular the far north and east LSOAs all have three red lines originating from them. Some of these connect LSOAs which are not bordering."}
+```{r, fig.cap='Neighbouring relationships between LSOAs with distance-based criteria using k-nearest neighbours approach (k=3)', fig.alt="Once again we have LSOAs from Manchester outlined in blue, with a small black circle in the centre of each one. Some more connections are present compared to the previous figure, and in particular the far north and east LSOAs all have three red lines originating from them. Some of these connect LSOAs which are not bordering."}
 # Get the matrix
 wm_k3 <- nb2mat(nb_k3, style='B')
 # We first plot the boundaries
@@ -627,11 +628,11 @@ plot(nb_k3, xy, lwd=2, col="red", add=TRUE)
 
 ## Choosing the correct matrix
 
-So what is the best approach to creating your spatial weights matrix? As we will see later, the spatial weight matrix not only is used for exploring spatial autocorrelation. It also plays a key role in the context of spatial regression. How we specify the matrix is important.
+So what is the best approach to creating your spatial weights matrix? As we will see later, the spatial weight matrix not only is used for exploring spatial autocorrelation, it also plays a key role in the context of spatial regression. How we specify the matrix is important.
 
-As noted above, contiguity and distance are the two most commonly used methods. In earlier applications researchers would select a particular matrix without a strong rationale for it. You should be guided by theory in how you define the neighbors in your study, unfortunately "substantive theory regarding spatial effects remain an underdeveloped research area in most of the social sciences" [@Darmofal_2015, p. 23] or as @Chi_2020 put it "there is limited theory available regarding how to select which spatial matrix to use."
+As noted above, contiguity and distance are the two most commonly used methods. In earlier applications researchers would select a particular matrix without a strong rationale for it. You should be guided by theory in how you define the neighbours in your study; unfortunately "substantive theory regarding spatial effects remain an underdeveloped research area in most of the social sciences" [@Darmofal_2015, p. 23] or as @Chi_2020 put it "there is limited theory available regarding how to select which spatial matrix to use."
 
-In this context, it may make sense to explore various definitions and see if our findings are robust to these specifications. @Aldstadt_2006 developed an algorithm (AMOEBA) which is a design for the construction of a spatial weights matrix using empirical data that can also simultaneously identify the geometric form of spatial clusters. @Chi_2020 propose to use this as a possible starting point in the comparisons, though the procedure is not yet fully implemented in R (there is an `AMOEBA` package but it only generates a vector with the spatial clusters, not the matrix). They also suggest using the spatial weight matrix corresponding to high spatial autocorrelation and high statistical significance as more appropriate for exploratory data analysis of a given variable, and for the purpose of regression to use the matrix with the highest correlation and significance when exploring the residuals of the model.
+In this context, it may make sense to explore various definitions and see if our findings are robust to these specifications. @Aldstadt_2006 developed an algorithm (AMOEBA) which is a design for the construction of a spatial weights matrix using empirical data that can also simultaneously identify the geometric form of spatial clusters. @Chi_2020 propose to use this as a possible starting point in the comparisons, though the procedure is not yet fully implemented in R (there is an `AMOEBA` package, but it only generates a vector with the spatial clusters, not the matrix). They also suggest using the spatial weight matrix corresponding to high spatial autocorrelation and high statistical significance as more appropriate for exploratory data analysis of a given variable, and for the purpose of regression to use the matrix with the highest correlation and significance when exploring the residuals of the model.
 
 In any case, the choice of spatial weights should be made carefully, as it will affect the results of subsequent analyses based on it. But now, that we know how to build one, we can move to implementing it in order to measure whether or not we can observes spatial autocorrelation in our data. 
 
@@ -639,9 +640,9 @@ In any case, the choice of spatial weights should be made carefully, as it will 
 
 #### Moran's I
 
-The most well known measure of spatial autocorrelation is the Moran's I. It was developed by Patrick Alfred Pierce Moran, an Australian statistician. Like the more familiar Pearson's $r$ correlation coefficient, which is used to measure the dependency between a pair of variables, Moran´s I aims to measure dependency. This statistic measures how one area is similar to others surrounding it in a given attribute or variable. When the value of an attribute in  areas defined as neighbours in our spatial weight matrix are similar Moran's I will be large and positive (closer to 1). When the value of an attribute in neighbouring areas are dissimilar Moran's I will be negative, tending to -1. In the first case, when there is positive spatial dependence, we speak of clustering. In the latter, what we observe is spatial dispersion (areas alike, in an attribute, "repel" each other). In social science applications, positive spatial autocorrelation is more likely to be expected. There are fewer social processes that would lead us to expect negative spatial autocorrelation. When Moran´s I is close to zero, we fail to find evidence for either dispersion or clustering. The null hypothesis in a test of spatial autocorrelation is that the values of the attribute in question are randomly distributed across space.
+The most well-known measure of spatial autocorrelation is Moran's I. It was developed by Patrick Alfred Pierce Moran, an Australian statistician. Like the more familiar Pearson's $r$ correlation coefficient, which is used to measure the dependency between a pair of variables, Moran's I aims to measure dependency. This statistic measures how one area is similar to others surrounding it in a given attribute or variable. When the values of an attribute in  areas defined as neighbours in our spatial weight matrix are similar, Moran's I will be large and positive (closer to 1). When the values of an attribute in neighbouring areas are dissimilar Moran's I will be negative, tending to -1. In the first case, when there is positive spatial dependence, we speak of clustering. In the latter, what we observe is spatial dispersion (areas alike, in an attribute, "repel" each other). In social science applications, positive spatial autocorrelation is more likely to be expected. There are fewer social processes that would lead us to expect negative spatial autocorrelation. When Moran's I is close to zero, we fail to find evidence for either dispersion or clustering. The null hypothesis in a test of spatial autocorrelation is that the values of the attribute in question are randomly distributed across space.
 
-Moran's I is a weighted product-moment correlation coefficient, where the weights reflect geographic proximity. Unlike autocorrelation in timeseries (which is unidimensional: the future cannot affect the past), spatial autocorrelation is multidimensional, the dependence between an area and its neighbors is either simultaneous or reciprocal. Moran´s I is defined as:
+Moran's I is a weighted product-moment correlation coefficient, where the weights reflect geographic proximity. Unlike autocorrelation in timeseries (which is unidimensional: the future cannot affect the past), spatial autocorrelation is multi-dimensional, the dependence between an area and its neighbours is either simultaneous or reciprocal. Moran's I is defined as:
 
 $$I = \frac{N}{W}* \frac{\sum_{i} \sum_{j} w_{ij}   (x_{i}-\overline{x})(x_{j}-\overline{x})}{\sum_{i}(x_{i}-\overline{x})^2}$$
 
@@ -649,7 +650,7 @@ where $N$ is the number of spatial areas indexed by $i$ and $j$; $x$ is our vari
 
 We can easily compute this statistic with the `moran.test()` function in `spdep` package. This function does not take as an input the spatial weight matrix that we create using `nb2mat()`. Instead it prefers to read this information from a `listw` class object. This kind of object includes the same information than the matrix, but it does it in a more efficient way that helps with the computation (see @Brunsdon_2015, p. 230 for details). So the first step to use `moran.test()` is to turn our matrix into a `listw` class object.
 
-Before we can use the functions from `spdep` to compute the global Moran's I we need to create a `listw` type spatial weights object (instead of the matrix we used above). Let's use the objects we created using the various criteria. To get the same value as above we use `style='B'` to use binary (TRUE/FALSE) weights.
+Before we can use the functions from `spdep` to compute the global Moran's I, we need to create a `listw` type spatial weights object (instead of the matrix we used above). Let's use the objects we created using the various criteria. To get the same value as above, we use `style='B'` to use binary (TRUE/FALSE) weights.
 
 ```{r}
 lw_queen <-  nb2listw(nb_queen, style='B')
@@ -667,7 +668,7 @@ Now we can apply the `moran.test()` function.
 moran.test(cc_burglary_sp$burglary, lw_queen)
 ```
 
-So the Moran's I here is 0.12, which does not look very large. With this statistic we have a benchmarking problem. Whereas with standard correlation the value is always restricted to lie within the range of -1 to 1, the range of Moran´s I varies with the W matrix. How can we establish the range for our particular matrix? It has been shown that the maximum and minimum values of $I$ are the maximum and minimum values of the eigenvalues of $\frac{(W + W^T)}{2}$ (see @Brunsdon_2015, p. 232 for details). Don't worry if you don't know what an eigenvalue is at this point. The thing is we can use this understanding to calculate the Moran´s range using the following code:
+So the Moran's I here is 0.12, which does not look very large. With this statistic, we have a benchmarking problem. Whereas with standard correlation the value is always restricted to lie within the range of -1 to 1, the range of Moran's I varies with the W matrix. How can we establish the range for our particular matrix? It has been shown that the maximum and minimum values of $I$ are the maximum and minimum values of the eigenvalues of $\frac{(W + W^T)}{2}$ (see @Brunsdon_2015, p. 232 for details). Don't worry if you don't know what an eigenvalue is at this point. We can use this understanding to calculate Moran's range using the following code:
 
 ```{r}
 # Adapted from Brunsdon and Comber (2015)
@@ -680,9 +681,9 @@ moran_range(lw_queen)
 
 On absolute scale, thus, this does not look like a very large value of spatial autocorrelation.
 
-The second issue is whether this statistic is significant. If we assume a null hypothesis of independence, what is the probability of obtaining a value as extreme as 0.12. The spatial autocorrelation (Global Moran's I) test is an inferential statistic, which means that the results of the analysis are always interpreted within the context of its null hypothesis. For the Global Moran's I statistic, the null hypothesis states that the attribute being analysed is randomly distributed among the features in your study area; said another way, the spatial processes promoting the observed pattern of values is random chance. Imagine that you could pick up the values for the attribute you are analysing and throw them down onto your features, letting each value fall where it may. This process (picking up and throwing down the values) is an example of a random chance spatial process. When the p-value returned by this tool is statistically significant, you can reject the null hypothesis of complete spatial randomness. 
+The second issue is whether this statistic is significant. If we assume a null hypothesis of independence, what is the probability of obtaining a value as extreme as 0.12. The spatial autocorrelation (Global Moran's I) test is an inferential statistic, which means that the results of the analysis are always interpreted within the context of its null hypothesis. For Global Moran's I statistic, the null hypothesis states that the attribute being analysed is randomly distributed among the features in your study area; said another way, the spatial process promoting the observed pattern of values is random chance. Imagine that you could pick up the values for the attribute you are analysing and throw them down onto your features, letting each value fall where it may. This process (picking up and throwing down the values) is an example of a random chance spatial process. When the p-value returned by this tool is statistically significant, you can reject the null hypothesis of complete spatial randomness. 
 
-The `moran.test()` function can compute the variance of the Moran´s I under the assumption of normallity or under the randomisation assumption (which is the default at least we set the argument `randomisation` to `FALSE`). We can also use a Monte Carlo procedure. The way Monte Carlo works is that the values of burglary are randomly assigned to the polygons, and the Moran’s I is computed. This is repeated several times to establish a distribution of expected values under the null hypothesis. The observed value of Moran’s I is then compared with the simulated distribution to see how likely it is that the observed values could be considered a random draw.
+The `moran.test()` function can compute the variance of Moran's I under the assumption of normallity or under the randomisation assumption (which is the default at least we set the argument `randomisation` to `FALSE`). We can also use a Monte Carlo procedure. The way Monte Carlo works is that the values of burglary are randomly assigned to the polygons, and Moran’s I is computed. This is repeated several times to establish a distribution of expected values under the null hypothesis. The observed value of Moran’s I is then compared with the simulated distribution to see how likely it is that the observed values could be considered a random draw.
 
 We use the function `moran.mc()` to run a permutation test for Moran's I statistic calculated by using some number of random permutations of our numeric vector, for the given spatial weighting scheme, to establish the rank of the observed statistic in relation to the simulated values. @Pebesma_2021 argue that if we compare the Monte Carlo and analytical variances of $I$ under randomisation, we typically see few differences, arguably rendering Monte Carlo testing unnecessary.
 
@@ -705,10 +706,10 @@ moran.test(cc_burglary_sp$burglary, lw_k3)
 moran.test(cc_burglary_sp$burglary, lw_inverse_d)
 ```
 
-As we can see using the different specifications of neighbours produces results that are more suggestive of dependence. Such results further highlight the importance of picking appropriate and justified spatial weights for your analysis. 
+As we can see, using the different specifications of neighbours produces results that are more suggestive of dependence. Such results further highlight the importance of picking appropriate and justified spatial weights for your analysis. 
 
 
-We can also make a “Moran scatterplot” to visualize spatial autocorrelation. This type of scatterplot was introduced by @Anselin_1996 as a tool to visualise the relationship between the value of interest and its spatial lag, but also to explore local clusters and areas of non-stationairy (we will discuss this in greater detail in next chapter). Note the row standardisation of the weights matrix.
+We can also make a “Moran scatterplot” to visualize spatial autocorrelation. This type of scatterplot was introduced by @Anselin_1996 as a tool to visualise the relationship between the value of interest and its spatial lag, but also to explore local clusters and areas of non-stationarity (we will discuss this in greater detail in Chapter 10). Note the row standardisation of the weights matrix.
 
 ```{r}
 wm_queen_rs <- mat2listw(wm_queen, style='W')
@@ -720,15 +721,15 @@ mat <- listw2mat(wm_queen_rs)
 apply(mat, 1, sum)[1:15]
 ```
 
-Now we can plot. @Anselin_1996 propose to center the variables around their mean, which is not the default taken by `moran.plot()`, so we need to specify this ourselves when plotting by virtue of using `scale()`. This simply substract the mean from each value, so that the mean of the resulting variable will be 0.
+Now we can plot. @Anselin_1996 proposes to center the variables around their mean, which is not the default taken by `moran.plot()`, so we need to specify this ourselves when plotting by virtue of using `scale()`. This simply subtracts the mean from each value, so that the mean of the resulting variable will be 0.
 
 ```{r, fig.cap='Moran scatterplot of burglary', fig.alt="A scatterplot with a fitted straight line. The label of the horizontal axis is an R command on our burglary data, while the horizontal axis is labeled as the same command, but 'spatially lagged'. The vertical axis ranges from negative point six to one point five, and the horizontal axis from negative one to over three. Many small circles are plotted, mostly to the left of zero, with a handful between zero and one. A dashed vertical line appears at zero, and a dashed horizontal line around point three. The fitted line intersects these two dashed lines at their intersection, and has a small positive slope. Two crossed diamonds appear on the far right, near the horizontal dotted line and fitted line, labeled with 'E' followed by many numbers."}
 moran.plot(as.vector(scale(cc_burglary_sp$burglary)), wm_queen_rs)
 ```
 
-The X axis represents the values of our burglary variable in each unit (each LSOA) and the Y axis represents a spatial lag of this variable. A spatial lag in this context is simply the average value of the burglary count in the areas that are considered neighbours of each LSOA. So we are plotting the value of burglary against the average value of burglary in the neighbours. The slope of the fitted line represents the Moran's I. And you can see the correlation is almost flat here. We will further explain this scatterplot in next chapter. @Anselin_1996 suggests that the effective interpretation of this scatterplot should focus on the extent to which the fitted regression line that we see plotted reflects well the overall pattern of association between the variable of interest and its spatial lag: "the indication of observations that do not follow the overall trend represents useful information on local instability or non-stationarity" (p. 116-117).  
+The x-axis represents the values of our burglary variable in each unit (each LSOA) and the y-axis represents a spatial lag of this variable. A spatial lag in this context is simply the average value of the burglary count in the areas that are considered neighbours of each LSOA. So we are plotting the value of burglary against the average value of burglary in the neighbours. The slope of the fitted line represents Moran's I. And you can see the correlation is almost flat here. We will further explain this scatterplot in Chapter 10. @Anselin_1996 suggests that the effective interpretation of this scatterplot should focus on the extent to which the fitted regression line that we see plotted reflects well the overall pattern of association between the variable of interest and its spatial lag: "the indication of observations that do not follow the overall trend represents useful information on local instability or non-stationarity" (p. 116-117).  
 
-As with any correlation measure, you could get **positive spatial autocorrelation**, that would mean that as you move further to the right in the X axis you have higher levels of burglary in the surrounding area. This is what we see here. But the correlation is fairly low and as we saw is not statistically significant. You can also obtain **negative spatial autocorrelation**. That is, that would mean that areas with high level of crime *tend* (it's all about the global average effect!) to be surrounded by areas with low levels of crime. This is clearly not what we see here.
+As with any correlation measure, you could get **positive spatial autocorrelation**, which would mean that as you move further to the right in the x-axis, you have higher levels of burglary in the surrounding area. This is what we see here. But the correlation is fairly low and as we saw is not statistically significant. You can also obtain **negative spatial autocorrelation**. That would mean that areas with high level of crime *tend* (it's all about the global average effect!) to be surrounded by areas with low levels of crime. This is clearly not what we see here.
 
 
 
@@ -741,10 +742,10 @@ $$C = \frac{(N-1)*\sum_i\sum_j w_{ij}*(x_i - x_j)^2}{2* \sum_i\sum_j w_{ij}* \su
 the $(x_i - x_j)^2$ measures the *dissimilarity* between observations $x_i$ and neighbours $x_j$. 
 
 
-This means that the interpretation for the Geary's C is essentially the inverse of that of the Moran's I. Positive autocorrelation is seen when $C < 1$ (or $z < 0$), while negative autocorrelation is seen when $C > 1$ (or $z > 0$). The nice thing about Geary's C is that it doesn't need any assumptions about linearity to be made (unlike Moran's I). 
+This means that the interpretation for Geary's C is essentially the inverse of that of Moran's I. Positive autocorrelation is seen when $C < 1$ (or $z < 0$), while negative autocorrelation is seen when $C > 1$ (or $z > 0$). The nice thing about Geary's C is that it doesn't need any assumptions about linearity to be made (unlike Moran's I). 
 
 
-So how do we go about implementing this in R? For obtaining this statistic we can use `geary.test()` function from the `spdep` package. Like with Moran's I, we specify the variable of interest (`cc_burglary_sp$burglary`) and the spatial weights matrix (`lw_queen`) :
+So how do we go about implementing this in R? For obtaining this statistic, we can use `geary.test()` function from the `spdep` package. As with Moran's I, we specify the variable of interest (`cc_burglary_sp$burglary`) and the spatial weights matrix (`lw_queen`):
 
 ```{r}
 geary.test(cc_burglary_sp$burglary, lw_queen)
@@ -754,11 +755,11 @@ geary.test(cc_burglary_sp$burglary, lw_queen)
 Note that for Geary's C, the test assumes that the weights matrix is *symmetric*. For inherently non-symmetric matrices, such as k-nearest neighbour matrices discussed above, you can make use of the `listw2U()` helper function which constructs a weights list object to make the matrix symmetric.
 
 
-It is very important to understand that global statistics like the spatial autocorrelation (Global Moran's I, Geary's C) tool assess the overall pattern and trend of your data. They are most effective when the spatial pattern is consistent across the study area. In other words, you may have clusters (local pockets of autocorrelation), without having clustering (global autocorrelation). This may happen if the sign of the clusters negate each other. In general, Moran's I is a better measure of global correlation, as Geary's C is more sensitive to local correlations. 
+It is very important to understand that global statistics like the spatial autocorrelation (Global Moran's I, Geary's C) tool assess the overall pattern and trend of your data. They are most effective when the spatial pattern is consistent across the study area. In other words, you may have clusters (local pockets of autocorrelation), without having clustering (global autocorrelation). This may happen if the signs of the clusters negate each other. In general, Moran's I is a better measure of global correlation, as Geary's C is more sensitive to local correlations. 
 
 ### The `rgeoda` and `sfweight` packages
 
-Traditionally the generation of a weight matrix was done with functions included in the `spdep` program, and this is what we had introduced above. We do want to note however, that more recently the functionality of **GeoDa**, a very well known point and click interface for spatial statistics originally developed by Luc Anselin (a key figure in the field of spatial statistics), has been brought to R via the `rgeoda` package. This package is fast, though "less flexible when modifications or enhancements are desired" [@Pebesma_2021]. The nomenclature of the functions is slightly more intuitive and there are subtle variations in some of the formulas. It works with `sf` objects, and so may be useful for integrating our analysis to these objects. It is enough now that you are aware of the content of this chapter, and one path to implementing what we learned with the `sp` package. This should equip you to be able to explore these other packages as well, which will have different ways of achieving these outcomes. 
+Traditionally, the generation of a weight matrix was done with functions included in the `spdep` program, and this is what we had introduced above. We do want to note, however, that more recently the functionality of **GeoDa**, a very well-known point and click interface for spatial statistics originally developed by Luc Anselin (a key figure in the field of spatial statistics), has been brought to R via the `rgeoda` package. This package is fast, though "less flexible when modifications or enhancements are desired" [@Pebesma_2021]. The nomenclature of the functions is slightly more intuitive, and there are subtle variations in some of the formulas. It works with `sf` objects, and so may be useful for integrating our analysis to these objects. It is enough now that you are aware of the content of this chapter, and one path to implementing what we learned with the `sp` package. This should equip you to be able to explore these other packages as well, which will have different ways of achieving these outcomes. 
 
 For example, to create queen contiguity weights, you can use the `queen_weights()` function from the `rgeoda` package, and as an argument you only need to pass the name of your polygon object (`cc_burglary`). 
 
@@ -782,9 +783,9 @@ distance_weights(cc_burglary,  min_distthreshold(cc_burglary))
 
 More details are available in the documentation for `rgeoda`.
 
-It is also worth mentioning `sfweight`. The `sfweight` package, still only available from GitHub at time of this writing and therefore we could consider it as "in ongoing development", aims "to provide a more streamlined interface to the `spdep`" package. The goal of this package is to create and simpler workflow for creating neighbors, spatial weights, and spatially lagged variables. You can read more about it in its [GitHub repository](https://github.com/JosiahParry/sfweight). 
+It is also worth mentioning `sfweight`. The `sfweight` package, still only available from GitHub at the time of this writing, and therefore we could consider it as "an ongoing development" that aims "to provide a more streamlined interface to the `spdep`" package. The goal of this package is to create a simpler workflow for creating neighbours, spatial weights, and spatially lagged variables. You can read more about it in its [GitHub repository](https://github.com/JosiahParry/sfweight). 
 
 ## Further Reading
 
-For a deeper understanding of the study of spatial dependence on point patterns we recommend @Baddeley_2016. @Haining_2020 and @Darmofal_2015 both contain useful chapters on the spatial weight matrix that provide a bit more detail than we do here, whilst maintaining an accessible level. We highly recommend too the series of videolectures provided by Luc Anselin in the YouTube channel of the Center for Spatial Data Science (University of Chicago). Prof. Anselin has been one of the key authors in the field of spatial econometrics during the last 25 years. His lectures are both high quality and accessible for someone starting in the field of spatial statistics. You will find lectures on the spatial weight matrix, global autocorrelation, and local indicators of spatial autocorrelation (which we cover in the next chapter) in @Anselin_2021a. In the [website for the Center for Spatial Data Science](spatial.uchicago.edu) you will also find R tutorials that provide instructions in how to specify the spatial weight matrix using other approaches we have not covered here [@Anselin_2021].
+For a deeper understanding of the study of spatial dependence on point patterns, we recommend @Baddeley_2016. @Haining_2020 and @Darmofal_2015 both contain useful chapters on the spatial weight matrix that provide a bit more detail than we do here, whilst maintaining an accessible level. We highly recommend too the series of video lectures provided by Luc Anselin in the YouTube channel of the Center for Spatial Data Science (University of Chicago). Prof. Anselin has been one of the key authors in the field of spatial econometrics during the last 25 years. His lectures are both high quality and accessible for someone starting in the field of spatial statistics. You will find lectures on the spatial weight matrix, global autocorrelation, and local indicators of spatial autocorrelation (which we cover in Chapter 10) in @Anselin_2021a. In the [website for the Center for Spatial Data Science](spatial.uchicago.edu) you will also find R tutorials that provide instructions on how to specify the spatial weight matrix using other approaches we have not covered here [@Anselin_2021].
 
