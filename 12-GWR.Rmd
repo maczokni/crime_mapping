@@ -2,11 +2,11 @@
 
 ## Introduction
 
-One of the challenges of spatial data is that we may encounter exceptions to stationary processes. There may be, for example, parameter variability across the study area. When we have homogeneity everything is the same everywhere, in terms of our regression equation, the parameters are constant. But as we illustrated via an interaction term in the last chapter, that may not be the case. We can encounter situations where a particular input has a different effect in parts of our study area. In this chapter we explore this issue and a number of solutions that have been proposed to deal with it. It goes without saying that having extreme heterogeneity creates technical problems for estimation. If everything is different everywhere we may have to estimate more parameters that we have data for.
+One of the challenges of spatial data is that we may encounter exceptions to stationary processes. There may be, for example, parameter variability across the study area. When we have homogeneity, everything is the same everywhere; in terms of our regression equation, the parameters are constant. But as we illustrated via an interaction term in Chapter 11, that may not be the case. We can encounter situations where a particular input has a different effect in parts of our study area. In this chapter we explore this issue and a number of solutions that have been proposed to deal with it. It goes without saying that having extreme heterogeneity creates technical problems for estimation. If everything is different everywhere, we may have to estimate more parameters than we have data for.
 
-One way of dealing with this is by imposing some form of structure, for example partitioning data for the United States to fit a separate model for Southern and Northern counties. Unlike data partition, **full spatial regimes** also imply using different coefficients for each subset of the data but you fit everything in one go. This is essentially the same as running as many models as subsets you have. As @Anselin_2007  highlights, this corrects for heterogeneity but does not explain it. We can then test whether this was necessary, using a *Chow test* comparing the simpler model with the one where we allow variability. Of course, we can also include spatial dependence in these models.
+One way of dealing with this is by imposing some form of structure, for example partitioning data for the United States to fit a separate model for Southern and Northern counties. Unlike data partition, **full spatial regimes** also imply using different coefficients for each subset of the data, but you fit everything in one go. This is essentially the same as running as many models as subsets you have. As @Anselin_2007  highlights, this corrects for heterogeneity but does not explain it. We can then test whether this was necessary, using a *Chow test* comparing the simpler model with the one where we allow variability. Of course, we can also include spatial dependence in these models.
 
-Another way of dealing with heterogeneity is by allowing continuous variation, rather than discrete (as when we subset the data), of the parameters. A popular method for doing this is **geographically weighted regression (GWR)**. This is a case of a local regression where you try to estimate a different set of parameters for each location and these parameters are obtained from a subset of observation using kernel regression. In traditional local regression we select the subset in the attribute space (observations with similar attributes), in GWR the local subset is defined in a geographical sense using a kernel (remember how we used kernels for density estimation to define a set of "neighbours"). We are estimating regression equations based on nearby locations as specified by our kernel and this produces a different coefficient for each location. As with kernel density estimation you can distinguish between fixed bandwidth and adaptive bandwidth.
+Another way of dealing with heterogeneity is by allowing continuous variation, rather than discrete (as when we subset the data), of the parameters. A popular method for doing this is **geographically weighted regression (GWR)**. This is a case of a local regression where you try to estimate a different set of parameters for each location and these parameters are obtained from a subset of observation using kernel regression. In traditional local regression we select the subset in the attribute space (observations with similar attributes); in GWR the local subset is defined in a geographical sense using a kernel (remember how we used kernels for density estimation to define a set of "neighbours"). We are estimating regression equations based on nearby locations as specified by our kernel, and this produces a different coefficient for each location. As with kernel density estimation, you can distinguish between fixed bandwidth and adaptive bandwidth.
 
 For this chapter we will need to load the following packages:
 
@@ -34,9 +34,9 @@ library(spgwr)
 
 ### Fitting the constrained and the unconstrained models
 
-To illustrate this solution we will go back to the "ncovr" data we explored last week and use the same spatial weight matrix as in the previous chapter. If you have read the @Baller_2001 paper that we are in a way replicating here, you could see they decided that they needed to run separate models for the South and the North. Let´s explore this here.
+To illustrate this solution, we will go back to the "ncovr" data we explored last week and use the same spatial weight matrix as in the previous chapter. If you have read the @Baller_2001 paper that we are in a way replicating here, you could see they decided that they needed to run separate models for the South and the North. Let's explore this here.
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 data("ncovr")
 # We coerce the sf object into a new sp object
 ncovr_sp <- as(ncovr, "Spatial")
@@ -58,14 +58,14 @@ fit1_70 <- lm(HR70 ~ RD70 + PS70 + MA70 + DV70 + UE70, data = ncovr)
 summary(fit1_70)
 ```
 
-A simple visualisation of the residuals suggest the model may not be optimal for the entire study region:
+A simple visualisation of the residuals suggests the model may not be optimal for the entire study region:
 
-```{r, fig.cap='Distribution of residuals by study region (South v North)', fig.alt="A plot of two data sets, in red and blue. The vertical axis is labeled 'density' and ranges from zero to point one seven, while the horizontal axis is labeled 'Residuals', ranging from negative twenty five to seventy five. A legend to the right matches blue to South. Both plotted data sets peak slightly left of zero Residuals, but the peaks look very different. Red is a sharp and tall peak, reaching nearly point one seven, and dropping off quickly in both directions. Blue peaks at around point zero seven, and drops off to zero more gradually, especially in the positive residuals."}
+```{r, fig.cap='Distribution of residuals by study region (South versus North)', fig.alt="A plot of two data sets, in red and blue. The vertical axis is labeled 'density' and ranges from zero to point one seven, while the horizontal axis is labeled 'Residuals', ranging from negative twenty five to seventy five. A legend to the right matches blue to South. Both plotted data sets peak slightly left of zero Residuals, but the peaks look very different. Red is a sharp and tall peak, reaching nearly point one seven, and dropping off quickly in both directions. Blue peaks at around point zero seven, and drops off to zero more gradually, especially in the positive residuals."}
 ncovr$res_fit1 <- fit1_70$residuals
 ggplot(ncovr, aes(x = res_fit1, colour = as.factor(SOUTH))) + 
   geom_density() + 
   xlab("Residuals") + 
-  scale_color_brewer(palette = "Set1", name = "Region (1 = South)") + 
+  scale_colour_brewer(palette = "Set1", name = "Region (1 = South)") + 
   theme_bw()
 ```
 
@@ -76,7 +76,7 @@ ncovr$NORTH <- recode(ncovr$SOUTH, `1` = 0, `0` = 1)
 ncovr$ONE <- 1
 ```
 
-Having created these new columns we can fit a standard OLS model interacting the inputs with our dummies and setting the intercept to 0, so that each regime is allowed its own intercept:
+Having created these new columns, we can fit a standard OLS model interacting the inputs with our dummies and setting the intercept to 0, so that each regime is allowed its own intercept:
 
 ```{r}
 fit2_70_sr <- lm(HR70 ~ 0 + (ONE + RD70 + PS70 + MA70 + DV70 + UE70):(SOUTH + NORTH), 
@@ -84,24 +84,23 @@ fit2_70_sr <- lm(HR70 ~ 0 + (ONE + RD70 + PS70 + MA70 + DV70 + UE70):(SOUTH + NO
 summary(fit2_70_sr)
 ```
 
-We can see a higher intercept for the South, reflecting the higher level of homicide in these counties. Aside from this, the two more notable differences are, on the one hand, the insignificant effect of unemployment in the North, and the higher impact of the divorce rate in the North.
+We can see a higher intercept for the South, reflecting the higher level of homicide in these counties. Aside from this, the two more notable differences are the insignificant effect of unemployment in the North and the higher impact of the divorce rate in the North.
 
 ### Running the Chow test
 
-The Chow Test is often used in econometrics to determine whether the independent variables have different impacts on different subgroups of the population. @Anselin_2007 provides an implementation for this test, that extracts the residuals and the degrees of freedom from the constrained (the simpler oLS model) and the unconstrained models (the less parsimonious spatial regime), and then computes the test based on the F distribution.
+The Chow test is often used in econometrics to determine whether the independent variables have different impacts on different sub-groups of the population. @Anselin_2007 provides an implementation for this test that extracts the residuals and the degrees of freedom from the constrained (the simpler OLS model) and the unconstrained models (the less parsimonious spatial regime), and then computes the test based on the F distribution.
 
 ```{r}
-chow.test <- function(rest,unrest)
-{
-er <- residuals(rest)
-eu <- residuals(unrest)
-er2 <- sum(er^2)
-eu2 <- sum(eu^2)
-k <- rest$rank
-n2k <- rest$df.residual - k
-c <- ((er2 - eu2)/k) / (eu2 / n2k)
-pc <- pf(c,k,n2k,lower.tail=FALSE)
-list(c,pc,k,n2k)
+chow.test <- function(rest, unrest) {
+  er <- residuals(rest)
+  eu <- residuals(unrest)
+  er2 <- sum(er ^ 2)
+  eu2 <- sum(eu ^ 2)
+  k <- rest$rank
+  n2k <- rest$df.residual - k
+  c <- ((er2 - eu2) / k) / (eu2 / n2k)
+  pc <- pf(c, k, n2k, lower.tail = FALSE)
+  list(c, pc, k, n2k)
 }
 
 ```
@@ -117,44 +116,51 @@ How we interpret this test? When the Chow test is significant, as here, this pro
 
 ### Spatial dependence with spatial heterogeneity
 
-So far we have only adjusted for a form of spatial heterogeneity in our model, but we may still have to deal with spatial dependence. Here what we covered in the previous chapter, still applies. We can run the various specification tests and then select a model that adjust for spatial dependence.
+So far we have only adjusted for a form of spatial heterogeneity in our model, but we may still have to deal with spatial dependence. Here what we covered in Chapter 11, still applies. We can run the various specification tests and then select a model that adjusts for spatial dependence.
 
 ```{r}
 summary(lm.LMtests(fit2_70_sr, rwm, test = c("LMerr","LMlag","RLMerr","RLMlag")))
 ```
 
-The Lagrange multiplier tests, according to Anselin suggestions for how to interpret these, point to a spatial lag model (since RLMlag is several orders more significant than the error alternative).
+The Lagrange multiplier tests, according to Anselin's suggestions for how to interpret these, point to a spatial lag model (since RLMlag is several orders more significant than the error alternative).
 
-We could then fit this model using `sp`
+We could then fit this model using `sp`:
 
 ```{r}
-fit3_70_sr_sar <- lagsarlm(HR70 ~ 0 + 
-                             (ONE + RD70 + PS70 + MA70 + DV70 + UE70):(SOUTH + NORTH), 
-                           data = ncovr, rwm)
+fit3_70_sr_sar <- lagsarlm(HR70 ~ 0 +
+                             (ONE +
+                                RD70 +
+                                PS70 +
+                                MA70 +
+                                DV70 +
+                                UE70):(SOUTH + NORTH),
+                           data = ncovr,
+                           rwm)
 summary(fit3_70_sr_sar)
 ```
 
-We see that the AIC is better than for the non-spatial model and that there is no more residual autocorrelation. We could explore other specifications (ie spatial Durbin model) and the same caveats about interpreting coefficients in a spatial lag model we raised in the previous chapter would apply here. If the Lagrange multiplier tests had suggested a spatial error model, we could also have fitted the model in the way we have also already covered simply adjusting the regression formula as in this section.
+We see that the AIC is better than for the non-spatial model and that there is no more residual autocorrelation. We could explore other specifications (i.e., spatial Durbin model) and the same caveats about interpreting coefficients in a spatial lag model we raised in Chapter 11 would apply here. If the Lagrange multiplier tests had suggested a spatial error model, we could also have fitted the model in the way we have also already covered simply adjusting the regression formula as in this section.
 
-We can now also run a Chow test, only in this case, we need to adjust the previous one to account for spatial dependence. @Anselin_2007 also provides for an implementation of this test in R with the following ad-hoc function:
+We can now also run a Chow test; only in this case, we need to adjust the previous one to account for spatial dependence. @Anselin_2007 also provides for an implementation of this test in R with the following ad-hoc function:
 
 ```{r}
-spatialchow.test <- function(rest,unrest)
-{
-lrest <- rest$LL
-lunrest <- unrest$LL
-k <- rest$parameters - 2
-spchow <- - 2.0 * (lrest - lunrest)
-pchow <- pchisq(spchow,k,lower.tail=FALSE)
-list(spchow,pchow,k)
+spatialchow.test <- function(rest, unrest) {
+  lrest <- rest$LL
+  lunrest <- unrest$LL
+  k <- rest$parameters - 2
+  spchow <- -2.0 * (lrest - lunrest)
+  pchow <- pchisq(spchow, k, lower.tail = FALSE)
+  list(spchow, pchow, k)
 }
 ```
 
-This function will test a spatial lag model for the whole country as a whole with the spatial lag model with our data partitions. So first we need to estimate the appropriate lag model to be our constrained model:
+This function will test a spatial lag model for the country as a whole with the spatial lag model with our data partitions. So first we need to estimate the appropriate lag model to be our constrained model:
 
 ```{r}
-fit4_70_sar <- lagsarlm(HR70 ~ RD70 + PS70 + MA70 + DV70 + UE70, data = ncovr,
-                    rwm)
+fit4_70_sar <-
+  lagsarlm(HR70 ~ RD70 + PS70 + MA70 + DV70 + UE70, 
+           data = ncovr,
+           rwm)
 
 ```
 
@@ -168,9 +174,9 @@ The test is again highly significant providing evidence for the spatial lag mode
 
 ## Geographically Weighted Regression
 
-The basic idea behind Geographically Weighted Regression (GWR) is to explore how the relationship between a dependent variable ($Y$) and one or more independent variables (the $X$s) might vary geographically. Instead of assuming that a single model can be fitted to the entire study region, it looks for geographical differences in the relationship. This is achieved by fitting a regression equation to every feature in the dataset. We construct these separate equations by incorporating the dependent and explanatory variables of the features falling within the neighborhood of each target feature. 
+The basic idea behind Geographically Weighted Regression (GWR) is to explore how the relationship between a dependent variable ($Y$) and one or more independent variables ($X$s) might vary geographically. Instead of assuming that a single model can be fitted to the entire study region, it looks for geographical differences in the relationship. This is achieved by fitting a regression equation to every feature in the dataset. We construct these separate equations by incorporating the dependent and explanatory variables of the features falling within the neighbourhood of each target feature. 
 
-Geographically Weighted Regression can be used for a variety of applications, including the following:
+GWR can be used for a variety of applications, including the following:
 
 - Is the relationship between homicide rate and resource deprivation consistent across the study area?
 - What are the key variables that explain high homicide rates?
@@ -189,7 +195,7 @@ model <- lm(HR70 ~ RD70 + PS70 + MA70 + DV70 + UE70, data = ncovr)
 summary(model)
 ```
 
-And now, to get an idea of how our model might perform differently in different area, we can map the residuals across each county: 
+And now, to get an idea of how our model might perform differently in different areas, we can map the residuals across each county: 
 
 ```{r, warning=FALSE, message=FALSE, fig.cap='Map of model residuals', fig.alt="A map of counties in the United States, shaded in reds and blues. A legend at the bottom left, labeled 'resids' matches reds with negative values, and blues with positive values. Most of the counties are coloured in light colours. The midwest appears more red than blue, while the east coast appears more blue than red."}
 
@@ -203,20 +209,20 @@ If we see that there is a geographic pattern in the residuals, it is possible th
 
 ### Calculate kernel bandwidth
 
-The big assumption on which the GWR model is based is the kernel bandwitdh. As mentioned earlier, in order to calculate local coefficients for our study regions, GWR takes into account the data points within our specified bandwith, weighting them appropriately. The bendwidth we choose will determine our results. If we choose something too large, we might mask variation, and get resuls similar to the global results. If we choose something too small, we might get spikes, and lots of small scale variation, but also possibly large standard errors and unreliable estimates. Therefore, the process of choosing an appropriate bandwidth is paramount to GWR. 
+The big assumption on which the GWR model is based is the kernel bandwitdh. As mentioned earlier, in order to calculate local coefficients for our study regions, GWR takes into account the data points within our specified bandwith, weighting them appropriately. The bandwidth we choose will determine our results. If we choose something too large, we might mask variation and get results similar to the global results. If we choose something too small, we might get spikes, and lots of small scale variation, but also possibly large standard errors and unreliable estimates. Therefore, the process of choosing an appropriate bandwidth is paramount to GWR. 
 
  
-It is possible that we choose bandwidth manually, based on some prior knowledge, or theoretically based argument. However, if we do not have such ideas to start, we can use data-driven processes to inform our selection. The most frequently used approach is to use cross validation. Other approaches include Akaike Information Criteria, and maximum likelihood. 
+It is possible that we choose bandwidth manually, based on some prior knowledge, or a theoretically based argument. However, if we do not have such ideas to start, we can use data-driven processes to inform our selection. The most frequently used approach is to use cross-validation. Other approaches include Akaike Information Criteria, and maximum likelihood. 
 
 
-Here we use `gwr.sel()` which uses cross validation method for selecting optimal method for GWR. The function finds a bandwidth for a given geographically weighted regression by optimizing a selected function. For cross-validation, this scores the root mean square prediction error for the geographically weighted regressions, choosing the bandwidth minimizing this quantity. 
+Here we use `gwr.sel()` which uses a cross-validation method for selecting an optimal method for GWR. The function finds a bandwidth for a given geographically weighted regression by optimizing a selected function. For cross-validation, this scores the root mean square prediction error for the geographically weighted regressions, choosing the bandwidth minimizing this quantity. 
  
-With adapt function you can choose whether you want the bandwidth to adapt (i.e. find the proportion between 0 and 1 of observations to include in weighting scheme (k-nearest neighbours)) or whether you want to find a global bandwidth. A global bandwidth might make sense where the areas of interest are of equal size, and equally spaced, however if we have variation, for example like in the case of the counties of the United States, it makes sense to adjust the bandwidth for each observation. Here we set to adapt. 
+With the `adapt` parameter you can choose whether you want the bandwidth to adapt (i.e., find the proportion between 0 and 1 of observations to include in weighting scheme (k-nearest neighbours)), or whether you want to find a global bandwidth. A global bandwidth might make sense where the areas of interest are of equal size, and equally spaced; however, if we have variation, for example like in the case of the counties of the United States, it makes sense to adjust the bandwidth for each observation. Here we set to adapt. 
  
 Another important consideration is the function for the geographical weighting. We mentioned this above. In the `gwr.sel()` function you can set this with the `gweight=` parameter. By default, this is set to a Gaussian function. We will keep it that way here.
 
 
-With an sf object (whcih our data are in), one of the parameters required is a coordinate point for each one of our observations. In this case, what we can do is grab the centroid of each one of our polygons. To do this, we can use the `st_coordinates()` function: 
+With an sf object (which our data are in), one of the parameters required is a coordinate point for each one of our observations. In this case, what we can do is grab the centroid of each one of our polygons. To do this, we can use the `st_coordinates()` function: 
  
 ```{r getcentroid, warning=FALSE, message=FALSE}
 
@@ -244,27 +250,30 @@ gwr_bandwidth
 
 ```
 
-As our data are in WGS84 this value is in degrees. 
+As our data are in WGS84, this value is in degrees. 
 
 ### Building the geographically weighted model
 
-Now we can build our model. The `gwr()` function implements the basic geographically weighted regression approach to exploring spatial non-stationarity for given bandwidth and chosen weighting scheme. We specify the formula and our data soucre, as with the linear and spatial regressions, and the coords of the centroids, as we did in the bandwidth calculation above, but now we also specify our bandwith, which we created earlier, but we do this with the `adapt=` parameter. This is because, by default, the function takes a global bandwidth with the `bandwidth=` parameter, and we have created an adaptive bandwidth, so we shall use this `adapt=` parameter to include our `GWRbandwidth` object. We also set the `hatmatrix =` parameter to `TRUE`, to return the hatmatrix as a component of the result, and the `se.fit=` parameter to `TRUE` to return local coefficient standard errors - as we set hatmatrix to `TRUE`, two effective degrees of freedom sigmas will be used to generate alternative coefficient standard errors. 
+Now we can build our model. The `gwr()` function implements the basic geographically weighted regression approach to exploring spatial non-stationarity for given bandwidth and chosen weighting scheme. We specify the formula and our data source, as with the linear and spatial regressions, and the coordinates of the centroids, as we did in the bandwidth calculation above; but now we also specify our bandwith, which we created earlier, but we do this with the `adapt=` parameter. This is because, by default, the function takes a global bandwidth with the `bandwidth=` parameter, and we have created an adaptive bandwidth, so we shall use this `adapt=` parameter to include our `GWRbandwidth` object. We also set the `hatmatrix =` parameter to `TRUE`, to return the hatmatrix as a component of the result, and the `se.fit=` parameter to `TRUE` to return local coefficient standard errors - as we set hatmatrix to `TRUE`, two effective degrees of freedom sigmas will be used to generate alternative coefficient standard errors. 
 
 
 ```{r buildgwrmodel}
 
-gwr_model = gwr(HR70 ~ RD70 + PS70 + MA70 + DV70 + UE70, data = ncovr,
-                coords = ncovr$cent_coords,
-                adapt=gwr_bandwidth,
-                hatmatrix=TRUE,
-                se.fit=TRUE) 
+gwr_model = gwr(
+  HR70 ~ RD70 + PS70 + MA70 + DV70 + UE70,
+  data = ncovr,
+  coords = ncovr$cent_coords,
+  adapt = gwr_bandwidth,
+  hatmatrix = TRUE,
+  se.fit = TRUE
+)
 
 gwr_model
 
 ```
 This output tells us the 5-number summary for the coefficients ($Y$) for each predictor variable $X$. We can see for all predictor variables, some counties have negative values, while other counties have positive values. Evidently there is some variation locally in the relationships between these independent variables and our dependent variable. 
 
-For this to be informative however, we should map this variation - this is where we can gain insight into how the relationships may change over our study area. In our `gwr_model` object we have a *S*patial *D*ata *F*rame. This is a *SpatialPointsDataFrame* or *SpatialPolygonsDataFrame* object which contains fit.points, weights, GWR coefficient estimates, R-squared, and coefficient standard errors in its "data" slot. Let's extract this into another object called `gwr_results`: 
+For this to be informative, however, we should map this variation - this is where we can gain insight into how the relationships may change over our study area. In our `gwr_model` object, we have a *S*patial *D*ata *F*rame. This is a *SpatialPointsDataFrame* or *SpatialPolygonsDataFrame* object which contains fit.points, weights, GWR coefficient estimates, R square, and coefficient standard errors in its "data" slot. Let's extract this into another object called `gwr_results`: 
 
 ```{r extractgwrresults}
 
@@ -284,7 +293,7 @@ gwr_results <- cbind(ncovr, gwr_results)
 
 Now we can begin to map our results. First, let's see how well the model performs across the different counties of the United States. To do this, we can map the `localR2` value which contains the local $R^2$ value for each observation. 
 
-```{r, fig.cap='Map of local R-square value for each county', fig.alt="Counties of the United States are now shaded in shades of blue. A legend in the bottom left, labeled 'local R 2', matches increasing values to darker blues. The colour transitions are smooth, with a dark blue emanating from New York, with counties from Delaware to Maine being darker blues. Areas in Illinois and South Dakota also appear in darker blue. The south and northwest are very light shades."}
+```{r, fig.cap='Map of local R square value for each county', fig.alt="Counties of the United States are now shaded in shades of blue. A legend in the bottom left, labeled 'local R 2', matches increasing values to darker blues. The colour transitions are smooth, with a dark blue emanating from New York, with counties from Delaware to Maine being darker blues. Areas in Illinois and South Dakota also appear in darker blue. The south and northwest are very light shades.", message=FALSE, warning=FALSE}
 
 qtm(gwr_results, fill =  "localR2" )
 
@@ -292,9 +301,9 @@ qtm(gwr_results, fill =  "localR2" )
 
 We can see some really neat spatial patterns in how well our model performs in various regions of the United States. Our model performs really well in the North East for example, but not so well in the South. 
 
-We can also map the coefficients for specific variables. Let's say we're interested in how the relationship between Resource deprivation (RD70) and homicide rate. 
+We can also map the coefficients for specific variables. Let's say we're interested in how the relationship between resource deprivation (RD70) and homicide rate. 
 
->**NOTE:** In our `gwr_results` data frame we have a varaible called `RD70`, this contains the observed resource deprivation value for the county. We then have `RD70.1` this is the coefficient value for each county. In the results contained in the SDF element of our model (`gwr_model$SDF`) it was named `RD70` but when we joined the two object, the `.1` was appended to allow us to differentiate between the two. 
+>**NOTE:** In our `gwr_results` data frame we have a variable called `RD70`; this contains the observed resource deprivation value for the county. We then have `RD70.1` which is the coefficient value for each county. In the results contained in the SDF element of our model (`gwr_model$SDF`) it was named `RD70` but when we joined the two objects, the `.1` was appended to allow us to differentiate between the two. 
 
 
 ```{r, message=FALSE, warning=FALSE, fig.cap='Map of coefficient for resource deprivation value for each county', fig.alt="The counties of the United States are shaded in shades of blue and orange. A legend in the bottom left, labeled 'RD70.1', matches negative two to zero to orange, and zero to eight in increasingly darker blues. The northwest, and south of lake Michigan appear dark blue, with a lighter blue covering most of the rest of the counties. The northwest, far southeast, and a strip down the centre of the country are very light blues. Orange is only apparent in a cluster of counties in the centre of Texas."}
@@ -303,32 +312,32 @@ qtm(gwr_results, fill =  "RD70.1" )
 
 ```
 
-We can see in this map again some regional patterns in the coefficient of Resource deprivation. There are even counties, in Texas, and in Florida, where the direction of this relationship flips, that is we have negative coefficients - so resource deprivation is associated with *lower* homicide rates in these counties. 
+We can see in this map again some regional patterns in the coefficient of resource deprivation. The relationship is stronger in the counties in the Northeast, while in other areas it is weak or even 0. And in some counties in Texas, we can see that the direction of the relationship flips. In these areas the coefficients are negative. This means that resource deprivation is associated with *lower* homicide rates in these counties. 
 
-This may be interesting and raise questions, however, it is important to consider not only the coefficients, but also the *standard errors* associated with them, so we can get some ideas behind the reliability of these estimates. So let us have a look by mapping the standard errors for these coefficients, which are contained in the `RD70_se` variable. 
+This may be interesting and may raise questions; however, it is important to consider not only the coefficients, but also the *standard errors* associated with them, so we can get some ideas behind the reliability of these estimates. So let us have a look by mapping the standard errors for these coefficients, which are contained in the `RD70_se` variable. 
 
-```{r, message=FALSE, warning=FALSE, fig.cap='Map of standard error for resource deprivation value for each county', fig.alt="This shaded map of the counties of the United States has a legend titled 'RD70 se', matching values increasing from zero to darker shades of blue. Counties around the west coast, upper midwest, and New Hampshire are dark blues, while some of the south on both sides of Texas are very light blue."}
+```{r, message=FALSE, warning=FALSE, fig.cap='Map of standard errors for resource deprivation value for each county', fig.alt="This shaded map of the counties of the United States has a legend titled 'RD70 se', matching values increasing from zero to darker shades of blue. Counties around the west coast, upper midwest, and New Hampshire are dark blues, while some of the south on both sides of Texas are very light blue."}
 
 qtm(gwr_results, fill =  "RD70_se" )
 
 ```
 
 
-Higher standard errors mean that our estimates may be less reliable. So it is important to keep in mind both maps, the one with the coefficients, and the one showing the standard errors, when drawing conclusions from our GWR results. 
+Higher standard errors mean that our estimates may be less reliable. So it is important to keep in mind both maps: the one with the coefficients, and the one showing the standard errors, when drawing conclusions from our GWR results. 
 
 ### Using GWR
 
-Overall, GWR is a good **exploratory** tool which can help illustrate how a particular model might apply differently in different regions of your study area, or how relationships between variables may vary spatially. This technique can be extended, for example to count models, or logit models, but (following the lead of Luc Anselin) we stop here, and pause to highlight some issues. Specifically, our *results are very sensitive to our choice of bandwidth*. The results we achieve with this approach might not show up when we use other bandwiths. Additionally, GWR does not really *explain* anything. What we do, is demonstrate that the relationship between our variables is not stable over space. But we cannot with this technique explain *why* it is not stable over space. 
+Overall, GWR is a good **exploratory** tool which can help illustrate how a particular model might apply differently in different regions of your study area, or how relationships between variables may vary spatially. This technique can be extended, for example to count models, or logit models, but (following the lead of Luc Anselin) we stop here, and pause to highlight some issues. Specifically, our *results are very sensitive to our choice of bandwidth*. The results we achieve with this approach might not show up when we use other bandwiths. Additionally, GWR does not really *explain* anything. What we do is demonstrate that the relationship between our variables is not stable over space. But we cannot with this technique explain *why* it is not stable over space. 
 
-Nevertheless it is a great technique to identify spatial variation, which, unlike spatial regimes, does not rely on our a-priory segmentation of our study region, but instead allows for the variation to emerge from the data themselves. 
+Nevertheless, it is a great technique to identify spatial variation, which, unlike spatial regimes, does not rely on our a priory segmentation of our study region, but instead it allows for the variation to emerge from the data themselves. 
 
 
 ## Summary and further reading
 
-This chapter has tackled some of the issues of spatial heterogeneity in regression results. When applying regression in a spatial context, it is possible to encounter situations where we might observe a different effect on our variables in different parts of our study area. SPecifically, we covered two approaches to exploring this. The first one was to impose some a-priori segmentation to our data, based on contextual knowledge and possible patterns in our regression results. We illustrated this by imposing spatial regimes in our NCOVR data set, splitting into separate North and South USA, as was done by the original authors of the paper @Baller_2001. The second approach was to explore how the coefficients may vary across our study space by applying Geographically Weighted Regression to our study area. We provided a high-level overview of this process and recommended it as an illustrative, exploratory technique to raise questions about possible spatial heterogeneity in the processes we are trying to model in our study region.   
+This chapter has tackled some of the issues of spatial heterogeneity in regression results. When applying regression in a spatial context, it is possible to encounter situations where we might observe a different effect on our variables in different parts of our study area. Specifically, we covered two approaches to exploring this. The first one was to impose some a priori segmentation to our data, based on contextual knowledge and possible patterns in our regression results. We illustrated this by imposing spatial regimes in our NCOVR data set, splitting into separate North and South USA, as was done by the original authors of the paper by @Baller_2001. The second approach was to explore how the coefficients may vary across our study space by applying Geographically Weighted Regression to our study area. We provided a high-level overview of this process and recommended it as an illustrative, exploratory technique to raise questions about possible spatial heterogeneity in the processes we are trying to model in our study region.   
 
 
-To delve into greater detail on the topic of spatial heterogeneity, Chapters 8 and 9 in @Anselin_2007 discuss specification of spatial heterogeneity. This is particularly helpful as an introduction to the issues and solutions we have discussed in this chapter. For more details and applications of Geographically Weighted Regression, we recommend @Fotheringham_2003. For applications and an illustration of the importance to consider spatial variation within the context of criminology and crime analysis, read @Cahill_2007 and @Andresen_2020b as good examples. 
+To delve into greater detail on the topic of spatial heterogeneity, chapters 8 and 9 in @Anselin_2007 discuss specification of spatial heterogeneity. This is particularly helpful as an introduction to the issues and solutions we have discussed in this chapter. For more details and applications of Geographically Weighted Regression, we recommend @Fotheringham_2003. For applications and an illustration of the importance to consider spatial variation within the context of criminology and crime analysis, read @Cahill_2007 and @Andresen_2020b as good examples. 
 
 
-And for those wishing to explore additional ways to model spatial interactions, such as CAR and Bayesian models, we suggest to read @Banerjee_2014 as well as Chapters 9 and 10 in @Bivand_2013. 
+And for those wishing to explore additional ways to model spatial interactions, such as CAR and Bayesian models, we suggest to read @Banerjee_2014 as well as chapters 9 and 10 in @Bivand_2013. 
