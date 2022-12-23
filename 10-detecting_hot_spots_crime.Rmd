@@ -231,8 +231,6 @@ apply(p_values_lgmc, 2, function(x) sum(x < 0.05))
 
 We can see that we get fewer significant hot (or cold) spots once we adjust for the problem of multiple comparisons. In general, Bonferroni correction is the more conservative option. Here, the p-value is multiplied by the number of comparisons. This is useful, when let's say we're trying to avoid false positives. We will progress with those areas identified with this method. 
 
-\pagebreak
-
 To map this, we can create a new variable, let's call it `hotspot`, which can take the value of "hot spot" if the Bonferroni adjusted p-value is smaller than 0.05 and the z score is positive, and "cold spot" if the Bonferroni adjusted p-value is smaller than 0.05 and the z score is negative. Otherwise, it will be labelled "Not significant". 
 
 
@@ -658,9 +656,6 @@ And likewise for the temporal bands:
 >The number of temporal bands is dependent on how long you expect a pattern of near repeats to extend. For example, the research on repeat victimization suggests that a risk of repeat burglary increases rapidly after an initial burglary, but that this risk dissipates in the months after the incident and the risk returns to the background (normal level for the area) after a few months. Settings of a 30 day temporal bandwidth with 12 temporal bands, or 14 days with 13 temporal bands (to cover a six month period) are common, but experimentation is encouraged.
 
 
-\pagebreak
-
-
 The Knox test basically uses these temporal and spatial bands to compute the expected number of pairs of events that are close in time and space and compares this with the observed count. Let's first prepare the data. We will extract the key vectors to a data frame.
 
 ```{r}
@@ -696,8 +691,6 @@ A recent article by @BrizRedon_2020b proposes a modification of the traditional 
 Hot spots of crime are simply a convenient perceptual construct. As Ned @Levine_2013 (chapter 7, p. 1) highlights, *“Hot spots do not exist in reality, but are areas where there is sufficient clustering of certain activities (in this case, crime) such that they get labeled such. There is not a border around these incidents, but a gradient where people draw an imaginary line to indicate the location at which the hot spot starts.”*  Equally, there is not a unique solution to the identification of hot spots. Different techniques and algorithms will give you different answers. He further emphasises: *“It would be very naive to expect that a single technique can reveal the existence of hot spots in a jurisdiction that are unequivocally clear. In most cases, analysts are not sure why there are hot spots in the first place. Until that is solved, it would be unreasonable to expect a mathematical or statistical routine to solve that problem”* (chapter 7, p. 7).
 
 So, as with most data analysis exercises, one has to try different approaches and use professional judgment to select a particular representation that may work best for a particular use. Equally, we should not reify what we produce and, instead, take the maps as a starting point for trying to understand the underlying patterns that are being revealed. Critically, you want to try several different methods. You will be more persuaded a location is a hot spot if several methods for hot spot analysis point to the same location. Keep in mind as well the points we raised about the problems with police data in earlier chapters. This data presents limitations. There is reporting bias, recording bias, and issues with geocoding quality. @BrizRedon_2020, specifically, highlight that the common standard of a 85% match in geocoding is not good enough if the purpose is detecting clusters. What we see in our data may not be what it is, because of the quality of this data.
-
-\pagebreak
 
 A more advanced approach at considering space time interactions and exploration of highly clustered even sequences than the one assumed by the Knox test relies on the idea of self-exciting points that are common in seismology. For details on this approach, see @Mohler_2011. @Kulldorff_2005 also developed a space time permutation scan statistic for detecting disease outbreaks that may be useful within the context of crime analysis (see, for example, @Uittenbogaard_2012 use to study spatio-temporal clusters of crime in Stockholm or @Cheng_2014 use of the prospective scan statistic in London). @Gorr_2015 discuss an alternative approach to study and respond to chronic and temporary hot spot. Of interest as well is the work by @Adepeju_2021, and the associated R package `Akmedoids`[@Adepeju_2020], for classifying longitudinal trajectories of crime at micro-places.
 
