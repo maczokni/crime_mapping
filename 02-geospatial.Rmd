@@ -154,7 +154,7 @@ bb_sf <- getbb(place_name = "greater manchester united kingdom",
 
 We can see what this bounding box looks like by plotting it (notice this time we combine the plot() and st_geometry() functions to save needing to create a new object):
 
-```{r plotbb, message=FALSE, warning=FALSE, fig.cap="Outline of Greater Manchester boundary", fig.alt="A thin black line tracing the outline of Greater Manchester."}
+```{r plotbb, message=FALSE, warning=FALSE, fig.cap="Outline of Greater Manchester boundary", fig.alt="A thin black line tracing the outline of Greater Manchester.", fig.height= 2}
 
 plot(st_geometry(bb_sf))
 
@@ -634,31 +634,23 @@ m <- leaflet() %>% addTiles()
 ```
 
 And just print it:
-```{r, eval=FALSE}
+```{r leaflet1, echo = FALSE, fig.cap='A first interactive map', fig.alt="A featureless world map in the Mercator projection is zoomed out to an extent where continents repeat. The top left has plus and minus buttons meant for zooming. The bottom right contains the text 'Leaflet', in addition to a copyright notice."}
 m  
 ```
-
-```{r leaflet1, echo = FALSE, fig.cap='A first interactive map', fig.alt="A featureless world map in the Mercator projection is zoomed out to an extent where continents repeat. The top left has plus and minus buttons meant for zooming. The bottom right contains the text 'Leaflet', in addition to a copyright notice."}
-knitr::include_graphics(path = "img/leaflet_worldmap.png")
-```
-
 
 
 It is not a super useful map, but it was really easy to make! You might of course want to add some content to your map. 
 
 You can add a point manually:
 
-```{r, cache=FALSE}
+```{r leaflet2, echo = FALSE, fig.cap='Mapping the Univeristy of Manchester', fig.alt="A leaflet street map is centred around the University of Manchester, which is indicated by a blue pin marker. The usual leaflet decorators including zoom buttons and copyright notice are present.", fig.height=3, cache=FALSE}
 m <- leaflet() %>% addTiles()  %>% 
   addMarkers(lng=-2.230899,  # longitude
              lat=53.464987,  # latitude
              popup="University of Manchester") # text for popup
+
+#print leaflet map
 m
-
-```
-
-```{r leaflet2, echo = FALSE, fig.cap='Mapping the Univeristy of Manchester', fig.alt="A leaflet street map is centred around the University of Manchester, which is indicated by a blue pin marker. The usual leaflet decorators including zoom buttons and copyright notice are present."}
-knitr::include_graphics("img/leaflet_uom.png")
 ```
 
 If you click over the highlighted point, you will read our input text "University of Manchester".
@@ -675,9 +667,7 @@ df <- data.frame(latitudes, longitudes, popups)
 # create leaflet map
 m <- leaflet(data = df) %>% addTiles()  %>%  
   addMarkers(lng=~longitudes, lat=~latitudes, popup=~popups)
-```
 
-```{r, cache=FALSE}
 #print leaflet map
 m  
 ```
@@ -746,13 +736,13 @@ One interesting dataset, especially for our questions about the different alcoho
 
 There are a few ways we can download this data set. On the manual side of things, we can simply right-click on the download link from the website, save it to your computer, and read it in from there, by specifying the file path. Remember, if you save it in your R *working directory*, then you just need to specify the file name, as the working directory folder is where R will first look for this file. 
 
-Another way is to read into R directly from the URL provided. Here, let's read in the licensed premises data directly from the web using the URL `"http://www.manchester.gov.uk/open/download/downloads/id/169/licensed_premises.csv"`: 
+So do this now. Save the file to your working directory. For me, this will be in a sub-folder called 'data': 
 
 ```{r, message=FALSE, warning=FALSE}
 
-data_url <- "http://www.manchester.gov.uk/open/download/downloads/id/169/licensed_premises.csv"
+lic_prem <- read_csv('data/LicensedPremises.csv') %>% 
+  clean_names()
 
-lic_prem <- read_csv(data_url) %>% clean_names()
 ```
 
 You will likely get some warnings when reading this data, but you can safely ignore those. You can always check if this worked by looking to your global environment on the right-hand side and seeing if this *lic_prem* object has appeared. If it has, you should see it has `r I(nrow(lic_prem))` observations (rows) and `r I(ncol(lic_prem))` variables (columns).
