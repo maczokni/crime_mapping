@@ -214,7 +214,7 @@
 
 \title{Crime Mapping and Spatial Data Analysis using R}
 \author{Juanjo Medina and Reka Solymosi}
-\date{2023-02-13}
+\date{2023-03-08}
 
 \begin{document}
 \maketitle
@@ -1291,7 +1291,10 @@ We can select what features we want using the \texttt{add\_osm\_feature()} funct
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{osm\_bar\_sf }\OtherTok{\textless{}{-}} \FunctionTok{opq}\NormalTok{(}\AttributeTok{bbox =}\NormalTok{ bb\_sf) }\SpecialCharTok{\%\textgreater{}\%}    \CommentTok{\# select bounding box}
+\NormalTok{bb\_gm }\OtherTok{\textless{}{-}} \FunctionTok{getbb}\NormalTok{(}\AttributeTok{place\_name =} \StringTok{"greater manchester united kingdom"}\NormalTok{, }
+               \AttributeTok{format\_out =} \StringTok{"data.frame"}\NormalTok{)}
+
+\NormalTok{osm\_bar\_sf }\OtherTok{\textless{}{-}} \FunctionTok{opq}\NormalTok{(}\AttributeTok{bbox =}\NormalTok{ bb\_gm) }\SpecialCharTok{\%\textgreater{}\%}    \CommentTok{\# select bounding box}
   \FunctionTok{add\_osm\_feature}\NormalTok{(}\AttributeTok{key =} \StringTok{\textquotesingle{}amenity\textquotesingle{}}\NormalTok{, }\AttributeTok{value =} \StringTok{\textquotesingle{}bar\textquotesingle{}}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} \CommentTok{\# select features}
   \FunctionTok{osmdata\_sf}\NormalTok{()          }\CommentTok{\# specify class}
 \end{Highlighting}
@@ -1305,7 +1308,7 @@ The resulting object \texttt{osm\_bar\_sf} contains lots of information. We can 
 \end{Highlighting}
 \end{Shaded}
 
-This confirms details like the bounding box coordinates. It also provides information on the features collected from the query. As one might expect, most information relating to bar locations has been recorded using points (i.e.~two-dimensional vertices, coordinates) of which we have 803 at the time of writing. We also have around fifty polygons. For now, let's extract the point information.
+This confirms details like the bounding box coordinates. It also provides information on the features collected from the query. As one might expect, most information relating to bar locations has been recorded using points (i.e.~two-dimensional vertices, coordinates) of which we have 666 at the time of writing. We also have around fifty polygons. For now, let's extract the point information.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1323,7 +1326,7 @@ One column we should consider is the \texttt{name} which tells us the name of th
 \end{Highlighting}
 \end{Shaded}
 
-We are still left with 289 bars in our data set.
+We are still left with 274 bars in our data set.
 
 \hypertarget{attribute-operations}{%
 \section{Attribute operations}\label{attribute-operations}}
@@ -1529,7 +1532,7 @@ We can do the same for the bars:
 \end{Highlighting}
 \end{Shaded}
 
-We can see that of the previous 289 bars, 115 are within the City Centre ward. We can plot our data now:
+We can see that of the previous 274 bars, 115 are within the City Centre ward. We can plot our data now:
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -2139,10 +2142,11 @@ For this we will transform and reproject to EPSG 2062, which is one of the \href
 
 \begin{verbatim}
 ## # A tibble: 1 x 6
-##   crs_code crs_name          crs_type crs_gcs crs_units
-##   <chr>    <chr>             <chr>      <dbl> <chr>    
-## 1 2062     Madrid 1870 (Mad~ project~    4903 m        
-## # ... with 1 more variable: crs_proj4 <chr>
+##   crs_code crs_name     crs_t~1 crs_gcs crs_u~2 crs_p~3
+##   <chr>    <chr>        <chr>     <dbl> <chr>   <chr>  
+## 1 2062     Madrid 1870~ projec~    4903 m       +proj=~
+## # ... with abbreviated variable names 1: crs_type,
+## #   2: crs_units, 3: crs_proj4
 \end{verbatim}
 
 Now we can transform our \texttt{madrid} object appropriately:
@@ -3379,8 +3383,7 @@ Now we can print them all side-by-side using \texttt{plot\_grid()} function from
 \end{Shaded}
 
 \begin{verbatim}
-## Warning: The dot-dot notation (`..level..`) was deprecated in
-## ggplot2 3.4.0.
+## Warning: The dot-dot notation (`..level..`) was deprecated in ggplot2 3.4.0.
 ## i Please use `after_stat(level)` instead.
 \end{verbatim}
 
@@ -4512,6 +4515,7 @@ First, we need to create the map we will be displaying in the inset map. In this
 \FunctionTok{library}\NormalTok{(rnaturalearth)}
 
 \NormalTok{europe\_countries }\OtherTok{\textless{}{-}} \FunctionTok{st\_as\_sf}\NormalTok{(countries110) }\SpecialCharTok{\%\textgreater{}\%}  \CommentTok{\# get geom for all countries}
+\NormalTok{  janitor}\SpecialCharTok{::}\FunctionTok{clean\_names}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%} 
   \FunctionTok{filter}\NormalTok{(region\_un}\SpecialCharTok{==}\StringTok{"Europe"} \SpecialCharTok{\&} \CommentTok{\# select Europe}
 \NormalTok{           name }\SpecialCharTok{!=} \StringTok{"Russia"} \SpecialCharTok{\&}\NormalTok{ name }\SpecialCharTok{!=} \StringTok{"Iceland"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}  \CommentTok{\# remove Russia and Iceland}
   \FunctionTok{pull}\NormalTok{(name) }\CommentTok{\# get only the names in a list}
@@ -5761,7 +5765,7 @@ The default kernel in \texttt{density.ppp()} is \texttt{gaussian}. But there are
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\FunctionTok{par}\NormalTok{(}\AttributeTok{mfrow=}\FunctionTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{))}
+\FunctionTok{par}\NormalTok{(}\AttributeTok{mfrow=}\FunctionTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{),}\AttributeTok{mar =} \FunctionTok{c}\NormalTok{(}\FloatTok{0.1}\NormalTok{, }\FloatTok{0.1}\NormalTok{, }\FloatTok{0.6}\NormalTok{, }\FloatTok{0.1}\NormalTok{))}
 \CommentTok{\# Gaussian kernel function (the default)}
 \FunctionTok{plot}\NormalTok{(}\FunctionTok{density.ppp}\NormalTok{(jitter\_bur, }\AttributeTok{sigma =} \FunctionTok{bw.ppl}\NormalTok{(jitter\_bur), }\AttributeTok{edge=}\ConstantTok{TRUE}\NormalTok{), }\AttributeTok{main=}\StringTok{"Gaussian"}\NormalTok{)}
 
@@ -6117,12 +6121,12 @@ Now let's get some crime data to link to this line network. We can find this fro
 ## New names:
 ## Rows: 7930 Columns: 14
 ## -- Column specification
-## ----------------------------------- Delimiter: "," chr
-## (9): crime_id, month, reported_by, falls_within... dbl
-## (4): ...1, ...2, longitude, latitude lgl (1): context
-## i Use `spec()` to retrieve the full column specification
-## for this data. i Specify the column types or set
-## `show_col_types = FALSE` to quiet this message.
+## -------------------------------------------------- Delimiter: "," chr
+## (9): crime_id, month, reported_by, falls_within... dbl (4): ...1, ...2,
+## longitude, latitude lgl (1): context
+## i Use `spec()` to retrieve the full column specification for this data. i
+## Specify the column types or set `show_col_types = FALSE` to quiet this
+## message.
 ## * `` -> `...1`
 ## * `...1` -> `...2`
 \end{verbatim}
@@ -6233,7 +6237,7 @@ The Okabe-Suhihara method was the first to be developed for this kind of applica
 
 \begin{verbatim}
 ##    user  system elapsed 
-##   9.274   0.135   9.411
+##   9.172   0.216   9.389
 \end{verbatim}
 
 And to visualise:
@@ -6261,7 +6265,7 @@ McSwiggan, Baddeley, and Nair (\protect\hyperlink{ref-McSwiggan_2016}{2016}) sub
 
 \begin{verbatim}
 ##    user  system elapsed 
-##   1.064   0.003   1.066
+##   1.305   0.016   1.320
 \end{verbatim}
 
 \begin{Shaded}
@@ -6287,7 +6291,7 @@ Finally, as noted above, Rakshit et al. (\protect\hyperlink{ref-Rakshit_2019}{20
 
 \begin{verbatim}
 ##    user  system elapsed 
-##   0.263   0.001   0.264
+##   0.247   0.001   0.248
 \end{verbatim}
 
 We can now plot the data and compare the results:
@@ -6801,7 +6805,7 @@ To assign this order, we can take our starting point (labelled ``Start here'') a
 \end{Shaded}
 
 \begin{verbatim}
-## Joining, by = "section"
+## Joining with `by = join_by(section)`
 \end{verbatim}
 
 \begin{Shaded}
@@ -8156,7 +8160,7 @@ With very few lines of code, you can get an interactive plot. Here we first will
 \end{Shaded}
 
 \begin{figure}
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-311-1} \caption{Interactive plot of burglaries.}\label{fig:unnamed-chunk-311}
+\includegraphics[width=0.5\linewidth]{img/Fig_10.4} \caption{Interactive plot of burglaries.}\label{fig:unnamed-chunk-312}
 \end{figure}
 
 We can now explore the underlying environmental backcloth behind the areas with high burglary count and build hypotheses and research questions about what might be going on there; for example whether these are crime attractors, crime generators, or other types of crime places. However, keep in mind that these are illustrations of the counts of observed burglaries, and there is nothing here which declares something a ``hot spot''. For that, keep reading!
@@ -8291,6 +8295,10 @@ Great, we have our 10 significant hot spots, and no significant cold spots appar
 \end{Highlighting}
 \end{Shaded}
 
+\begin{figure}
+\includegraphics[width=0.5\linewidth]{img/micro_grid_cells} \caption{Map of z-scores and of significant hot spots of burglary}\label{fig:unnamed-chunk-320}
+\end{figure}
+
 We can see here that not all the micro-grid cells with an elevated count of burglaries exhibit significant local dependence. There are only two clusters of burglaries where we see positive spatial dependence: one is located north of Picadilly Gardens in the Northern Quarter of Manchester (an area of trendy bars and shops, and significant gentrification, in proximity to a methadone delivery clinic) and the Deansgate area of the city centre (one of the main commercial hubs of the city not far from the criminal courts).
 
 \hypertarget{local-morans-i-and-moran-scatterplot}{%
@@ -8316,7 +8324,7 @@ Let's first look at Moran's scatterplot for our data. Remember from last chapter
 \end{Shaded}
 
 \begin{figure}
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-319-1} \caption{Moran's scatterplot for burglary in Manchester}\label{fig:unnamed-chunk-319}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-321-1} \caption{Moran's scatterplot for burglary in Manchester}\label{fig:unnamed-chunk-321}
 \end{figure}
 
 Notice how the plot is split into four quadrants structured around the centered mean for the value of burglary and its spatial lag. The top right corner belongs to areas that have high level of burglary and are surrounded by other areas that have above the average level of burglary. These are \textbf{high-high} locations. The bottom left corner belongs to the \textbf{low-low areas}. These are areas with low level of burglary and surrounded by areas with below average levels of burglary. Both the high-high and low-low represent clusters. A high-high cluster is what you may refer to as a \emph{hot spot}. And the low-low clusters represent \emph{cold spots}.
@@ -8335,7 +8343,7 @@ The slope of the line in the scatterplot gives you a measure of the global spati
 \end{Shaded}
 
 \begin{figure}
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-320-1} \caption{Map to visualise high leverage (hat value) areas}\label{fig:unnamed-chunk-320}
+\includegraphics[width=0.5\linewidth]{img/figure_10.6} \caption{Map to visualise high leverage (hat value) areas}\label{fig:unnamed-chunk-323}
 \end{figure}
 
 To compute the local Moran's I, we can use the \texttt{localmoran()} function from the \texttt{spdep} package.
@@ -8444,7 +8452,7 @@ We are now going to create a new variable to identify the quadrant in which each
 Essentially all we'll be doing is assigning a variable values based on where in the plot it is. So for example, if it's in the upper right, it is high-high and has values larger than 0 for both the burglary and the spatial lag values. It it's in the upper left, it's low-high and has a value larger than 0 for the spatial lag value, but lower than 0 on the burglary value. And so on, and so on. Here's an image to illustrate:
 
 \begin{figure}
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-328-1} \caption{Quadrants of a Moran scatterplot}\label{fig:unnamed-chunk-328}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-331-1} \caption{Quadrants of a Moran scatterplot}\label{fig:unnamed-chunk-331}
 \end{figure}
 
 So let's first initialise this variable. In this instance we are creating a new column in the \texttt{sp} object and calling it ``quad\_sig''.
@@ -8452,18 +8460,18 @@ So let's first initialise this variable. In this instance we are creating a new 
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{grid\_cc\_sf }\OtherTok{\textless{}{-}}\NormalTok{ grid\_cc\_sf }\SpecialCharTok{\%\textgreater{}\%} 
-  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{quad\_sig =} \FunctionTok{case\_when}\NormalTok{(localmp\_bonf }\SpecialCharTok{\textgreater{}=}\NormalTok{ .}\DecValTok{05} \SpecialCharTok{\textasciitilde{}} \StringTok{"Not significant"}\NormalTok{, }
-\NormalTok{                              s\_burglary }\SpecialCharTok{\textgreater{}} \DecValTok{0} \SpecialCharTok{\&}  
-\NormalTok{                                lag\_s\_burglary }\SpecialCharTok{\textgreater{}} \DecValTok{0} \SpecialCharTok{\&}  
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{quad\_sig =} \FunctionTok{case\_when}\NormalTok{(localmp\_bonf }\SpecialCharTok{\textgreater{}=} \FloatTok{0.05} \SpecialCharTok{\textasciitilde{}} \StringTok{"Not significant"}\NormalTok{, }
+\NormalTok{                              s\_burglary[,}\DecValTok{1}\NormalTok{] }\SpecialCharTok{\textgreater{}} \DecValTok{0} \SpecialCharTok{\&}  
+\NormalTok{                                lag\_s\_burglary[,}\DecValTok{1}\NormalTok{] }\SpecialCharTok{\textgreater{}} \DecValTok{0} \SpecialCharTok{\&}  
 \NormalTok{                                localmp\_bonf }\SpecialCharTok{\textless{}} \FloatTok{0.05} \SpecialCharTok{\textasciitilde{}} \StringTok{"High{-}high"}\NormalTok{, }
-\NormalTok{                              s\_burglary }\SpecialCharTok{\textless{}} \DecValTok{0} \SpecialCharTok{\&}
-\NormalTok{                                lag\_s\_burglary }\SpecialCharTok{\textless{}} \DecValTok{0} \SpecialCharTok{\&} 
+\NormalTok{                              s\_burglary[,}\DecValTok{1}\NormalTok{] }\SpecialCharTok{\textless{}} \DecValTok{0} \SpecialCharTok{\&}
+\NormalTok{                                lag\_s\_burglary[,}\DecValTok{1}\NormalTok{] }\SpecialCharTok{\textless{}} \DecValTok{0} \SpecialCharTok{\&} 
 \NormalTok{                                localmp\_bonf }\SpecialCharTok{\textless{}} \FloatTok{0.05} \SpecialCharTok{\textasciitilde{}} \StringTok{"Low{-}low"}\NormalTok{, }
-\NormalTok{                              s\_burglary }\SpecialCharTok{\textless{}} \DecValTok{0} \SpecialCharTok{\&}
-\NormalTok{                                lag\_s\_burglary }\SpecialCharTok{\textgreater{}} \DecValTok{0} \SpecialCharTok{\&}
+\NormalTok{                              s\_burglary[,}\DecValTok{1}\NormalTok{] }\SpecialCharTok{\textless{}} \DecValTok{0} \SpecialCharTok{\&}
+\NormalTok{                                lag\_s\_burglary[,}\DecValTok{1}\NormalTok{] }\SpecialCharTok{\textgreater{}} \DecValTok{0} \SpecialCharTok{\&}
 \NormalTok{                                localmp\_bonf }\SpecialCharTok{\textless{}} \FloatTok{0.05} \SpecialCharTok{\textasciitilde{}} \StringTok{"Low{-}high"}\NormalTok{, }
-\NormalTok{                              s\_burglary }\SpecialCharTok{\textgreater{}} \DecValTok{0} \SpecialCharTok{\&} 
-\NormalTok{                                lag\_s\_burglary }\SpecialCharTok{\textless{}} \DecValTok{0} \SpecialCharTok{\&} 
+\NormalTok{                              s\_burglary[,}\DecValTok{1}\NormalTok{] }\SpecialCharTok{\textgreater{}} \DecValTok{0} \SpecialCharTok{\&} 
+\NormalTok{                                lag\_s\_burglary[,}\DecValTok{1}\NormalTok{] }\SpecialCharTok{\textless{}} \DecValTok{0} \SpecialCharTok{\&} 
 \NormalTok{                                localmp\_bonf }\SpecialCharTok{\textless{}} \FloatTok{0.05} \SpecialCharTok{\textasciitilde{}} \StringTok{"High{-}low"}\NormalTok{ ))}
 \end{Highlighting}
 \end{Shaded}
@@ -8505,7 +8513,7 @@ Let's put them on a map, using the standard colours used in this kind of maps:
 \end{Shaded}
 
 \begin{figure}
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-331-1} \caption{Significant clusters from local Moran's I}\label{fig:unnamed-chunk-331}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-334-1} \caption{Significant clusters from local Moran's I}\label{fig:unnamed-chunk-334}
 \end{figure}
 
 There we have it, our LISA map of a grid overlay over Manchester's City Centre ward, identifying local spatial autocorrelation in burglaries.
@@ -8689,7 +8697,7 @@ Once the computation is complete, we are ready to plot the data and to compare t
 \end{Shaded}
 
 \begin{figure}
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-340-1} \caption{Difference in results between Openshaw's GAM and Kulldorf scan statistics}\label{fig:unnamed-chunk-340}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-343-1} \caption{Difference in results between Openshaw's GAM and Kulldorf scan statistics}\label{fig:unnamed-chunk-343}
 \end{figure}
 
 Whereas the GAM picks up a series of locations in East and North Manchester known by their high level of concentrated disadvantage, the Kulldorff scan only identifies the clusters around the city centred on areas of student accommodation south of the University of Manchester.
@@ -8757,7 +8765,7 @@ We can then try the test. We look at three temporal intervals of seven days each
 \end{Shaded}
 
 \begin{figure}
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-343-1} \caption{Results of the Knox test}\label{fig:unnamed-chunk-343}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-346-1} \caption{Results of the Knox test}\label{fig:unnamed-chunk-346}
 \end{figure}
 
 By default, this will plot the cells with significant p values and the Knox ratios based on the mean across simulations that are higher than 1.2 (that is, the observed number of pairs is 20\% greater than expected). This default can be changed to various options (as discussed in the vignette for the package).
@@ -8786,13 +8794,13 @@ Also, as noted in previous chapters, we need to acknowledge the underlying netwo
 In science one of our main concerns is to develop models of the world, models that help us to understand the world a bit better or to predict how things will develop better. Crime analysis also is interested in understanding the processes that may drive crime. This is a key element in the SARA process (\emph{analysis}) that forms part of the problem oriented policing approach (\protect\hyperlink{ref-Eck_1997}{Eck and Spelman 1997}). Statistics provides a set of tools that help researchers build and test scientific models, and to develop predictions. Our models can be simple. We can think that unemployment is a factor that may help us to understand why cities differ in their level of violent crime. We could express such a model like this:
 
 \begin{figure}
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-344-1} \caption{A simple model}\label{fig:unnamed-chunk-344}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-347-1} \caption{A simple model}\label{fig:unnamed-chunk-347}
 \end{figure}
 
 Surely we know the world is complex and likely there are other things that may help us to understand why some cities have more crime than others. So, we may want to have tools that allow us to examine such models. Like, for example, the one below:
 
 \begin{figure}
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-345-1} \caption{A slightly less simple model}\label{fig:unnamed-chunk-345}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-348-1} \caption{A slightly less simple model}\label{fig:unnamed-chunk-348}
 \end{figure}
 
 In this chapter we cover regression analysis for spatial data, a key tool for testing models. Regression is a flexible technique that allows you to ``explain'' or ``predict'' a given outcome, variously called your outcome, response or dependent variable, as a function of a number of what is variously called inputs, features or independent, explanatory, or predictive variables. We assume that you have covered regression analysis in previous training. If that is not the case or you want a quick refresher, we suggest you consult \emph{Appendix B: Regression Analysis (A Refresher)} in the website for this book. Our focus in this chapter will be on a series of regression models that are appropriate when your data has a spatial structure.
@@ -8980,7 +8988,7 @@ You see here that essentially you have only two inputs (resource deprivation and
 \end{Shaded}
 
 \begin{figure}
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-353-1} \caption{Effect plots showing different relationship between homicide rate and resource deprivation for counties in the South (South = 1) and the North (South =0)}\label{fig:unnamed-chunk-353}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-356-1} \caption{Effect plots showing different relationship between homicide rate and resource deprivation for counties in the South (South = 1) and the North (South =0)}\label{fig:unnamed-chunk-356}
 \end{figure}
 
 Notice that essentially what we are doing is running two regression lines and testing whether the slope is different for the two groups. The intercept is different; we know that Southern counties are more violent, but what we are testing here is whether the level of homicide goes up in a steeper fashion (and in the same direction) for one or the other group as the level of resource deprivation goes up. We see that's the case here. The estimated lines are almost parallel, but the slope is a bit steeper in the Southern counties. In Southern counties, resource deprivation seems to have more of an impact on homicide than in Northern counties. This is related to one of the issues we raised earlier regarding spatial regression, that of hetereogeneity. Here what we see is that there is some evidence of non-stationarity in the relationship between our predictors and our outcome.
@@ -9096,7 +9104,7 @@ Next we use a new style, \texttt{fixed}, within the \texttt{tm\_fill} function. 
 \end{Shaded}
 
 \begin{figure}
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-357-1} \caption{Map of regression model residuals}\label{fig:unnamed-chunk-357}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-360-1} \caption{Map of regression model residuals}\label{fig:unnamed-chunk-360}
 \end{figure}
 
 Notice the spatial patterning of areas of over-prediction (negative residuals, or blue tones) and under-prediction (positive residuals, or reddish tones). This visual inspection of the residuals is suggesting that spatial autocorrelation in the residuals may be present here. This, however, would require a more formal test.
@@ -9191,7 +9199,7 @@ These three models only have one spatial component, but this could be combined. 
 
 \begin{table}
 
-\caption{\label{tab:unnamed-chunk-360}Models classified according to the spatial interactions included}
+\caption{\label{tab:unnamed-chunk-363}Models classified according to the spatial interactions included}
 \centering
 \begin{tabular}[t]{>{\raggedright\arraybackslash}p{8em}|>{\raggedright\arraybackslash}p{24em}}
 \hline
@@ -9763,7 +9771,7 @@ A simple visualisation of the residuals suggests the model may not be optimal fo
 \end{Shaded}
 
 \begin{figure}
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-374-1} \caption{Distribution of residuals by study region (South versus North)}\label{fig:unnamed-chunk-374}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-377-1} \caption{Distribution of residuals by study region (South versus North)}\label{fig:unnamed-chunk-377}
 \end{figure}
 
 To be able to fit these spatial regimes, that will allow for separate coefficients for counties in the North and those in the South, first we need to define a dummy for the Northern counties, and we create a vector of 1.
@@ -10073,7 +10081,7 @@ And now, to get an idea of how our model might perform differently in different 
 \end{Shaded}
 
 \begin{figure}
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-385-1} \caption{Map of model residuals}\label{fig:unnamed-chunk-385}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-388-1} \caption{Map of model residuals}\label{fig:unnamed-chunk-388}
 \end{figure}
 
 If we see that there is a geographic pattern in the residuals, it is possible that an unobserved variable may be influencing the dependent variable, and there might be some sort of spatial variation in our model's performance. This is what GWR allows us to explore, whether the relationship between our variables is stable over space.
@@ -10232,7 +10240,7 @@ Now we can begin to map our results. First, let's see how well the model perform
 \end{Shaded}
 
 \begin{figure}
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-387-1} \caption{Map of local R square value for each county}\label{fig:unnamed-chunk-387}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-390-1} \caption{Map of local R square value for each county}\label{fig:unnamed-chunk-390}
 \end{figure}
 
 We can see some really neat spatial patterns in how well our model performs in various regions of the United States. Our model performs really well in the North East for example, but not so well in the South.
@@ -10250,7 +10258,7 @@ We can also map the coefficients for specific variables. Let's say we're interes
 \end{Shaded}
 
 \begin{figure}
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-388-1} \caption{Map of coefficient for resource deprivation value for each county}\label{fig:unnamed-chunk-388}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-391-1} \caption{Map of coefficient for resource deprivation value for each county}\label{fig:unnamed-chunk-391}
 \end{figure}
 
 We can see in this map again some regional patterns in the coefficient of resource deprivation. The relationship is stronger in the counties in the Northeast, while in other areas it is weak or even 0. And in some counties in Texas, we can see that the direction of the relationship flips. In these areas the coefficients are negative. This means that resource deprivation is associated with \emph{lower} homicide rates in these counties.
@@ -10264,7 +10272,7 @@ This may be interesting and may raise questions; however, it is important to con
 \end{Shaded}
 
 \begin{figure}
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-389-1} \caption{Map of standard errors for resource deprivation value for each county}\label{fig:unnamed-chunk-389}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-392-1} \caption{Map of standard errors for resource deprivation value for each county}\label{fig:unnamed-chunk-392}
 \end{figure}
 
 Higher standard errors mean that our estimates may be less reliable. So it is important to keep in mind both maps: the one with the coefficients, and the one showing the standard errors, when drawing conclusions from our GWR results.
@@ -10300,7 +10308,7 @@ In this appendix we will cover all you need to know about R in order to benefit 
 You can use R without using RStudio, but RStudio is an app that makes it easier to work with R. RStudio is what we call an IDE, an \textbf{integrated development environment}. It is a fancy way of saying that it is a cool interface designed to write programming code. Every time you open up RStudio, you are in fact starting an R session. RStudio automatically runs R in the background.
 
 \begin{figure}
-\includegraphics[width=0.5\linewidth]{img/rstudio} \caption{Screenshot of RStudio IDE}\label{fig:unnamed-chunk-390}
+\includegraphics[width=0.5\linewidth]{img/rstudio} \caption{Screenshot of RStudio IDE}\label{fig:unnamed-chunk-393}
 \end{figure}
 
 When you first open RStudio, you will see (as in the image above) that there are three main windows. The bigger one to your left is the console. If you read the text in the console you will see that RStudio is indeed opening R, and you can see what version of R you are running. Since R is constantly being updated, the version you installed is likely more recent than the one we used at time of writing.
@@ -10312,13 +10320,13 @@ When you first open RStudio, you will see (as in the image above) that there are
 The view in RStudio is structured so that you have four open windows in a regular session. However, when you first open, you might be starting with only three. To open the script pane (the one missing), click in the \emph{File} drop-down Menu, select \emph{New File}, then \emph{R Script}.
 
 \begin{figure}
-\includegraphics[width=0.5\linewidth]{img/openscript} \caption{Navigate to File > New File> R Script to open script pane}\label{fig:unnamed-chunk-391}
+\includegraphics[width=0.5\linewidth]{img/openscript} \caption{Navigate to File > New File> R Script to open script pane}\label{fig:unnamed-chunk-394}
 \end{figure}
 
 You will now see the four window areas in display. In each of these areas you can shift between different views and panels. You can also use your mouse to re-size the different windows if that is convenient.
 
 \begin{figure}
-\includegraphics[width=0.5\linewidth]{img/the4views} \caption{The 4 panes of RStudio}\label{fig:unnamed-chunk-392}
+\includegraphics[width=0.5\linewidth]{img/the4views} \caption{The 4 panes of RStudio}\label{fig:unnamed-chunk-395}
 \end{figure}
 
 \hypertarget{the-four-panes-of-rstudio}{%
@@ -10397,13 +10405,13 @@ RStudio allows you to customise the way it looks. Working with white backgrounds
 Click in the \emph{Tools} menu and select \emph{Global Options}. This will open up a pop-up window with various options. Select \emph{Appearance}. In this section you can change the font type and size, but also the kind of theme background that R will use in the various windows.
 
 \begin{figure}
-\includegraphics[width=0.5\linewidth]{img/tools_global_options} \caption{Find Tools > Global options}\label{fig:unnamed-chunk-393}
+\includegraphics[width=0.5\linewidth]{img/tools_global_options} \caption{Find Tools > Global options}\label{fig:unnamed-chunk-396}
 \end{figure}
 
 You can make any changes you'd like to here, including the theme background that \texttt{R} will use as the interface. For example, you may choose a darker theme like `tomorrow night bright'.
 
 \begin{figure}
-\includegraphics[width=0.5\linewidth]{img/appearance_choose_tomorrow_night_bright} \caption{Select tomorrow night bright theme}\label{fig:unnamed-chunk-394}
+\includegraphics[width=0.5\linewidth]{img/appearance_choose_tomorrow_night_bright} \caption{Select tomorrow night bright theme}\label{fig:unnamed-chunk-397}
 \end{figure}
 
 \hypertarget{elements-of-r-grammar}{%
@@ -10467,7 +10475,7 @@ For example, if we have a bunch of numbers, we just find the appropriate functio
 How can you find the function you need? Throughout this book, you will learn a list that appears at the top of each lesson. A recommendation when you are starting with R is to also create a `function cookbook', where you write down a list of functions, what the functions do, and some examples. Here is an example:
 
 \begin{figure}
-\includegraphics[width=0.5\linewidth]{img/fn_cookbook} \caption{An example of an R function cookbook}\label{fig:unnamed-chunk-395}
+\includegraphics[width=0.5\linewidth]{img/fn_cookbook} \caption{An example of an R function cookbook}\label{fig:unnamed-chunk-398}
 \end{figure}
 
 You can use Google to make your cookbook; and the website \href{https://stackoverflow.com/}{stackoverflow}, in particular, can help you find the function you need. But be wary, especially in the beginning, that you understand what the function does. There can be several different functions for the same action.
@@ -10681,7 +10689,7 @@ The object we will use most frequently though is data frames. These hold your da
 Just earlier, we had created a dataframe called \texttt{df} previously. If you have not yet copied this over into your own \texttt{RStudio}, do this now. You should have the object \texttt{df} in your environment. When you run \texttt{View(df)}, you should see this dataset:
 
 \begin{figure}
-\includegraphics[width=0.5\linewidth]{img/df_view} \caption{View your dataframes}\label{fig:unnamed-chunk-404}
+\includegraphics[width=0.5\linewidth]{img/df_view} \caption{View your dataframes}\label{fig:unnamed-chunk-407}
 \end{figure}
 
 To do something to an entire dataframe, we would use the name of the object (\texttt{df}) to refer to it. In the case of the \texttt{View()} function, we want to see the whole thing, so we will call \texttt{View(df)}. On the other hand, if we want to refer to only one variable in the data, (remember back to term 1 - each variable is held in each column) there is a special notation to do this.
@@ -10926,7 +10934,7 @@ Then we will use one of its functions to create a scatterplot.
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-415-1.pdf}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-418-1.pdf}
 
 Graphing is very powerful in R, and much of the spatial visualisation we will produce throughout the book will build on this. If you are not already familiar with this, we recommend a read of the data visualisation chapter of Wickham and Grolemund (\protect\hyperlink{ref-Wickham_2017}{2017}).
 
@@ -11016,7 +11024,7 @@ The first step in any analysis is to develop some familiarity with the data you 
 \end{Shaded}
 
 \begin{figure}
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-417-1} \caption{Histogram of the HR90 variable}\label{fig:unnamed-chunk-417}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-420-1} \caption{Histogram of the HR90 variable}\label{fig:unnamed-chunk-420}
 \end{figure}
 
 Once one has gone through the process of exploring the data in this way (or maybe using the \texttt{skimr} package - see \emph{Appendix: A quick intro to R and RStudio}) for all the variables you want to work with, you can start exploring bivariate associations with your dependent, response or outcome variable. So, as an illustration, you could explore the association with resource deprivation (\emph{RD90}), a measure of the level of concentrated disadvantage or social exclusion in an area, via a scatterplot:
@@ -11029,7 +11037,7 @@ Once one has gone through the process of exploring the data in this way (or mayb
 \end{Shaded}
 
 \begin{figure}
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-418-1} \caption{Scatterplot showing relationship between resource deprivation (RD90) and homicide rate (HR90) in the 90s}\label{fig:unnamed-chunk-418}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-421-1} \caption{Scatterplot showing relationship between resource deprivation (RD90) and homicide rate (HR90) in the 90s}\label{fig:unnamed-chunk-421}
 \end{figure}
 
 What do you think when looking at this scatterplot? Is there a relationship between the variables? Does it look as if individuals that have a high score on the x axis also have a high score on the y axis? Or vice versa?
@@ -11053,7 +11061,7 @@ Now, imagine that we play a game. Imagine I have all the respondents waiting in 
 \end{Shaded}
 
 \begin{figure}
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-419-1} \caption{Density estimate, mean, and median of homicide rate in 1990}\label{fig:unnamed-chunk-419}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-422-1} \caption{Density estimate, mean, and median of homicide rate in 1990}\label{fig:unnamed-chunk-422}
 \end{figure}
 
 \begin{Shaded}
@@ -11090,7 +11098,7 @@ If we plot the conditional means, we can see that the mean of homicide rate for 
 \end{Shaded}
 
 \begin{figure}
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-421-1} \caption{Our best guess for homicide rate when resource deprivation score in the county is 4}\label{fig:unnamed-chunk-421}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-424-1} \caption{Our best guess for homicide rate when resource deprivation score in the county is 4}\label{fig:unnamed-chunk-424}
 \end{figure}
 
 Linear regression tackles this problem using a slightly different approach. Rather than focusing on the conditional mean (smoothed or not), it draws a straight line that tries to capture the trend in the data. If we focus on the regions of the scatterplot that are less sparse, we see that this is an upward trend, suggesting that as resource deprivation increases, so does the homicide rate.
@@ -11106,7 +11114,7 @@ Simple linear regression draws a single straight line of predicted values as the
 \end{Shaded}
 
 \begin{figure}
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-422-1} \caption{Linear regression line on relationship between homicide rate and resource deprivation}\label{fig:unnamed-chunk-422}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-425-1} \caption{Linear regression line on relationship between homicide rate and resource deprivation}\label{fig:unnamed-chunk-425}
 \end{figure}
 
 What that line is doing is giving you guesses (predictions) for the values of homicide based on the information that we have about the level of resource deprivation. It gives you one possible guess for the value of homicide for every possible value of resource deprivation and links them all together in a straight line.
@@ -11266,7 +11274,7 @@ This is the expected value of Y, homicide rate, when X, resource deprivation is 
 In the output above we saw there was something called the residuals. The residuals are the differences between the observed values of Y for each case minus the predicted or expected value of Y; in other words, the distances between each point in the dataset and the regression line (see the visual example below).
 
 \begin{figure}
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-429-1} \caption{Predicted values, measured value, and residual}\label{fig:unnamed-chunk-429}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-432-1} \caption{Predicted values, measured value, and residual}\label{fig:unnamed-chunk-432}
 \end{figure}
 
 You see that we have our line, which is our predicted values, and then we have the black dots which are our actually observed values. The distance between them is essentially the amount by which we were wrong, and all these distances between observed and predicted values are our residuals. Least square estimation essentially aims to reduce the average of the squares of all these distances: that's how it draws the line.
@@ -11281,7 +11289,7 @@ The residuals capture how much variation is unexplained, how much we still have 
 We can use information from the residuals to produce a measure of effect size, of how good our model is in predicting variation in our dependent variables. Remember our game where we try to guess homicide (Y)? If we did not have any information about X, our best bet for Y would be the mean of Y. The regression line aims to improve that prediction. By knowing the values of X, we can build a regression line that aims to get us closer to the actual values of Y (look at the figure below).
 
 \begin{figure}
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-430-1} \caption{Illustration of explained, unexplained, and total deviation}\label{fig:unnamed-chunk-430}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-433-1} \caption{Illustration of explained, unexplained, and total deviation}\label{fig:unnamed-chunk-433}
 \end{figure}
 
 The distance between the mean (our best guess without any other piece of information) and the observed value of Y is what we call the \textbf{total variation}. The residual is the difference between our predicted value of Y and the observed value of Y. This is what we cannot explain (i.e, variation in Y that is \emph{unexplained}). The difference between the mean value of Y and the expected value of Y (value given by our regression line) is how much better we are doing with our prediction by using information about X (i.e., in our previous example, it would be variation in Y that can be \emph{explained} by knowing about resource deprivation), how much closer the regression line gets us to the observed values. We can then contrast these two different sources of variation (explained and unexplained) to produce a single measure of how good our model is. The formula is as follows:
@@ -11545,8 +11553,20 @@ Let's try with a more complex example:
 \end{Highlighting}
 \end{Shaded}
 
+\begin{verbatim}
+## Warning: Could not recover model data from environment.
+##   Please make sure your data is available in your
+##   workspace.
+##   Trying to retrieve data from the model frame now.
+
+## Warning: Could not recover model data from environment.
+##   Please make sure your data is available in your
+##   workspace.
+##   Trying to retrieve data from the model frame now.
+\end{verbatim}
+
 \begin{figure}
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-440-1} \caption{Regression forest plot for the results of a regression}\label{fig:unnamed-chunk-440}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-443-1} \caption{Regression forest plot for the results of a regression}\label{fig:unnamed-chunk-443}
 \end{figure}
 
 What you see plotted here is the point estimates (circles), the confidence intervals around those estimates (the longer the line the less precise the estimate), and the colours represent whether the effect is negative (red) or positive (blue). There are other packages that also provide similar functionality, like the \texttt{dotwhisker} package that you may want to explore.
@@ -11685,7 +11705,7 @@ Besides tables, visual display of the effects of the variables in the model are 
 \end{Shaded}
 
 \begin{figure}
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-444-1} \caption{Effect plots for a regression}\label{fig:unnamed-chunk-444}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-447-1} \caption{Effect plots for a regression}\label{fig:unnamed-chunk-447}
 \end{figure}
 
 Notice that the line has a confidence interval drawn around it and that the predicted means for southern and northern counties (when controlling for \emph{RD90}) also have a confidence interval.
@@ -11813,7 +11833,7 @@ In this case the test for the interaction effect is significant, which suggests 
 \end{Shaded}
 
 \begin{figure}
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-448-1} \caption{Effect plots for regression testing conditional hypothesis}\label{fig:unnamed-chunk-448}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-451-1} \caption{Effect plots for regression testing conditional hypothesis}\label{fig:unnamed-chunk-451}
 \end{figure}
 
 Notice that essentially what we are doing is running two regression lines and testing whether the slope is different for the two groups. The intercept is different: we know that Southern counties are more violent, but what we are testing here is whether the level of homicide goes up in a steeper fashion (and in the same direction) for one or the other group as the level of resource deprivation goes up. We see that's the case here. The estimated lines are almost parallel, but the slope is a bit more steep in the Southern counties. In Southern counties resource deprivation seems to have more of an impact on homicide than in northern counties.
@@ -11948,7 +11968,7 @@ If we wanted now to plot this, we can use any of the many methods covered in thi
 \end{Shaded}
 
 \begin{figure}
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-450-1} \caption{Map of countries of the world}\label{fig:unnamed-chunk-450}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-453-1} \caption{Map of countries of the world}\label{fig:unnamed-chunk-453}
 \end{figure}
 
 And here we see the boundaries for all the countries in the dataset. How exciting! We can also have a look at the attribute data included by viewing the \texttt{sf} object with the \texttt{View()} function.
@@ -11992,7 +12012,7 @@ You should be able to see the two results are the same.
 \end{Shaded}
 
 \begin{figure}
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-454-1} \caption{Two identical maps showing border of Uganda}\label{fig:unnamed-chunk-454}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-457-1} \caption{Two identical maps showing border of Uganda}\label{fig:unnamed-chunk-457}
 \end{figure}
 
 If we are focusing on one country, we might want to see some boundaries \emph{within} said country. For this, we can use the function \texttt{ne\_states()} when we request the file, and this will include boundaries.
@@ -12012,7 +12032,7 @@ Now, if we have a look, we can see the different districts within Uganda have be
 \end{Shaded}
 
 \begin{figure}
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-456-1} \caption{Map of districts of Uganda}\label{fig:unnamed-chunk-456}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-459-1} \caption{Map of districts of Uganda}\label{fig:unnamed-chunk-459}
 \end{figure}
 
 It is possible that sometimes this is not the ideal sub-geometry for your analysis, in which case you'll have to go to other resources; but in some cases it might match up with your needs, in which case this will have been a very convenient way to be sourcing some geography data!
@@ -12042,7 +12062,7 @@ You can also change the scale of resolution at which you want to download your b
 \end{Shaded}
 
 \begin{figure}
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-457-1} \caption{Three maps of Uganda with difference scale of resolution for the boundary}\label{fig:unnamed-chunk-457}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-460-1} \caption{Three maps of Uganda with difference scale of resolution for the boundary}\label{fig:unnamed-chunk-460}
 \end{figure}
 
 You can see as we move to lower numbers we get better resolution, which results in more detail around the border of the country (but also in larger file sizes!). It will be a decision for you to make about what is relevant and appropriate for the specific map you are making.
@@ -12058,7 +12078,7 @@ A final note on \texttt{rnaturalearth} before we move on. With the \texttt{ne\_s
 \end{Shaded}
 
 \begin{figure}
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-458-1} \caption{Map of France which shows also overseas territories of France}\label{fig:unnamed-chunk-458}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-461-1} \caption{Map of France which shows also overseas territories of France}\label{fig:unnamed-chunk-461}
 \end{figure}
 
 You see France appears, but so do the overseas territories of France, such as French Guiana, Guadeloupe, French Polynesia, and so on. It is possible you want to focus only on France. In this case, you can specify, instead of \texttt{country}, the parameter \texttt{geounit}. Like so:
@@ -12072,7 +12092,7 @@ You see France appears, but so do the overseas territories of France, such as Fr
 \end{Shaded}
 
 \begin{figure}
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-459-1} \caption{Map of France that shows only France without overseas territories}\label{fig:unnamed-chunk-459}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-462-1} \caption{Map of France that shows only France without overseas territories}\label{fig:unnamed-chunk-462}
 \end{figure}
 
 Now we see only France. But what if you do want to include it all? Well, in that case, one approach you might try is to add these territories in a way they appear closer to France, by inserting them by way of the \emph{inset map}. We demonstrate how to add an inset map in Chapter 5.
@@ -12116,7 +12136,7 @@ We should check on this object to make sure it looks the way we would expect:
 \end{Shaded}
 
 \begin{figure}
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-462-1} \caption{Boundary which follows the shape of Kampala}\label{fig:unnamed-chunk-462}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-465-1} \caption{Boundary which follows the shape of Kampala}\label{fig:unnamed-chunk-465}
 \end{figure}
 
 That's looking Kampala-shaped to us, so we can continue. To query Open Street Map, we have to build an Overpass Query, Overpass being the Open Street Map API. We can create this with the \texttt{opq()} function (which stands for \textbf{O}ver\textbf{p}ass \textbf{Q}uery - we assume\ldots!) where we specify our bounding box object we created above. We can then pipe (\texttt{\%\textgreater{}\%}) our query elements to this. In the next step, we specify what features we want with the \texttt{add\_osm\_feature()} function. The parameters should define what we want, following the Overpass query language. We can look for things (nodes, ways, or relations if we're being specific) using key value pairs. For example, to return all post boxes within an area, we need to use the \emph{amenity} key and the \emph{post box} value, or to find museum you would use the \emph{tourism} key and the \emph{museum} value. To learn more about this, visit the OSM wiki Open Street Map (\protect\hyperlink{ref-OSM_2021}{2021a}).
@@ -12127,15 +12147,13 @@ Finally, to make sure your query returns in \texttt{sf} format, append the \text
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{kampala\_boundaries }\OtherTok{\textless{}{-}} \FunctionTok{opq}\NormalTok{(kampala\_bb) }\SpecialCharTok{\%\textgreater{}\%} 
+\NormalTok{bb\_kampala }\OtherTok{\textless{}{-}} \FunctionTok{getbb}\NormalTok{(}\StringTok{"kampala"}\NormalTok{, }\AttributeTok{format\_out =} \StringTok{"data.frame"}\NormalTok{)}
+
+\NormalTok{kampala\_boundaries }\OtherTok{\textless{}{-}} \FunctionTok{opq}\NormalTok{(bb\_kampala) }\SpecialCharTok{\%\textgreater{}\%} 
 \FunctionTok{add\_osm\_feature}\NormalTok{(}\AttributeTok{key =} \StringTok{"admin\_level"}\NormalTok{, }\AttributeTok{value =} \StringTok{"8"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} 
 \FunctionTok{osmdata\_sf}\NormalTok{() }
 \end{Highlighting}
 \end{Shaded}
-
-\begin{verbatim}
-## bb_poly has more than one polygon; the first will be selected.
-\end{verbatim}
 
 Now that we have the results, we can extract our boundary polygons, which are stored in the \texttt{multiploygon} object inside the query results. Let's extract this now.
 
@@ -12155,7 +12173,7 @@ And now we can plot our results, labelling each region for clarity:
 \end{Shaded}
 
 \begin{figure}
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-465-1} \caption{Kampala with regions labelled}\label{fig:unnamed-chunk-465}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-468-1} \caption{Kampala with regions labelled}\label{fig:unnamed-chunk-468}
 \end{figure}
 
 \hypertarget{data-from-data-repositories}{%
@@ -12200,10 +12218,10 @@ Here, let's download the KML format of the most simplified geometry. Once you se
 \end{Shaded}
 
 \begin{verbatim}
-## Warning in unzip("data/
-## England_lad_2011_gen_clipped.zip", exdir = "data/
-## England_lad_2011_gen_clipped"): error 1 in extracting
-## from zip file
+## Warning in
+## unzip("data/England_lad_2011_gen_clipped.zip", exdir =
+## "data/England_lad_2011_gen_clipped"): error 1 in
+## extracting from zip file
 \end{verbatim}
 
 Now you see (if you are following the same structure as we are) there is a new sub-folder in the `data' directory called `England\_lad\_2011\_gen\_clipped' which contains the \texttt{.kml} file, and a \texttt{TermsAndConditions.html} file. This will contain information about how you can use this map. For example, all your maps will have to mention where you got all the data from. So since you got this boundary data from the UKDS, you will have to note the following:
@@ -12232,7 +12250,7 @@ And plot it to see:
 \end{Shaded}
 
 \begin{figure}
-\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-468-1} \caption{Map of English Local Authorities boundaries}\label{fig:unnamed-chunk-468}
+\includegraphics{crime_mapping_files/figure-latex/unnamed-chunk-471-1} \caption{Map of English Local Authorities boundaries}\label{fig:unnamed-chunk-471}
 \end{figure}
 
 \hypertarget{international-resources}{%

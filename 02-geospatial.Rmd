@@ -154,7 +154,7 @@ bb_sf <- getbb(place_name = "greater manchester united kingdom",
 
 We can see what this bounding box looks like by plotting it (notice this time we combine the plot() and st_geometry() functions to save needing to create a new object):
 
-```{r plotbb, message=FALSE, warning=FALSE, fig.cap="Outline of Greater Manchester boundary", fig.alt="A thin black line tracing the outline of Greater Manchester.", fig.height= 2}
+```{r plotbb, message=FALSE, warning=FALSE, fig.cap="Outline of Greater Manchester boundary", fig.alt="A thin black line tracing the outline of Greater Manchester."}
 
 plot(st_geometry(bb_sf))
 
@@ -168,7 +168,11 @@ Besides specifying what area we want to query with our bounding box object(s) in
 We can select what features we want using the `add_osm_feature()` function, specifying our key as 'amenity' and our value as 'bar'. We also want to specify what sort of object (what class) to get our data into, and as we are still working with spatial data, we stick to the `sf` format, for which the function is `osmdata_sf()`. Here, we specify our bounding box as the `bb_sf` object we created above. If you use the bounding box obtained through `getbb()` one can subsequently trim down the outputs from `add_osm_feature()` using `trim_osmdata()`. For instance, we could add `trim_osmdata(bb_poly = bb_sf)` to our initial query.
 
 ```{r opq}
-osm_bar_sf <- opq(bbox = bb_sf) %>%    # select bounding box
+
+bb_gm <- getbb(place_name = "greater manchester united kingdom", 
+               format_out = "data.frame")
+
+osm_bar_sf <- opq(bbox = bb_gm) %>%    # select bounding box
   add_osm_feature(key = 'amenity', value = 'bar') %>% # select features
   osmdata_sf()          # specify class
 ```
